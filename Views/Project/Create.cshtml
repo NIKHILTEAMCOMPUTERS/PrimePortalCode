@@ -1,0 +1,910 @@
+﻿@model RMS.Client.Models.Master.Projects
+
+<div class="flex items-center gap-4 mb-5">
+    <a asp-action="Index" asp-controller="Project" class="py-2 px-2 inline-flex justify-center items-center gap-2 rounded-md border border-gray-400 bg-gray-700 text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all text-sm sm:text-base" title="Back">
+        <svg class="w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M11.707 5.293a1 1 0 0 1 0 1.414L7.414 11H19a1 1 0 1 1 0 2H7.414l4.293 4.293a1 1 0 0 1-1.414 1.414l-6-6a1 1 0 0 1 0-1.414l6-6a1 1 0 0 1 1.414 0z" /></svg>
+    </a>
+    <div>
+        <h2 class="font-extrabold text-xl 2xl:text-2xl text-[#4B4E5C]">Add/Edit Project</h2>
+        <p>Add the required details for the new project</p>
+    </div>
+    @if (Model.ProjectId == 0 || Model.ProjectId == null)
+    {
+        <div class="d-flex items-center gap-4 ml-auto">
+            <div class="inline-flex items-center rounded shadow py-3 px-6 gap-2">
+                <input type="radio" onchange="Disable(this)" name="po-status" class="shrink-0 mt-0.5 border-gray-200 rounded-full text-emerald-600 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none" id="poAwaitedCheckbox">
+
+                <label for="poAwaitedCheckbox" class="block font-bold ">PO Awaited</label>
+            </div>
+            <div class="inline-flex items-center rounded shadow py-3 px-6 gap-2">
+                <input type="radio" onchange="removeDisable(this)" name="po-status" class="shrink-0 mt-0.5 border-gray-200 rounded-full text-emerald-600 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none" id="poArrivedCheckbox" checked>
+
+                <label for="poArrivedCheckbox" class="block font-bold ">PO Available</label>
+            </div>
+        </div>
+    }
+</div>
+<form action="/Project/Upsert" method="POST" enctype="multipart/form-data">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+            <span class="mb-2 font-medium block">Customer Name *</span>
+            <div class="flex items-center gap-3 flex-wrap">
+                <select id="customerDropdown" name="CustomerId" class="multi-select">
+                    <option value="0" selected>Select Customer</option>
+                    @foreach (var customer in ViewBag.CustomerList)
+                    {
+                        @*<option value="@customer.Customerid">@(!string.IsNullOrEmpty(customer.Firstname) ? customer.Firstname : customer.Companyname)</option>*@
+                        if (Model.CustomerId == customer.CustomerId)
+                        {
+                            <option value="@customer.CustomerId" selected>
+                                @(customer.CustomerCompanyName)
+                            </option>
+                        }
+                        else
+                        {
+                            <option value="@customer.CustomerId">
+                                @(customer.CustomerCompanyName)
+                            </option>
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div>
+            <span class="mb-2 font-medium block flex items-center justify-between">Project No * <p class="text-red-500" id="alreadyExistProjNo"></p></span>
+            <div class="flex items-center gap-3 flex-wrap">
+                <input type="text" name="ProjectNo" id="ProjectNo" value="@Model.Projectno" onchange="checkProjectNo(this);"
+                       class="py-3 px-4 block flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                       placeholder="Enter Project No">
+            </div>
+        </div>
+        <div>
+            <span class="mb-2 font-medium block">Project Name *</span>
+            <div class="flex items-center gap-3 flex-wrap">
+                <input type="text" name="ProjectName" id="ProjectName" value="@Model.ProjectName"
+                       class="py-3 px-4 block flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                       placeholder="Enter Project Name">
+            </div>
+        </div>
+        <div>
+
+            <span class="mb-2 font-medium block">Account Manager *</span>
+            <select id="accountmanagerDropdown" name="AccountManagerId" class="multi-select">
+                <option value="" selected>Select Account Manager</option>
+
+                @foreach (var ManagerList in ViewBag.AccountManagers)
+                {
+                    if (Model.AccounmanagerId.ToString() == @ManagerList.Value)
+                    {
+                        <option value="@ManagerList.Value" selected>
+                            @ManagerList.Text
+                        </option>
+                    }
+                    else
+                    {
+                        <option value="@ManagerList.Value">@ManagerList.Text</option>
+                    }
+                }
+            </select>
+        </div>
+        <div>
+            <span class="mb-2 font-medium block">Project Type *</span>
+            <select id="projectTypeDropdown" name="ProjectTypeId" class="multi-select" onchange="handleProjectTypeChange(this);">
+                <option value="0" selected>Select Project Type</option>
+
+                @foreach (var projectType in ViewBag.ProjectTypeList)
+                {
+                    @*<option value="@projectType.Value">@projectType.Text</option>*@
+                    if (Model.ProjectTypeId.ToString() == projectType.Value)
+                    {
+                        <option value="@projectType.Value" selected>
+                            @projectType.Text
+                        </option>
+                    }
+                    else
+                    {
+                        <option value="@projectType.Value">@projectType.Text</option>
+                    }
+                }
+            </select>
+        </div>
+        <div>
+            <span class="mb-2 font-medium block">Project Description</span>
+            <div class="flex items-center gap-3 flex-wrap">
+                <textarea type="text" name="ProjectDescription" id="ProjectDescription"
+                          class="py-3 px-4 block flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                          placeholder="Enter Project Description" rows="1">@Model.ProjectDescription</textarea>
+            </div>
+        </div>
+        <div>
+            <span class="mb-2 font-medium block">Practices *</span>
+            <select id="practiceDropdown" name="PracticeId" class="multi-select">
+                <option value="" selected>Select Practice</option>
+
+                @foreach (var practiceList in ViewBag.PracticeList)
+                {
+                    @* <option value="@practiceList.Value">@practiceList.Text</option>*@
+                    if (Model.PracticeId.ToString() == @practiceList.Value)
+                    {
+                        <option value="@practiceList.Value" selected>
+                            @practiceList.Text
+                        </option>
+                    }
+                    else
+                    {
+                        <option value="@practiceList.Value">@practiceList.Text</option>
+                    }
+                }
+            </select>
+        </div>
+        <div>
+            <span class="mb-2 font-medium block">Sub Practice *</span>
+            <select id="subPracticeDropdown" name="SubPracticeId" class="multi-select">
+            </select>
+        </div>
+        @{
+            var oafId = Model.ProjectId;
+            var committedClientBillingDate = Model.CommittedClientBillingDate;
+        }
+        <div class="tnmshow hidden">
+            <label class="mb-2 font-medium block">Customer Billing Cycle</label>
+            <div class="flex items-end gap-4 flex-wrap">
+                <select class="k-input" id="customerBillingCycle" name="CommittedClientBillingDate" onchange="handleCustomerBillingCycleChange(this);">
+                    <option value="0">Select Billing Cycle Date</option>
+                    @for (int i = 1; i <= 30; i++)
+                    {
+                        bool isSelected = (oafId > 0 && committedClientBillingDate.HasValue && i == committedClientBillingDate.Value);
+                         if (isSelected)
+                    {
+                    <option value="@i" selected="selected">@i</option>
+                    } 
+                          else
+                    { 
+                        <option value="@i">@i</option>
+                         } 
+                    }
+                </select>
+            </div>
+            <p class="hidden"></p>
+        </div>
+        <div><input type="hidden" name="ProjectId" value="@Model.ProjectId"></div>
+    </div>
+     
+
+
+    <div class="mt-4">
+        <button type="submit" id="saveButton"
+                class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-emerald-400 bg-[#00cc83] text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm sm:text-base">
+            Save
+        </button>
+    </div>
+</form>
+
+<div id="dummyContractOverlay"
+     class="hs-overlay hs-overlay-open:translate-x-0 hidden translate-x-full fixed top-0 right-0 transition-all duration-300 transform h-full z-[60] bg-white border-l hidden flex flex-col [--overlay-backdrop:static]" style="width: 100%; max-width: 480px;"
+     tabindex="-1" data-hs-overlay-keyboard="false">
+    <div class="flex justify-between items-center py-3 px-4 border-b ">
+        <h3 class="font-bold text-gray-800 flex items-center gap-2">
+            <img src="~/assets/images/check_icon.svg" class="w-6 h-auto" />
+            Projection Contract
+        </h3>
+        @* <button type="button"
+        class="inline-flex flex-shrink-0 justify-center items-center h-8 w-8 rounded-md text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-white text-sm "
+        data-hs-overlay="#dummyContractOverlay">
+        <span class="sr-only">Close modal</span>
+        <svg class="w-3.5 h-3.5" width="8" height="8" viewBox="0 0 8 8" fill="none"
+        xmlns="http://www.w3.org/2000/svg">
+        <path d="M0.258206 1.00652C0.351976 0.912791 0.479126 0.860131 0.611706 0.860131C0.744296 0.860131 0.871447 0.912791 0.965207 1.00652L3.61171 3.65302L6.25822 1.00652C6.30432 0.958771 6.35952 0.920671 6.42052 0.894471C6.48152 0.868271 6.54712 0.854471 6.61352 0.853901C6.67992 0.853321 6.74572 0.865971 6.80722 0.891111C6.86862 0.916251 6.92442 0.953381 6.97142 1.00032C7.01832 1.04727 7.05552 1.1031 7.08062 1.16454C7.10572 1.22599 7.11842 1.29183 7.11782 1.35822C7.11722 1.42461 7.10342 1.49022 7.07722 1.55122C7.05102 1.61222 7.01292 1.6674 6.96522 1.71352L4.31871 4.36002L6.96522 7.00648C7.05632 7.10078 7.10672 7.22708 7.10552 7.35818C7.10442 7.48928 7.05182 7.61468 6.95912 7.70738C6.86642 7.80018 6.74102 7.85268 6.60992 7.85388C6.47882 7.85498 6.35252 7.80458 6.25822 7.71348L3.61171 5.06702L0.965207 7.71348C0.870907 7.80458 0.744606 7.85498 0.613506 7.85388C0.482406 7.85268 0.357007 7.80018 0.264297 7.70738C0.171597 7.61468 0.119017 7.48928 0.117877 7.35818C0.116737 7.22708 0.167126 7.10078 0.258206 7.00648L2.90471 4.36002L0.258206 1.71352C0.164476 1.61976 0.111816 1.4926 0.111816 1.36002C0.111816 1.22744 0.164476 1.10028 0.258206 1.00652Z"
+        fill="currentColor" />
+        </svg>
+        </button> *@
+    </div>
+    <div class="p-4 flex-1 overflow-y-auto">
+        <form id="dummyContractForm">
+            <input type="hidden" id="hidProjectId" value="" />
+            <input type="hidden" id="hidCustomerId" value="" />
+            <div class="flex flex-col gap-4">
+                <div>
+                    <span class="mb-2 font-medium block">Delivery Anchor *</span>
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <select id="DADropdown" name="Deliveryanchorid" class="multi-select">
+                            <option value="0" selected>Select DA</option>
+                            @foreach (var DA in ViewBag.DA)
+                            {
+                                <option value="@DA.Value">
+                                    @DA.Text
+                                </option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <span class="mb-2 font-medium block">Contract Start Date*</span>
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <input type="date" id="contractstartdate" class="k-input" oninput="setEndDateMin(this.value)" />
+                    </div>
+                </div>
+
+                <div>
+                    <span class="mb-2 font-medium block">Contract End Date*</span>
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <input type="date" class="k-input" id="contractenddate" />
+                    </div>
+                </div>
+                <div>
+                    <span class="mb-2 font-medium block">Amount</span>
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <input type="text" class="k-input" placeholder="Enter Amount" id="amount" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                    </div>
+                </div>
+
+                <div>
+                    <span class="mb-2 font-medium block">Client Coordinator</span>
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <input type="text" class="k-input" placeholder="Enter Client Coordinator" id="contactpersonname">
+                    </div>
+                </div>
+
+                <div>
+                    <span class="mb-2 font-medium block">Contact No</span>
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <input type="number" class="k-input" placeholder="Enter Contact Number" id="contactNo" pattern="[0-9]{10}" maxlength="10" title="Please enter a 10-digit contact number" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);">
+                    </div>
+                </div>
+
+            </div>
+        </form>
+    </div>
+    <div class="p-2 flex justify-between">
+        @* <button type="button" onclick="window.location.href='/Project/Index'"
+        class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border bg-gray-700 text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm sm:text-base">
+        Skip
+        </button> *@
+        <button onclick="saveDummyContract();" type="button" class="py-2 px-6 inline-flex justify-center items-center gap-2 rounded-md border border-transparent bg-[#00cc83] text-white hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm sm:text-base">
+            Save
+        </button>
+    </div>
+</div>
+
+<div id="assignEmpOverlay"
+     class="hs-overlay hs-overlay-open:translate-x-0 hidden translate-x-full fixed top-0 right-0 transition-all duration-300 transform h-full z-[60] bg-white border-l hidden flex flex-col [--overlay-backdrop:static]" style="width: 100%; max-width: 480px;"
+     tabindex="-1" data-hs-overlay-keyboard="false">
+    <div class="flex justify-between items-center py-3 px-4 border-b ">
+        <h3 class="font-bold text-gray-800 flex items-center gap-2">
+            <img src="~/assets/images/check_icon.svg" class="w-6 h-auto" />
+            Assign Projection Employee
+        </h3>
+        @*  <button type="button"
+        class="inline-flex flex-shrink-0 justify-center items-center h-8 w-8 rounded-md text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-white text-sm "
+        data-hs-overlay="#assignEmpOverlay">
+        <span class="sr-only">Close modal</span>
+        <svg class="w-3.5 h-3.5" width="8" height="8" viewBox="0 0 8 8" fill="none"
+        xmlns="http://www.w3.org/2000/svg">
+        <path d="M0.258206 1.00652C0.351976 0.912791 0.479126 0.860131 0.611706 0.860131C0.744296 0.860131 0.871447 0.912791 0.965207 1.00652L3.61171 3.65302L6.25822 1.00652C6.30432 0.958771 6.35952 0.920671 6.42052 0.894471C6.48152 0.868271 6.54712 0.854471 6.61352 0.853901C6.67992 0.853321 6.74572 0.865971 6.80722 0.891111C6.86862 0.916251 6.92442 0.953381 6.97142 1.00032C7.01832 1.04727 7.05552 1.1031 7.08062 1.16454C7.10572 1.22599 7.11842 1.29183 7.11782 1.35822C7.11722 1.42461 7.10342 1.49022 7.07722 1.55122C7.05102 1.61222 7.01292 1.6674 6.96522 1.71352L4.31871 4.36002L6.96522 7.00648C7.05632 7.10078 7.10672 7.22708 7.10552 7.35818C7.10442 7.48928 7.05182 7.61468 6.95912 7.70738C6.86642 7.80018 6.74102 7.85268 6.60992 7.85388C6.47882 7.85498 6.35252 7.80458 6.25822 7.71348L3.61171 5.06702L0.965207 7.71348C0.870907 7.80458 0.744606 7.85498 0.613506 7.85388C0.482406 7.85268 0.357007 7.80018 0.264297 7.70738C0.171597 7.61468 0.119017 7.48928 0.117877 7.35818C0.116737 7.22708 0.167126 7.10078 0.258206 7.00648L2.90471 4.36002L0.258206 1.71352C0.164476 1.61976 0.111816 1.4926 0.111816 1.36002C0.111816 1.22744 0.164476 1.10028 0.258206 1.00652Z"
+        fill="currentColor" />
+        </svg>
+        </button> *@
+    </div>
+    <div class="p-4 flex-1 overflow-y-auto">
+        @* <div class="bg-white border border-gray-200 rounded-xl shadow-lg mb-4 w-full" role="alert">
+
+        </div> *@
+        <div class="flex items-center justify-between mb-5">
+            <div class="flex justify-center flex-col w-full">
+                <h2 class="font-extrabold text-xl 2xl:text-2xl text-[#4B4E5C] text-center">Please Assign Resoruces</h2>
+            </div>
+
+        </div>
+        <div class="flex justify-between mb-2">
+            <button type="button" onclick="window.location.href='/Project/Index'"
+                    class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border bg-gray-700 text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm sm:text-base">
+                Skip
+            </button>
+            <button type="button" onclick="saveEmployee();"
+                    class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-emerald-400 bg-[#00cc83] text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm sm:text-base">
+                Assign
+            </button>
+        </div>
+        <div>
+            <div class="flex items-center gap-4 w-full">
+                <select id="user-list" class="multi-select">
+                    <option value="">Select Employee</option>
+                    @foreach (var employee in ViewBag.Employee)
+                    {
+                        <option value="@employee.Employeeid">@employee.Employeename</option>
+                    }
+                </select>
+                <select class="multi-select" id="ctlStatus">
+                    <option value="">---select status---</option> <!-- Default option -->
+                    @foreach (var subPracticeList in ViewBag.SubCategoryStatusList)
+                    {
+                        if (subPracticeList.Text == "Projection")
+                        {
+                            <option value="1">
+                                @subPracticeList.Text
+                            </option>
+                        }
+                        else if (subPracticeList.Text == "Allocation")
+                        {
+                            <option value="3">
+                                @subPracticeList.Text
+                            </option>
+                        }
+                    }
+                </select>
+
+                <button type="button" onclick="addEmployeeTbl();"
+                        class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-emerald-400 bg-[#00cc83] text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm sm:text-base">
+                    Add
+                </button>
+            </div>
+            <div class="flex flex-col mt-4">
+                <div class="-m-1.5 overflow-x-auto">
+                    <div class="p-1.5 min-w-full inline-block align-middle">
+                        <div class="overflow-hidden" style="max-height: 50vh; overflow-y: auto;">
+                            <table id="assignEmployeeTable" class="min-w-full divide-y divide-gray-200">
+                                <thead style="position: sticky; top: 0; overflow-y: auto; background-color: white;">
+                                    <tr>
+                                        <th scope="col"
+                                            class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                            Employee Name
+                                        </th>
+                                        <th scope="col"
+                                            class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                            Status
+                                        </th>
+                                        <th scope="col"
+                                            class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                            Action
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts
+    {
+
+
+    <script>
+
+        jQuery.validator.addMethod("notEqualTo", function (value, element, param) {
+            return this.optional(element) || value != param;
+        }, "Please specify a different value");
+        $(function () {
+            @if (ViewData["error"] != null)
+            {
+                <text>
+                        toastr.error("@ViewData["error"]", "Error", { "iconClass": 'new-error' });
+                </text>
+            }
+            @if (ViewData["success"] != null)
+            {
+                <text>
+                        toastr.success("@ViewData["success"]");
+                </text>
+            }
+
+            document.querySelector("#projectTypeDropdown").dispatchEvent(new Event("change"));
+            document.querySelector("#customerBillingCycle").dispatchEvent(new Event("change"));
+        });
+
+        $(document).ready(function () {
+            $('#saveButton').click(function (event) {
+                var customerDropdown = $('#customerDropdown');
+                var projectName = $('#ProjectName');
+                var projectNo = $('#ProjectNo');
+                // var projectModelDropdown = $('#projectModelDropdown');
+                var projectTypeDropdown = $('#projectTypeDropdown');
+                var practiceDropdown = $('#practiceDropdown');
+                var subPracticeDropdown = $('#subPracticeDropdown');
+                var accountmanagerDropdown = $('#accountmanagerDropdown');
+                var isValid = true;
+
+                // Reset the border color of all fields
+                customerDropdown.css('border', '');
+                projectName.css('border', '');
+                projectNo.css('border', '');
+                // projectModelDropdown.css('border', '');
+                projectTypeDropdown.css('border', '');
+                practiceDropdown.css('border', '');
+                subPracticeDropdown.css('border', '');
+                accountmanagerDropdown.css('border', '');
+                document.querySelector("#customerDropdown").nextElementSibling.style.border = "";
+                document.querySelector("#projectTypeDropdown").nextElementSibling.style.border = "";
+                document.querySelector("#practiceDropdown").nextElementSibling.style.border = "";
+                document.querySelector("#subPracticeDropdown").nextElementSibling.style.border = "";
+                document.querySelector("#accountmanagerDropdown").nextElementSibling.style.border = "";
+                // Validation
+                if (customerDropdown.val() == "" || customerDropdown.val() == "0") {
+                    customerDropdown.css('border', '1px solid red');
+                    document.querySelector("#customerDropdown").nextElementSibling.style.border = "1px solid red";
+                    isValid = false;
+                }
+
+                if ($("#ProjectNo").val().toLowerCase() === 'na' || $("#ProjectNo").val().toLowerCase() === 'n/a' || $("#ProjectNo").val().toLowerCase() === 'n\a' || $("#ProjectNo").val().toLowerCase() === 'n_a' || $("#ProjectNo").val().toLowerCase() === 'n-a') {
+                    isValid = false;
+                    $("#ProjectNo").addClass("is-invalid");
+                } else if (!isprojectnounique) {
+                    isValid = false;
+                } else {
+                    $("#ProjectNo").removeClass("is-invalid");
+                }
+
+                if (projectName.val().trim() == "") {
+                    projectName.css('border', '1px solid red');
+                    isValid = false;
+                }
+
+                if (!document.querySelector("#poAwaitedCheckbox").checked && projectNo.val().trim() == "") {
+                    projectNo.css('border', '1px solid red');
+                    isValid = false;
+                }
+
+
+                // if (projectModelDropdown.val() == "" || projectModelDropdown.val() == "0") {
+                //     projectModelDropdown.css('border', '1px solid red');
+                //     isValid = false;
+                // }
+                if (subPracticeDropdown.val() == "" || subPracticeDropdown.val() == "0") {
+                    subPracticeDropdown.css('border', '1px solid red');
+                    document.querySelector("#subPracticeDropdown").nextElementSibling.style.border = "1px solid red";
+                    isValid = false;
+                }
+
+                if (projectTypeDropdown.val() == "" || projectTypeDropdown.val() == "0") {
+                    projectTypeDropdown.css('border', '1px solid red');
+                    document.querySelector("#projectTypeDropdown").nextElementSibling.style.border = "1px solid red";
+                    isValid = false;
+                }
+
+
+                if (practiceDropdown.val() == "" || practiceDropdown.val() == "0") {
+                    practiceDropdown.css('border', '1px solid red');
+                    document.querySelector("#practiceDropdown").nextElementSibling.style.border = "1px solid red";
+                    isValid = false;
+                }
+
+                if (accountmanagerDropdown.val() == "" || accountmanagerDropdown.val() == "0") {
+                    accountmanagerDropdown.css('border', '1px solid red');
+                    document.querySelector("#accountmanagerDropdown").nextElementSibling.style.border = "1px solid red";
+                    isValid = false;
+                }
+
+                // Stop form submission if validation fails
+                if (!isValid) {
+                    event.preventDefault();
+                } else {
+                    if (document.querySelector("#poAwaitedCheckbox").checked) {
+                        event.preventDefault();
+                        projectionproject();
+                    } else {
+                        document.querySelector("#loader").style.display = "flex";
+                    }
+                }
+            });
+        });
+
+        $("#practiceDropdown").change(function () {
+            var selectedPracticeId = $(this).val();
+            if (selectedPracticeId !== "0") {
+                $.ajax({
+                    type: 'GET',
+                    url: '/Project/GetSubPracticesByPractice',
+                    data: { practiceId: selectedPracticeId },
+                    success: function (response) {
+                        var subPracticeDropdown = $("#subPracticeDropdown");
+                        subPracticeDropdown.empty();
+                        $.each(response, function (index, item) {
+                            subPracticeDropdown.append(
+                                $("<option></option>").val(item.value).text(item.text)
+                            );
+                        });
+                    },
+                    error: function () {
+                        console.error("Error fetching sub practices.");
+                    }
+                });
+            }
+        });
+        const multiSelect = new SlimSelect({
+            select: "#customerDropdown",
+            settings: {
+                allowDeselect: false,
+                closeOnSelect: true,
+                maxValuesShown: 1
+            }
+        })
+        const multiSelect2 = new SlimSelect({
+            select: "#projectTypeDropdown",
+            settings: {
+                allowDeselect: false,
+                closeOnSelect: true,
+                maxValuesShown: 1
+            }
+        })
+        const multiSelect3 = new SlimSelect({
+            select: "#practiceDropdown",
+            settings: {
+                allowDeselect: false,
+                closeOnSelect: true,
+                maxValuesShown: 1
+            }
+        })
+
+        const manager = new SlimSelect({
+            select: "#accountmanagerDropdown",
+            settings: {
+                allowDeselect: false,
+                closeOnSelect: true,
+                maxValuesShown: 1
+            }
+        })
+
+        function handlePopup(inp) {
+            if (inp.checked) {
+                HSOverlay.open(document.querySelector("#dummyContractOverlay"));
+            }
+        }
+
+        const userListMultiSelect = new SlimSelect({ select: "#user-list", });
+        const statusMultiSelect = new SlimSelect({ select: "#ctlStatus", });
+        const daMultiSelect = new SlimSelect({ select: "#DADropdown", });
+
+        function projectionproject() {
+
+            const formData = new FormData(document.querySelector("form"));
+            // formData.append("project", JSON.stringify(projectObj))
+            formData.append("poawaited", true);
+
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("Upsert", "Project")",
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (res) {
+                    $("#loader").hide();
+                    console.log(res);
+                    var projectres = JSON.parse(res);
+                    if (projectres.projectid) {
+                        toastr.success("Projection Project Created!!");
+                        HSOverlay.open(document.querySelector("#dummyContractOverlay"));
+                        document.querySelector("#hidProjectId").value = projectres.projectid;
+                    } else {
+                        toastr.error(res.msg);
+                        $("#loader").hide();
+                    }
+                }
+            });
+        }
+        // FOR Projection
+
+        function isFormValid() {
+            let isValid = true;
+            if (!$("#DADropdown").val() || $("#DADropdown").val() == '0') {
+                isValid = false;
+                document.querySelector("#DADropdown").nextElementSibling.classList.add("is-invalid");
+            } else {
+                document.querySelector("#DADropdown").nextElementSibling.classList.remove("is-invalid");
+                // $("#DADropdown").next().removeClass("is-invalid");
+            }
+            if (!$("#contractstartdate").val()) {
+                isValid = false;
+                $("#contractstartdate").addClass("is-invalid");
+            } else {
+                $("#contractstartdate").removeClass("is-invalid");
+            }
+            if (!$("#contractenddate").val()) {
+                isValid = false;
+                $("#contractenddate").addClass("is-invalid");
+            } else {
+                $("#contractenddate").removeClass("is-invalid");
+            }
+            return isValid;
+        }
+
+        function saveDummyContract() {
+            if (isFormValid()) {
+                document.querySelector("#loader").style.display = "flex";
+                const bodyData = {
+                    "projectid": $("#hidProjectId").val(),
+                    "contractstartdate": $("#contractstartdate").val(),
+                    "contractenddate": $("#contractenddate").val(),
+                    "amount": $("#amount").val(),
+                    "contactpersonname": $("#contactpersonname").val(),
+                    "contactnumber": $("#contactNo").val(),
+                    "Deliveryanchorid": $("#DADropdown").val(),
+                    "isProjection": true
+
+                };
+
+                console.log(bodyData);
+
+                const formData = new FormData();
+
+                formData.append("contracts", JSON.stringify(bodyData))
+
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("Upsert", "Contract")",
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (res) {
+                        $("#loader").hide();
+                        if (res.success == true) {
+                            toastr.success(res.msg);
+                            HSOverlay.open(document.querySelector("#assignEmpOverlay"));
+                            setExistingEmployees();
+                        } else {
+                            toastr.error(res.msg);
+                            $("#loader").hide();
+                        }
+                    }
+                });
+            }
+        }
+        function setEndDateMin(startDate) {
+            const endDateInput = document.getElementById('contractenddate');
+            endDateInput.setAttribute('min', startDate);
+        }
+
+
+        // assign employee on projection contracts porjects
+        function addEmployeeTbl() {
+            const _empId = userListMultiSelect.getSelected();
+            const _empStatusId = statusMultiSelect.getSelected();
+            if (!_empId[0] || !_empStatusId[0]) {
+                return;
+            }
+            console.log(_empId, _empStatusId);
+
+            const _empName = userListMultiSelect.getData().filter(item => item.value === _empId[0]);
+            const _empStatus = statusMultiSelect.getData().filter(item => item.value === _empStatusId[0]);
+
+            console.log(_empName, _empStatus);
+
+            let newRow = '<tr>';
+            newRow += `<td class="hidden"><input type="hidden" value="${_empId}"></td>`;
+            newRow += `<td class="hidden"><input type="hidden" value="${_empStatusId}"></td>`;
+            newRow += `<td class="px-6 py-4 text-sm font-medium text-gray-800 ">${_empName[0]?.text}</td>`;
+            newRow += `<td class="px-6 py-4 text-sm font-medium text-gray-800 "><span class="status onbench">${_empStatus[0]?.text}</span></td>`;
+            newRow += `<td class="px-6 py-4 text-sm font-medium text-gray-800 " >
+                                                                                    <button onclick="removeTableRow(this);" class="p-2 inline-flex justify-center items-center gap-2 rounded-md border-2 border-red-200 font-semibold text-red-500 hover:text-white hover:bg-red-500 hover:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-200 focus:ring-offset-2 transition-all text-sm" >
+                                                                                <svg class="w-4 h-4"  width="1024" height="1024" viewBox="0 0 1024 1024" >
+                                                                                    <path fill="currentColor" d="M360 184h-8c4.4 0 8-3.6 8-8v8h304v-8c0 4.4 3.6 8 8 8h-8v72h72v-80c0-35.3-28.7-64-64-64H352c-35.3 0-64 28.7-64 64v80h72v-72zm504 72H160c-17.7 0-32 14.3-32 32v32c0 4.4 3.6 8 8 8h60.4l24.7 523c1.6 34.1 29.8 61 63.9 61h454c34.2 0 62.3-26.8 63.9-61l24.7-523H888c4.4 0 8-3.6 8-8v-32c0-17.7-14.3-32-32-32zM731.3 840H292.7l-24.2-512h487l-24.2 512z" />
+                                                                                </svg>
+                                                                            </button>
+                                                                        </td>`;
+            document.querySelector("#assignEmployeeTable tbody").innerHTML += newRow;
+            // const rowCount = document.querySelectorAll("#assignEmployeeTable tbody tr").length;//by gautam
+            // console.log(rowCount);
+            // const countElement = document.getElementById('rowCount'); // end gautam
+            // countElement.textContent = `Count : ${rowCount}`;
+
+            userListMultiSelect.setSelected("");
+            statusMultiSelect.setSelected("");
+        }
+        function removeTableRow(button) {
+            const row = button.closest('tr');
+            row.remove();
+            // updateRowCount();
+        }
+        function updateRowCount() {
+            const rowCount = document.querySelectorAll("#assignEmployeeTable tbody tr").length;
+            const countElement = document.getElementById("rowCount");
+            countElement.textContent = `Count : ${rowCount}`;
+        }
+        function saveEmployee() {
+
+            const employeeList = [];
+
+            document.querySelectorAll("#assignEmployeeTable tbody tr").forEach(tr => {
+                const _empObj = {
+                    employeeid: tr.querySelector("td:nth-child(1) input").value,
+                    categorySubStatusId: tr.querySelector("td:nth-child(2) input").value,
+                }
+
+                employeeList.push(_empObj);
+            });
+
+            console.log(employeeList)
+
+            const projectWithStatus = [{ projectid: document.querySelector("#hidProjectId").value, categorysubstatusid: 0 }];
+            const finalObj = {
+                employees: employeeList,
+                projectWithStatus: projectWithStatus
+            }
+
+            const formData = new FormData();
+            formData.append("jobject", JSON.stringify(finalObj));
+
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("AssignEmployees", "Employee")",
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (result) {
+                    console.log(result);
+
+
+                    const response = JSON.parse(result?.data);
+                    console.log(response);
+                    if (response?.status === 200 || response?.responseCode === 200) {
+                        toastr.success("Employee Assigned Successfully!!");
+                        setTimeout(function () {
+                            window.location.href = "@Url.Action("Index", "Project")";
+                        }, 2000);
+                    } else {
+                        toastr.error(response.responseMessage);
+                    }
+                }
+            });
+
+        }
+
+        // Drop down code start here
+        const practiceDropdown = document.getElementById('practiceDropdown');
+        const subpracticeDropdown = document.getElementById('subPracticeDropdown');
+
+        practiceDropdown.addEventListener('change', async () => {
+            const selectedPracticeId = practiceDropdown.value;
+            subpracticeDropdown.innerHTML = '<option value="">Select Sub Practice</option>'; // Clear state options
+
+            if (selectedPracticeId) {
+                const response = await fetch(`/Base/GetSubPracticeByPracticeId?practiceId=${selectedPracticeId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    // console.log(data);
+                    const stateData = [{ text: "Select Sub Practice", value: "" }];
+                    data.forEach(country => {
+                        const _countryVal = {
+                            text: country?.text,
+                            value: country?.value
+                        }
+                        stateData.push(_countryVal);
+                    })
+                    console.log(subpracticeDropdown);
+                    stateSelect.setData(stateData);
+
+                    // Clear the subpracticeDropdown and then add options
+                    subpracticeDropdown.innerHTML = '<option value="">Select SubPractice</option>';
+
+                    data.forEach(item => {
+                        const option = document.createElement('option');
+                        option.value = item.value;
+                        option.textContent = item.text;
+                        subpracticeDropdown.appendChild(option);
+                    });
+
+                } else {
+                    console.error('Error fetching Subpractice data:', response.statusText);
+                }
+            }
+        });
+        const stateSelect = new SlimSelect({
+            select: "#subPracticeDropdown",
+            settings: {
+                allowDeselect: false,
+                closeOnSelect: true,
+                maxValuesShown: 1
+            }
+        })
+
+        $(document).ready(async () => {
+            const projectId = window.location.search.split("?projectid=").slice(-1)[0];
+
+            if (projectId) {
+
+                document.querySelector("#practiceDropdown").dispatchEvent(new Event("change"));
+                const stateVal = '@Model.SubPracticeId';
+                if (stateVal) {
+
+                    setTimeout(() => {
+                        document.querySelector("#subPracticeDropdown").value = stateVal;
+                        stateSelect.setSelected(stateVal);
+                    }, 1000)
+                }
+
+            }
+
+
+        })
+
+
+
+        function Disable(inp) {
+            if (inp.checked) {
+                document.querySelector('#ProjectNo').disabled = true;
+            }
+        }
+        function removeDisable(inp) {
+            if (inp.checked) {
+                document.querySelector('#ProjectNo').disabled = false;
+            }
+        }
+        let isprojectnounique = true;
+        // for validation of po no
+        async function checkProjectNo(inp) {
+            if (!inp.value.trim()) {
+                return;
+            }
+
+            const formData = new FormData();
+            const projectId = window.location.search.split("?projectid=").slice(-1)[0];
+
+            formData.append("projectno", inp.value.trim());
+            formData.append("projectid", projectId);
+
+
+            const response = await fetch("/Project/CheckProjectNumber", {
+                method: "POST",
+                body: formData
+            })
+
+            if (response.status === 200) {
+                const data = await response.json();
+                console.log(data);
+                if (data.responseContent != "false") {
+                    document.querySelector("#alreadyExistProjNo").innerHTML = "Project No. Already Exist!!"
+                    inp.classList.add("is-invalid");
+                    isprojectnounique = false;
+                }
+                else {
+                    document.querySelector("#alreadyExistProjNo").innerHTML = ""
+                    inp.classList.remove("is-invalid");
+                    isprojectnounique = true;
+                }
+            } else {
+                toastr.error("Something went wong");
+            }
+
+        }
+
+        function handleProjectTypeChange(inp) {
+            const projectType = inp.value;
+            const tnmhideDivs = document.querySelectorAll(".tnmhide");
+            const tnmshowDivs = document.querySelectorAll(".tnmshow");
+            if (projectType === "1") {
+                tnmhideDivs.forEach(item => {
+                    item.classList.add("hidden");
+                })
+
+                tnmshowDivs.forEach(item => {
+                    item.classList.remove("hidden");
+                })
+            } else {
+                tnmhideDivs.forEach(item => {
+                    item.classList.remove("hidden");
+                })
+
+                tnmshowDivs.forEach(item => {
+                    item.classList.add("hidden");
+                })
+            }
+        }
+
+        function handleCustomerBillingCycleChange(inp) {
+            if (inp.value && inp.value !== '0') {
+                inp.parentElement.nextElementSibling.innerHTML = `Customer Billing will arrive on ${inp.options[inp.selectedIndex].text}'th of every month.`;
+                inp.parentElement.nextElementSibling.classList.remove("hidden");
+            } else {
+                inp.parentElement.nextElementSibling.innerHTML = "";
+                inp.parentElement.nextElementSibling.classList.add("hidden");
+            }
+        }
+    </script>
+}

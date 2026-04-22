@@ -1,0 +1,316 @@
+﻿@using Newtonsoft.Json
+@model IEnumerable<RMS.Client.Models.Contract.ContractRequestDto>
+@{
+    bool lReadPermit = false;
+    bool lWritePermit = false;
+    bool lDeletePermit = false;
+    string role = Context.Session.GetString("RoleName");
+    if (ViewBag.AuthPages != null)
+    {
+        var pages = (List<RMS.Client.Models.Account.AuthorizePages>)ViewBag.AuthPages;
+        var pageFound = pages.FirstOrDefault(x => x.Controller == "Contract");
+        if (pageFound != null)
+        {
+            lReadPermit = pageFound.Isreadpermit ?? false;
+            lWritePermit = pageFound.Iswritepermit ?? false;
+            lDeletePermit = pageFound.Isdeletepermit ?? false;
+        }
+    }
+    var colLists = new List<string> { "Contract No", "PO Number", "Company Name", "Start Date", "End Date", "Contract Status", "PO Capital" };
+
+    if (lReadPermit)
+        colLists.Add("Detailed View");
+    if (role == "DA" || lWritePermit)
+    {
+        colLists.Add("Edit");
+    }
+
+}
+
+<partial name="~/Views/Shared/Controls/_PageHead.cshtml"
+         model="@(new RMS.Client.Models.Common.PageHead { PageHeading="List of Contracts", LinkText="Add Contracts", LinkController="Contract", LinkAction="Upsert",
+Columns = colLists })" />
+
+<div class="flex flex-col">
+    <div class="-m-1.5 overflow-x-auto">
+        <div class="p-1.5 min-w-full block align-middle">
+            <div class="overflow-hidden">
+                <table id="tblData" class="last-column-fixed min-w-full divide-y divide-gray-200">
+                    <thead>
+                        <tr>
+
+                            @foreach (var col in colLists)
+                            {
+                                <th scope="col"
+                                    class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                    @col
+                                    @if (col != "Detailed View" && col != "Edit")
+                                    {
+                                        <div style="vertical-align: middle; z-index: 10;" class="filter-dropdown mx-1 hs-dropdown relative sm:inline-flex [--auto-close:inside]">
+                                            <button id="hs-dropdown-auto-close-inside" type="button" class="hs-dropdown-toggle p-1 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-gray-100 text-gray-800 shadow-sm disabled:opacity-50 disabled:pointer-events-none">
+                                                <svg class="w-4 h-4 text-gray-800" xmlns="http://www.w3.org/2000/svg"
+                                                     width="512" height="512" viewBox="0 0 512 512">
+                                                    <path fill="currentColor"
+                                                          d="M472 168H40a24 24 0 0 1 0-48h432a24 24 0 0 1 0 48m-80 112H120a24 24 0 0 1 0-48h272a24 24 0 0 1 0 48m-96 112h-80a24 24 0 0 1 0-48h80a24 24 0 0 1 0 48" />
+                                                </svg>
+                                            </button>
+
+                                            <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 mt-2" aria-labelledby="hs-dropdown-auto-close-inside">
+                                                <div class="mb-1">
+                                                    <input type="search" oninput="handleFilterSearch(this);" placeholder="Search" class="py-2 px-4 block w-full border-gray-200 rounded-lg text-xs focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                                </div>
+                                                <div class="filter-item-list" style="height: 10rem; overflow-y: auto;"></div>
+                                            </div>
+                                        </div>
+                                    }
+                                </th>
+                            }
+                            
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script type="text/javascript">
+        $(function () {
+            fectchContractData();
+            document.querySelector(".main").classList.add("flex", "flex-col");
+        @if (ViewData["error"] != null)
+        {
+            <text>
+                    toastr.error("@ViewData["error"]", "Error", { "iconClass": 'new-error' });
+            </text>
+        }
+        @if (ViewData["success"] != null)
+        {
+            <text>
+                    toastr.success("@ViewData["success"]");
+            </text>
+        }
+
+                let _custName = $("#hidCustomerName").val();
+            let _projId = $("#hidProjectId").val();
+
+            var _customerId = 0;
+            if (_custName != "" && _custName != undefined) {
+                $("#CustomerDropdown option").each(function () {
+                    if ($(this).text() == _custName) {
+                        $(this).attr('selected', 'selected');
+                        _customerId = $(this).attr('value');
+                        changeCustomer(_customerId, _projId);
+                        return false;
+                    }
+                });
+            }
+        });
+        let datatable;
+        function filterTable(btn, colInd) {
+            const values = [];
+            btn.closest(".hs-dropdown").querySelectorAll("input:checked").forEach(chkbox => {
+                values.push(chkbox.value);
+            })
+            HSDropdown.close(btn.closest(".hs-dropdown"));
+            setTimeout(() => {
+                if (values.length) {
+                    datatable.columns(Number(colInd)).search('^(' + values.join("|") + ')$', true, false).draw();
+                } else {
+                    datatable.columns(Number(colInd)).search("", true, false).draw();
+                }
+            }, 200)
+        }
+
+        function clearFilter(btn, colInd) {
+            btn.closest(".hs-dropdown").querySelectorAll("input:checked").forEach(chkbox => {
+                chkbox.checked = false;
+            })
+            btn.closest(".hs-dropdown").querySelector("input[type='search']").value = "";
+            const _inpEvent = new Event("input");
+            btn.closest(".hs-dropdown").querySelector("input[type='search']").dispatchEvent(_inpEvent);
+            HSDropdown.close(btn.closest(".hs-dropdown"));
+            setTimeout(() => {
+                datatable.columns(Number(colInd)).search("", true, false).draw();
+            }, 200)
+        }
+        function handleFilterSearch(input) {
+            const allFilterItems = input.closest(".hs-dropdown-menu").querySelector(".filter-item-list").querySelectorAll("span");
+            allFilterItems.forEach(item => {
+                if (item.innerText.trim().toLowerCase().includes(input.value.trim().toLowerCase())) {
+                    item.closest(".filter-item").style.display = "flex"
+                } else {
+                    item.closest(".filter-item").style.display = "none";
+                }
+            })
+        }
+        // function fectchContractData() {
+        //     var jsonData = @Html.Raw(JsonConvert.ToString(ViewBag.JsonData));
+        //     const contractData = JSON.parse(jsonData);
+        //     console.log(contractData);
+
+        //     const tbody = document.querySelector("#tblData tbody");
+        //     contractData.forEach(item => {
+        //         const tr = document.createElement("tr");
+        //         tr.innerHTML += `<td class="px-6 py-4 text-sm font-medium text-gray-800" style="${item?.contractno ? item?.contractno.includes('PR') ? 'color: #fb923c;' : '' : ''}">${item?.contractno ? item?.contractno : ""}</td>`;
+        //         tr.innerHTML += `<td class="px-6 py-4 text-sm font-medium">${item?.ponumber ? item?.ponumber : ""}</td>`;
+        //         tr.innerHTML += `<td class="px-6 py-4 text-sm font-medium">${item?.customerCompanyName ? item?.customerCompanyName : ""}</td>`;
+        //         tr.innerHTML += `<td class="px-6 py-4 text-sm font-medium">${item?.contractstartdate ? getFormattedDate(item?.contractstartdate) : ""}</td>`;
+        //         tr.innerHTML += `<td class="px-6 py-4 text-sm font-medium">${item?.contractenddate ? getFormattedDate(item.contractenddate) : ""}</td>`;
+        //         tr.innerHTML += `<td class="px-6 py-4 text-sm font-medium">${item?.statusName ? getStatusHTML(item?.statusName) : ""}</td>`;
+        //         tr.innerHTML += `<td class="px-6 py-4 text-sm font-medium">${item?.amount ? item?.amount : ""}</td>`;
+        //         tr.innerHTML += `<td class="px-6 py-4 text-sm font-medium"><a href="/Contract/Detail/${item.contractid}" class="text-gray-800 hover:text-blue-700 underline">
+        //                                 View All Details
+        //                             </a></td>`;
+        //         tr.innerHTML += `<td  class="px-6 py-4 text-sm font-medium"><a class="inline-flex flex-shrink-0 justify-center items-center gap-2 h-6 w-6 rounded-md border border-transparent font-medium bg-white text-gray-700 shadow-sm align-middle hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-white transition-all text-xs"
+        //                                                         href="/Contract/Upsert/${item.contractid}">
+        //                                                  <svg class="w-5 h-5 text-gray-800 hover:text-emerald-500"
+        //                                                       xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+        //                                                       viewBox="0 0 24 24">
+        //                                                      <g fill="none">
+        //                                                          <path d="M24 0v24H0V0h24ZM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.01-.009-.017-.017-.018Zm.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.01-.02-.02-.022Zm-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.02.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01l-.184-.092Z" />
+        //                                                          <path fill="currentColor"
+        //                                                                d="M13 3a1 1 0 0 1 .117 1.993L13 5H5v14h14v-8a1 1 0 0 1 1.993-.117L21 11v8a2 2 0 0 1-1.85 1.995L19 21H5a2 2 0 0 1-1.995-1.85L3 19V5a2 2 0 0 1 1.85-1.995L5 3h8Zm6.243.343a1 1 0 0 1 1.497 1.32l-.083.095l-9.9 9.899a1 1 0 0 1-1.497-1.32l.083-.094l9.9-9.9Z" />
+        //                                                      </g>
+        //                                                  </svg>
+        //                                              </a></td>`;
+        //         tbody.appendChild(tr);
+        //     })
+        //     initDatatable();
+        // }
+
+        function fectchContractData() {
+            document.querySelector("#loader").style.display = "flex";
+
+            var jsonData = @Html.Raw(JsonConvert.ToString(ViewBag.JsonData));
+            const contractData = JSON.parse(jsonData);
+            console.log(contractData);
+
+            const tbody = $("#tblData tbody");
+            tbody.empty();
+
+            contractData.forEach(item => {
+                const tr = $("<tr></tr>");
+                tr.append(`<td class="px-6 py-4 text-sm font-medium text-gray-800" style="${item?.contractno ? item?.contractno.includes('PR') ? 'color: #fb923c;' : '' : ''}">${item?.contractno ? item?.contractno : ""}</td>`);
+                tr.append(`<td class="px-6 py-4 text-sm font-medium">${item?.ponumber ? item?.ponumber : ""}</td>`);
+                tr.append(`<td class="px-6 py-4 text-sm font-medium">${item?.customerCompanyName ? item?.customerCompanyName : ""}</td>`);
+                tr.append(`<td class="px-6 py-4 text-sm font-medium">${item?.contractstartdate ? getFormattedDate(item?.contractstartdate) : ""}</td>`);
+                tr.append(`<td class="px-6 py-4 text-sm font-medium">${item?.contractenddate ? getFormattedDate(item.contractenddate) : ""}</td>`);
+                tr.append(`<td class="px-6 py-4 text-sm font-medium">${item?.statusName ? getStatusHTML(item?.statusName) : ""}</td>`);
+                tr.append(`<td class="px-6 py-4 text-sm font-medium">${item?.amount ? item?.amount : ""}</td>`);
+                if (@(lReadPermit.ToString() == "True" ? "true" : "false")) {
+                    tr.append(`<td class="px-6 py-4 text-sm font-medium"><a style="cursor: pointer;" href="/Contract/Detail/${item.contractid}" class="text-gray-800 hover:text-blue-700 underline">View All Details</a></td>`);
+                }
+                if(@(lWritePermit.ToString() == "True" ? "true" : "false") || @(role == "DA" ? "true" : "false")){
+                    tr.append(`<td  class="px-6 py-4 text-sm font-medium"><a style="cursor: pointer;" class="inline-flex flex-shrink-0 justify-center items-center gap-2 h-6 w-6 rounded-md border border-transparent font-medium bg-white text-gray-700 shadow-sm align-middle hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-white transition-all text-xs"
+                                                                                     href="/Contract/Upsert/${item.contractid}">
+                                                                              <svg class="w-5 h-5 text-gray-800 hover:text-emerald-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                                                                  <g fill="none">
+                                                                                      <path d="M24 0v24H0V0h24ZM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.01-.009-.017-.017-.018Zm.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.01-.02-.02-.022Zm-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.02.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01l-.184-.092Z" />
+                                                                                      <path fill="currentColor" d="M13 3a1 1 0 0 1 .117 1.993L13 5H5v14h14v-8a1 1 0 0 1 1.993-.117L21 11v8a2 2 0 0 1-1.85 1.995L19 21H5a2 2 0 0 1-1.995-1.85L3 19V5a2 2 0 0 1 1.85-1.995L5 3h8Zm6.243.343a1 1 0 0 1 1.497 1.32l-.083.095l-9.9 9.899a1 1 0 0 1-1.497-1.32l.083-.094l9.9-9.9Z" />
+                                                                                  </g>
+                                                                              </svg>
+                                                                          </a></td>`);
+                }
+                tbody.append(tr);
+            });
+
+            initDatatable();
+        }
+
+
+        function initDatatable() {
+            datatable = new DataTable("#tblData", {
+                scrollX: true,
+                scrollY: '55vh',
+                ordering: false,
+                dom: "lBfrtip",
+                buttons: [{
+                    extend: 'excelHtml5',
+                    exportOptions: {
+                        trim: false,
+                        stripHtml: false,
+                        format: {
+                            header: function (html, index, node) {
+                                return node.innerText;
+                            },
+                            body: function (data, row, column, node) {
+                                return node.innerText;
+                            }
+                        }
+                    }
+                }],
+                "fnInitComplete": function (oSettings, json) {
+                    const _dt = this.api();
+                    console.log("initdone")
+                    // $("#loader").hide();
+                    document.querySelector("#loader").style.display = "none";
+                    // docu
+                    const allTh = document.querySelectorAll(".dataTables_scrollHead table thead th");
+                    const allThWithFilter = [];
+                    Array.from(allTh).forEach((item, index) => {
+                        if (item.querySelector(".hs-dropdown")) {
+                            allThWithFilter.push({ item, index });
+                        }
+                    });
+                    console.log(allThWithFilter);
+                    allThWithFilter.forEach(item => {
+                        // console.log(Number(item.index));
+                        const column = _dt.columns(Number(item.index)).data().unique().sort();
+                        // const column = document.querySelectorAll(`td:nth-child(${item.index + 1})`);
+                        const uniqueColumnContentSet = new Set();
+
+                        column[0].forEach(colItem => {
+                            if (!colItem.includes("span")) {
+                                uniqueColumnContentSet.add(colItem.trim());
+                            } else {
+                                const tempElem = document.createElement("div");
+                                tempElem.innerHTML = colItem;
+                                uniqueColumnContentSet.add(tempElem.innerText.trim());
+                            }
+                        });
+                        const uniqueColumnContent = Array.from(uniqueColumnContentSet).sort();
+                        const dropdownBody = item?.item.querySelector(".hs-dropdown-menu .filter-item-list");
+                        dropdownBody.innerHTML = "";
+                        uniqueColumnContent.forEach(dItem => {
+                            const dropdownItem = document.createElement("div");
+                            dropdownItem.classList.add("relative", "flex", "items-start", "py-2", "px-3", "rounded-lg", "hover:bg-gray-100", "filter-item");
+                            let checkBoxId = `chk-${Math.floor(Math.random() * 9999999)}`;
+                            dropdownItem.innerHTML = `<div class="flex items-center">
+                                                                                                        <input value="${dItem}" id="${checkBoxId}" type="checkbox" class="shrink-0 border-gray-200 rounded text-emerald-600 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                                                                                    </div>
+                                                                                                    <label for="${checkBoxId}" class="flex-1 ms-2">
+                                                                                                        <span class="block text-xs text-gray-800">${dItem}</span>
+                                                                                                    </label>`;
+                            dropdownBody.appendChild(dropdownItem);
+                        })
+                        if (!dropdownBody.nextElementSibling) {
+                            dropdownBody.parentElement.innerHTML += `<div class="flex gap-2"><button onclick="clearFilter(this, ${item?.index});" class="flex mt-2 w-full items-center justify-center gap-x-3.5 py-2 px-3 rounded-lg text-xs text-gray-800 bg-gray-100 hover:bg-gray-50 focus:outline-none focus:bg-gray-100">Clear</button><button onclick="filterTable(this, ${item?.index});" class="flex mt-2 w-full items-center justify-center gap-x-3.5 py-2 px-3 rounded-lg text-xs text-gray-800 bg-gray-100 hover:bg-gray-50 focus:outline-none focus:bg-gray-100" href="#">Apply</button></div>`
+                        }
+                    })
+                }
+            });
+        }
+
+        function getFormattedDate(dateStr) {
+            const _date = new Date(dateStr);
+            const day = _date.getDate() < 10 ? '0' + _date.getDate() : _date.getDate();
+            const month = (_date.getMonth() + 1) < 10 ? '0' + (_date.getMonth() + 1) : (_date.getMonth() + 1);
+            return `${day}/${month}/${_date.getFullYear()}`;
+        }
+        function getStatusHTML(statusStr) {
+            if (statusStr === 'Expired') {
+                return `<span class="status over">${statusStr}</span>`;
+            } else {
+                if (statusStr == 'Approved') {
+                    return `<span class="status approved">Active</span>`;
+                }
+                else {
+                    return `<span class="status approved">${statusStr}</span>`;
+                }
+            }
+        }
+    </script>
+}

@@ -1,0 +1,650 @@
+﻿@model RMS.Client.Models.Master.ProjectDetail
+@using System.Globalization;
+<div class="flex -my-4 -mx-4 flex-1">
+
+    @* <div class="border-r pt-2 flex flex-col w-48 h-[calc(100vh-3.5rem)]">
+    <div class="flex items-center gap-3 px-2 mb-3">
+    <span class="text-sm font-bold">All Projects</span>
+    <button type="button"
+    class="py-2 px-2 inline-flex justify-center items-center gap-1 rounded-md border border-transparent bg-[#00cc83] text-white hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-xs sm:sm">
+    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="32" height="32"
+    viewBox="0 0 32 32">
+    <path fill="currentColor"
+    d="M16 2A14.172 14.172 0 0 0 2 16a14.172 14.172 0 0 0 14 14a14.172 14.172 0 0 0 14-14A14.172 14.172 0 0 0 16 2Zm8 15h-7v7h-2v-7H8v-2h7V8h2v7h7Z" />
+    <path fill="none" d="M24 17h-7v7h-2v-7H8v-2h7V8h2v7h7v2z" />
+    </svg>
+    Add New
+    </button>
+    </div>
+    <div class="overflow-y-auto flex-1 flex flex-col gap-2">
+    <ul class="list-decimal">
+    <li>
+    <a href="#project-link" class="project-link active">Google Project</a>
+    </li>
+    <li>
+    <a href="#project-link" class="project-link">Google Project</a>
+    </li>
+    <li>
+    <a href="#project-link" class="project-link">Google Project</a>
+    </li>
+    <li>
+    <a href="#project-link" class="project-link">Google Project</a>
+    </li>
+    <li>
+    <a href="#project-link" class="project-link">Google Project</a>
+    </li>
+    <li>
+    <a href="#project-link" class="project-link">Google Project</a>
+    </li>
+    <li>
+    <a href="#project-link" class="project-link">Google Project</a>
+    </li>
+    <li>
+    <a href="#project-link" class="project-link">Google Project</a>
+    </li>
+    <li>
+    <a href="#project-link" class="project-link">Google Project</a>
+    </li>
+    <li>
+    <a href="#project-link" class="project-link">Google Project</a>
+    </li>
+    <li>
+    <a href="#project-link" class="project-link">Google Project</a>
+    </li>
+    <li>
+    <a href="#project-link" class="project-link">Google Project</a>
+    </li>
+    <li>
+    <a href="#project-link" class="project-link">Google Project</a>
+    </li>
+    <li>
+    <a href="#project-link" class="project-link">Google Project</a>
+    </li>
+    <li>
+    <a href="#project-link" class="project-link">Google Project</a>
+    </li>
+    <li>
+    <a href="#project-link" class="project-link">Google Project</a>
+    </li>
+    </ul>
+
+    </div>
+    </div> *@
+
+    <div class="flex-1 p-3 overflow-x-hidden">
+        @if (Model != null)
+        {
+            <div class="flex items-stretch flex-wrap border-y -ml-4 -mr-4 -mt-4 mb-4">
+                <div class="flex items-center pl-4">
+                    <button onclick="window.history.back();" class="py-2 px-2 inline-flex justify-center items-center gap-2 rounded-md border border-gray-400 bg-gray-700 text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all text-sm sm:text-base" title="Back">
+                        <svg class="w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M11.707 5.293a1 1 0 0 1 0 1.414L7.414 11H19a1 1 0 1 1 0 2H7.414l4.293 4.293a1 1 0 0 1-1.414 1.414l-6-6a1 1 0 0 1 0-1.414l6-6a1 1 0 0 1 1.414 0z" /></svg>
+                    </button>
+                    <div class="flex items-center gap-2 px-4 border-r py-2" style="min-width: 20rem">
+                        <img class="w-5 h-5 rounded-full" src="~/assets/images/default_user_icon.png" alt="">
+                        <div>
+                            <p>Customer</p>
+                            <p>@(Model.CustomerCompanyname != null ? Model.CustomerCompanyname : "-")</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap items-center px-4 border-r py-2" style="column-gap: 5rem; row-gap: 1rem;">
+                    <div>
+                        <p>Email Id:</p>
+                        <p>@(Model.CustomerEmailid != null ? Model.CustomerEmailid : "-")</p>
+                    </div>
+                    <div>
+                        <p>Phone No</p>
+                        <p>@(Model.CustomerPhoneno != null ? Model.CustomerPhoneno : "-")</p>
+                    </div>
+                    <div>
+                        <p>Location</p>
+                        <p>@(Model.CustomerLocationAddress != null ? Model.CustomerLocationAddress : "-")</p>
+                    </div>
+                    @* <button type="button" class="ml-6 whitespace-nowrap py-2 px-4 inline-flex justify-center items-center gap-2 rounded-full border border-transparent font-semibold bg-black text-white hover:bg-black focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 transition-all text-xs xl:text-sm">
+                All Info
+                </button> *@
+                </div>
+                @* <div class="flex items-center gap-2 px-4 border-r py-2">
+            <button class="flex items-center gap-2">
+            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g fill="none"><path d="M24 0v24H0V0h24ZM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.01-.009-.017-.017-.018Zm.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.01-.02-.02-.022Zm-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.02.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01l-.184-.092Z" /><path fill="currentColor" d="M13 3a1 1 0 0 1 .117 1.993L13 5H5v14h14v-8a1 1 0 0 1 1.993-.117L21 11v8a2 2 0 0 1-1.85 1.995L19 21H5a2 2 0 0 1-1.995-1.85L3 19V5a2 2 0 0 1 1.85-1.995L5 3h8Zm6.243.343a1 1 0 0 1 1.497 1.32l-.083.095l-9.9 9.899a1 1 0 0 1-1.497-1.32l.083-.094l9.9-9.9Z" /></g></svg>
+            Edit
+            </button>
+            </div>
+            <div class="flex items-center gap-2 px-4 border-r py-2">
+            <button class="flex items-center gap-2">
+            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256"><path fill="currentColor" d="M216 112v96a16 16 0 0 1-16 16H56a16 16 0 0 1-16-16v-96a16 16 0 0 1 16-16h24a8 8 0 0 1 0 16H56v96h144v-96h-24a8 8 0 0 1 0-16h24a16 16 0 0 1 16 16ZM93.66 69.66L120 43.31V136a8 8 0 0 0 16 0V43.31l26.34 26.35a8 8 0 0 0 11.32-11.32l-40-40a8 8 0 0 0-11.32 0l-40 40a8 8 0 0 0 11.32 11.32Z" /></svg>
+            Export PDF/Print
+            </button>
+            </div> *@
+            </div>
+            <p class="text-2xl font-bold">@Model.ProjectName<span class="bg-slate-800 rounded-full px-3 py-1 text-white ml-2 text-xs">@Model.ProjectTypeName</span></p>
+            <p class="mb-3">@(Model.ProjectDescription != null ? Model.ProjectDescription : "-")</p>
+            <p class="mb-3 font-bold">Information</p>
+            <div class="bg-[#fafafa] p-3 rounded flex items-center flex-wrap gap-y-4 gap-x-8 mb-3">
+                <div>
+                    <p>Created On</p>
+                    <p class="font-bold">@(Model.ProjectCreatedOn != DateTime.MinValue ? Model.ProjectCreatedOn.ToShortDateString() : "-")</p>
+                </div>
+                <div>
+                    <p>Account Manager</p>
+                    <p class="font-bold">@(Model.accounmanagerName != null ? Model.accounmanagerName : "-")</p>
+                </div>
+                <div>
+                    <p>Created By</p>
+                    <p class="font-bold">@(Model.ProjectCreatedBy != null ? Model.ProjectCreatedBy : "-")</p>
+                </div>
+                <div>
+                    <p>Practice</p>
+                    <p class="font-bold">@(Model.PracticeName != null ? Model.PracticeName : "-")</p>
+                </div>
+                <div>
+                    <p>Sub-Practice</p>
+                    <p class="font-bold">@(Model.SubPracticeName != null ? Model.SubPracticeName : "-")</p>
+                </div>
+                @* <div>
+            <p>Employees Deployed</p>
+            <p class="font-bold">Keshav Narayan</p>
+            </div> *@
+                <div>
+                    <p>Project Status</p>
+                    <p class="status @(Model.Status == "Progress" ? "pending" : "") @(Model.Status == "Pending" ? "pending" : "") @(Model.Status == "Submitted" ? "Active" : "") @(Model.Status == "Completed" ? "completed" : "") @(Model.Status == "Approved" ? "approved" : "") @(Model.Status == "Draft" ? "draft" : "") @(Model.Status == "Rejected" ? "rejected" : "")  @(Model.Status == "Expired" ? "overrun" : "") ">@(Model.Status == "Expired" ? "Overrun" : Model.Status)</p>
+                </div>
+                @* <div>
+            <p>Milestones</p>
+            <p class="font-bold">BRD (20%) Stage 1 (25%) Stage 2 (30%)</p>
+            </div> *@
+            </div>
+            <p class="mb-3 font-bold">Contracts</p>
+            @* <div class="bg-[#fafafa] p-3 rounded flex-wrap flex items-center gap-y-4 gap-x-8 mb-3">
+        <div>
+        <p>Contract Start Date</p>
+        <p class="font-bold">@(string.IsNullOrEmpty(Model.ContractStartDate) ? "-" : DateTime.ParseExact(Model.ContractStartDate, "yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture).ToString("dd-MM-yyyy"))</p>
+        </div>
+
+        <div>
+        <p>Contract End Date</p>
+        <p class="font-bold">@(string.IsNullOrEmpty(Model.ContractEndDate) ? "-" : DateTime.ParseExact(Model.ContractEndDate, "yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture).ToString("dd-MM-yyyy"))</p>
+        </div>
+
+        <div>
+        <p>Contract No.</p>
+        <p class="font-bold">@(string.IsNullOrEmpty(Model.ContractNo) ? Model.ContractNo : "-")</p>
+        </div>
+        <div>
+        <p>Contract Cost</p>
+        <p class="font-bold">@(Model.Amount != null ? Convert.ToDecimal(Model.Amount).ToString("#,##0.00", new System.Globalization.CultureInfo("hi-IN")) : "-")</p>
+        </div>
+
+        <div>
+        <p>Contract Type</p>
+        <p class="font-bold">@(Model.ContractType != null ? Model.ContractType : "-")</p>
+        </div>
+        </div> *@
+
+
+            <div class="mt-4">
+                <nav class="flex space-x-2" aria-label="Tabs" role="tablist">
+
+                    <button type="button"
+                            class="hs-tab-active:bg-gray-800 bg-gray-200 hs-tab-active:text-white py-2 px-5 inline-flex items-center gap-2 text-sm font-medium text-center text-gray-500 rounded-lg hover:text-emerald-400 active"
+                            id="pills-on-gray-color-item-2" data-hs-tab="#active-contracts-content"
+                            aria-controls="pills-on-gray-color-2" role="tab">
+                        Active
+                    </button>
+                    <button type="button"
+                            class="hs-tab-active:bg-gray-800 bg-gray-200 hs-tab-active:text-white py-2 px-5 inline-flex items-center gap-2 text-sm font-medium text-center text-gray-500 rounded-lg hover:text-emerald-400"
+                            id="pills-on-gray-color-item-1" data-hs-tab="#past-contracts-content"
+                            aria-controls="pills-on-gray-color-1" role="tab">
+                        Completed
+                    </button>
+                </nav>
+
+
+                <div class="mt-3">
+                    <div id="active-contracts-content" role="tabpanel"
+                         aria-labelledby="pills-on-gray-color-item-2">
+                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-6 flex-wrap overflow-x-auto">
+                            <div class="-m-1.5 overflow-x-auto">
+                                <div class="p-1.5 min-w-full inline-block align-middle">
+                                    <div class="border rounded-lg overflow-hidden">
+                                        <table class="min-w-full divide-y divide-gray-200 w-full" id="tblProjects">
+                                            <thead class="bg-gray-50">
+                                                <tr>
+                                                    <th scope="col"
+                                                        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                        Contract No.
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                        Po No.
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                        Start Date
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                        End Date
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                        Amount
+                                                    </th>
+
+                                                    <th scope="col"
+                                                        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                        Status
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-gray-200">
+                                                @if (Model != null)
+                                                {
+                                                    @foreach (var item in Model?.Contracts)
+                                                    {
+                                                        @if (item.StatusId != null && item.StatusId != 6)
+                                                        {
+                                                            <tr>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                                    <a class="underline" asp-action="Detail" asp-controller="Contract" asp-route-id="@item.ContractId">@item.ContractNo</a>
+                                                                </td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@item.PONumber</td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@(item.ContractStartDate == null ? "" : Convert.ToDateTime(item.ContractStartDate).ToString("dd/MM/yyyy"))</td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@(item.ContractEndDate == null ? "" : Convert.ToDateTime(item.ContractEndDate).ToString("dd/MM/yyyy"))</td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@(item.Amount == null ? "" : Convert.ToDecimal(item.Amount).ToString("F2"))</td>
+
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                                    @{
+                                                                        DateTime currentDate = DateTime.Today;
+                                                                    }
+                                                                    @if (Convert.ToDateTime(item.ContractEndDate) < currentDate && item.Status != "Completed")
+                                                                    {
+                                                                        <span class="status over">Expired</span>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <span class="status @(item.Status == "Active" ? "approved" : item.Status == "Completed" ? "completed" : item.Status == "Approved" ? "approved" : item.Status == "Draft" ? "draft" : item.Status == "Expired" ? "rejected" : "")"> @(!string.IsNullOrEmpty(item.Status) ? item.Status == "Approved" ? "Active" : item.Status  : "Pending") </span>
+                                                                    }
+                                                                </td>
+
+                                                            </tr>
+
+                                                        }
+                                                    }
+
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="past-contracts-content" class="hidden" role="tabpanel" aria-labelledby="pills-on-gray-color-item-1">
+                        @* <h2 class="font-extrabold text-xl 2xl:text-2xl text-[#4B4E5C] mb-6">Pre Sales Checklist</h2> *@
+                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-6 flex-wrap overflow-x-auto">
+                            <div class="-m-1.5 overflow-x-auto">
+                                <div class="p-1.5 min-w-full inline-block align-middle">
+                                    <div class="border rounded-lg overflow-hidden">
+                                        <table class="min-w-full divide-y divide-gray-200 w-full" id="tblProjects">
+                                            <thead class="bg-gray-50">
+                                                <tr>
+                                                    <th scope="col"
+                                                        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                        Contract No.
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                        Po No.
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                        Start Date
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                        End Date
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                        Amount
+                                                    </th>
+
+                                                    <th scope="col"
+                                                        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                        Status
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-gray-200">
+                                                @if (Model != null)
+                                                {
+                                                    @foreach (var item in Model?.Contracts)
+                                                    {
+                                                        @if (item.StatusId != null && item.StatusId == 6)
+                                                        {
+                                                            <tr>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                                    <a class="underline" asp-action="Detail" asp-controller="Contract" asp-route-id="@item.ContractId">@item.ContractNo</a>
+                                                                </td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@item.PONumber</td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@(item.ContractStartDate == null ? "" : Convert.ToDateTime(item.ContractStartDate).ToString("dd/MM/yyyy"))</td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@(item.ContractEndDate == null ? "" : Convert.ToDateTime(item.ContractEndDate).ToString("dd/MM/yyyy"))</td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@(item.Amount == null ? "" : Convert.ToDecimal(item.Amount).ToString("F2"))</td>
+
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                                    @{
+                                                                        DateTime currentDate = DateTime.Today;
+                                                                    }
+                                                                    @if (Convert.ToDateTime(item.ContractEndDate) < currentDate && item.Status != "Completed")
+                                                                    {
+                                                                        <span class="status over">Expired</span>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <span class="status @(item.Status == "Active" ? "approved" : item.Status == "Completed" ? "completed" : item.Status == "Approved" ? "approved" : item.Status == "Draft" ? "draft" : item.Status == "Expired" ? "rejected" : "")"> @(!string.IsNullOrEmpty(item.Status) ? item.Status : "Pending") </span>
+                                                                    }
+                                                                </td>
+
+                                                            </tr>
+                                                        }
+                                                    }
+
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        //<p class="mb-3 font-bold">Team Members</p>
+        @* <div class="flex items-center gap-5 overflow-x-auto">
+        <div class="flex flex-col gap-2 items-center justify-center">
+        <img src="./assets/images/google-logo.svg" class="w-10 h-10 rounded-full" alt="">
+        <p class="text-sm text-gray-400">Keshav</p>
+        </div>
+        <div class="flex flex-col gap-2 items-center justify-center">
+        <img src="./assets/images/google-logo.svg" class="w-10 h-10 rounded-full" alt="">
+        <p class="text-sm text-gray-400">Keshav</p>
+        </div>
+        <div class="flex flex-col gap-2 items-center justify-center">
+        <img src="./assets/images/google-logo.svg" class="w-10 h-10 rounded-full" alt="">
+        <p class="text-sm text-gray-400">Keshav</p>
+        </div>
+        <div class="flex flex-col gap-2 items-center justify-center">
+        <img src="./assets/images/google-logo.svg" class="w-10 h-10 rounded-full" alt="">
+        <p class="text-sm text-gray-400">Keshav</p>
+        </div>
+        </div> *@
+        @* <div class="flex justify-between flex-wrap gap-4 items-center mt-4">
+        <div class="mb-3">
+        <h2 class="font-extrabold text-xl 2xl:text-2xl text-[#4B4E5C]">Billing Information</h2>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Esse, impedit.</p>
+        </div>
+        <div class="flex items-center gap-2">
+        <button data-hs-overlay="#hs-reject-modal" type="button"
+        class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-black bg-black text-white hover:bg-black hover:text-white focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 transition-all text-sm sm:text-base">
+        Employee Wise
+        </button>
+        <button data-hs-overlay="#hs-reject-modal" type="button"
+        class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-black bg-white text-black hover:bg-black hover:text-white focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 transition-all text-sm sm:text-base">
+        Customer Wise
+        </button>
+        <select class="k-input" name="" id="">
+        <option value="">Select</option>
+        <option value="">Last 12 Months</option>
+        <option value="">Next 12 Months</option>
+        </select>
+        </div>
+        </div> *@
+        @* <div class="flex flex-col">
+        <div class="-m-1.5 overflow-x-auto max-w-full">
+        <div class="p-1.5 min-w-full inline-block align-middle">
+        <div class="border rounded-lg overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+        <tr>
+        <th scope="col"
+        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+        TMC ID
+        </th>
+        <th scope="col"
+        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+        Employee
+        </th>
+        <th scope="col"
+        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+        Jan
+        </th>
+        <th scope="col"
+        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+        Feb
+        </th>
+        <th scope="col"
+        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+        March
+        </th>
+        <th scope="col"
+        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+        April
+        </th>
+        <th scope="col"
+        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+        May
+        </th>
+        <th scope="col"
+        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+        June
+        </th>
+        <th scope="col"
+        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+        July
+        </th>
+        <th scope="col"
+        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+        Aug
+        </th>
+        <th scope="col"
+        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+        Sept
+        </th>
+        <th scope="col"
+        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+        Oct
+        </th>
+        <th scope="col"
+        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+        Nov
+        </th>
+        <th scope="col"
+        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+        Dec
+        </th>
+        </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+        <tr>
+        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
+        17461
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p>Keshav Narayan</p>
+        <p>X Value:</p>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p class="text-center">454.00</p>
+        <p class="bg-gray-200 rounded-full px-1 text-center">232.00</p>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p class="text-center">454.00</p>
+        <p class="bg-gray-200 rounded-full px-1 text-center">232.00</p>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p class="text-center">454.00</p>
+        <p class="bg-gray-200 rounded-full px-1 text-center">232.00</p>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p class="text-center">454.00</p>
+        <p class="bg-gray-200 rounded-full px-1 text-center">232.00</p>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p class="text-center">454.00</p>
+        <p class="bg-gray-200 rounded-full px-1 text-center">232.00</p>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p class="text-center">454.00</p>
+        <p class="bg-gray-200 rounded-full px-1 text-center">232.00</p>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p class="text-center">454.00</p>
+        <p class="bg-gray-200 rounded-full px-1 text-center">232.00</p>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p class="text-center">454.00</p>
+        <p class="bg-gray-200 rounded-full px-1 text-center">232.00</p>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p class="text-center">454.00</p>
+        <p class="bg-gray-200 rounded-full px-1 text-center">232.00</p>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p class="text-center">454.00</p>
+        <p class="bg-gray-200 rounded-full px-1 text-center">232.00</p>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p class="text-center">454.00</p>
+        <p class="bg-gray-200 rounded-full px-1 text-center">232.00</p>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p class="text-center">454.00</p>
+        <p class="bg-gray-200 rounded-full px-1 text-center">232.00</p>
+        </td>
+        </tr>
+        <tr>
+        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
+        17461
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p>Keshav Narayan</p>
+        <p>X Value:</p>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p class="text-center">454.00</p>
+        <p class="bg-gray-200 rounded-full px-1 text-center">232.00</p>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p class="text-center">454.00</p>
+        <p class="bg-gray-200 rounded-full px-1 text-center">232.00</p>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p class="text-center">454.00</p>
+        <p class="bg-gray-200 rounded-full px-1 text-center">232.00</p>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p class="text-center">454.00</p>
+        <p class="bg-gray-200 rounded-full px-1 text-center">232.00</p>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p class="text-center">454.00</p>
+        <p class="bg-gray-200 rounded-full px-1 text-center">232.00</p>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p class="text-center">454.00</p>
+        <p class="bg-gray-200 rounded-full px-1 text-center">232.00</p>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p class="text-center">454.00</p>
+        <p class="bg-gray-200 rounded-full px-1 text-center">232.00</p>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p class="text-center">454.00</p>
+        <p class="bg-gray-200 rounded-full px-1 text-center">232.00</p>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p class="text-center">454.00</p>
+        <p class="bg-gray-200 rounded-full px-1 text-center">232.00</p>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p class="text-center">454.00</p>
+        <p class="bg-gray-200 rounded-full px-1 text-center">232.00</p>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p class="text-center">454.00</p>
+        <p class="bg-gray-200 rounded-full px-1 text-center">232.00</p>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p class="text-center">454.00</p>
+        <p class="bg-gray-200 rounded-full px-1 text-center">232.00</p>
+        </td>
+        </tr>
+        <tr>
+        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
+        17461
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p>Keshav Narayan</p>
+        <p>X Value:</p>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p class="text-center">454.00</p>
+        <p class="bg-gray-200 rounded-full px-1 text-center">232.00</p>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p class="text-center">454.00</p>
+        <p class="bg-gray-200 rounded-full px-1 text-center">232.00</p>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p class="text-center">454.00</p>
+        <p class="bg-gray-200 rounded-full px-1 text-center">232.00</p>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p class="text-center">454.00</p>
+        <p class="bg-gray-200 rounded-full px-1 text-center">232.00</p>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p class="text-center">454.00</p>
+        <p class="bg-gray-200 rounded-full px-1 text-center">232.00</p>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p class="text-center">454.00</p>
+        <p class="bg-gray-200 rounded-full px-1 text-center">232.00</p>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p class="text-center">454.00</p>
+        <p class="bg-gray-200 rounded-full px-1 text-center">232.00</p>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p class="text-center">454.00</p>
+        <p class="bg-gray-200 rounded-full px-1 text-center">232.00</p>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p class="text-center">454.00</p>
+        <p class="bg-gray-200 rounded-full px-1 text-center">232.00</p>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p class="text-center">454.00</p>
+        <p class="bg-gray-200 rounded-full px-1 text-center">232.00</p>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p class="text-center">454.00</p>
+        <p class="bg-gray-200 rounded-full px-1 text-center">232.00</p>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+        <p class="text-center">454.00</p>
+        <p class="bg-gray-200 rounded-full px-1 text-center">232.00</p>
+        </td>
+        </tr>
+        </tbody>
+        </table>
+        </div>
+        </div>
+        </div>
+        </div> *@
+    </div>
+</div>

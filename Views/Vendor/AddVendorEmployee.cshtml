@@ -1,0 +1,418 @@
+﻿@model RMS.Client.Models.Vendor.EmployeeDt
+@using System;
+@using System.Globalization;
+@{
+// Assuming Model.dateofjoining is in "dd-MMM-yyyy" format
+string dateOfJoiningString = Model.dateofjoining;
+
+// Define the culture you want to use
+CultureInfo culture = new CultureInfo("en-US");}
+<div class="flex items-center gap-4 mb-4">
+    <button onclick="window.history.back();" class="py-2 px-2 inline-flex justify-center items-center gap-2 rounded-md border border-gray-400 bg-gray-700 text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all text-sm sm:text-base" title="Back">
+        <svg class="w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M11.707 5.293a1 1 0 0 1 0 1.414L7.414 11H19a1 1 0 1 1 0 2H7.414l4.293 4.293a1 1 0 0 1-1.414 1.414l-6-6a1 1 0 0 1 0-1.414l6-6a1 1 0 0 1 1.414 0z" /></svg>
+    </button>
+    <div >
+        <h2 class="font-extrabold text-xl 2xl:text-2xl text-[#4B4E5C]">Add/Edit Vendor Employee</h2>
+        <p>Please Fill The Required Details For Vendor Employee</p>
+    </div>
+</div>
+<form action="/Vendor/AddVendorEmployee" id="submitform" method="POST" enctype="multipart/form-data">
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-4">
+        <div>
+            <h2 class="font-extrabold text-xl 2xl:text-2xl text-[#4B4E5C]">Vendor Name: <span style="color:gray">@ViewBag.Vendorname</span></h2>
+          
+                @if (Model.employeeid > 0)
+                {
+                <h3 class="font-extrabold text-xl 2xl:text-2xl text-[#4B4E5C]" id="userid" name="TmcId">TMC: <span style="color:gray">@Model.TmcId</span></h3>
+
+                }
+            
+        </div>
+        
+        <input type="hidden" value="@Model.employeeid" name="employeeid"/>
+        <input type="hidden" value="@ViewBag.Vendorid" name="VendorId" />
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-4">
+        
+        <div>
+            <span class="mb-2 font-medium block text-sm 2xl:text-base">Employee Name*</span>
+            <input type="text" class="k-input w-full" id="employeename" name="Employeename" value="@Model.Employeename" placeholder="Enter Name">
+        </div>
+        
+        @* <div>
+            <span class="mb-2 font-medium block text-sm 2xl:text-base">Department*</span>
+            <input type="hidden" value="@Model.departmentid" id="hiddenDepartmentid" />
+            <select id="departmentDropdown" name="Departmentid" class="multi-select k-input w-full">
+                <option value="" selected>Select Department</option>
+                @foreach (var department in ViewBag.Department)
+                {
+                    if (Model.departmentid.ToString() == @department.Value && Model.departmentid != null)
+                    {
+                        <option value="@department.Value" selected>
+                            @department.Text
+                        </option>
+                    }
+                    else
+                    {
+                        <option value="@department.Value">@department.Text</option>
+                    }
+                }
+            </select>
+        </div> *@
+        <div>
+            <span class="mb-2 font-medium block text-sm 2xl:text-base">Designation*</span>
+            <input type="hidden" value="@Model.designationid" id="hiddenDesignationid" />
+
+            <select id="designationDropdown" name="Designationid" class="multi-select w-full">
+                <option value="" selected>Select Designation</option>
+                @foreach (var designation in ViewBag.Designation)
+                {
+                    if (Model.designationid.ToString() == @designation.Value && Model.designationid != null)
+                    {
+                        <option value="@designation.Value" selected>
+                            @designation.Text
+                        </option>
+                    }
+                    else
+                    {
+                        <option value="@designation.Value">@designation.Text</option>
+                    }
+                }
+            </select>
+        </div>
+        <div>
+            <span class="mb-2 font-medium block text-sm 2xl:text-base">Date of Joining*</span>
+            @{
+                // Assuming Model.dateofjoining is in "dd-MMM-yyyy" format
+                DateTime dateOfJoining;
+                if (DateTime.TryParseExact(Model.dateofjoining, "dd-MMM-yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out dateOfJoining))
+                {
+                    var formattedDate = dateOfJoining.ToString("yyyy-MM-dd");
+                        <input type="date" class="k-input w-full" id="Dateofjoining" name="Dateofjoining" value="@formattedDate">
+                }
+                else
+                {
+                        <input type="date" class="k-input w-full" id="Dateofjoining" name="Dateofjoining">
+                }
+            }
+        </div>
+
+        <div>
+            <span class="mb-2 font-medium block text-sm 2xl:text-base">Contact No.*</span>
+            <input type="tel" class="k-input w-full" id="Contactno" name="Contactno" value="@Model.contactno" placeholder="Enter 10 Digit Mobile No." pattern="[0-9]{10}" maxlength="10" title="Please enter a 10-digit contact number" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);">
+        </div>
+        <div>
+            <span class="mb-2 font-medium block text-sm 2xl:text-base">Email*</span>
+            <input type="email" class="k-input w-full" id="email" name="email" value="@Model.email" placeholder="Enter Email">
+        </div>
+        <div>
+            <span class="mb-2 font-medium block text-sm 2xl:text-base">Branch*</span>
+            <input type="hidden" value="@Model.branchid" id="hiddenBranchid" />
+
+            <select id="branchDropdown" name="Branchid" class="multi-select k-input w-full">
+                <option value="" selected>Select Branch</option>
+                @foreach (var branch in ViewBag.Branch)
+                {
+                    if (Model.branchid.ToString() == @branch.Value && Model.branchid != null)
+                    {
+                        <option value="@branch.Value" selected>
+                            @branch.Text
+                        </option>
+                    }
+                    else
+                    {
+                        <option value="@branch.Value">@branch.Text</option>
+                    }
+                }
+            </select>
+        </div>
+        <div>
+            <span class="mb-2 font-medium block text-sm 2xl:text-base">Practice*</span>
+            @if (Model.subpractice != null)
+            {
+                <input type="hidden" value="@Model.subpractice.practice.Practiceid" id="hiddenPracticeid" />
+            }
+            <select id="practiceDropdown" name="PracticeId" class="multi-select k-input w-full">
+                <option value="" selected>Select Practice</option>
+                @foreach (var practiceList in ViewBag.PracticeList)
+                {
+                    <option value="@practiceList.Value">
+                        @practiceList.Text
+                    </option>
+
+
+                }
+            </select>
+        </div>
+        <div>
+            <input type="hidden" value="@Model.subpracticeid" id="hiddensubpractice" />
+            <span class="mb-2 font-medium block text-sm 2xl:text-base">Sub Practice *</span>
+
+            <select id="subPracticeDropdown" name="subpracticeid" class="multi-select k-input w-full">
+            </select>
+        </div>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-4">
+        <!-- Additional form elements for Contact No., Email, Branch, Practice, and Sub Practice -->
+        
+        
+    </div>
+    <button type="submit" id="saveButton" class="assign-btn py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-emerald-400 bg-[#00cc83] text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm sm:text-base">
+        Submit
+    </button>
+</form>
+@section Scripts
+    {
+    <script>
+        $(document).ready(function () {
+            // Display toastr messages if ViewData contains "error" or "success"
+        @if (ViewData["error"] != null)
+        {
+            <text>
+                    toastr.error("@ViewData["error"]", "Error", { "iconClass": 'new-error' });
+            </text>
+        }
+        @if (ViewData["success"] != null)
+        {
+            <text>
+                    toastr.success("@ViewData["success"]");
+            </text>
+        }
+               
+                $('#saveButton').click(function (event) {
+                    event.preventDefault(); // Prevent form submission by default
+
+                    var practiceDropdown = $('#practiceDropdown');
+                    var subPracticeDropdown = $('#subPracticeDropdown');
+                    var EmployeeName = $('#employeename');
+                    var UserId = $('#userid');
+                    var Dateofjoining = $('#Dateofjoining');
+                    var Email = $('#email');
+                    var Contactno = $('#Contactno');
+                    //var departmentDropdown = $('#departmentDropdown');
+                    var designationDropdown = $('#designationDropdown');
+                    var branchDropdown = $('#branchDropdown');
+
+                    var isValid = true;
+
+                    // Reset borders and validation flags
+                    $('.k-input').css('border', '');
+                    $('.select').css('border', '');
+
+                    // Validation checks for each field
+                    if (EmployeeName.val().trim() === "") {
+                        EmployeeName.addClass('is-invalid');
+                        isValid = false;
+                    }
+                    else {
+                        EmployeeName.removeClass('is-invalid');
+                    }
+                    // if (UserId.val().trim() === "") {
+                    //     UserId.addClass('is-invalid');
+                    //     isValid = false;
+                    // }
+                    // else {
+                    //     UserId.removeClass('is-invalid');
+                    // }
+                    if (Contactno.val().trim() === "") {
+                        Contactno.addClass('is-invalid');
+                        isValid = false;
+                    }
+                    else {
+                        Contactno.removeClass('is-invalid');
+                    }
+                    if (Email.val().trim() === "") {
+                        Email.addClass('is-invalid');
+                        isValid = false;
+                    }
+                    else {
+                        Email.removeClass('is-invalid');
+                    }
+                    if (Dateofjoining.val().trim() === "") {
+                        Dateofjoining.addClass('is-invalid');
+                        isValid = false;
+                    }
+                    else {
+                        Dateofjoining.removeClass('is-invalid');
+                    }
+
+                    console.log(subPracticeDropdown.val(), practiceDropdown.val());
+
+                    if (!subPracticeDropdown.val()) {
+                        subPracticeDropdown.addClass('is-invalid');
+                        isValid = false;
+                    } else {
+                        subPracticeDropdown.removeClass('is-invalid');
+                    }
+                    if (practiceDropdown.val() === "" || practiceDropdown.val() === "0") {
+                        practiceDropdown.addClass('is-invalid');
+                        isValid = false;
+                    }
+                    else {
+                        practiceDropdown.removeClass('is-invalid');
+                    }
+                    // if (departmentDropdown.val() === "" || departmentDropdown.val() === "0") {
+                    //     departmentDropdown.addClass('is-invalid');
+                    //     isValid = false;
+                    // }
+                    // else {
+                    //     departmentDropdown.removeClass('is-invalid');
+                    // }
+                    if (designationDropdown.val() === "" || designationDropdown.val() === "0") {
+                        designationDropdown.addClass('is-invalid');
+                        isValid = false;
+                    }
+                    else {
+                        designationDropdown.removeClass('is-invalid');
+                    }
+                    if (branchDropdown.val() === "" || branchDropdown.val() === "0") {
+                        branchDropdown.addClass('is-invalid');
+                        isValid = false;
+                    }
+                    else {
+                        branchDropdown.removeClass('is-invalid');
+                    }
+
+                    if (isValid) {
+                        // Submit the form if all fields are valid
+                        $('#submitform').submit(); // Replace 'yourFormId' with your actual form ID
+                    }
+                });
+
+
+            // $("#practiceDropdown").change(function () {
+            //     var selectedPracticeId = $(this).val();
+            //     if (selectedPracticeId !== "") {
+            //         $.ajax({
+            //             type: 'GET',
+            //             url: '/Project/GetSubPracticesByPractice',
+            //             data: { practiceId: selectedPracticeId },
+            //             success: function (response) {
+            //                 console.log(response);
+
+            //                 var subPracticeDropdown = $("#subPracticeDropdown");
+            //                 subPracticeDropdown.empty();
+            //                 $.each(response, function (index, item) {
+            //                     subPracticeDropdown.append(
+            //                         $("<option></option>").val(item.value).text(item.text)
+            //                     );
+            //                 });
+
+            //                 subPracticeDropdown.trigger('change'); // Trigger the change event
+            //             },
+            //             error: function () {
+            //                 console.error("Error fetching sub practices.");
+            //             }
+            //         });
+            //     }
+            // });
+
+           
+
+            // Initialize SlimSelect for dropdowns
+            // new SlimSelect({
+            //     select: "#practiceDropdown",
+            //     settings: {
+            //         allowDeselect: false,
+            //         closeOnSelect: true,
+            //         maxValuesShown: 1
+            //     }
+            // });
+            // new SlimSelect({
+            //     select: "#subPracticeDropdown",
+            //     settings: {
+            //         allowDeselect: false,
+            //         closeOnSelect: true,
+            //         maxValuesShown: 1
+            //     }
+            // });
+            // new SlimSelect({
+            //     select: "#branchDropdown",
+            //     settings: {
+            //         allowDeselect: false,
+            //         closeOnSelect: true,
+            //         maxValuesShown: 1
+            //     }
+            // });
+            // new SlimSelect({
+            //     select: "#designationDropdown",
+            //     settings: {
+            //         allowDeselect: false,
+            //         closeOnSelect: true,
+            //         maxValuesShown: 1
+            //     }
+            // });
+            // new SlimSelect({
+            //     select: "#departmentDropdown",
+            //     settings: {
+            //         allowDeselect: false,
+            //         closeOnSelect: true,
+            //         maxValuesShown: 1
+            //     }
+            // });
+        });
+
+        const designationSelect = new SlimSelect({
+            select: "#designationDropdown",
+            settings: {
+                allowDeselect: false,
+                closeOnSelect: true,
+                maxValuesShown: 1
+            }
+        })
+
+        $(document).ready(function () {
+            let _subId = $("#hiddensubpractice").val();
+            let _pracId = $('#hiddenPracticeid').val();
+            console.log(_pracId);
+            if(_pracId) {
+                document.querySelector("#practiceDropdown").value = _pracId;
+            }
+
+            // Log _subId to the console to verify its value
+            console.log("_subId:", _subId);
+
+            $("#practiceDropdown").change(function () {
+                var selectedPracticeId = $(this).val();
+                if (selectedPracticeId !== "") {
+                    $.ajax({
+                        type: 'GET',
+                        url: '/Project/GetSubPracticesByPractice',
+                        data: { practiceId: selectedPracticeId },
+                        success: function (response) {
+                            console.log(response);
+
+                            var subPracticeDropdown = $("#subPracticeDropdown");
+                            subPracticeDropdown.empty();
+                            $.each(response, function (index, item) {
+                                subPracticeDropdown.append(
+                                    $("<option></option>").val(item.value).text(item.text)
+                                );
+                            });
+
+                            subPracticeDropdown.trigger('change'); // Trigger the change event
+                        },
+                        error: function () {
+                            console.error("Error fetching sub practices.");
+                        }
+                    });
+                }
+            });
+
+            // Set the selected option in the sub-practice dropdown
+            $("#subPracticeDropdown option").each(function () {
+                if ($(this).val() === _subId) {
+                    $(this).prop('selected', true);
+                }
+            });
+            console.log("test",document.querySelector("#practiceDropdown").value);
+            if(document.querySelector("#practiceDropdown").value) {
+                const changeEvent = new Event("change");
+                document.querySelector("#practiceDropdown").dispatchEvent(changeEvent);
+            }
+
+            // Log a message to confirm that the option is set
+            console.log("Setting sub-practice dropdown value:", _subId);
+        });
+    </script>
+}

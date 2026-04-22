@@ -1,0 +1,168 @@
+﻿@using System.Globalization;
+@model RMS.Client.Models.Contract.CostSheet;
+
+<div class="flex items-center gap-4 mb-5">
+    <button onclick="window.history.back();" class="py-2 px-2 inline-flex justify-center items-center gap-2 rounded-md border border-gray-400 bg-gray-700 text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all text-sm sm:text-base" title="Back">
+        <svg class="w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M11.707 5.293a1 1 0 0 1 0 1.414L7.414 11H19a1 1 0 1 1 0 2H7.414l4.293 4.293a1 1 0 0 1-1.414 1.414l-6-6a1 1 0 0 1 0-1.414l6-6a1 1 0 0 1 1.414 0z" /></svg>
+    </button>
+    <div>
+        <h2 class="font-extrabold text-xl 2xl:text-2xl text-[#4B4E5C]">Cost Sheet</h2>
+        <p>Detailed Cost Sheet View</p>
+    </div>
+    @if (Model.OafId > 0 && Model.OafId != null)
+    {
+        <a href="/OAF/Detail/@Model.OafId" class="ml-auto py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-transparent bg-gray-700 text-white hover:opacity-70 focus:outline-none transition-all text-sm 2xl:text-base">
+            <svg class="w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16"><path fill="currentColor" fill-rule="evenodd" d="M10.75 1a.75.75 0 0 0 0 1.5h1.69L8.22 6.72a.75.75 0 0 0 1.06 1.06l4.22-4.22v1.69a.75.75 0 0 0 1.5 0V1zM2.5 4v9a.5.5 0 0 0 .5.5h9a.5.5 0 0 0 .5-.5V8.75a.75.75 0 0 1 1.5 0V13a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h4.25a.75.75 0 0 1 0 1.5H3a.5.5 0 0 0-.5.5" clip-rule="evenodd" /></svg>
+            View Linked OAF
+        </a>
+    }
+</div>
+@* View Linked OAF @model.Oafid   controller -oaf - ation - DETAIL *@
+<div>
+    <div class="flex flex-col">
+        <div class="-m-1.5 overflow-x-auto">
+            <div class="p-1.5 min-w-full inline-block align-middle">
+                <div class="border rounded-lg overflow-hidden">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">Costing Sheet</th>
+                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">Skills</th>
+                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">Experience</th>
+                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">No. of Resources</th>
+                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">No. of Days</th>
+                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">Cost Per Skill</th>
+                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">Total Cost</th>
+                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">X Value</th>
+                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">Customer Price</th>
+                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">Total Price</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+
+                            @if (Model != null)
+                            {
+                                var costSheet = Model;
+                                int count = Model.costsheetdetails.Count;
+                                var totalResources = 0;
+                                decimal? totalCost = 0;
+                                decimal? totalPrice = 0;
+                                decimal? customerPrice = 0;
+                                decimal? totalX = 0;
+
+                                for (int i = 0; i < count; i++)
+                                {
+                                    totalResources += costSheet.costsheetdetails[i].Requiredresource;
+                                    totalCost += costSheet.costsheetdetails[i].Totalcost;
+                                    totalPrice += costSheet.costsheetdetails[i].Totalprice;
+                                    customerPrice += costSheet.costsheetdetails[i].Customerprice;
+                                    totalX += costSheet.costsheetdetails[i].Xvalue;
+                                }
+
+                                for (int i = 0; i < (count < 3 ? 3 : count); i++)
+                                {
+                                    <tr>
+                                        @if (i == 0)
+                                        {
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">Cost Sheet Name: <span class="font-bold">@costSheet.costsheetname</span></td>
+                                        }
+                                        else if (i == 1)
+                                        {
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
+                                                Total Resources Required:
+                                                <span class="font-bold">@totalResources</span>
+                                            </td>
+                                        }
+                                        else if (i == 2)
+                                        {
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
+                                                Total Skills Required:
+                                                <span class="font-bold">@count</span>
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800"></td>
+                                        }
+                                        @if (i < count)
+                                        {
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@costSheet.costsheetdetails[i].Skillname</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@costSheet.costsheetdetails[i].skillexperience</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@costSheet.costsheetdetails[i].Requiredresource</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@costSheet.costsheetdetails[i].Perioddays</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@costSheet.costsheetdetails[i].Skillcost</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800" data-cost="@totalCost">@costSheet.costsheetdetails[i].Totalcost</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                @(costSheet.costsheetdetails[i].Xvalue.HasValue ? costSheet.costsheetdetails[i].Xvalue.Value.ToString("0.00") : "0.00")
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800" data-customer-price="@customerPrice">@costSheet.costsheetdetails[i].Customerprice</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800" data-total-price="@totalPrice">@costSheet.costsheetdetails[i].Totalprice</td>
+                                        }
+                                        else
+                                        {
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        }
+                                    </tr>
+                                }
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">Total</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800" data-cost-final="@totalCost">@totalCost</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                        @(Model.costsheetdetails.Count > 0 ? (totalX / Model.costsheetdetails.Count).Value.ToString("0.00") : "0.00")
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800" data-customer-price-final="@customerPrice">@customerPrice</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800" data-total-price-final="@totalPrice">@totalPrice</td>
+                                </tr>
+                            }
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script>
+        function formatCurrency(num) {
+            return num.toLocaleString('en-IN', {
+                maximumFractionDigits: 2,
+                style: 'currency',
+                currency: 'INR'
+            });
+        }
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll('[data-cost]').forEach(function (element) {
+                let cost = parseFloat(element.innerText);
+                element.textContent = formatCurrency(cost);
+            });
+
+            document.querySelectorAll('[data-customer-price]').forEach(function (element) {
+                let customerPrice = parseFloat(element.innerText);
+                element.textContent = formatCurrency(customerPrice);
+            });
+
+            document.querySelectorAll('[data-total-price]').forEach(function (element) {
+                let totalPrice = parseFloat(element.innerText);
+                element.textContent = formatCurrency(totalPrice);
+            });
+            document.querySelector('[data-total-price-final]').textContent = formatCurrency(Number(document.querySelector('[data-total-price-final]').innerText));
+            document.querySelector('[data-customer-price-final]').textContent = formatCurrency(Number(document.querySelector('[data-customer-price-final]').innerText));
+            document.querySelector('[data-cost-final]').textContent = formatCurrency(parseFloat(document.querySelector('[data-cost-final]').innerText));
+
+        });
+    </script>
+}

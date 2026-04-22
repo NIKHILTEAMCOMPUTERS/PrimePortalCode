@@ -1,0 +1,1598 @@
+﻿@model RMS.Client.Models.Employee.ProjectAssign
+@section PageStyles {
+    <style>
+        .ss-main.multi-select {
+            min-width: 18rem;
+        }
+
+        .skill-remove {
+            top: 0; 
+            right: 0; 
+            opacity: 0;
+            pointer-events: none;
+            background-color: white;
+            padding-left: .5rem;
+            transform: scale(0);
+            transition: all .125s ease;
+            transform-origin: top right;
+        }
+
+        .skill-card:hover .skill-remove {
+            opacity: 1;
+            pointer-events: all;
+            transform: scale(1)
+        }
+
+        .secondary-skills-wrapper.selfOnly .managerRating {
+            display: none;
+        }
+
+        .secondary-skills-wrapper.selfOnly .selfRating {
+            display: inline-flex;
+        }
+
+        .secondary-skills-wrapper.managerOnly .managerRating {
+            display: inline-flex;
+        }
+
+        .secondary-skills-wrapper.managerOnly .selfRating {
+            display: none;
+        }
+    </style>
+}
+@{
+    var colList = new List<string> { "Contract Start Date", "Contract End Date", "Practice", "Sub-Practice", "Project Type", "Customer", "Delivery Anchor", "Status", "Action" };
+}
+<div class="flex items-center gap-4 mb-4">
+    <button onclick="window.history.back();" class="py-2 px-2 inline-flex justify-center items-center gap-2 rounded-md border border-gray-400 bg-gray-700 text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all text-sm sm:text-base" title="Back">
+        <svg class="w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M11.707 5.293a1 1 0 0 1 0 1.414L7.414 11H19a1 1 0 1 1 0 2H7.414l4.293 4.293a1 1 0 0 1-1.414 1.414l-6-6a1 1 0 0 1 0-1.414l6-6a1 1 0 0 1 1.414 0z" /></svg>
+    </button>
+    <div>
+        <h2 class="font-extrabold text-xl 2xl:text-2xl text-[#4B4E5C]">Employee Action Centre</h2>
+        <p>Review the employee details to assign project and update status</p>
+    </div>
+</div>
+<div class="p-4 rounded bg-[#f9f9f9] flex flex-wrap items-start justify-between gap-x-4 gap-y-8 mb-6">
+    <div>
+        <div class="flex items-center gap-4 mb-4">
+            <img src="~/assets/images/default_user_icon.png" alt="" class="w-16 h-16 2xl:w-20 2xl:h-20 rounded-full object-cover">
+
+            <div>
+                <h2 class="font-extrabold text-lg 2xl:text-2xl text-[#4B4E5C]">@Model.employees.Employeename</h2>
+                @*<p>UI/UX Designer</p>*@
+                <h2 class="font-extrabold text-base 2xl:text-xl text-[#4B4E5C]">TMC: @Model.employees.TmcId</h2>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <label for="resignedFlag" class="inline-flex items-center px-4 py-2 rounded-full bg-red-100 gap-2">
+                <input type="checkbox" id="resignedFlag" checked="@(Model.employees.Udf3 == "1" ? true : false)" onchange="handleResign(this);" class="shrink-0 mt-0.5 border-2 border-red-600 bg-red-100 rounded text-red-600 focus:ring-red-500 disabled:opacity-50 disabled:pointer-events-none">
+                <span class="text-red-600 font-medium">Resigned</span>
+            </label>
+            <label for="trainee" class="inline-flex items-center px-4 py-2 rounded-full bg-slate-100 gap-2">
+                <input type="checkbox" id="trainee" checked="@(Model.employees.Ade == true ? true : false)" onchange="handletrainee(this);" class="shrink-0 mt-0.5 border-2 border-slate-600 bg-slate-100 rounded text-slate-600 focus:ring-slate-500 disabled:opacity-50 disabled:pointer-events-none">
+                <span class="text-slate-600 font-medium">ADE</span>
+            </label>
+        </div>
+        @*  <div class="inline-flex items-center rounded shadow py-3 px-6 gap-2">
+        <input checked="@(Model.employees.Udf3 == "1" ? true : false)" onchange="handleResign(this);" type="checkbox" name="resignedFlag" class="shrink-0 mt-0.5 border-gray-200 rounded-full text-emerald-600 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none" id="resignedFlag">
+        <label for="resignedFlag" class="block font-bold ">Resigned</label>
+        </div> *@
+    </div>
+    <div>
+        <p>Date of Joining: @Model.employees.Dateofjoining</p>
+        <p>Department: @Model.employees.Department</p>
+        <p>Location: @Model.employees.Branch</p>
+        <p>Phone: @Model.employees.Contactno</p>
+    </div>
+    <div>
+        <p>Email Id: @Model.employees.email</p>
+        <p>DOB: @Model.employees.Dateofbirth</p>
+        @*<p>Address: @Model.employees.E</p>*@
+    </div>
+    @*<div>
+    <p class="font-bold">Reporting Manager</p>
+    <p>@Model.employees.Reporthead</p>
+    </div>*@
+</div>
+
+<div class="mt-4">
+    <nav class="flex space-x-2" aria-label="Tabs" role="tablist">
+        <button type="button"
+                class="hs-tab-active:bg-gray-800 bg-gray-200 hs-tab-active:text-white py-2 px-5 inline-flex items-center gap-2 text-sm font-medium text-center text-gray-500 rounded-lg hover:text-emerald-400 active"
+                id="projects-tab-btn" data-hs-tab="#projects-tab-content"
+                aria-controls="pills-on-gray-color-2" role="tab">
+            Projects
+        </button>
+        <button type="button"
+                class="hs-tab-active:bg-gray-800 bg-gray-200 hs-tab-active:text-white py-2 px-5 inline-flex items-center gap-2 text-sm font-medium text-center text-gray-500 rounded-lg hover:text-emerald-400"
+                id="skills-tab" data-hs-tab="#skills-tab-content"
+                aria-controls="pills-on-gray-color-1" role="tab">
+            Skills
+        </button>
+    </nav>
+
+
+    <div class="mt-3">
+        <div id="projects-tab-content" role="tabpanel">
+            <div class="mt-4">
+                <nav class="flex space-x-2" aria-label="Tabs" role="tablist">
+                    <button type="button"
+                            class="hs-tab-active:font-bold hs-tab-active:border-emerald-400 hs-tab-active:text-emerald-400 px-1 inline-flex items-center gap-2 border-b-[3px] border-transparent text-sm whitespace-nowrap text-black hover:text-emerald-600 active"
+                            id="pills-on-gray-color-item-2" data-hs-tab="#active-contracts-content"
+                            aria-controls="pills-on-gray-color-2" role="tab">
+                        Active Projects
+                    </button>
+                    <button type="button"
+                            class="hs-tab-active:font-bold hs-tab-active:border-emerald-400 hs-tab-active:text-emerald-400 px-1 inline-flex items-center gap-2 border-b-[3px] border-transparent text-sm whitespace-nowrap text-black hover:text-emerald-600"
+                            id="pills-on-gray-color-item-1" data-hs-tab="#past-contracts-content"
+                            aria-controls="pills-on-gray-color-1" role="tab">
+                        Past Projects
+                    </button>
+                </nav>
+                <div class="mt-3">
+                    <div id="active-contracts-content" role="tabpanel"
+                         aria-labelledby="pills-on-gray-color-item-2">
+                        <form class="mb-6">
+                            <input type="hidden" asp-for="employeeid" />
+                            @* <input type="hidden" id="hidProjectId" value="@Model.employees.Projectid" />
+                            <input type="hidden" id="hidSubStatusId" value="@Model.employees.Categorysubstatusid" />*@
+                            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                                <div>
+                                    <label for="">Project</label>
+                                    <select class="multi-select" id="ctlProject">
+                                        <option value="">--Select--</option>
+                                        @foreach (var project in ViewBag.ProjectList)
+                                        {
+                                            <option value="@project.Value" data-contractno="@project.ContractNo">@project.Text</option>
+                                        }
+                                    </select>
+
+                                </div>
+                                <div>
+                                    <label for="">Status</label>
+                                    <select class="multi-select" id="ctlStatus" asp-items="ViewBag.SubCategoryStatusList">
+                                        <option value="">--Select--</option>
+                                    </select>
+                                </div>
+                                <button type="button" id="btnAdd" class="self-end py-3 px-4 inline-flex justify-center items-center gap-2 rounded-md border border-transparent font-semibold bg-black text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm w-full sm:w-auto">
+                                    <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M18 12.998h-5v5a1 1 0 0 1-2 0v-5H6a1 1 0 0 1 0-2h5v-5a1 1 0 0 1 2 0v5h5a1 1 0 0 1 0 2z" /></svg>
+                                    Add
+                                </button>
+                                <button type="button" id="btnSubmit" class="ml-auto self-end py-3 px-4 inline-flex justify-center items-center gap-2 rounded-md border border-transparent font-semibold bg-emerald-500 text-white hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm w-full sm:w-auto">
+                                    <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12 21q-1.875 0-3.513-.713t-2.85-1.924q-1.212-1.213-1.924-2.85T3 12q0-1.875.713-3.513t1.924-2.85q1.213-1.212 2.85-1.924T12 3q2.05 0 3.888.875T19 6.35V5q0-.425.288-.713T20 4q.425 0 .713.288T21 5v4q0 .425-.288.713T20 10h-4q-.425 0-.713-.288T15 9q0-.425.288-.713T16 8h1.75q-1.025-1.4-2.525-2.2T12 5Q9.075 5 7.037 7.038T5 12q0 2.925 2.038 4.963T12 19q2.375 0 4.25-1.425t2.475-3.675q.125-.4.45-.6t.725-.15q.425.05.675.362t.15.688q-.725 2.975-3.15 4.888T12 21Zm1-9.4l2.5 2.5q.275.275.275.7t-.275.7q-.275.275-.7.275t-.7-.275l-2.8-2.8q-.15-.15-.225-.337T11 11.975V8q0-.425.288-.713T12 7q.425 0 .713.288T13 8v3.6Z" /></svg>
+                                    Update
+                                </button>
+                            </div>
+                        </form>
+                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-6 flex-wrap w-full">
+                            <div class="-m-1.5 overflow-x-auto w-full">
+                                <div class="p-1.5 min-w-full block align-middle w-full">
+                                    <div class="border rounded-lg overflow-hidden w-full">
+                                        <div class="p-2 flex items-center justify-between flex-wrap gap-4">
+                                            <h2 class="font-extrabold text-xl 2xl:text-2xl text-[#4B4E5C]">Project List</h2>
+                                            <div class="mt-1 mx-1 sm:mt-1 hs-dropdown relative sm:inline-flex z-20 [--auto-close:inside]">
+                                                <button type="button" id="filterTableColDropdown"
+                                                        class="hs-dropdown-toggle group py-3 px-4 inline-flex justify-center items-center gap-2 rounded-md border border-transparent font-semibold text-white bg-emerald-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm">
+                                                    <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M14 12v7.88c.04.3-.06.62-.29.83a.996.996 0 0 1-1.41 0l-2.01-2.01a.989.989 0 0 1-.29-.83V12h-.03L4.21 4.62a1 1 0 0 1 .17-1.4c.19-.14.4-.22.62-.22h14c.22 0 .43.08.62.22a1 1 0 0 1 .17 1.4L14.03 12H14Z" /></svg>
+                                                    Filter Columns
+                                                </button>
+
+                                                <div style="max-height: 10rem; overflow-y: auto;" class="hs-dropdown-menu z-10 transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 z-30" aria-labelledby="hs-dropdown-auto-close-inside">
+
+                                                    @{
+                                                        int index = 0;
+                                                        foreach (var cols in colList)
+                                                        {
+                                                                            <div class="relative flex flex items-start py-2 px-3 rounded-md hover:bg-gray-100">
+                                                                                <div class="flex">
+                                                                                    <input onchange="toggleColVisibility(@(index+4), this);" type="checkbox" class="shrink-0 mt-0.5 border-gray-200 rounded text-emerald-600 focus:ring-emerald-500" id="col-@(index)" checked>
+                                                                                    <label for="col-@(index)" class="text-sm text-gray-500 ml-3 dark:text-gray-400">@cols</label>
+                                                                                </div>
+                                                                            </div>
+                                                            index++;
+                                                        }
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <table class="min-w-full divide-y divide-gray-200" id="tblProjects">
+                                            <thead class="bg-gray-50">
+                                                <tr>
+                                                    <th class="hidden"></th>
+                                                    <th class="hidden"></th>
+                                                    <th scope="col"
+                                                        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                        Project
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                        Contract
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                        Contract Start Date
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                        Contract End Date
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                        Project Status
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                        Practice
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                        Sub Practice
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                        Project Type
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                        Customer
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                        Delivery Anchor
+                                                    </th>
+                                                   @*  <th scope="col"
+                                                        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                        Project Status
+                                                    </th> *@
+                                                    <th scope="col"
+                                                        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                        Employee Status
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                        Action
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-gray-200">
+
+                                                @if (Model.employees.employeeProjects != null && Model.employees.employeeProjects.Count > 0)
+                                                {
+                                                    foreach (var proj in Model.employees.employeeProjects)
+                                                    {
+
+                                                        var contractNo = "";
+                                                        int? contractId = 0;
+                                                        int? contractStatusId = null;
+
+                                                        if (proj.contracts != null && proj.contracts.Count > 0)
+                                                        {
+                                                            contractNo = proj.contracts[0].ContractNo;
+                                                            contractId = proj.contracts[0].ContractId;
+                                                            contractStatusId = proj.contracts[0].Statusid;
+                                                        }
+
+                                                        @if (contractStatusId != null && contractStatusId != 6 && proj.Categorysubstatusname != "Released")
+                                                        {
+                                                            <tr>
+                                                                <td style="display:none" class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@proj.Projectid</td>
+                                                                <td style="display:none" class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@proj.Categorysubstatusid</td>
+
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"><a class="underline" title="Go To Project" asp-action="View" asp-controller="Project" asp-route-id="@proj.Projectid">@(proj.Projectname == null ? proj.CustomerCompanyname == null ? "" : proj.CustomerCompanyname : proj.Projectname)</a></td>
+
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                                    <a asp-action="Detail" class="underline" title="Go To Contract" asp-controller="Contract" asp-route-id="@contractId">@contractNo</a>
+                                                                </td>
+
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@Convert.ToDateTime(@proj.contracts[0].Contractstartdate).ToString("dd/MM/yyyy")</td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@Convert.ToDateTime(@proj.contracts[0].Contractenddate).ToString("dd/MM/yyyy")</td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                                    <div class="hs-dropdown relative inline-flex">
+                                                                        @{
+                                                                            bool isDeployed = Convert.ToDateTime(proj.contracts[0].Contractenddate) > DateTime.Today;
+                                                                            string statusName = isDeployed ? "Active" : "Over Run";
+                                                                            string statusClass = isDeployed ? "deployed" : "overrun";
+                                                                        }
+                                                                        <button id="hs-dropdown-default" type="button" class="hs-dropdown-toggle status-toggle @statusClass py-2 px-2 inline-flex items-center gap-x-2 text-sm font-medium rounded-full border border-gray-200 bg-white text-gray-800 shadow-sm disabled:opacity-50 disabled:pointer-events-none">
+                                                                            <span>@statusName</span>
+                                                                            @*  <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                                                <path fill="currentColor" fill-rule="evenodd" d="M12 21a9 9 0 1 0 0-18a9 9 0 0 0 0 18zM9.707 10.293a1 1 0 1 0-1.414 1.414l3 3a1 1 0 0 0 1.414 0l3-3a1 1 0 0 0-1.414-1.414L12 12.586l-2.293-2.293z" clip-rule="evenodd" />
+                                                                </svg> *@
+                                                                        </button>
+
+                                                                        @* <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden min-w-[15rem] bg-white shadow-md rounded-lg p-2 mt-2 after:h-4 after:absolute after:-bottom-4 after:start-0 after:w-full before:h-4 before:absolute before:-top-4 before:start-0 before:w-full" style="z-index:99;" aria-labelledby="hs-dropdown-default">
+                                                            <button onclick="changeStatus(this);" class="w-full flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-emerald-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100" data-statusid="5">Deployed</button>
+                                                            <button onclick="changeStatus(this);" class="w-full flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-yellow-400 hover:bg-gray-100 focus:outline-none focus:bg-gray-100" data-statusid="11">Released</button>
+                                                            </div> *@
+                                                                    </div>
+                                                                </td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@proj.Practicename</td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@proj.Subpracticename</td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@proj.Projecttypename</td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@proj.CustomerCompanyname</td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                                    @proj?.contracts[0]?.DeliveryAnchorName
+                                                                </td>
+                                                                @* <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                                    <div class="hs-dropdown relative inline-flex">
+                                                                        <button id="hs-dropdown-default" type="button" class="hs-dropdown-toggle status-toggle @(proj.Categorysubstatusname == "Deployed" ? "deployed" : "") @(proj.Categorysubstatusname == "Projection" ? "projection" : "") @(proj.Categorysubstatusname == "Bench" ? "onbench" : "") @(proj.Categorysubstatusname == "Shadow" ? "shadow" : "") @(proj.Categorysubstatusname == "Over Run" ? "overrun" : "") py-2 px-2 inline-flex items-center gap-x-2 text-sm font-medium rounded-full border border-gray-200 bg-white text-gray-800 shadow-sm disabled:opacity-50 disabled:pointer-events-none">
+                                                                            <span>@proj.Categorysubstatusname</span>
+                                                                            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"> <path fill="currentColor" fill-rule="evenodd" d="M12 21a9 9 0 1 0 0-18a9 9 0 0 0 0 18zM9.707 10.293a1 1 0 1 0-1.414 1.414l3 3a1 1 0 0 0 1.414 0l3-3a1 1 0 0 0-1.414-1.414L12 12.586l-2.293-2.293z" clip-rule="evenodd" /></svg>
+                                                                        </button>
+
+                                                                        <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden min-w-[15rem] bg-white shadow-md rounded-lg p-2 mt-2 after:h-4 after:absolute after:-bottom-4 after:start-0 after:w-full before:h-4 before:absolute before:-top-4 before:start-0 before:w-full" style="z-index:99;" aria-labelledby="hs-dropdown-default">
+                                                                            <button onclick="changeStatus(this);" class="w-full flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-emerald-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100" data-statusid="5">Deployed</button>
+                                                                            <button onclick="changeStatus(this);" class="w-full flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-yellow-400 hover:bg-gray-100 focus:outline-none focus:bg-gray-100" data-statusid="11">Released</button>
+
+                                                                        </div>
+                                                                    </div>
+                                                                </td> *@
+                                                                @* <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@proj.Categorysubstatusname</td> *@
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                                    <div class="hs-dropdown relative inline-flex">
+                                                                        <button id="hs-dropdown-default" type="button" class="hs-dropdown-toggle status-toggle @(proj.Categorysubstatusname == "Deployed" ? "deployed" : "") @(proj.Categorysubstatusname == "Projection" ? "projection" : "") @(proj.Categorysubstatusname == "Bench" ? "onbench" : "") @(proj.Categorysubstatusname == "Shadow" ? "shadow" : "") @(proj.Categorysubstatusname == "Over Run" ? "overrun" : "") py-2 px-2 inline-flex items-center gap-x-2 text-sm font-medium rounded-full border border-gray-200 bg-white text-gray-800 shadow-sm disabled:opacity-50 disabled:pointer-events-none">
+                                                                            <span>@proj.Categorysubstatusname</span>
+                                                                            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"> <path fill="currentColor" fill-rule="evenodd" d="M12 21a9 9 0 1 0 0-18a9 9 0 0 0 0 18zM9.707 10.293a1 1 0 1 0-1.414 1.414l3 3a1 1 0 0 0 1.414 0l3-3a1 1 0 0 0-1.414-1.414L12 12.586l-2.293-2.293z" clip-rule="evenodd" /></svg>
+                                                                        </button>
+
+                                                                        <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden min-w-[15rem] bg-white shadow-md rounded-lg p-2 mt-2 after:h-4 after:absolute after:-bottom-4 after:start-0 after:w-full before:h-4 before:absolute before:-top-4 before:start-0 before:w-full" style="z-index:99;" aria-labelledby="hs-dropdown-default">
+                                                                           @*  <button onclick="changeStatus(this);" class="w-full flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-slate-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100" data-statusid="1">Projection</button>@*  *@
+                                                                            @* <button onclick="changeStatus(this);" class="w-full flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm" data-statusid="3">Allocation</button> *@
+                                                                            @* <button onclick="changeStatus(this);" class="w-full flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-slate-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100" data-statusid="2">Shadow</button>
+                                                                            <button onclick="changeStatus(this);" class="w-full flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-blue-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100" data-statusid="4">Overrun</button> *@ 
+                                                                            <button onclick="changeStatus(this);" class="w-full flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-emerald-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100" data-statusid="5">Deployed</button>
+                                                                            @* <button onclick="changeStatus(this);" class="w-full flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-red-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100" data-statusid="10">Bench</button> *@
+                                                                            <button onclick="changeStatus(this);" class="w-full flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-yellow-400 hover:bg-gray-100 focus:outline-none focus:bg-gray-100" data-statusid="11">Released</button>
+
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                                    <button onclick="Remove(this)"
+                                                                            class="inline-flex flex-shrink-0 justify-center items-center gap-2 h-6 w-6 rounded-md border border-transparent font-medium bg-white text-gray-700 shadow-sm align-middle hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-white transition-all text-xs">
+                                                                        <svg class="w-4 h-4 text-black" xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024"><path fill="currentColor" d="M360 184h-8c4.4 0 8-3.6 8-8v8h304v-8c0 4.4 3.6 8 8 8h-8v72h72v-80c0-35.3-28.7-64-64-64H352c-35.3 0-64 28.7-64 64v80h72v-72zm504 72H160c-17.7 0-32 14.3-32 32v32c0 4.4 3.6 8 8 8h60.4l24.7 523c1.6 34.1 29.8 61 63.9 61h454c34.2 0 62.3-26.8 63.9-61l24.7-523H888c4.4 0 8-3.6 8-8v-32c0-17.7-14.3-32-32-32zM731.3 840H292.7l-24.2-512h487l-24.2 512z" /></svg>
+                                                                        @*<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024"><path fill="currentColor" d="M360 184h-8c4.4 0 8-3.6 8-8v8h304v-8c0 4.4 3.6 8 8 8h-8v72h72v-80c0-35.3-28.7-64-64-64H352c-35.3 0-64 28.7-64 64v80h72v-72zm504 72H160c-17.7 0-32 14.3-32 32v32c0 4.4 3.6 8 8 8h60.4l24.7 523c1.6 34.1 29.8 61 63.9 61h454c34.2 0 62.3-26.8 63.9-61l24.7-523H888c4.4 0 8-3.6 8-8v-32c0-17.7-14.3-32-32-32zM731.3 840H292.7l-24.2-512h487l-24.2 512z" /></svg>*@
+                                                                    </button>
+
+                                                                </td>
+
+
+                                                            </tr>
+                                                        }
+
+
+                                                    }
+                                                }
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="past-contracts-content" class="hidden" role="tabpanel" aria-labelledby="pills-on-gray-color-item-1">
+                        @* <h2 class="font-extrabold text-xl 2xl:text-2xl text-[#4B4E5C] mb-6">Pre Sales Checklist</h2> *@
+                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-6 flex-wrap">
+                            <div class="-m-1.5 overflow-x-auto w-full">
+                                <div class="p-1.5 min-w-full inline-block align-middle">
+                                    <div class="border rounded-lg overflow-hidden">
+                                        <table class="min-w-full divide-y divide-gray-200" id="tblPastprojects">
+                                            <thead class="bg-gray-50">
+                                                <tr>
+                                                    <th scope="col"
+                                                        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                        Project
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                        Contract
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                        Contract Start Date
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                        Contract End Date
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                        Practice
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                        Sub Practice
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                        Project Type
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                        Customer
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                        Delivery Anchor
+                                                    </th>
+                                                    @* <th scope="col"
+                                                    class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                    Deployed on - Released on
+                                                    </th> *@
+                                                    <th scope="col"
+                                                        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                        Status
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-gray-200">
+
+                                                @if (Model.employees.employeeProjects != null && Model.employees.employeeProjects.Count > 0)
+                                                {
+                                                    foreach (var proj in Model.employees.employeeProjects)
+                                                    {
+
+                                                        var contractNo = "";
+                                                        int? contractId = 0;
+                                                        int? contractStatusId = null;
+
+                                                        if (proj.contracts != null && proj.contracts.Count > 0)
+                                                        {
+                                                            contractNo = proj.contracts[0].ContractNo;
+                                                            contractId = proj.contracts[0].ContractId;
+                                                            contractStatusId = proj.contracts[0].Statusid;
+                                                        }
+
+                                                        @if (contractStatusId != null && contractStatusId == 6 || proj.Categorysubstatusname == "Released")
+                                                        {
+                                                            <tr>
+                                                                <td style="display:none" class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@proj.Projectid</td>
+                                                                <td style="display:none" class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@proj.Categorysubstatusid</td>
+
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"><a class="underline" title="Go To Project" asp-action="View" asp-controller="Project" asp-route-id="@proj.Projectid">@(proj.Projectname == null ? proj.CustomerCompanyname == null ? "" : proj.CustomerCompanyname : proj.Projectname)</a></td>
+
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+
+
+                                                                    <a asp-action="Detail" class="underline" title="Go To Contract" asp-controller="Contract" asp-route-id="@contractId">@contractNo</a>
+                                                                </td>
+
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@Convert.ToDateTime(@proj.contracts[0].Contractstartdate).ToString("dd/MM/yyyy")</td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@Convert.ToDateTime(@proj.contracts[0].Contractenddate).ToString("dd/MM/yyyy")</td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@proj.Practicename</td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@proj.Subpracticename</td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@proj.Projecttypename</td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@proj.CustomerCompanyname</td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                                    @proj?.contracts[0]?.DeliveryAnchorName
+                                                                </td>
+
+                                                                @* <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                    @(proj?.EffectiveStartDate?.ToString("dd/MM/yyyy") ?? "N/A") - @(proj?.EffectiveEndDate?.ToString("dd/MM/yyyy") ?? "N/A")
+                                                    </td> *@
+
+                                                                @if (proj.Categorysubstatusname == "Released")
+                                                                {
+                                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                                        <span class="status overrun">Released</span>
+                                                                    </td>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                                        <span class="status completed">Completed</span>
+                                                                    </td>
+                                                                }
+                                                            </tr>
+                                                        }
+
+
+                                                    }
+                                                }
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div id="skills-tab-content" role="tabpanel" class="hidden" aria-labelledby="skills-tab-content">
+            <!-- <div class="mb-4 mt-4">
+                <h2 class="font-extrabold text-xl 2xl:text-2xl text-[#4B4E5C]">Skills</h2>
+                <p>Add Or Update Skills</p>
+            </div> -->
+            <div class="flex flex-col sm:flex-row items-start gap-y-4 gap-x-8 mt-4" id="managerRating">
+                <div class="order-2 sm:order-1">
+                    <div class="flex items-center gap-2 mb-4 sm:mb-6">
+                        <h2 class="font-extrabold text-xl text-[#4B4E5C]">Primary Skills</h2>
+                        @if (Model?.employees?.PrimarySkill != null)
+                        {
+                            <button onclick="handlePrimarySkillEdit();">
+                                <svg class="w-6 h-6 text-slate-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                        <path d="m16.475 5.408l2.117 2.117m-.756-3.982L12.109 9.27a2.118 2.118 0 0 0-.58 1.082L11 13l2.648-.53c.41-.082.786-.283 1.082-.579l5.727-5.727a1.853 1.853 0 1 0-2.621-2.621" />
+                                        <path d="M19 15v3a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h3" />
+                                    </g>
+                                </svg>
+                            </button>
+                        }
+                    </div>
+                    <div>
+                        @if(Model?.employees?.PrimarySkill !=null)
+                        {
+                            <p class="font-semibold mb-1">@Model?.employees?.PrimarySkill?.SkillName</p>
+                           <p class="mb-1">Exp: @( ((Model.employees?.PrimarySkill?.experinceinmonths ?? 0) / 12.0m).ToString("0.##") ) years</p>
+
+                            <p class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-slate-100 text-sm">
+                                <svg class="w-5 h-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                    <path fill="currentColor" d="m5.825 22l1.625-7.025L2 10.25l7.2-.625L12 3l2.8 6.625l7.2.625l-5.45 4.725L18.175 22L12 18.275z" />
+                                </svg>
+                                @{
+                                    decimal? rating = Model?.employees?.PrimarySkill?.ManagerRating != null ? Model?.employees?.PrimarySkill?.ManagerRating : 0;
+                                }
+
+                                @rating /5
+                            </p>
+                        } else
+                        {
+                            <button onclick="handlePrimarySkillEdit();" class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-transparent bg-[#00cc83] text-white hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm 2xl:text-base">
+                                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                                    <path fill="currentColor" d="M16 2A14.172 14.172 0 0 0 2 16a14.172 14.172 0 0 0 14 14a14.172 14.172 0 0 0 14-14A14.172 14.172 0 0 0 16 2Zm8 15h-7v7h-2v-7H8v-2h7V8h2v7h7Z"></path>
+                                    <path fill="none" d="M24 17h-7v7h-2v-7H8v-2h7V8h2v7h7v2z"></path>
+                                </svg>
+                                Add Primary Skill
+                            </button>
+                        }
+                    </div>
+                </div>
+                <div class="flex-1 order-3 sm:order-2">
+                    <div class="flex items-center gap-2 mb-4 sm:mb-6">
+                        <h2 class="font-extrabold text-xl text-[#4B4E5C]">Secondary Skills</h2>
+                        @if (Model?.employees?.SecondarySkills != null && Model?.employees?.SecondarySkills.Count > 0)
+                        {
+                            <button onclick="handleSecondarySkillEdit();">
+                                <svg class="w-6 h-6 text-slate-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                        <path d="m16.475 5.408l2.117 2.117m-.756-3.982L12.109 9.27a2.118 2.118 0 0 0-.58 1.082L11 13l2.648-.53c.41-.082.786-.283 1.082-.579l5.727-5.727a1.853 1.853 0 1 0-2.621-2.621" />
+                                        <path d="M19 15v3a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h3" />
+                                    </g>
+                                </svg>
+                            </button>
+                        }
+                    </div>
+                    <div class="secondary-skills-wrapper flex items-center gap-4 flex-wrap managerOnly">
+                        @if (Model?.employees?.SecondarySkills != null && Model?.employees?.SecondarySkills.Count > 0)
+                        {
+                            foreach (var skill in Model?.employees?.SecondarySkills)
+                            {
+                                <div class="relative skill-card">
+                                    <p class="font-semibold mb-1">@skill.SkillName</p>
+
+                                    <p class="mb-1">Exp: @(((skill.experinceinmonths) / 12).ToString("0.##")) years</p>
+                                    <p class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-slate-100 text-sm managerRating">
+                                        <svg class="w-5 h-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                            <path fill="currentColor" d="m5.825 22l1.625-7.025L2 10.25l7.2-.625L12 3l2.8 6.625l7.2.625l-5.45 4.725L18.175 22L12 18.275z" />
+                                        </svg>
+
+                                        @{
+                                            decimal? mratings = skill.ManagerRating != null ? skill.ManagerRating : 0;
+                                        }
+                                        @mratings /5
+                                    </p>
+                                    <p class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-emerald-100 text-sm selfRating">
+                                        <svg class="w-5 h-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                            <path fill="currentColor" d="m5.825 22l1.625-7.025L2 10.25l7.2-.625L12 3l2.8 6.625l7.2.625l-5.45 4.725L18.175 22L12 18.275z" />
+                                        </svg>
+
+                                        @{
+                                            decimal? sratings = skill.SelfReting != null ? skill.SelfReting : 0;
+                                        }
+                                        @sratings /5
+                                    </p>
+                                    @* <div class="absolute skill-remove" onclick="removeSkill(this)" data-employeeskillid="@skill.EmployeeSkillId">
+                                        <button>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 1024 1024"><path fill="#ff5252" d="M512 64a448 448 0 1 1 0 896a448 448 0 0 1 0-896M288 512a38.4 38.4 0 0 0 38.4 38.4h371.2a38.4 38.4 0 0 0 0-76.8H326.4A38.4 38.4 0 0 0 288 512" /></svg>
+                                        </button>
+                                    </div> *@
+                                </div>
+                            }
+                        } else
+                        {
+                            <button onclick="handleSecondarySkillEdit();" class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-transparent bg-gray-700 text-white hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-all text-sm 2xl:text-base">
+                                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                                    <path fill="currentColor" d="M16 2A14.172 14.172 0 0 0 2 16a14.172 14.172 0 0 0 14 14a14.172 14.172 0 0 0 14-14A14.172 14.172 0 0 0 16 2Zm8 15h-7v7h-2v-7H8v-2h7V8h2v7h7Z"></path>
+                                    <path fill="none" d="M24 17h-7v7h-2v-7H8v-2h7V8h2v7h7v2z"></path>
+                                </svg>
+                                Add Secondary Skill
+                            </button>
+                        }
+
+                    </div>
+                </div>
+                <div class="flex items-center gap-4 order-1 sm:order-3 ">
+                    <p class="font-extrabold text-xl text-[#4B4E5C]">Rating</p>
+                    <select name="" id="" class="k-input min-w-[10rem]" onchange="switchRating(this);">
+                        <option value="2">Manager</option>
+                        <option value="1">Self</option>
+                    </select>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+
+<div id="add-skill-modal"
+     class="hs-overlay hidden w-full h-full fixed top-0 left-0 z-[60] overflow-x-hidden overflow-y-auto">
+    <div class="hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all md:max-w-4xl md:w-full m-3 md:mx-auto">
+        <div class="flex flex-col bg-white border shadow-sm rounded-xl ">
+            <div class="flex justify-between items-center py-3 px-4 ">
+                <div>
+                    <h3 class="font-bold text-xl">Add Secondary Skills</h3>
+                    <p>Edit or view profile details</p>
+                </div>
+                <button type="button"
+                        class="hs-dropdown-toggle inline-flex flex-shrink-0 justify-center items-center h-8 w-8 rounded-md text-gray-500 hover:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-white transition-all text-sm"
+                        data-hs-overlay="#add-skill-modal">
+                    <span class="sr-only">Close</span>
+                    <svg class="w-3.5 h-3.5" width="8" height="8" viewBox="0 0 8 8" fill="none"
+                         xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0.258206 1.00652C0.351976 0.912791 0.479126 0.860131 0.611706 0.860131C0.744296 0.860131 0.871447 0.912791 0.965207 1.00652L3.61171 3.65302L6.25822 1.00652C6.30432 0.958771 6.35952 0.920671 6.42052 0.894471C6.48152 0.868271 6.54712 0.854471 6.61352 0.853901C6.67992 0.853321 6.74572 0.865971 6.80722 0.891111C6.86862 0.916251 6.92442 0.953381 6.97142 1.00032C7.01832 1.04727 7.05552 1.1031 7.08062 1.16454C7.10572 1.22599 7.11842 1.29183 7.11782 1.35822C7.11722 1.42461 7.10342 1.49022 7.07722 1.55122C7.05102 1.61222 7.01292 1.6674 6.96522 1.71352L4.31871 4.36002L6.96522 7.00648C7.05632 7.10078 7.10672 7.22708 7.10552 7.35818C7.10442 7.48928 7.05182 7.61468 6.95912 7.70738C6.86642 7.80018 6.74102 7.85268 6.60992 7.85388C6.47882 7.85498 6.35252 7.80458 6.25822 7.71348L3.61171 5.06702L0.965207 7.71348C0.870907 7.80458 0.744606 7.85498 0.613506 7.85388C0.482406 7.85268 0.357007 7.80018 0.264297 7.70738C0.171597 7.61468 0.119017 7.48928 0.117877 7.35818C0.116737 7.22708 0.167126 7.10078 0.258206 7.00648L2.90471 4.36002L0.258206 1.71352C0.164476 1.61976 0.111816 1.4926 0.111816 1.36002C0.111816 1.22744 0.164476 1.10028 0.258206 1.00652Z"
+                              fill="currentColor" />
+                    </svg>
+                </button>
+            </div>
+            <div class="p-4 overflow-y-auto">
+                <div style="min-height: 20rem;">
+                    <div class="skill-input-row-wrapper mb-4 max-h-96 overflow-y-auto" id="secondary-row-wrapper">
+                        <div class="skill-input-row grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                            <div>
+                                <label for="">Skill Name</label>
+                                <select name="" id="" class="k-input w-full">
+                                    <option value="">Select Skill</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="">Skill Experience</label>
+                                <select name="" id="" class="k-input w-full">
+                                    <option value="">Select Experience</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="">Skill Rating</label>
+                                <input type="number" name="" id="" class="k-input w-full" max="5" placeholder="Out of 5">
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <button onclick="addSkillRow();" type="button" class="text-white bg-black rounded px-4 py-2 hover:opacity-70">Add</button>
+                    </div>
+                </div>
+                <div class="flex justify-center">
+                    <button type="button" onclick="handleSkillSubmit('secondary')"
+                            class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-emerald-400 bg-[#00cc83] text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm sm:text-base">
+                        Submit
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="add-primary-skill-modal"
+     class="hs-overlay hidden w-full h-full fixed top-0 left-0 z-[60] overflow-x-hidden overflow-y-auto">
+    <div class="hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all md:max-w-4xl md:w-full m-3 md:mx-auto">
+        <div class="flex flex-col bg-white border shadow-sm rounded-xl ">
+            <div class="flex justify-between items-center py-3 px-4 ">
+                <div>
+                    <h3 class="font-bold text-xl">Add Primary Skill</h3>
+                </div>
+                <button type="button"
+                        class="hs-dropdown-toggle inline-flex flex-shrink-0 justify-center items-center h-8 w-8 rounded-md text-gray-500 hover:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-white transition-all text-sm"
+                        data-hs-overlay="#add-primary-skill-modal">
+                    <span class="sr-only">Close</span>
+                    <svg class="w-3.5 h-3.5" width="8" height="8" viewBox="0 0 8 8" fill="none"
+                         xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0.258206 1.00652C0.351976 0.912791 0.479126 0.860131 0.611706 0.860131C0.744296 0.860131 0.871447 0.912791 0.965207 1.00652L3.61171 3.65302L6.25822 1.00652C6.30432 0.958771 6.35952 0.920671 6.42052 0.894471C6.48152 0.868271 6.54712 0.854471 6.61352 0.853901C6.67992 0.853321 6.74572 0.865971 6.80722 0.891111C6.86862 0.916251 6.92442 0.953381 6.97142 1.00032C7.01832 1.04727 7.05552 1.1031 7.08062 1.16454C7.10572 1.22599 7.11842 1.29183 7.11782 1.35822C7.11722 1.42461 7.10342 1.49022 7.07722 1.55122C7.05102 1.61222 7.01292 1.6674 6.96522 1.71352L4.31871 4.36002L6.96522 7.00648C7.05632 7.10078 7.10672 7.22708 7.10552 7.35818C7.10442 7.48928 7.05182 7.61468 6.95912 7.70738C6.86642 7.80018 6.74102 7.85268 6.60992 7.85388C6.47882 7.85498 6.35252 7.80458 6.25822 7.71348L3.61171 5.06702L0.965207 7.71348C0.870907 7.80458 0.744606 7.85498 0.613506 7.85388C0.482406 7.85268 0.357007 7.80018 0.264297 7.70738C0.171597 7.61468 0.119017 7.48928 0.117877 7.35818C0.116737 7.22708 0.167126 7.10078 0.258206 7.00648L2.90471 4.36002L0.258206 1.71352C0.164476 1.61976 0.111816 1.4926 0.111816 1.36002C0.111816 1.22744 0.164476 1.10028 0.258206 1.00652Z"
+                              fill="currentColor" />
+                    </svg>
+                </button>
+            </div>
+            <div class="p-4 overflow-y-auto">
+                <div style="min-height: 10rem;">
+                    <div class="skill-input-row-wrapper mb-4 max-h-96 overflow-y-auto" id="primary-row-wrapper">
+                        <div class="skill-input-row grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                            <div>
+                                <label for="">Skill Name</label>
+                                <select name="" id="" class="k-input w-full">
+                                    <option value="">Select Skill</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="">Skill Experience (In Months)</label>
+                                <select name="" id="" class="k-input w-full">
+                                    <option value="">Select Experience</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="">Skill Rating</label>
+                                <input type="number" name="" id="" class="k-input w-full" max="5" placeholder="Out of 5">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-center">
+                    <button type="button" onclick="handleSkillSubmit('primary')"
+                            class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-emerald-400 bg-[#00cc83] text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm sm:text-base">
+                        Submit
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+@section Scripts{
+    <script type="text/javascript">
+        const secondarySkills = @Html.Raw(Json.Serialize(Model?.employees?.SecondarySkills));
+         const primarySkill = [@Html.Raw(Json.Serialize(Model?.employees.PrimarySkill))];
+        //const primarySkill = [];
+
+        const skillList = @Html.Raw(Json.Serialize(ViewBag.skilllist));
+
+        @if (ViewData["error"] != null)
+        {
+            <text>
+                toastr.error("@ViewData["error"]", "Error", { "iconClass": 'new-error' });
+            </text>
+        }
+        @if (ViewData["success"] != null)
+        {
+            <text>
+                toastr.success("@ViewData["success"]");
+            </text>
+        }
+
+                                                                                        const datatable = new DataTable("#tblProjects", {
+            scrollX: true,
+        });
+
+        $(document).ready(function () {
+
+
+
+            $("#btnAdd").on("click", function () {
+                var allow = true;
+                var _projectId = $("#ctlProject").val();
+                var _projectName = $("#ctlProject option:selected").text();
+                var _statusId = $("#ctlStatus").val();
+                var _statusName = $("#ctlStatus option:selected").text();
+                var _contract = "-";
+                var _startdate = "-";
+                var _enddate = "-";
+                // console.log($("#ctlProject option:selected"));
+                var contractNo = $("#ctlProject option:selected")[0].getAttribute("data-contractno");
+
+                if (_projectId == "") {
+                    toastr.error("Please select project");
+                    allow = false;
+                }
+
+                if (_statusId == "") {
+                    toastr.error("Please select status");
+                    allow = false;
+                }
+
+                if (!contractNo) {
+                    toastr.error("Project contract does not exist");
+                    allow = false;
+                }
+
+                $("#tblProjects tbody tr").each(function () {
+                    var tableRow = $(this);
+                    if ($("TD", tableRow).eq(0).text().trim() == _projectId) {
+                        console.log($("TD", tableRow).eq(3));
+                        console.log($("TD", tableRow).eq(3).text().trim());
+                        if ($("TD", tableRow).eq(3).text().trim() == contractNo) {
+                            toastr.error("Project Already Exist!!");
+                            allow = false;
+                        }
+                    }
+                });
+
+                if (allow) {
+                    var fdata = new FormData();
+                    fdata.append("id", parseInt(_projectId));
+                    $.ajax({
+                        async: false,
+                        url: "@Url.Action("GetProjectInfo", "Employee")",
+                        type: "POST",
+                        cache: false,
+                        data: fdata,
+                        contentType: false,
+                        processData: false,
+                        success: function (result) {
+                            var tableRow = "";
+                            tableRow += '<tr data-isnew="true">';
+                            tableRow += '    <td style="display:none" class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">' + _projectId + '</td>';
+                            tableRow += '    <td style="display:none" class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">' + _statusId + '</td>';
+                            tableRow += '    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">' + _projectName + '</td>';
+                            tableRow += '    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">' + contractNo + '</td>';
+                            tableRow += '    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">' + _startdate + '</td>';
+                            tableRow += '    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">' + _startdate + '</td>';
+                            tableRow += '    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">' + result.practiceName + '</td>';
+                            tableRow += '    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">' + result.subPracticeName + '</td>';
+                            tableRow += '    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">' + result.projectTypeName + '</td>';
+                            tableRow += '    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">' + result.customerName + '</td>';
+                            tableRow += '    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"></td>';
+                            // tableRow += '    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">'; + _statusName + '</td>';
+                            tableRow += '    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">';
+                            tableRow += `<div class="hs-dropdown relative inline-flex">`;
+                            tableRow += `<button id="hs-dropdown-default" type="button" class="hs-dropdown-toggle status-toggle ${_statusName === "Deployed" ? 'deployed' : ''} ${_statusName === "Over Run" ? 'overrun' : ''} ${_statusName === "Bench" ? 'onbench' : ''} py-2 px-2 inline-flex items-center gap-x-2 text-sm font-medium rounded-full border border-gray-200 bg-white text-gray-800 shadow-sm disabled:opacity-50 disabled:pointer-events-none">`;
+                            tableRow += `<span>` + _statusName + `</span>`;
+                            tableRow += `<svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" > <path fill="currentColor" fill-rule="evenodd" d="M12 21a9 9 0 1 0 0-18a9 9 0 0 0 0 18zM9.707 10.293a1 1 0 1 0-1.414 1.414l3 3a1 1 0 0 0 1.414 0l3-3a1 1 0 0 0-1.414-1.414L12 12.586l-2.293-2.293z" clip-rule="evenodd" /></svg>`;
+                            tableRow += `</button>`;
+
+                            tableRow += `<div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden min-w-[15rem] bg-white shadow-md rounded-lg p-2 mt-2 after:h-4 after:absolute after:-bottom-4 after:start-0 after:w-full before:h-4 before:absolute before:-top-4 before:start-0 before:w-full z-10" aria-labelledby="hs-dropdown-default">`;
+                            tableRow += `<button onclick="changeStatus(this);" class="w-full flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-slate-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100" data-statusid="1">Projection</button>`;
+                            tableRow += `<button onclick="changeStatus(this);" class="w-full flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-slate-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100" data-statusid="2">Shadow</button>`;
+                            tableRow += `<button onclick="changeStatus(this);" class="w-full flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-blue-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100" data-statusid="4">Overrun</button>`;
+                            tableRow += `<button onclick="changeStatus(this);" class="w-full flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-emerald-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100" data-statusid="5">Deployed</button>`;
+                            // tableRow += `<button onclick="changeStatus(this);" class="w-full flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-red-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100" data-statusid="10">Bench</button>`;
+                            tableRow += `</div>`;
+                            tableRow += `</div>`;
+                            tableRow += `</td>`;
+
+                            tableRow += '    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">';
+                            tableRow += '        <a href="#" onclick="Remove(this)"';
+                            tableRow += '                class="inline-flex flex-shrink-0 justify-center items-center gap-2 h-6 w-6 rounded-md border border-transparent font-medium bg-white text-gray-700 shadow-sm align-middle hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-white transition-all text-xs">';
+                            //tableRow += '            <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024"><path fill="currentColor" d="M360 184h-8c4.4 0 8-3.6 8-8v8h304v-8c0 4.4 3.6 8 8 8h-8v72h72v-80c0-35.3-28.7-64-64-64H352c-35.3 0-64 28.7-64 64v80h72v-72zm504 72H160c-17.7 0-32 14.3-32 32v32c0 4.4 3.6 8 8 8h60.4l24.7 523c1.6 34.1 29.8 61 63.9 61h454c34.2 0 62.3-26.8 63.9-61l24.7-523H888c4.4 0 8-3.6 8-8v-32c0-17.7-14.3-32-32-32zM731.3 840H292.7l-24.2-512h487l-24.2 512z" /></svg>';
+                            tableRow += '           <svg class="w-4 h-4 text-black" xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024"><path fill="currentColor" d="M360 184h-8c4.4 0 8-3.6 8-8v8h304v-8c0 4.4 3.6 8 8 8h-8v72h72v-80c0-35.3-28.7-64-64-64H352c-35.3 0-64 28.7-64 64v80h72v-72zm504 72H160c-17.7 0-32 14.3-32 32v32c0 4.4 3.6 8 8 8h60.4l24.7 523c1.6 34.1 29.8 61 63.9 61h454c34.2 0 62.3-26.8 63.9-61l24.7-523H888c4.4 0 8-3.6 8-8v-32c0-17.7-14.3-32-32-32zM731.3 840H292.7l-24.2-512h487l-24.2 512z" /></svg></a>';
+                            tableRow += '    </td>';
+                            tableRow += '</tr>';
+                            $("#tblProjects").append(tableRow);
+
+                            // $("#ctlProject").val("");
+                            // $("#ctlStatus").val("");
+                            multiSelect4.setSelected("")
+                            multiSelect5.setSelected("")
+                        },
+                        error: function (err) { }
+                    });
+                }
+            });
+
+            $("#btnSubmit").on("click", function () {
+                var _empId = $("#employeeid").val();
+                var _ProjectWithStatus = [];
+                var contractnumber = "";
+                $("#tblProjects tbody tr[data-isnew='true']").each(function () {
+                    var tableRow = $(this);
+                    var projectId = $("TD", tableRow).eq(0).text().trim();
+                    var statusId = $("TD", tableRow).eq(1).text().trim();
+                    contractnumber = $("TD", tableRow).eq(3).text().trim();
+                    _ProjectWithStatus.push({
+                        Projectid: projectId,
+                        Categorysubstatusid: statusId,
+                        contractno: contractnumber
+
+
+                    });
+                });
+
+                if (!_ProjectWithStatus.length) {
+                    return;
+                }
+
+                var _ProjectAssign = {
+                    employeeid: _empId,
+                    ProjectWithStatus: _ProjectWithStatus
+
+                }
+
+                const formData = new FormData();
+                formData.append("jobject", JSON.stringify(_ProjectAssign));
+
+                $.ajax({
+                    async: false,
+                    url: "@Url.Action("Update", "Employee")",
+                    type: "POST",
+                    cache: false,
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (result) {
+                        console.log(result);
+
+
+                        const response = JSON.parse(result?.data);
+                        console.log(response);
+                        if (response?.status === 200 || response?.responseCode === 200) {
+                            toastr.success("Updated Successfully");
+                            window.location.reload();
+                        } else {
+                            toastr.error(response.responseMessage);
+                        }
+                    },
+                    error: function (err) {
+                        console.log(err);
+                        // Toas
+                        toastr.error("Something Went Wrong or Billing data of employee already exist!!");
+                    }
+                });
+            });
+
+        });
+
+        function Remove(button) {
+            var row = $(button).closest("TR");
+            var projectName = $("TD", row).eq(2).text();
+            let isNew = button.closest("tr").getAttribute("data-isnew");
+            if (confirm("Do you want to remove: " + projectName)) {
+                // $(button).closest("tr").remove();
+                if (!isNew) {
+                    var _empId = $("#employeeid").val();
+                    var _ProjectWithStatus = [];
+                    var contractnumber = "";
+                    var projectId = $("TD", row).eq(0).text().trim();
+                    var statusId = $("TD", row).eq(1).text().trim();
+                    contractnumber = $("TD", row).eq(3).text().trim();
+                    _ProjectWithStatus.push({
+                        Projectid: projectId,
+                        Categorysubstatusid: statusId,
+                        contractno: contractnumber
+                    });
+
+                    var _ProjectAssign = {
+                        employeeid: _empId,
+                        ProjectWithStatus: _ProjectWithStatus
+                    }
+
+                    const formData = new FormData();
+                    formData.append("jobject", JSON.stringify(_ProjectAssign));
+                    console.log(_ProjectAssign);
+                    $.ajax({
+                        async: false,
+                        url: "@Url.Action("DeleteEmployeeProject", "Employee")",
+                        type: "POST",
+                        cache: false,
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        success: function (result) {
+                            console.log(result);
+
+
+                            const response = JSON.parse(result?.data);
+                            console.log(response);
+                            if (response?.status === 200 || response?.responseCode === 200) {
+                                toastr.success("Project Deleted Successfully");
+                                button.closest("tr").remove();
+                            } else {
+                                toastr.error(response.responseMessage);
+                            }
+                        },
+                        error: function (err) {
+                            console.log(err);
+                            // Toas
+                            toastr.error("Something Went Wrong or Billing data of employee already exist!!");
+                        }
+                    });
+                }
+                else {
+                    button.closest("tr").remove();
+                }
+            }
+        }
+
+        const multiSelect4 = new SlimSelect({
+            select: "#ctlProject",
+            settings: {
+                allowDeselect: false,
+                closeOnSelect: true,
+                maxValuesShown: 1
+            }
+        })
+        const multiSelect5 = new SlimSelect({
+            select: "#ctlStatus",
+            settings: {
+                allowDeselect: false,
+                closeOnSelect: true,
+                maxValuesShown: 1
+            }
+        })
+
+        function changeStatus(btn) {
+            const _statusId = Number(btn.getAttribute("data-statusid"));
+            if (_statusId == "11") {
+                if (!confirm("Attention: Project release triggers employee removal, resets future month billing to zero, and locks. Please proceed with caution Proceed with careful consideration.")) return;
+            } else {
+                if (!confirm("Do you really want to continue?.")) return;
+            }
+            const _dropBtn = btn.closest(".hs-dropdown").querySelector("button");
+            const isNew = btn.closest("tr").getAttribute("data-isnew");
+            var row = $(btn).closest("TR");
+            if (!isNew) {
+                var _empId = $("#employeeid").val();
+                var _ProjectWithStatus = [];
+
+                var projectId = $("TD", row).eq(0).text().trim();
+                var contractno = $("TD", row).eq(3).text().trim();
+
+                _ProjectWithStatus.push({
+                    Projectid: projectId,
+                    Categorysubstatusid: _statusId,
+                    contractno
+                });
+
+                var _ProjectAssign = {
+                    employeeid: _empId,
+                    ProjectWithStatus: _ProjectWithStatus
+                }
+
+                const formData = new FormData();
+                formData.append("jobject", JSON.stringify(_ProjectAssign));
+                console.log(_ProjectAssign);
+                $.ajax({
+                    async: false,
+                    url: "@Url.Action("Changeemployeeprojectstatus", "Employee")",
+                    type: "POST",
+                    cache: false,
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (result) {
+                        console.log(result);
+
+
+                        const response = JSON.parse(result?.data);
+                        console.log(response);
+                        if (response?.status === 200 || response?.responseCode === 200) {
+                            toastr.success("Project Status Updated Successfully");
+                            // button.closest("tr").remove();
+                            if (_statusId === 1) {
+                                _dropBtn.classList.remove("deployed", "overrun", "shadow", "onbench", "released");
+                                _dropBtn.classList.add("projection");
+                                _dropBtn.querySelector("span").innerText = "Projection";
+                                btn.closest("tr").querySelector("td:nth-child(2)").innerText = 1;
+
+                            } else if (_statusId === 2) {
+                                _dropBtn.classList.remove("deployed", "overrun", "projection", "onbench", "released");
+                                _dropBtn.classList.add("shadow");
+                                _dropBtn.querySelector("span").innerText = "Shadow";
+                                btn.closest("tr").querySelector("td:nth-child(2)").innerText = 2;
+                            } else if (_statusId === 4) {
+                                _dropBtn.classList.remove("deployed", "projection", "shadow", "onbench", "released");
+                                _dropBtn.classList.add("overrun");
+                                _dropBtn.querySelector("span").innerText = "Overrun";
+                                btn.closest("tr").querySelector("td:nth-child(2)").innerText = 4;
+                            } else if (_statusId === 5) {
+                                _dropBtn.classList.remove("projection", "overrun", "shadow", "onbench", "released");
+                                _dropBtn.classList.add("deployed");
+                                _dropBtn.querySelector("span").innerText = "Deployed";
+                                btn.closest("tr").querySelector("td:nth-child(2)").innerText = 5;
+                            } else if (_statusId === 10) {
+                                _dropBtn.classList.remove("deployed", "overrun", "shadow", "projection", "released");
+                                _dropBtn.classList.add("onbench");
+                                _dropBtn.querySelector("span").innerText = "Bench";
+                                btn.closest("tr").querySelector("td:nth-child(2)").innerText = 10;
+                            } else if (_statusId === 11) {
+                                _dropBtn.classList.remove("deployed", "overrun", "shadow", "projection", "onbench");
+                                _dropBtn.classList.add("released");
+                                _dropBtn.querySelector("span").innerText = "Released";
+                                btn.closest("tr").querySelector("td:nth-child(2)").innerText = 11;
+                            } else if (_statusId === 3) {
+                                _dropBtn.classList.remove("deployed", "overrun", "shadow", "projection", "onbench");
+                                _dropBtn.classList.add("allocation");
+                                _dropBtn.querySelector("span").innerText = "Allocation";
+                                btn.closest("tr").querySelector("td:nth-child(2)").innerText = 11;
+
+                            }
+                            window.location.reload();
+                        } else {
+                            toastr.error(response.responseMessage);
+                        }
+                    },
+                    error: function (err) {
+                        console.log(err);
+                        // Toas
+                        toastr.error("Something Went Wrong or Billing data of employee already exist!!");
+                    }
+                });
+            } else {
+                if (_statusId === 1) {
+                    _dropBtn.classList.remove("deployed", "overrun", "shadow", "onbench", "released");
+                    _dropBtn.classList.add("projection");
+                    _dropBtn.querySelector("span").innerText = "Projection";
+                    btn.closest("tr").querySelector("td:nth-child(2)").innerText = 1;
+                } else if (_statusId === 2) {
+                    _dropBtn.classList.remove("deployed", "overrun", "projection", "onbench", "released");
+                    _dropBtn.classList.add("shadow");
+                    _dropBtn.querySelector("span").innerText = "Shadow";
+                    btn.closest("tr").querySelector("td:nth-child(2)").innerText = 2;
+                } else if (_statusId === 4) {
+                    _dropBtn.classList.remove("deployed", "projection", "shadow", "onbench", "released");
+                    _dropBtn.classList.add("overrun");
+                    _dropBtn.querySelector("span").innerText = "Overrun";
+                    btn.closest("tr").querySelector("td:nth-child(2)").innerText = 4;
+                } else if (_statusId === 5) {
+                    _dropBtn.classList.remove("projection", "overrun", "shadow", "onbench", "released");
+                    _dropBtn.classList.add("deployed");
+                    _dropBtn.querySelector("span").innerText = "Deployed";
+                    btn.closest("tr").querySelector("td:nth-child(2)").innerText = 5;
+                } else if (_statusId === 10) {
+                    _dropBtn.classList.remove("deployed", "overrun", "shadow", "projection", "released");
+                    _dropBtn.classList.add("onbench");
+                    _dropBtn.querySelector("span").innerText = "Bench";
+                    btn.closest("tr").querySelector("td:nth-child(2)").innerText = 10;
+                } else if (_statusId === 11) {
+                    _dropBtn.classList.remove("deployed", "overrun", "shadow", "projection", "onbench");
+                    _dropBtn.classList.add("released");
+                    _dropBtn.querySelector("span").innerText = "Released";
+                    btn.closest("tr").querySelector("td:nth-child(2)").innerText = 11;
+                } else if (_statusId === 3) {
+                    _dropBtn.classList.remove("deployed", "overrun", "shadow", "projection", "onbench");
+                    _dropBtn.classList.add("allocation");
+                    _dropBtn.querySelector("span").innerText = "Allocation";
+                    btn.closest("tr").querySelector("td:nth-child(2)").innerText = 11;
+                }
+            }
+
+        }
+
+        function handleResign(input) {
+            const _emp = $("#employeeid").val(); // Get the employee ID using jQuery
+            if (input.checked) {
+                if (confirm("Do you want to change the status of Resource to Resigned?")) {
+                    console.log("resigned");
+                    const formData = new FormData();
+                    formData.append("empid", _emp);
+                    formData.append("isresigned", 1);
+
+                    // Send the form data using jQuery AJAX
+                    $.ajax({
+                        type: "POST",
+                        url: "/Employee/EmployeeResign",
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function (result) {
+                            console.log(result);
+
+                            const response = JSON.parse(result?.data);
+                            console.log(response);
+                            if (response?.status === 200 || response?.responseCode === 200) {
+                                toastr.success("Employee Resigned Status Updated Successfully");
+                                window.location.reload();
+                            }
+                            else {
+                                toastr.error("Something Went Wrong!!");
+                            }
+                        }
+                    });
+                }
+                else { window.location.reload(); }
+            } else {
+                if (confirm("Do you want to change the status of Resource ?")) {
+                    const formData = new FormData();
+                    formData.append("empid", _emp);
+                    formData.append("isresigned", 0);
+                    $.ajax({
+                        type: "POST",
+                        url: "/Employee/EmployeeResign",
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function (result) {
+                            console.log(result);
+
+                            const response = JSON.parse(result?.data);
+                            console.log(response);
+                            if (response?.status === 200 || response?.responseCode === 200) {
+                                // Reload the page when the user clicks on "Cancel"
+                                window.location.reload();
+                            }
+                            else {
+                                toastr.error("Something Went Wrong!!");
+                            }
+                        }
+                    });
+                }
+                else { window.location.reload(); }
+            }
+
+            // function toggleColVisibility(index, input) {
+            //     const column = dt.column(index);
+            //     column.visible(input.checked);
+            // }
+        }
+
+
+        function handletrainee(input) {
+            const _emp = $("#employeeid").val(); // Get the employee ID using jQuery
+            if (input.checked) {
+                if (confirm("Would you like to officially mark this employee as 'Joined' through the ADE batch process?")) {
+                    console.log("ade marked called");
+                    const formData = new FormData();
+                    formData.append("empid", _emp);
+                    formData.append("isade", true);
+
+                    // Send the form data using jQuery AJAX
+                    $.ajax({
+                        type: "POST",
+                        url: "/Employee/Employeetraineebatch",
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function (result) {
+                            console.log(result);
+
+                            const response = JSON.parse(result?.data);
+                            console.log(response);
+                            if (response?.status === 200 || response?.responseCode === 200) {
+                                toastr.success("Employee ADE Batch History has been successfully updated.");
+                                window.location.reload();
+                            }
+                            else {
+                                toastr.error("Something Went Wrong!!");
+                            }
+                        }
+                    });
+                }
+                else { window.location.reload(); }
+            } else {
+                if (confirm("Do you want to change the status of Resource ?")) {
+                    const formData = new FormData();
+                    formData.append("empid", _emp);
+                    formData.append("isade", false);
+                    $.ajax({
+                        type: "POST",
+                        url: "/Employee/Employeetraineebatch",
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function (result) {
+                            console.log(result);
+
+                            const response = JSON.parse(result?.data);
+                            console.log(response);
+                            if (response?.status === 200 || response?.responseCode === 200) {
+                                // Reload the page when the user clicks on "Cancel"
+                                window.location.reload();
+                            }
+                            else {
+                                toastr.error("Something Went Wrong!!");
+                            }
+                        }
+                    });
+                }
+                else { window.location.reload(); }
+            }
+
+
+        }
+
+        function addSkillRow() {
+            const newRow = document.createElement("div");
+            // <div class="skill-input-row grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+            //                 </div>
+            newRow.classList.add("skill-input-row", "grid", "grid-cols-1", "sm:grid-cols-3", "gap-4", "mb-4");
+            newRow.innerHTML = `<div>
+                                                                                    <label for="">Skill Name</label>
+                                                                                    <select name="" id="" class="k-input w-full">
+                                                                                        <option value="">Select Skill</option>
+                                                                                        ${getSkillOptions()}
+                                                                                    </select>
+                                                                                </div>
+                                                                                <div>
+                                                                                    <label for="">Skill Experience (In Months)</label>
+                                                                                    <input type="number" class="k-input w-full experience" />
+                                                                                </div>
+                                                                                <div>
+                                                                                    <label for="">Skill Rating</label>
+                                                                                    <div class="flex items-center gap-2">
+                                                                                        <input type="number" name="" id="" class="k-input w-full rating" max="5" placeholder="Out of 5">
+                                                                                        <button onclick="deleteRow(this);" class="py-3 px-4 inline-flex justify-center items-center gap-2 rounded-md border-2 border-red-200 font-semibold text-red-500 hover:text-white hover:bg-red-500 hover:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-200 focus:ring-offset-2 transition-all text-sm">
+                                                                                            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024"><path fill="currentColor" d="M360 184h-8c4.4 0 8-3.6 8-8v8h304v-8c0 4.4 3.6 8 8 8h-8v72h72v-80c0-35.3-28.7-64-64-64H352c-35.3 0-64 28.7-64 64v80h72v-72zm504 72H160c-17.7 0-32 14.3-32 32v32c0 4.4 3.6 8 8 8h60.4l24.7 523c1.6 34.1 29.8 61 63.9 61h454c34.2 0 62.3-26.8 63.9-61l24.7-523H888c4.4 0 8-3.6 8-8v-32c0-17.7-14.3-32-32-32zM731.3 840H292.7l-24.2-512h487l-24.2 512z"/></svg>
+                                                                                        </button>
+                                                                                    </div>
+                                                                                </div>`;
+            document.querySelector("#secondary-row-wrapper").appendChild(newRow);
+        }
+
+        function deleteRow(btn) {
+            btn.closest(".skill-input-row").remove();
+        }
+
+        function handlePrimarySkillEdit() {
+            setExistingSkillsInModal(primarySkill, "primary");
+            HSOverlay.open(document.querySelector("#add-primary-skill-modal"));
+        }
+
+        function handleSecondarySkillEdit() {
+            setExistingSkillsInModal(secondarySkills, "secondary");
+            HSOverlay.open(document.querySelector("#add-skill-modal"));
+        }
+
+        function setExistingSkillsInModal(skills, modal) {
+            if (!modal || !skills) return;
+            if (modal === "primary") {
+                setExistingPrimary(skills);
+            } else {
+                setExistingSecondary(skills);
+            }
+        }
+
+        function setExistingPrimary(skills) {
+            document.querySelector("#primary-row-wrapper").innerHTML = "";
+            if (skills.length) {
+                skills.forEach(item => {
+                    const skillRow = getSkillRow(item?.skillId, item?.experinceinmonths, item?.managerRating, item?.employeeSkillId);
+                    document.querySelector("#primary-row-wrapper").appendChild(skillRow);
+                })
+            } else {
+                const skillRow = getSkillRow();
+                document.querySelector("#primary-row-wrapper").appendChild(skillRow);
+            }
+        }
+
+        function setExistingSecondary(skills) {
+            // if (!skills.length) return;
+            document.querySelector("#secondary-row-wrapper").innerHTML = "";
+            if (skills.length) {
+                skills.forEach(item => {
+                    const skillRow = getSkillRow(item?.skillId, item?.experinceinmonths, item?.managerRating, item?.employeeSkillId);
+                    document.querySelector("#secondary-row-wrapper").appendChild(skillRow);
+                })
+            } else {
+                const skillRow = getSkillRow();
+                document.querySelector("#secondary-row-wrapper").appendChild(skillRow);
+            }
+        }
+
+        function getSkillRow(skillId = 0, experience = 0, rating = 0, rowId) {
+            const row = document.createElement("div");
+            row.classList.add("skill-input-row", "grid", "grid-cols-1", "sm:grid-cols-3", "gap-4", "mb-4");
+            row.setAttribute("data-rowid", rowId);
+            row.innerHTML = `<div>
+                                                                <label for="">Skill Name</label>
+                                                                <select name="" id="" class="k-input w-full">
+                                                                    <option value="0">Select Skill</option>
+                                                                    ${getSkillOptions(skillId)}
+                                                                </select>
+                                                            </div>
+                                                            <div>
+                                                                        <label for="">Skill Experience (In Months)</label>
+                                                                <input type="number" class="k-input w-full experience" value="${experience ? experience : ""}" />
+                                                            </div>
+                                                            <div>
+                                                                <label for="">Skill Rating</label>
+                                                                <input type="number" name="" id="" class="k-input w-full rating" max="5" placeholder="Out of 5" value="${rating ? rating : ""}">
+                                                            </div>`;
+
+            return row;
+        }
+
+        function getSkillOptions(skillId = 0) {
+            let skillOptionStr = '';
+            skillList.forEach(item => {
+                skillOptionStr += `<option value="${item?.value}" ${skillId == item?.value ? "selected" : ""}>${item?.text}</option>`;
+            })
+            return skillOptionStr;
+        }
+
+
+        function handleSkillSubmit(type) {
+            if (type === "primary") {
+                primarySkillSubmit();
+            } else {
+                secondarySkillSubmit();
+            }
+        }
+
+        function validateRows(rows) {
+            let flag = true;
+            if (!rows || !rows.length) return !flag;
+
+            const skillRowData = {};
+
+            rows.forEach((item, index) => {
+                const skillInp = item.querySelector("select");
+                const expInp = item.querySelector("input.experience");
+                const ratingInp = item.querySelector("input.rating");
+
+
+                if (!skillInp.value || skillInp.value === '0') {
+                    skillInp.classList.add("is-invalid");
+                    flag = false;
+                } else {
+                    skillInp.classList.remove("is-invalid");
+                    if (skillRowData[`${skillInp.value}`]) {
+                        skillRowData[`${skillInp.value}`] = [...skillRowData[`${skillInp.value}`], { rowInd: index }]
+                    } else {
+                        skillRowData[`${skillInp.value}`] = [{ rowInd: index }];
+                    }
+                }
+
+                if (!expInp.value || Number(expInp.value) <= 0) {
+                    expInp.classList.add("is-invalid");
+                    flag = false;
+                } else {
+                    expInp.classList.remove("is-invalid");
+                }
+
+                if (!ratingInp.value || Number(ratingInp.value) <= 0 || Number(ratingInp.value) > 5) {
+                    ratingInp.classList.add("is-invalid");
+                    flag = false;
+                } else {
+                    ratingInp.classList.remove("is-invalid");
+                }
+            })
+
+            Object.keys(skillRowData).forEach(item => {
+                if (skillRowData[`${item}`].length > 1) {
+                    flag = false;
+                    skillRowData[`${item}`].forEach(r => {
+                        rows[r.rowInd].querySelector("select").classList.add("is-invalid");
+                    })
+                }
+            })
+
+            return flag;
+        }
+
+        function primarySkillSubmit() {
+            const allRows = document.querySelectorAll("#primary-row-wrapper .skill-input-row");
+            const isValid = validateRows(allRows);
+            if (!isValid) return;
+            $('#loader').show();
+            const urlData = new URLSearchParams(window.location.search);
+            const formSkillData = [];
+            allRows.forEach(item => {
+                const _formSkillDataItem = {
+                    Skillid: item.querySelector("select").value,
+                    Experinceinmonths: item.querySelector("input.experience").value,
+                    Managerrating: item.querySelector("input.rating").value,
+                    Employeeid: urlData.get("id"),
+                    isPrimary: true,
+                }
+                const rowId = item.getAttribute("data-rowid");
+                if (rowId && rowId !== 'undefined') {
+                    _formSkillDataItem.employeeSkillId = rowId;
+                }
+                formSkillData.push(_formSkillDataItem);
+            })
+
+            const fdata = new FormData();
+            fdata.append("jobject", JSON.stringify(formSkillData));
+
+            $.ajax({
+                url: "@Url.Action("UpdateSkill", "Employee")",
+                type: "POST",
+                cache: false,
+                data: fdata,
+                contentType: false,
+                processData: false,
+                success: function (res) {
+                    console.log(res);
+                    if (res.success == true) {
+                        //
+                        // HSOverlay.close(document.querySelector("#prov-billing-overlay"));
+                        window.location.reload();
+                        toastr.success(res?.msg)
+                    } else {
+                        $('#loader').hide();
+                        toastr.error(res?.msg);
+                    }
+                },
+                error: function (err) {
+                    toastr.error(err);
+                }
+            });
+        }
+        function secondarySkillSubmit() {
+            const allRows = document.querySelectorAll("#secondary-row-wrapper .skill-input-row");
+            const isValid = validateRows(allRows);
+            if (!isValid) return;
+            $('#loader').show();
+            const urlData = new URLSearchParams(window.location.search);
+            const formSkillData = [];
+            allRows.forEach(item => {
+                const _formSkillDataItem = {
+                    Skillid: item.querySelector("select").value,
+                    Experinceinmonths: item.querySelector("input.experience").value,
+                    Managerrating: item.querySelector("input.rating").value,
+                    Employeeid: urlData.get("id"),
+                }
+                const rowId = item.getAttribute("data-rowid");
+                if (rowId && rowId!=='undefined') {
+                    _formSkillDataItem.employeeSkillId = rowId;
+                }
+                formSkillData.push(_formSkillDataItem);
+            })
+
+            const fdata = new FormData();
+            fdata.append("jobject", JSON.stringify(formSkillData));
+
+            $.ajax({
+                url: "@Url.Action("UpdateSkill", "Employee")",
+                type: "POST",
+                cache: false,
+                data: fdata,
+                contentType: false,
+                processData: false,
+                success: function (res) {
+                    console.log(res);
+                    if (res.success == true) {
+                        //
+                        // HSOverlay.close(document.querySelector("#prov-billing-overlay"));
+                        window.location.reload();
+                        toastr.success(res?.msg)
+                    } else {
+                        $('#loader').hide();
+                        toastr.error(res?.msg);
+                    }
+                },
+                error: function (err) {
+                    toastr.error(err);
+                }
+            });
+        }
+
+        function removeSkill(btn) {
+            const employeeSkillId = btn.getAttribute("data-employeeskillid");
+            if (employeeSkillId) {
+                alert(employeeSkillId)
+                const fdata = new FormData();
+                fdata.append("employeeskillid", employeeSkillId);
+                $.ajax({
+                    url: "@Url.Action("DeleteEmployeeSkill", "Employee")",
+                    type: "POST",
+                    cache: false,
+                    data: fdata,
+                    contentType: false,
+                    processData: false,
+                    success: function (res) {
+                        console.log(res);
+                        if (res.success == true) {
+                            //
+                            // HSOverlay.close(document.querySelector("#prov-billing-overlay"));
+                            window.location.reload();
+                            toastr.success(res?.msg)
+                        } else {
+                            $('#loader').hide();
+                            toastr.error(res?.msg);
+                        }
+                    },
+                    error: function (err) {
+                        toastr.error(err);
+                    }
+                });
+            }
+        }
+
+        function switchRating(select) {
+            if (select.value === "1") {
+                document.querySelector(".secondary-skills-wrapper").classList.add("selfOnly")
+                document.querySelector(".secondary-skills-wrapper").classList.remove("managerOnly")
+            } else {
+                document.querySelector(".secondary-skills-wrapper").classList.remove("selfOnly")
+                document.querySelector(".secondary-skills-wrapper").classList.add("managerOnly")
+            }
+        }
+    </script>
+}

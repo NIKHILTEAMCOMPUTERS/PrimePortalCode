@@ -1,0 +1,126 @@
+﻿@{
+    var Count = @Context.Session.GetInt32("RequestCount");
+    var role = @Context.Session.GetString("RoleName");
+}
+<div class="header w-full h-20 px-4 xl:px-6 2xl:px-8 flex items-center fixed top-0 right-0 gap-3 xl:gap-4 2xl:gap-5 z-30 bg-white">
+    @* <button type="button" onclick="toggleSidebarSize();"
+            class="sidebar-toggle inline-flex flex-shrink-0 justify-center items-center gap-2 w-8 h-8 xl:w-10 xl:h-10 2xl:h-12 2xl:w-12 rounded-md border border-transparent font-semibold bg-[#f9f9f9] text-black hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm">
+        <svg class="w-4 h-4 xl:w-5 xl:h-5 2xl:h-6 2xl:w-6" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
+            <path fill="currentColor" fill-rule="evenodd"
+                  d="M3 5a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1Zm0 5a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1Zm0 5a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1Z"
+                  clip-rule="evenodd" />
+        </svg>
+    </button> *@
+    <button type="button" data-hs-overlay="#sidebar-mobile"
+            class="open-mobile-sidebar flex-shrink-0 justify-center items-center gap-2 w-8 h-8 xl:w-10 xl:h-10 2xl:h-12 2xl:w-12 rounded-md border border-transparent font-semibold bg-[#f9f9f9] text-black hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm">
+        <svg class="w-4 h-4 xl:w-5 xl:h-5 2xl:h-6 2xl:w-6" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
+            <path fill="currentColor" fill-rule="evenodd"
+                  d="M3 5a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1Zm0 5a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1Zm0 5a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1Z"
+                  clip-rule="evenodd" />
+        </svg>
+    </button>
+    <div class="logo flex items-center gap-2">
+        <img src="~/assets/images/prime_logo_icon.svg" class="logo_icon h-14 w-auto" />
+        <div>
+            <p class="font-black text-2xl text-gray-600" style="line-height: 1.5rem">Prime</p>
+            <p class="logo_full_form text-gray-600" style="line-height: 1.5rem">
+                Portal for Resource Integration Management and Efficiency
+            </p>
+        </div>
+    </div>
+    @* <div>
+        <label for="header-search" class="block text-sm font-medium mb-2 sr-only">Search</label>
+        <div class="relative">
+            <input type="text" id="header-search" name="header-search"
+                   class="py-2 2xl:py-3 px-2 xl:px-3 2xl:px-4 pr-7 xl:pr-9 2xl:pr-11 block w-full border-transparent rounded-md text-xs 2xl:text-sm focus:z-10 focus:border-emerald-500 focus:ring-emerald-500 bg-[#f9f9f9] 2xl:w-56"
+                   placeholder="Search">
+            <div class="absolute inset-y-0 right-0 flex items-center pointer-events-none z-20 pr-2 xl:pr-3 2xl:pr-4">
+                <svg class="h-4 w-4 2xl:h-5 2xl:w-5 text-[#c9c9c9]" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                     viewBox="0 0 24 24">
+                    <path fill="currentColor" fill-rule="evenodd"
+                          d="M5 11a6 6 0 1 1 12 0a6 6 0 0 1-12 0zm6-8a8 8 0 1 0 4.906 14.32l3.387 3.387a1 1 0 0 0 1.414-1.414l-3.387-3.387A8 8 0 0 0 11 3zm0 12a4 4 0 1 0 0-8a4 4 0 0 0 0 8z"
+                          clip-rule="evenodd" />
+                </svg>
+            </div>
+        </div>
+    </div> *@
+
+    <div class="hs-dropdown relative inline-flex ml-auto">
+        <button class="relative inline-flex flex-shrink-0 justify-center items-center gap-2 w-8 h-8 xl:w-10 xl:h-10 2xl:h-12 2xl:w-12 rounded-md border border-transparent font-semibold bg-[#f9f9f9] text-black hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm">
+            <svg class="w-4 h-4 xl:w-5 xl:h-5 2xl:h-6 2xl:w-6" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                 viewBox="0 0 24 24">
+                <path fill="currentColor"
+                      d="M19 13.586V10c0-3.217-2.185-5.927-5.145-6.742C13.562 2.52 12.846 2 12 2s-1.562.52-1.855 1.258C7.185 4.074 5 6.783 5 10v3.586l-1.707 1.707A.996.996 0 0 0 3 16v2a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-2a.996.996 0 0 0-.293-.707L19 13.586zM19 17H5v-.586l1.707-1.707A.996.996 0 0 0 7 14v-4c0-2.757 2.243-5 5-5s5 2.243 5 5v4c0 .266.105.52.293.707L19 16.414V17zm-7 5a2.98 2.98 0 0 0 2.818-2H9.182A2.98 2.98 0 0 0 12 22z" />
+            </svg>
+            <span class="absolute top-0 right-0 block h-2 w-2 2xl:h-3 2xl:w-3 rounded-full transform -translate-y-1/2 translate-x-1/2 ring-2 ring-white bg-green-400"></span>
+        </button>
+
+        <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden min-w-[15rem] bg-white shadow-md rounded-lg p-2 mt-2"
+             aria-labelledby="hs-dropdown-with-header">
+            <div class="mt-2 py-2 first:pt-0 last:pb-0">
+                @* You Have a Pending Requests <span class="text-yellow-400">10</span> *@
+                <div class="flex p-4 gap-4">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-gray-600 mt-1" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg>
+                    </div>
+                    <div class="ms-4">
+
+
+                        @if (role == "DH")
+                        {
+                            <h3 class="text-gray-800 font-semibold">
+                                Billing Requests
+                            </h3>
+                            <div class="mt-1 text-sm text-gray-600">
+                                You Have <span class="text-yellow-400">@Count</span> Pending Requests
+                            </div>
+                            <div class="mt-4">
+                                <div class="flex gap-4">
+                                    <a asp-action="ContractBillingProvisionReportDH" asp-controller="Report" class="inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent text-blue-600 hover:text-blue-800 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:text-blue-800 dark:text-blue-500 dark:focus:text-blue-400">
+                                        View
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="mt-1 text-sm text-gray-600">
+                                No New Notifications
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="hs-dropdown relative inline-flex">
+        <button id="hs-dropdown-with-header" type="button"
+                class="hs-dropdown-toggle overflow-hidden inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-white text-gray-700 shadow-sm align-middle hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-emerald-500 transition-all text-sm">
+            <img class="w-8 h-8 xl:w-10 xl:h-10 2xl:w-12 2xl:h-12"
+                 src="~/assets/images/default_user_icon.png"
+                 alt="avatar">
+        </button>
+
+        <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden min-w-[15rem] bg-white shadow-md rounded-lg p-2 mt-2"
+             aria-labelledby="hs-dropdown-with-header">
+            <div class="mt-2 py-2 first:pt-0 last:pb-0">
+                <a class="flex items-center gap-x-3.5 py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-blue-500"
+                   href="/Employee/Profile">
+                    @* <svg class="flex-none text-gray-800" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                        <g fill="currentColor"><path d="M12 3.25a.75.75 0 0 1 0 1.5a7.25 7.25 0 0 0 0 14.5a.75.75 0 0 1 0 1.5a8.75 8.75 0 1 1 0-17.5Z" /><path d="M16.47 9.53a.75.75 0 0 1 1.06-1.06l3 3a.75.75 0 0 1 0 1.06l-3 3a.75.75 0 1 1-1.06-1.06l1.72-1.72H10a.75.75 0 0 1 0-1.5h8.19l-1.72-1.72Z" /></g>
+                    </svg> *@
+                    <svg class="flex-none text-gray-800" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linejoin="round" d="M4 18a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z" /><circle cx="12" cy="7" r="3" /></g></svg>
+                    Profile
+                </a>
+                <a class="flex items-center gap-x-3.5 py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-blue-500"
+                   href="/Login/Logout">
+                    <svg class="flex-none text-gray-800" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                        <g fill="currentColor"><path d="M12 3.25a.75.75 0 0 1 0 1.5a7.25 7.25 0 0 0 0 14.5a.75.75 0 0 1 0 1.5a8.75 8.75 0 1 1 0-17.5Z" /><path d="M16.47 9.53a.75.75 0 0 1 1.06-1.06l3 3a.75.75 0 0 1 0 1.06l-3 3a.75.75 0 1 1-1.06-1.06l1.72-1.72H10a.75.75 0 0 1 0-1.5h8.19l-1.72-1.72Z" /></g>
+                    </svg>
+                    Log Out
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

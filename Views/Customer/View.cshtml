@@ -1,0 +1,361 @@
+﻿@model RMS.Client.Models.Customer.CustomerWithDetailsDto
+<div id="less_info">
+    @if (Model != null)
+    {
+        <div class="flex items-center gap-4 mb-5">
+    <a asp-action="Index" asp-controller="Customer" class="py-2 px-2 inline-flex justify-center items-center gap-2 rounded-md border border-gray-400 bg-gray-700 text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all text-sm sm:text-base" title="Back">
+        <svg class="w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M11.707 5.293a1 1 0 0 1 0 1.414L7.414 11H19a1 1 0 1 1 0 2H7.414l4.293 4.293a1 1 0 0 1-1.414 1.414l-6-6a1 1 0 0 1 0-1.414l6-6a1 1 0 0 1 1.414 0z" /></svg>
+    </a>
+    
+        <h2 class="font-extrabold text-xl 2xl:text-2xl text-[#4B4E5C]">Detailed View: @Model.CustomerCompanyName</h2>
+        </div>
+        <div class="customer-info-wrapper my-4 bg-[#fafafa] py-3 px-4 rounded overflow-x-auto flex items-stretch gap-5">
+            <div class="border-r border-r-slate-300 flex items-center gap-3 pr-4">
+            <div class="customer-logo-wrapper w-10 h-10 bg-white rounded-full flex items-center justify-center">
+                    <img class="w-6 h-6 rounded-full object-cover" src="@(string.IsNullOrEmpty(Model.CustomerCompanyLogoUrl) ? "/assets/images/customer_default.svg" :Model.CustomerCompanyLogoUrl)" alt="">
+            </div>
+            <div>
+                <p class="text-xs font-medium text-[#4B4E5C] whitespace-nowrap">Customer</p>
+                    <p class="text-2xl font-black text-[#4B4E5C] whitespace-nowrap">
+                        @if (string.IsNullOrEmpty(Model.CustomerCompanyName))
+                        {
+                            <span>N/A</span>
+                        }
+                        else
+                        {
+                            @Model.CustomerCompanyName
+                        }
+                    </p>
+            </div>
+        </div>
+        <div class="flex items-center border-r border-r-slate-300 pr-4">
+            <div>
+                <p class="text-xs text-[#4B4E5C] whitespace-nowrap">Email</p>
+                <p class="text-xs text-[#4B4E5C] whitespace-nowrap">
+                        @if (string.IsNullOrEmpty(Model.CustomerEmail))
+                        {
+                            <span>N/A</span>
+                        }
+                        else
+                        {
+                            @Model.CustomerEmail
+                        }
+                </p>
+            </div>
+        </div>
+        <div class="flex items-center border-r border-r-slate-300 pr-4">
+            <div>
+                <p class="text-xs text-[#4B4E5C] whitespace-nowrap">Phone No:</p>
+                    <p class="text-xs text-[#4B4E5C] whitespace-nowrap">
+                        @if (string.IsNullOrEmpty(Model.CustomerPhone))
+                        {
+                            <span>N/A</span>
+                        }
+                        else
+                        {
+                            @Model.CustomerPhone
+                        }
+                    </p>
+            </div>
+        </div>
+        <div class="flex items-center border-r border-r-slate-300 pr-4">
+            <div>
+                <p class="text-xs text-[#4B4E5C] whitespace-nowrap">Location:</p>
+                    <p class="text-xs text-[#4B4E5C] whitespace-nowrap">
+                        @if (string.IsNullOrEmpty(Model.CustomerAddress))
+                        {
+                            <span>N/A</span>
+                        }
+                        else
+                        {
+                            @Model.CustomerAddress
+                        }
+                    </p>
+            </div>
+        </div>
+        <div class="flex items-center">
+            <button id="all_info_btn" type="button" class="whitespace-nowrap py-2 px-4 inline-flex justify-center items-center gap-2 rounded-full border border-transparent font-semibold bg-black text-white hover:bg-black focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 transition-all text-xs xl:text-sm">
+                All Info
+            </button>
+        </div>
+        <div class="bg-white p-3 rounded flex items-center gap-3">
+            <div class="pr-3 border-r border-r-slate-300">
+                <p class="text-xs font-medium text-[#4B4E5C] whitespace-nowrap">Total Projects</p>
+                    <p class="text-2xl font-black text-[#4B4E5C] whitespace-nowrap">
+                        @(Model.TotalProjects == null ? "N/A" : Model.TotalProjects.ToString())
+                    </p>
+
+            </div>
+                <div>
+                    <p class="text-xs font-medium text-[#4B4E5C] whitespace-nowrap">Employees Deployed</p>
+                    <p class="text-2xl font-black text-[#4B4E5C] whitespace-nowrap">
+                        @(Model.ProjectsInfo.Sum(projectInfo => projectInfo.TotalEmployees) ?? 0)
+                    </p>
+                </div>
+
+
+
+        </div>
+    </div>
+    }
+    @if (Model != null)
+    {
+        <div class="flex flex-col">
+            <div class="-m-1.5 overflow-x-auto">
+                <div class="p-1.5 min-w-full inline-block align-middle">
+                    <div class="overflow-hidden">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-sm 2xl:text-base font-medium text-black uppercase">
+                                        Project
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-sm 2xl:text-base font-medium text-black uppercase">
+                                        Project Start Date
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-sm 2xl:text-base font-medium text-black uppercase">
+                                        Project End Date
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-sm 2xl:text-base font-medium text-black uppercase">
+                                        Customer
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-sm 2xl:text-base font-medium text-black uppercase">
+                                        Costing
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-sm 2xl:text-base font-medium text-black uppercase">
+                                        Practices
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-sm 2xl:text-base font-medium text-black uppercase">
+                                        Sub-Practices
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-sm 2xl:text-base font-medium text-black uppercase">
+                                        Project Type
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-sm 2xl:text-base font-medium text-black uppercase">
+                                        Project Status
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-sm 2xl:text-base font-medium text-black uppercase">
+                                        Detailed View
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-sm 2xl:text-base font-medium text-black uppercase">
+                                        Edit
+                                    </th>
+                                </tr>
+                            </thead>
+                            @foreach (var project in Model.ProjectsInfo)
+                            {
+                                <tbody class="divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
+                                            @project.ProjectName
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                            @if (project.ContractInfo.Count > 0)
+                                            {
+                                                    var smallestStartDate = project.ContractInfo
+                                                    .Where(contract => contract.StartDate != null)
+                                                    .Min(contract => Convert.ToDateTime(contract.StartDate));
+
+                                                @((smallestStartDate != DateTime.MaxValue) ? smallestStartDate.ToString("dd/MM/yyyy") : "-")
+
+                                            }
+                                        </td>
+
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                            @if (project.ContractInfo.Count > 0)
+                                            {
+                                                
+                                                 var largestEndDate = project.ContractInfo
+                                                .Where(contract => contract.EndDate != null)
+                                                .Max(contract => Convert.ToDateTime(contract.EndDate));
+                                                
+                                                @((largestEndDate != DateTime.MinValue) ? largestEndDate.ToString("dd/MM/yyyy") : "-")
+                                            }
+                                        </td>
+
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@Model.CustomerCompanyName</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                            @if (project.TotalAmount.HasValue)
+                                            {
+                                                @project.TotalAmount.Value.ToString("F2")
+                                            }
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@project.ProjectPractice</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@project.ProjrectSubPractice</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@project.ProjectType</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                        <span class="status @(project.ProjectStatus == "Pending" ? "pending" : project.ProjectStatus == "Submitted" ? "progress" : project.ProjectStatus == "Completed" ? "completed" : project.ProjectStatus == "Approved" ? "approved" : project.ProjectStatus == "Draft" ? "draft" : project.ProjectStatus == "Rejected" ? "rejected" : project.ProjectStatus != null ? project.ProjectStatus : "-")">
+                                              
+                                        </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                            <a class="text-gray-800 hover:text-blue-700 underline"
+                                               asp-action="View" asp-controller="Project" asp-route-id="@project.ProjectId">
+                                                View All Details
+                                            </a>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <a type="button"
+                                                    class="inline-flex flex-shrink-0 justify-center items-center gap-2 h-6 w-6 rounded-md border border-transparent font-medium bg-white text-gray-700 shadow-sm align-middle hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-white transition-all text-xs"
+                                               asp-action="Create" asp-controller="Project" asp-route-projectid="@project.ProjectId">
+                                                <svg class="w-5 h-5 text-gray-800 hover:text-emerald-500"
+                                                     xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                     viewBox="0 0 24 24">
+                                                    <g fill="none">
+                                                        <path d="M24 0v24H0V0h24ZM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035c-.01-.004-.019-.001-.024.005l-.004.010l-.017.428l.005.020l.010.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.010-.009-.017-.017-.018Zm.265-.113l-.013.002l-.185.093l-.010.010l-.003.011l.018.43l.005.012l.008.007l.201.093c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.010-.020-.020-.022Zm-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.020.017.024l.015-.002l.201-.093l.010-.008l.004-.011l.017-.43l-.003-.012l-.010-.010l-.184-.092Z" />
+                                                        <path fill="currentColor"
+                                                              d="M13 3a1 1 0 0 1 .117 1.993L13 5H5v14h14v-8a1 1 0 0 1 1.993-.117L21 11v8a2 2 0 0 1-1.85 1.995L19 21H5a2 2 0 0 1-1.995-1.85L3 19V5a2 2 0 0 1 1.85-1.995L5 3h8Zm6.243.343a1 1 0 0 1 1.497 1.32l-.083.095l-9.9 9.899a1 1 0 0 1-1.497-1.32l.083-.094l9.9-9.9Z" />
+                                                    </g>
+                                                </svg>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            }
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+</div>
+<div id="more_info" style="display: none;">
+    <div class="flex items-center gap-4 mb-4">
+        <button id="hide_all_info_btn" type="button" class="whitespace-nowrap py-2 px-4 inline-flex justify-center items-center gap-2 rounded-full border border-transparent font-semibold bg-black text-white hover:bg-black focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 transition-all text-xs xl:text-sm">
+            Back
+        </button>
+        <span class="text-2xl font-extrabold block text-left">Customer Details</span>
+    </div>
+    @if (Model != null)
+    {
+        <div class="h-[1px] bg-gray-200 my-4"></div>
+
+        <div class="p-4 rounded mb-4 flex items-center gap-4 flex-wrap">
+            <div class="flex items-center gap-2 sm:border-r pr-3">
+                <div class="logo w-10 h-10 bg-white rounded-full overflow-hidden flex items-center justify-center">
+                    <img class="w-8 h-8 rounded-full object-cover" src="/assets/images/customer_default.svg" alt="">
+                </div>
+                <div>
+                    <p class="text-[.625rem]">Customer</p>
+                    <p class="font-bold">@Model.CustomerCompanyName</p>
+                </div>
+            </div>
+            <div class="flex flex-wrap pl-3 items-center gap-4">
+                <div>
+                    <div>
+                        <span class="text-sm">Email Id</span>
+                    </div>
+                    <p class="text-sm font-bold">@Model.CustomerEmail</p>
+                </div>
+                <div>
+                    <div>
+                        <span class="text-sm">Phone No</span>
+                    </div>
+                    <p class="text-sm font-bold">@Model.CustomerPhone</p>
+                </div>
+                <div>
+                    <div>
+                        <span class="text-sm">Location</span>
+                    </div>
+                    <p class="text-sm font-bold">@Model.CustomerAddress</p>
+                </div>
+            </div>
+        </div>
+        <div class="h-[1px] bg-gray-200 my-4"></div>
+        <span class="text-2xl font-extrabold block text-left mb-4">Other Information</span>
+        <div class="p-4 rounded mb-4 flex gap-4 flex-wrap">
+            <div>
+                <p class="text-sm 2xl:text-base">Customer Name:</p>
+                <p class="text-sm 2xl:text-base font-bold">
+                    @(Model.CustomerFirstName?.ToString() + " " + Model.CustomerLastName?.ToString())
+                </p>
+            </div>
+
+            <div>
+                <p class="text-sm 2xl:text-base">Company Name:</p>
+                <p class="text-sm 2xl:text-base font-bold">@Model.CustomerCompanyName</p>
+            </div>
+
+            <div>
+                <p class="text-sm 2xl:text-base">Pan No:</p>
+                <p class="text-sm 2xl:text-base font-bold">@Model.PAN</p>
+            </div>
+
+            <div>
+                <p class="text-sm 2xl:text-base">Currency:</p>
+                <p class="text-sm 2xl:text-base font-bold">@Model.Currency?.CurrencyName</p>
+            </div>
+
+            <div>
+                <p class="text-sm 2xl:text-base">GST No:</p>
+                <p class="text-sm 2xl:text-base font-bold">@Model.GST</p>
+            </div>
+
+            <div>
+                <p class="text-sm 2xl:text-base">Payment Terms:</p>
+                <p class="text-sm 2xl:text-base font-bold">@Model.PaymentTerm?.PaymentTermName</p>
+            </div>
+        </div>
+
+        <div class="h-[1px] bg-gray-200 my-4"></div>
+        <span class="text-2xl font-extrabold block text-left mb-4">Address</span>
+        <div class="p-4 rounded mb-4 flex gap-4 flex-wrap">
+            <div>
+                <p class="text-sm 2xl:text-base">Region:</p>
+                <p class="text-sm 2xl:text-base font-bold">@Model.countryregioncode</p>
+            </div>
+            <div>
+                <p class="text-sm 2xl:text-base">Country:</p>
+                <p class="text-sm 2xl:text-base font-bold">@(Model.City?.State?.Country?.CountryName ?? "")</p>
+            </div>
+            <div>
+                <p class="text-sm 2xl:text-base">State:</p>
+                <p class="text-sm 2xl:text-base font-bold">@(Model.City?.State?.StateName ?? "")</p>
+            </div>
+            <div>
+                <p class="text-sm 2xl:text-base">City:</p>
+                <p class="text-sm 2xl:text-base font-bold">@(Model.City?.CityName ?? "")</p>
+            </div>
+            <div>
+                <p class="text-sm 2xl:text-base">Zip Code:</p>
+                <p class="text-sm 2xl:text-base font-bold">@Model.ZipCode</p>
+            </div>
+            <div>
+                <p class="text-sm 2xl:text-base">Address:</p>
+                <p class="text-sm 2xl:text-base font-bold">@Model.CustomerAddress</p>
+            </div>
+            <div>
+                <p class="text-sm 2xl:text-base">Address Line 2:</p>
+                <p class="text-sm 2xl:text-base font-bold">@Model.CustomerAddress2</p>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        const allInfoBtn = document.getElementById("all_info_btn");
+        const hideAllInfoBtn = document.getElementById("hide_all_info_btn");
+
+        allInfoBtn.addEventListener("click", () => {
+            document.getElementById("less_info").style.display = "none";
+            document.getElementById("more_info").style.display = "block";
+        })
+        hideAllInfoBtn.addEventListener("click", () => {
+            document.getElementById("less_info").style.display = "block";
+            document.getElementById("more_info").style.display = "none";
+        })
+    </script>
+    }

@@ -1,0 +1,508 @@
+﻿@model IEnumerable<RMS.Client.Models.Contract.ContractData>
+@using System.Globalization;
+<div class="border-b border-gray-200 overflow-x-auto mb-4" style="flex-shrink: 0;">
+    <nav class="flex space-x-2 bg-[#fafafa]" aria-label="Tabs" role="tablist">
+        <div class="py-2 px-5 inline-flex items-baseline gap-2 border-b-[3px] border-transparent text-sm whitespace-nowrap text-gray-500"
+             id="tabs-with-underline-item-1" data-hs-tab="#tabs-with-underline-1">
+            <!-- <img class="h-4 w-auto" src="./assets/images/total-projects-icon.svg" alt=""> -->
+            <div>
+                <span class="text-2xl font-extrabold block text-left">Requests For Provisions Update</span>
+                <span class="text-sm block text-left">List of all Provisions Billing Requests which yet to be approved</span>
+            </div>
+        </div>
+        <button type="button"
+                class="py-2 px-5 inline-flex items-baseline gap-2 border-b-[3px] border-transparent text-sm whitespace-nowrap text-gray-500"
+                id="tabs-with-underline-item-2" data-hs-tab="#tabs-with-underline-2"
+                aria-controls="tabs-with-underline-2" role="tab">
+            <img class="h-4 w-auto" src="~/assets/images/total-projects-icon.svg" alt="">
+            <div>
+                <span class="text-base font-semibold block text-left">Total Requests</span>
+                <span class="text-2xl font-extrabold block text-left">@ViewBag.TotalRequest</span>
+            </div>
+        </button>
+        @* <button type="button"
+        class="py-2 px-5 inline-flex items-baseline gap-2 border-b-[3px] border-transparent text-sm whitespace-nowrap text-gray-500"
+        id="tabs-with-underline-item-3" data-hs-tab="#tabs-with-underline-3"
+        aria-controls="tabs-with-underline-3" role="tab">
+        <img class="h-4 w-auto" src="./assets/images/total-projects-icon.svg" alt="">
+        @* <div>
+        <span class="text-base font-semibold block text-left">Approved</span>
+        <span class="text-2xl font-extrabold block text-left">@ViewBag.PendingCount</span>
+        </div>
+        </button> *@
+        @*  <button type="button"
+        class="py-2 px-5 inline-flex items-baseline gap-2 border-b-[3px] border-transparent text-sm whitespace-nowrap text-gray-500"
+        id="tabs-with-underline-item-3" data-hs-tab="#tabs-with-underline-3"
+        aria-controls="tabs-with-underline-3" role="tab">
+        <img class="h-4 w-auto" src="~/assets/images/total-projects-icon.svg" alt="">
+        <div>
+        <span class="text-base font-semibold block text-left">Pending for Approval</span>
+        <span class="text-2xl font-extrabold block text-left">@ViewBag.PendingCount</span>
+        </div>
+        </button> *@
+        @* <button type="button"
+        class="py-2 px-5 inline-flex items-baseline gap-2 border-b-[3px] border-transparent text-sm whitespace-nowrap text-gray-500"
+        id="tabs-with-underline-item-3" data-hs-tab="#tabs-with-underline-3"
+        aria-controls="tabs-with-underline-3" role="tab">
+        <img class="h-4 w-auto" src="./assets/images/total-projects-icon.svg" alt="">
+        <div>
+        <span class="text-base font-semibold block text-left">Rejected</span>
+        <span class="text-2xl font-extrabold block text-left">@ViewBag.RejectedCount</span>
+        </div>
+        </button> *@
+    </nav>
+</div>
+
+<div class="flex flex-col">
+    <div class="-m-1.5 overflow-x-auto">
+        <div class="p-1.5 min-w-full inline-block align-middle">
+            <div class="overflow-hidden">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead>
+                        <tr>
+                            <th scope="col"
+                                class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                Projects
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                PO Number
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                Contract No
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                Delivery Anchor
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-3 whitespace-nowrap text-center text-xs 2xl:text-sm font-medium text-black uppercase">
+                                View & Act
+                            </th>
+
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        @if (Model != null)
+                        {
+                            int count = 0;
+                            foreach (var item in Model)
+                            {
+                                
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 ">
+                                        @item.Key.projectName
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 ">
+                                        @item.Key.PoNumber
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 ">@item.Key.ContractNumber</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 ">@item.Key.DeliveryAnchor</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 text-center">
+                                        <a class="text-gray-800 hover:text-blue-700 underline flex items-center gap-2 justify-center cursor-pointer" onclick="toggleHiddenRow(this);">
+                                            Act
+                                            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M22 12a10 10 0 0 1-10 10A10 10 0 0 1 2 12A10 10 0 0 1 12 2a10 10 0 0 1 10 10M6 10l6 6l6-6l-1.4-1.4l-4.6 4.6l-4.6-4.6z" /></svg>
+                                        </a>
+                                    </td>
+                                </tr>
+
+                                <tr class="hidden-row show">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800" colspan="8">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-2 mb-4">
+                                                <img class="w-6 h-auto" src="~/assets/images/check_icon.svg" alt="">
+                                                <span class="text-xl font-extrabold text-gray-800">Requests For Provision Billing</span>
+                                            </div>
+                                            <div class="flex items-center gap-4">
+                                                <button disabled onclick="handleApproveAll(this);" class="approve-all-btn2 flex items-center gap-2 border rounded-full py-1 px-2 border-[#40BD5E] text-[#40BD5E] hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed">
+                                                    <img class="w-4 h-4" src="~/assets/images/btn_tick_btn.svg" alt="">
+                                                    Approve Selected
+                                                </button>
+                                                <button disabled id="reject-btn-@count" onclick="handleRejectAllModal(this);" class="reject-all-btn2 flex items-center gap-2 border rounded-full py-1 px-2 border-[#4B4E5C] hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed">
+                                                    <img class="w-4 h-4" src="~/assets/images/btn_close_icon.svg" alt="">
+                                                    Reject Selected
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-col">
+                                            <div class="-m-1.5 w-full">
+                                                <div class="p-1.5 min-w-full block align-middle">
+                                                    <div class="border rounded-lg overflow-x-auto">
+                                                        <table class="min-w-full divide-y divide-gray-200">
+                                                            <thead class="bg-gray-50">
+
+                                                                <tr>
+                                                                    <th class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                                        <div class="flex">
+                                                                            <input type="checkbox"
+                                                                                   class="shrink-0 mt-0.5 border-black rounded text-black focus:ring-black disabled:opacity-50 disabled:pointer-events-none disabled:opacity-50"
+                                                                                   onchange="handleSelectAll(this);">
+                                                                        </div>
+                                                                    </th>
+                                                                    <th class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">Employee</th>
+                                                                    <th class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">Provision Amount</th>
+                                                                    <th class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">Estimated Date</th>
+                                                                    <th class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">Action</th>
+                                                                    <th class="px-6 py-3 text-center text-sm font-bold whitespace-nowrap text-gray-600 uppercase">Status</th>
+                                                                </tr>
+
+                                                            </thead>
+                                                            <tbody class="divide-y divide-gray-200">
+                                                                @foreach (var data in item.Value)
+                                                                {
+                                                                    <tr value=@data.Contractbillingprovesionid>
+                                                                        <td class="hidden contract-billing-id">@data.Contractbillingprovesionid</td>
+                                                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
+                                                                            <div class="flex">
+                                                                                <input onchange="handleSingleSelect(this);" type="checkbox"
+                                                                                       class="shrink-0 mt-0.5 border-black rounded text-black focus:ring-black disabled:opacity-50 disabled:pointer-events-none disabled:opacity-50">
+                                                                            </div>
+                                                                        </td>
+                                                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">@data.ResourceName (@data.TmcId)</td>
+                                                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">@data.ProvisionAmount</td>
+                                                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
+                                                                            @(data.EstimatedBilligDate != null ? data.EstimatedBilligDate.Value.ToString("dd-MM-yyyy") : "N/A")
+                                                                        </td>
+
+
+                                                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
+                                                                            <div class="flex items-center gap-4">
+                                                                                <button onClick="handleApprove(this);" class="flex items-center gap-2 border rounded-full py-1 px-2 border-[#40BD5E] text-[#40BD5E] hover:opacity-70">
+                                                                                    <img class="w-4 h-4" src="~/assets/images/btn_tick_btn.svg" alt="">
+                                                                                    Approve
+                                                                                </button>
+                                                                                <button onclick="handleReject(this);" class="flex items-center gap-2 border rounded-full py-1 px-2 border-[#4B4E5C] hover:opacity-70">
+                                                                                    <img class="w-4 h-4" src="~/assets/images/btn_close_icon.svg" alt="">
+                                                                                    Reject
+                                                                                </button>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 text-center">
+                                                                            <span class="status pending">Pending</span>
+                                                                        </td>
+                                                                    </tr>
+                                                                }
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                count++;
+                            }
+                            
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="rejectModal" class="hs-overlay hidden w-full h-full fixed top-0 start-0 z-[60] overflow-x-hidden overflow-y-auto [--overlay-backdrop:static]">
+    <div class="hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all sm:max-w-lg sm:w-full m-3 sm:mx-auto">
+        <div class="flex flex-col bg-white border shadow-sm rounded-xl pointer-events-auto ">
+            <div class="flex justify-between items-center py-3 px-4 border-b">
+                <h3 class="font-bold text-gray-800">
+                    Reject Provision Billing
+                </h3>
+                <button type="button" class="flex justify-center items-center w-7 h-7 text-sm font-semibold rounded-full border border-transparent text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none" data-hs-overlay="#rejectModal">
+                    <span class="sr-only">Close</span>
+                    <svg class="flex-shrink-0 w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+                </button>
+            </div>
+            <div class="p-4 overflow-y-auto">
+                <label for="reason" class="font-medium text-sm mb-2">Enter Reason</label>
+                <textarea class="k-input w-full" name="rejectReason" id="rejectReason" cols="30" rows="5"></textarea>
+            </div>
+            <div class="flex justify-end items-center gap-x-2 py-3 px-4 border-t">
+                <button type="button" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none " data-hs-overlay="#rejectModal">
+                    Close
+                </button>
+                <button onclick="handleRejectSubmit(this);" type="button" id="rejectModalSubmitBtn" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none">
+                    Submit
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="rejectAllModal" class="hs-overlay hidden w-full h-full fixed top-0 start-0 z-[60] overflow-x-hidden overflow-y-auto [--overlay-backdrop:static]">
+    <div class="hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all sm:max-w-lg sm:w-full m-3 sm:mx-auto">
+        <div class="flex flex-col bg-white border shadow-sm rounded-xl pointer-events-auto ">
+            <div class="flex justify-between items-center py-3 px-4 border-b">
+                <h3 class="font-bold text-gray-800">
+                    Reject Provision Billing
+                </h3>
+                <button type="button" class="flex justify-center items-center w-7 h-7 text-sm font-semibold rounded-full border border-transparent text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none" data-hs-overlay="#rejectAllModal">
+                    <span class="sr-only">Close</span>
+                    <svg class="flex-shrink-0 w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+                </button>
+            </div>
+            <div class="p-4 overflow-y-auto">
+                <label for="reason" class="font-medium text-sm mb-2">Enter Reason</label>
+                <textarea class="k-input w-full" name="rejectReasonAll" id="rejectReasonall" cols="30" rows="5"></textarea>
+            </div>
+            <div class="flex justify-end items-center gap-x-2 py-3 px-4 border-t">
+                <button type="button" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none " data-hs-overlay="#rejectAllModal">
+                    Close
+                </button>
+                <button onclick="handleRejectAll(this);" type="button" id="rejectAllModalSubmitBtn" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none">
+                    Submit
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+
+        function toggleHiddenRow(btn) {
+            const _hidRow = btn.closest("tr").nextElementSibling;
+            if (_hidRow && _hidRow.classList.contains("hidden-row")) {
+                _hidRow.classList.toggle("show");
+            }
+        }
+        const _Obj = [];
+        function handleApprove(btn) {
+            // Find the closest table row to the clicked button
+            console.log("handleApprove called");
+            document.querySelector("#loader").style.display = "flex";
+            // Find the closest table row to the clicked button
+            var tableRow = $(btn).closest("tr");
+
+            // Get the contractBillingId from the first cell in the row with class 'contract-billing-id'
+            var contractBillingId = tableRow.find(".contract-billing-id").text().trim();
+            console.log("contractBillingId: ", contractBillingId);
+            // Rest of your code to push contractBillingId to _Obj and make an AJAX request
+            _Obj.push({
+                Contractbillingprovesionid: contractBillingId,
+                StatusId: 5,
+            });
+
+            const fdata = new FormData();
+            fdata.append("selectedItems", JSON.stringify(_Obj));
+
+            $.ajax({
+                url: "@Url.Action("BillingApprovalDH","Billing")",
+                type: "POST",
+                cache: false,
+                data: fdata,
+                contentType: false,
+                processData: false,
+                success: function (res) {
+                    console.log(res);
+                    if (res.success == true) {
+                        toastr.success("Acted to request successfully!!");
+                        window.location.reload();
+                    } else {
+                        toastr.error(res.msg);
+                        window.location.reload();
+
+                    }
+                },
+                error: function (err) {
+                    toastr.error(err);
+                }
+            });
+        }
+
+
+
+
+
+
+        function handleReject(btn) {
+            HSOverlay.open(document.querySelector("#rejectModal"));
+            const contractBillingProvId = btn.closest("tr").querySelector("td").innerText.trim();
+            document.querySelector("#rejectModalSubmitBtn").setAttribute("data-contractBillingProvId", contractBillingProvId);
+        }
+
+
+        const _reqObj = [];
+        function handleRejectSubmit(btn) {
+            // Find the closest table row to the clicked button
+            var tableRow = $(btn).closest("tr");
+            document.querySelector("#loader").style.display = "flex";
+            // Get the contractBillingId from the first cell in the row with class 'contract-billing-id'
+            var contractBillingId = document.querySelector("#rejectModalSubmitBtn").getAttribute("data-contractBillingProvId");
+
+            const _reason = document.querySelector("#rejectReason").value;
+            _reqObj.push({
+                Contractbillingprovesionid: contractBillingId,
+                Remark: _reason,
+                StatusId: 4,
+            });
+
+            const fdata = new FormData();
+            fdata.append("selectedItems", JSON.stringify(_reqObj));
+
+            $.ajax({
+                url: "@Url.Action("BillingApprovalDH","Billing")",
+                type: "POST",
+                cache: false,
+                data: fdata,
+                contentType: false,
+                processData: false,
+                success: function (res) {
+                    console.log(res);
+                    if (res.success == true) {
+                        toastr.success("Acted to request successfully!!");
+                        window.location.reload();
+                    } else {
+                        toastr.error(res.msg);
+                        window.location.reload();
+                    }
+                },
+                error: function (err) {
+                    toastr.error(err);
+                }
+            });
+        }
+
+
+        function handleSelectAll(inp) {
+            const allTr = inp.closest("table").querySelectorAll("tbody tr");
+            if (inp.checked) {
+                allTr.forEach(tr => {
+                    tr.querySelector("input").checked = true;
+                })
+                inp.closest(".hidden-row").querySelector(".approve-all-btn2").disabled = false;
+                inp.closest(".hidden-row").querySelector(".reject-all-btn2").disabled = false;
+            } else {
+                allTr.forEach(tr => {
+                    tr.querySelector("input").checked = false;
+                })
+                inp.closest(".hidden-row").querySelector(".approve-all-btn2").disabled = true;
+                inp.closest(".hidden-row").querySelector(".reject-all-btn2").disabled = true;
+            }
+        }
+        function handleSingleSelect(inp) {
+            const checkedInputs = inp.closest("tbody").querySelectorAll("input:checked");
+
+            if (checkedInputs.length) {
+                inp.closest(".hidden-row").querySelector(".approve-all-btn2").disabled = false;
+                inp.closest(".hidden-row").querySelector(".reject-all-btn2").disabled = false;
+            } else {
+                inp.closest(".hidden-row").querySelector(".reject-all-btn2").disabled = true;
+                inp.closest(".hidden-row").querySelector(".approve-all-btn2").disabled = true;
+            }
+        }
+        function handleApproveAll(btn) {
+            // Find the closest table row to the clicked button
+            console.log("handleApprove called");
+            document.querySelector("#loader").style.display = "flex";
+            // Find the closest table row to the clicked button
+            const allChecked = btn.closest(".hidden-row").querySelector("tbody").querySelectorAll("input:checked");
+            console.log(allChecked)
+            allChecked.forEach(item => {
+                const tr = item.closest("tr");
+                console.log(tr.querySelector(".contract-billing-id"));
+                var contractBillingId = tr.querySelector(".contract-billing-id").innerText.trim();
+                _Obj.push({
+                    Contractbillingprovesionid: contractBillingId,
+                    StatusId: 5,
+                });
+            })
+
+            const fdata = new FormData();
+            fdata.append("selectedItems", JSON.stringify(_Obj));
+
+            $.ajax({
+                url: "@Url.Action("BillingApprovalDH","Billing")",
+                type: "POST",
+                cache: false,
+                data: fdata,
+                contentType: false,
+                processData: false,
+                success: function (res) {
+                    console.log(res);
+                    if (res.success == true) {
+                        toastr.success("Acted to request successfully!!");
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 500)
+                    } else {
+                        toastr.error(res.msg);
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 500)
+
+                    }
+                },
+                error: function (err) {
+                    toastr.error(err);
+                }
+            });
+        }
+
+        function handleRejectAllModal(btn) {
+            HSOverlay.open(document.querySelector("#rejectAllModal"));
+            document.querySelector("#rejectAllModalSubmitBtn").setAttribute("reject-btn-id", btn.id);
+        }
+        function handleRejectAll(btn) {
+            // Find the closest table row to the clicked button
+            console.log("handleReject called");
+            document.querySelector("#loader").style.display = "flex";
+            const rejectBtnId = btn.getAttribute("reject-btn-id");
+            // Find the closest table row to the clicked button
+            const reason = btn.closest(".hs-overlay").querySelector("#rejectReasonall").value.trim();
+            console.log(reason);
+            if(!rejectBtnId) {
+                return;
+            }
+            if (!reason) {
+                btn.closest(".hs-overlay").querySelector("#rejectReasonall").classList.add("is-invalid");
+                document.querySelector("#loader").style.display = "none";
+                return;
+            } else {
+                btn.closest(".hs-overlay").querySelector("#rejectReasonall").classList.remove("is-invalid");
+            }
+            const allChecked = document.querySelector(`#${rejectBtnId}`).closest(".hidden-row").querySelector("tbody").querySelectorAll("input:checked");
+            console.log(allChecked)
+            allChecked.forEach(item => {
+                const tr = item.closest("tr");
+                console.log(tr.querySelector(".contract-billing-id"));
+                var contractBillingId = tr.querySelector(".contract-billing-id").innerText.trim();
+                _Obj.push({
+                    Contractbillingprovesionid: contractBillingId,
+                    Remark: reason,
+                    StatusId: 4,
+                });
+            })
+
+            const fdata = new FormData();
+            fdata.append("selectedItems", JSON.stringify(_Obj));
+            console.log(_Obj);
+            $.ajax({
+                url: "@Url.Action("BillingApprovalDH","Billing")",
+                type: "POST",
+                cache: false,
+                data: fdata,
+                contentType: false,
+                processData: false,
+                success: function (res) {
+                    console.log(res);
+                    if (res.success == true) {
+                        toastr.success("Acted to request successfully!!");
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 500)
+                    } else {
+                        toastr.error(res.msg);
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 500)
+
+                    }
+                },
+                error: function (err) {
+                    toastr.error(err);
+                }
+            });
+        }
+    </script>
+}

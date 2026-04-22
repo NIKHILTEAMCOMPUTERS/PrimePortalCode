@@ -1,0 +1,261 @@
+﻿@model IEnumerable<RMS.Client.Models.Account.AuthorizePages>
+@using Newtonsoft.Json;
+@using RMS.Client.Models.Common;
+@using Microsoft.AspNetCore.Mvc
+<div class="sidebar_new fixed left-0 bottom-0 h-screen px-4 flex flex-col z-30 py-4">
+    <div class="sidebar_content_wrapper w-full bg-white rounded flex flex-col overflow-y-auto">
+        @* <div class="logo mb-4 lg:mb-6 xl-mb-8 2xl:mb-10 flex items-center gap-2 h-14 xl:h-16 2xl:h-20">
+            <img src="~/assets/images/prime_logo_icon.svg" class="logo_icon h-8 xl:h-10 2xl:h-12 w-auto" alt="">
+            <img src="~/assets/images/prime_logo_text.svg" class="logo_text h-4 xl:h-6 w-auto" alt="">
+        </div> *@
+        @* <div class="logo-wrapper bg-white shadow-sm p-4 rounded my-4 relative overflow-hidden">
+            <div class="logo flex items-center gap-2">
+                <img src="~/assets/images/prime_logo_icon.svg" class="logo_icon h-8 xl:h-10 2xl:h-12 w-auto" alt="">
+                <img src="~/assets/images/prime_logo_text.svg" class="logo_text h-4 xl:h-6 w-auto" alt="">
+            </div>
+            <!-- <hr class="my-2"> -->
+            <div class="line my-2"></div>
+            <p class="font-semibold logo_desc">Portal for Resource Integration Management and Efficiency</p>
+            <svg viewbox="0 0 100 100" class="logo_circle_top w-20 h-20 absolute top-0 right-0"
+                 style="transform: translate(25%, -25%);">
+                <ellipse style="fill: none; stroke: #00cc83; stroke-width: 10px;" rx="40" ry="40" cx="50" cy="50" />
+            </svg>
+            <svg viewbox="0 0 100 100" class="logo_circle_bottom w-10 h-10 absolute left-0 bottom-0"
+                 style="transform: translate(0, 70%);">
+                <ellipse style="fill: none; stroke: #00cc83; stroke-width: 5px;" rx="45" ry="45" cx="50" cy="50" />
+            </svg>
+        </div> *@
+        <div class="flex items-center px-4 pt-4 sidebar_toggle_wrapper">
+            <button onclick="toggleSidebarSize()" class="sidebar_toggle_button bg-white rounded-full w-14 h-14 flex items-center justify-center">
+                <svg class="sidebar_toggle_icon expanded_icon w-6 h-6" width="27" height="23" viewBox="0 0 27 23" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                          d="M11.7754 1.7C11.7754 0.761124 12.512 0 13.4206 0H24.9367C25.8452 0 26.5818 0.761124 26.5818 1.7C26.5818 2.63888 25.8452 3.4 24.9367 3.4H13.4206C12.512 3.4 11.7754 2.63888 11.7754 1.7Z"
+                          fill="#606D84" />
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                          d="M11.7754 11.3328C11.7754 10.394 12.512 9.63281 13.4206 9.63281H24.9367C25.8452 9.63281 26.5818 10.394 26.5818 11.3328C26.5818 12.2717 25.8452 13.0328 24.9367 13.0328H13.4206C12.512 13.0328 11.7754 12.2717 11.7754 11.3328Z"
+                          fill="#606D84" />
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                          d="M0.257812 20.9666C0.257812 20.0277 0.994384 19.2666 1.90297 19.2666H24.9352C25.8438 19.2666 26.5804 20.0277 26.5804 20.9666C26.5804 21.9055 25.8438 22.6666 24.9352 22.6666H1.90297C0.994384 22.6666 0.257812 21.9055 0.257812 20.9666Z"
+                          fill="#606D84" />
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                          d="M7.45337 1.0653C8.09584 1.72918 8.09584 2.80557 7.45337 3.46946L4.22958 6.80071L7.45337 10.132C8.09584 10.7959 8.09584 11.8722 7.45337 12.5361C6.8109 13.2 5.76923 13.2 5.12676 12.5361L0.739664 8.00272C0.0971954 7.33882 0.0971954 6.26251 0.739664 5.59863L5.12676 1.0653C5.76923 0.401412 6.8109 0.401412 7.45337 1.0653Z"
+                          fill="#606D84" />
+                </svg>
+                <svg class="sidebar_toggle_icon shrinked_icon w-6 h-6" width="25" height="22" viewBox="0 0 25 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M0 2.39648C0 1.53355 0.699562 0.833984 1.5625 0.833984H12.5C13.3629 0.833984 14.0625 1.53355 14.0625 2.39648C14.0625 3.25942 13.3629 3.95898 12.5 3.95898H1.5625C0.699562 3.95898 0 3.25942 0 2.39648Z" fill="#606D84" />
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M0 11.251C0 10.3881 0.699562 9.68848 1.5625 9.68848H12.5C13.3629 9.68848 14.0625 10.3881 14.0625 11.251C14.0625 12.1139 13.3629 12.8135 12.5 12.8135H1.5625C0.699562 12.8135 0 12.1139 0 11.251Z" fill="#606D84" />
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M0 20.1045C0 19.2416 0.699562 18.542 1.5625 18.542H23.4375C24.3004 18.542 25 19.2416 25 20.1045C25 20.9674 24.3004 21.667 23.4375 21.667H1.5625C0.699562 21.667 0 20.9674 0 20.1045Z" fill="#606D84" />
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M18.1666 1.81213C18.7768 1.20195 19.766 1.20195 20.3762 1.81213L24.5429 5.9788C25.1531 6.58899 25.1531 7.57824 24.5429 8.18845L20.3762 12.3551C19.766 12.9653 18.7768 12.9653 18.1666 12.3551C17.5564 11.7449 17.5564 10.7557 18.1666 10.1455L21.2283 7.08365L18.1666 4.02184C17.5564 3.41165 17.5564 2.42232 18.1666 1.81213Z" fill="#606D84" />
+                </svg>
+            </button>
+        </div>
+        @{
+            var pages = (List<RMS.Client.Models.Account.AuthorizePages>)Model;
+            var role = @Context.Session.GetString("RoleName");
+            var Provisioncount = @Context.Session.GetInt32("ProvisionsRequestCount");
+            var revisionsCount = @Context.Session.GetInt32("RevisionsRequestCount");
+            var Count = Provisioncount + revisionsCount;
+            var controllerName = ViewContext.RouteData.Values["controller"].ToString();
+            var actionName = ViewContext.RouteData.Values["action"].ToString();
+            if (pages != null && pages.Count() > 0)
+            {
+
+                <ul class="menu flex-1 overflow-y-auto flex flex-col gap-3 xl:gap-4 2xl:gap-5 px-4">
+                    @{
+                        List<string> modules = new List<string>();
+                        foreach (var rpt in pages)
+                        {
+                            if (string.IsNullOrEmpty(rpt.ModuleName))
+                            {
+                                <li>
+                                    <a asp-controller="@rpt.Controller" asp-action="@rpt.Action" class="@(controllerName.ToString() == @rpt.Controller ? "active" : "") menu-item px-2 py-2 xl:px-3 2xl:px-5 2xl:py-3 rounded-lg flex items-center gap-2">
+                                        <img class="w-4 h-4" src="@rpt.PageIcon" />
+                                        <span class="menu-item-text flex-1 overflow-hidden text-ellipsis whitespace-nowrap">@rpt.PageName</span>
+                                    </a>
+                                </li>
+                            }
+
+                            else if (!modules.Contains(rpt.ModuleName))
+                            {
+                                modules.Add(rpt.ModuleName);
+
+                                // <li class="side_nav_ul_li side_nav_ul_li_dd">
+                                //     <a class="outer_link">
+                                //         <div class="d-flex align-items-center gap-2">
+                                //             <img class="float-left" src="@rpt.ModuleIcon" />
+                                //             <span class="fs-400 fw-medium">@rpt.ModuleName</span>
+                            //         </div>
+
+                                //         <div class="arrow">
+                                //             <img src="~/img/droparrow.svg" alt="" class="dropdown_arrow">
+                                //         </div>
+                                //     </a>
+                                //     <ul class="sub_dropdown">
+                                //         @foreach (var item in pages.Where(c => c.ModuleName == rpt.ModuleName))
+                                //         {
+                                //             <li>
+                                //                 <a asp-controller="@item.Controller" asp-action="@item.Action"
+                                //                    class="@(ViewData["controller"].ToString() == @item.Controller ? "active" : "") menu-item text-xs lg:text-sm xl:text-base 2xl:text-xl px-2 py-2 xl:px-3 2xl:px-5 2xl:py-3 rounded-lg flex items-center gap-2">
+                                //                     <img class="float-left" src="@item.PageIcon" />
+                                //                     <span class="menu-item-text flex-1 overflow-hidden text-ellipsis">@item.PageName</span>
+                                //                 </a>
+                                //             </li>
+                                //         }
+                                //     </ul>
+                                // </li>
+                                <li class="relative">
+                                    <a data-hs-collapse="#@(rpt.ModuleName.ToString().Trim().Replace(" ", ""))"
+                                       class="hs-collapse-toggle menu-item text-xs lg:text-sm xl:text-base 2xl:text-xl px-2 py-2 xl:px-3 2xl:px-5 2xl:py-3 rounded-lg flex items-center gap-2">
+                                        <img class="w-3 h-3 xl:w-4 xl:h-4 2xl:w-5 2xl:h-5" src="@rpt.ModuleIcon" />
+                                        @if (rpt.ModuleName == "Task Box")
+                                        {
+                                            <span class="absolute top-0 right-0 block text-white text-xs font-bold rounded-full px-2 ring-2 ring-white" style="background-color: #FF9E2C; transform: translate(0%, -50%)">@Count</span>
+
+                                        }
+                                        <span class="menu-item-text flex-1 overflow-hidden text-ellipsis whitespace-nowrap cursor-pointer">
+                                            @rpt.ModuleName
+                                        </span>
+                                        <svg class="sidebar-dropdown-icon hs-collapse-open:rotate-180 flex-shrink-0 w-6 h-6 transition-transform text-gray-300" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 512 512"><path fill="currentColor" d="M256 464c114.87 0 208-93.13 208-208S370.87 48 256 48S48 141.13 48 256s93.13 208 208 208m-96-270.63l96 96l96-96L374.63 216L256 334.63L137.37 216Z" /></svg>
+                                    </a>
+                                    <div id="@(rpt.ModuleName.ToString().Trim().Replace(" ", ""))"
+                                         class="hs-collapse hidden w-full overflow-hidden transition-[height] duration-300 hs-collapse-open:bg-white hs-collapse-open:rounded-e"
+                                         aria-labelledby="hs-basic-collapse">
+                                        <div class="m-2 pl-4">
+                                            <ul class="sidebar-dropdown-menu flex flex-col gap-2">
+                                                @foreach (var item in pages.Where(c => c.ModuleName == rpt.ModuleName))
+                                                {
+                                                    <li>
+                                                        @{
+                                                             controllerName = ViewContext.RouteData.Values["controller"].ToString();
+                                                             actionName = ViewContext.RouteData.Values["action"].ToString();
+                                                        }
+
+                                                        <a asp-controller="@item.Controller" asp-action="@item.Action"
+                                                           class="@((controllerName == item.Controller && actionName == item.Action) ? "active" : "") menu-item-inner text-xs lg:text-sm xl:text-base 2xl:text-xl px-2 py-2 xl:px-3 2xl:px-5 2xl:py-3 rounded-lg flex items-center gap-2">
+                                                            <img class="w-4 h-4" src="@item.PageIcon" />
+                                                            <span class="menu-item-text flex-1 overflow-hidden text-ellipsis">@item.PageName</span>
+                                                        </a>
+                                                    </li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </li>
+                            }
+                        }
+                    }
+                </ul>
+            }
+        }
+    </div>
+</div>
+
+<div id="sidebar-mobile" class="hs-overlay hs-overlay-open:translate-x-0 hidden -translate-x-full fixed top-0 left-0 transition-all duration-300 transform h-full max-w-xs w-full w-full z-[60] bg-white border-r hidden overflow-y-auto" tabindex="-1">
+    <div class="flex justify-between items-center py-3 px-4 border-b sticky top-0 bg-white">
+        <h3 class="font-bold text-gray-800">
+            <div class="flex items-center gap-2">
+                <img src="~/assets/images/prime_logo_icon.svg" class="h-8 w-auto" alt="">
+                <img src="~/assets/images/prime_logo_text.svg" class="h-6 w-auto" alt="">
+            </div>
+        </h3>
+        <button type="button" class="inline-flex flex-shrink-0 justify-center items-center h-8 w-8 rounded-md text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-white text-sm" data-hs-overlay="#sidebar-mobile">
+            <span class="sr-only">Close modal</span>
+            <svg class="w-3.5 h-3.5" width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0.258206 1.00652C0.351976 0.912791 0.479126 0.860131 0.611706 0.860131C0.744296 0.860131 0.871447 0.912791 0.965207 1.00652L3.61171 3.65302L6.25822 1.00652C6.30432 0.958771 6.35952 0.920671 6.42052 0.894471C6.48152 0.868271 6.54712 0.854471 6.61352 0.853901C6.67992 0.853321 6.74572 0.865971 6.80722 0.891111C6.86862 0.916251 6.92442 0.953381 6.97142 1.00032C7.01832 1.04727 7.05552 1.1031 7.08062 1.16454C7.10572 1.22599 7.11842 1.29183 7.11782 1.35822C7.11722 1.42461 7.10342 1.49022 7.07722 1.55122C7.05102 1.61222 7.01292 1.6674 6.96522 1.71352L4.31871 4.36002L6.96522 7.00648C7.05632 7.10078 7.10672 7.22708 7.10552 7.35818C7.10442 7.48928 7.05182 7.61468 6.95912 7.70738C6.86642 7.80018 6.74102 7.85268 6.60992 7.85388C6.47882 7.85498 6.35252 7.80458 6.25822 7.71348L3.61171 5.06702L0.965207 7.71348C0.870907 7.80458 0.744606 7.85498 0.613506 7.85388C0.482406 7.85268 0.357007 7.80018 0.264297 7.70738C0.171597 7.61468 0.119017 7.48928 0.117877 7.35818C0.116737 7.22708 0.167126 7.10078 0.258206 7.00648L2.90471 4.36002L0.258206 1.71352C0.164476 1.61976 0.111816 1.4926 0.111816 1.36002C0.111816 1.22744 0.164476 1.10028 0.258206 1.00652Z" fill="currentColor" />
+            </svg>
+        </button>
+    </div>
+    <div class="p-4">
+        @{
+            if (pages != null && pages.Count() > 0)
+            {
+
+                <ul class="menu flex-1 overflow-y-auto flex flex-col gap-3 xl:gap-4 2xl:gap-5">
+                    @{
+                        List<string> modules = new List<string>();
+                        foreach (var rpt in pages)
+                        {
+                            if (string.IsNullOrEmpty(rpt.ModuleName))
+                            {
+                                <li>
+                                    <a asp-controller="@rpt.Controller" asp-action="@rpt.Action" class="@(controllerName.ToString() == @rpt.Controller ? "active" : "") menu-item text-xs lg:text-sm xl:text-base 2xl:text-xl px-2 py-2 xl:px-3 2xl:px-5 2xl:py-3 rounded-lg flex items-center gap-2">
+                                        <img class="w-3 h-3 xl:w-4 xl:h-4 2xl:w-5 2xl:h-5" src="@rpt.PageIcon" />
+                                        <span class="menu-item-text flex-1 overflow-hidden text-ellipsis whitespace-nowrap">@rpt.PageName</span>
+                                    </a>
+                                </li>
+                            }
+
+                            else if (!modules.Contains(rpt.ModuleName))
+                            {
+                                modules.Add(rpt.ModuleName);
+
+                                // <li class="side_nav_ul_li side_nav_ul_li_dd">
+                                //     <a class="outer_link">
+                                //         <div class="d-flex align-items-center gap-2">
+                                //             <img class="float-left" src="@rpt.ModuleIcon" />
+                                //             <span class="fs-400 fw-medium">@rpt.ModuleName</span>
+                                //         </div>
+
+                                //         <div class="arrow">
+                                //             <img src="~/img/droparrow.svg" alt="" class="dropdown_arrow">
+                                //         </div>
+                                //     </a>
+                                //     <ul class="sub_dropdown">
+                                //         @foreach (var item in pages.Where(c => c.ModuleName == rpt.ModuleName))
+                                //         {
+                                //             <li>
+                                //                 <a asp-controller="@item.Controller" asp-action="@item.Action"
+                                //                    class="@(ViewData["controller"].ToString() == @item.Controller ? "active" : "") menu-item text-xs lg:text-sm xl:text-base 2xl:text-xl px-2 py-2 xl:px-3 2xl:px-5 2xl:py-3 rounded-lg flex items-center gap-2">
+                                //                     <img class="float-left" src="@item.PageIcon" />
+                                //                     <span class="menu-item-text flex-1 overflow-hidden text-ellipsis">@item.PageName</span>
+                                //                 </a>
+                                //             </li>
+                                //         }
+                                //     </ul>
+                                // </li>
+                                <li class="relative">
+                                    <a data-hs-collapse="#@(rpt.ModuleName.ToString().Trim().Replace(" ", ""))"
+                                       class="hs-collapse-toggle menu-item text-xs lg:text-sm xl:text-base 2xl:text-xl px-2 py-2 xl:px-3 2xl:px-5 2xl:py-3 rounded-lg flex items-center gap-2">
+                                        <img class="w-3 h-3 xl:w-4 xl:h-4 2xl:w-5 2xl:h-5" src="@rpt.ModuleIcon" />
+                                        @if (rpt.ModuleName == "Task Box")
+                                        {
+                                            <span class="absolute top-0 right-0 block text-white text-xs font-bold rounded-full px-2 ring-2 ring-white" style="background-color: #FF9E2C; transform: translate(0%, -50%)">@Count</span>
+
+                                        }
+                                        <span class="menu-item-text flex-1 overflow-hidden text-ellipsis whitespace-nowrap cursor-pointer">
+                                            @rpt.ModuleName
+                                        </span>
+                                        <svg class="sidebar-dropdown-icon hs-collapse-open:rotate-180 flex-shrink-0 w-6 h-6 transition-transform text-gray-300" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 512 512"><path fill="currentColor" d="M256 464c114.87 0 208-93.13 208-208S370.87 48 256 48S48 141.13 48 256s93.13 208 208 208m-96-270.63l96 96l96-96L374.63 216L256 334.63L137.37 216Z" /></svg>
+                                    </a>
+                                    <div id="@(rpt.ModuleName.ToString().Trim().Replace(" ", ""))"
+                                         class="hs-collapse hidden w-full overflow-hidden transition-[height] duration-300 hs-collapse-open:bg-white hs-collapse-open:rounded-e"
+                                         aria-labelledby="hs-basic-collapse">
+                                        <div class="m-2">
+                                            <ul class="sidebar-dropdown-menu flex flex-col gap-2">
+                                                @foreach (var item in pages.Where(c => c.ModuleName == rpt.ModuleName))
+                                                {
+                                                    <li>
+                                                        @{
+                                                            controllerName = ViewContext.RouteData.Values["controller"].ToString();
+                                                            actionName = ViewContext.RouteData.Values["action"].ToString();
+                                                        }
+
+                                                        <a asp-controller="@item.Controller" asp-action="@item.Action"
+                                                           class="@((controllerName == item.Controller && actionName == item.Action) ? "active" : "") menu-item-inner text-xs lg:text-sm xl:text-base 2xl:text-xl px-2 py-2 xl:px-3 2xl:px-5 2xl:py-3 rounded-lg flex items-center gap-2">
+                                                            <img class="w-3 h-3 xl:w-4 xl:h-4 2xl:w-5 2xl:h-5" src="@item.PageIcon" />
+                                                            <span class="menu-item-text flex-1 overflow-hidden text-ellipsis">@item.PageName</span>
+                                                        </a>
+                                                    </li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </li>
+                            }
+                        }
+                    }
+                </ul>
+            }
+    }
+    </div>
+</div> 

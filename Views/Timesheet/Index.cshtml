@@ -1,0 +1,362 @@
+﻿@using RMS.Client.Models.Timesheet;
+@model IEnumerable<RMS.Client.Models.Timesheet.TimeSheetHeader>;
+@using System.Globalization
+
+@{
+    Layout = "Timesheet";
+    var role = @Context.Session.GetString("RoleName");
+}
+
+@section PageStyles {
+    <style>
+        .greeting_section {
+            margin-bottom: 5rem;
+        }
+
+        @@media screen and (max-width: 768px) {
+            .greeting_section {
+                margin-bottom: 1.5rem;
+            }
+
+            .greetings-cards-wrapper {
+                display: none;
+            }
+
+            .timesheet_month_detail.desktop-only {
+                display: none;
+            }
+        }
+    </style>
+}
+<div class="rounded bg-white border greeting_section mb-6 text-center px-4 pb-4 mt-6 sticky top-8">
+    <img class="w-10 h-10 mx-auto rounded-full greeting_section_image -mb-2" src="~/assets/images/default_user_icon.png" alt="">
+    <p class="text-blue-500">Hello,</p>
+    <p class="font-bold text-gray-600 text-center">@ViewBag.name</p>
+    <h3 class="text-2xl font-bold text-gray-600 text-center">Welcome To Time<span class="text-blue-500">Sheet</span> Portal</h3>
+    <p class="text-gray-600">Track and Fill Your Timesheets Daily</p>
+
+    <div class="greetings-cards-wrapper flex items-center justify-center gap-4 gap-4 relative" style="top: 2rem; margin-bottom: -2rem;">
+        <div class="greeting-card bg-white rounded shadow p-4 flex items-center gap-4">
+            <img style="width: 4rem; height: auto;" src="~/assets/images/card_total_month.svg" alt="">
+            <div class="text-left">
+                <p>Total Months</p>
+                <p class="text-2xl font-bold">@ViewBag.totalmonth</p>
+            </div>
+        </div>
+        <div class="greeting-card bg-white rounded shadow p-4 flex items-center gap-4">
+            <img style="width: 4rem; height: auto;" src="~/assets/images/total_tiesheet_pending.svg" alt="">
+            <div class="text-left">
+                <p>Total Timesheet Entries</p>
+                <p class="text-2xl font-bold">@ViewBag.groupedCount</p>
+            </div>
+        </div>
+        <div class="greeting-card bg-white rounded shadow p-4 flex items-center gap-4">
+            <img style="width: 4rem; height: auto;" src="~/assets/images/total_leaves.svg" alt="">
+            <div class="text-left">
+                <p>Total Leaves</p>
+                <p class="text-2xl font-bold">@ViewBag.leaveCount</p>
+            </div>
+        </div>
+        @* <div class="greeting-card bg-white rounded shadow p-4 flex items-center gap-4">
+            <img style="width: 4rem; height: auto;" src="~/assets/images/total_tiesheet_pending.svg" alt="">
+            <div class="text-left">
+                <p>Total Timesheet Pending</p>
+                <p class="text-2xl font-bold">789</p>
+            </div>
+        </div> *@
+    </div>
+
+    <div class="bubbles">
+        <img class="absolute bubble_image bubble_image_left" src="~/assets/images/bubble_left.svg" alt="" srcset="">
+        <img class="absolute bubble_image bubble_image_right" src="~/assets/images/bubble_right.svg" alt="" srcset="">
+    </div>
+</div>
+<div class="relative w-full flex-1 flex flex-col bg-white p-4 rounded-md" style="min-height: 100vh;">
+    <div class="border-b p-2 mb-4 sticky bg-white flex items-center" style="margin-top: -1rem; margin-left: -1rem; margin-right: -1rem; top: 4rem; z-index: 20;">
+        @if (role == "Employee")
+        {
+            <a asp-controller="Employee" asp-action="EmployeeDashboard" class="inline-flex items-center gap-1 rounded-full px-2 py-1 text-gray-800 hover:bg-gray-800 hover:text-white text-sm">
+                <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 512 512"><path fill="currentColor" d="M48 256c0 114.87 93.13 208 208 208s208-93.13 208-208S370.87 48 256 48S48 141.13 48 256m212.65-91.36a16 16 0 0 1 .09 22.63L208.42 240H342a16 16 0 0 1 0 32H208.42l52.32 52.73A16 16 0 1 1 238 347.27l-79.39-80a16 16 0 0 1 0-22.54l79.39-80a16 16 0 0 1 22.65-.09" /></svg>
+                Back to Prime
+            </a>
+        }
+        else
+        {
+            <a asp-controller="Home" asp-action="Index" class="inline-flex items-center gap-1 rounded-full px-2 py-1 text-gray-800 hover:bg-gray-800 hover:text-white text-sm">
+                <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 512 512"><path fill="currentColor" d="M48 256c0 114.87 93.13 208 208 208s208-93.13 208-208S370.87 48 256 48S48 141.13 48 256m212.65-91.36a16 16 0 0 1 .09 22.63L208.42 240H342a16 16 0 0 1 0 32H208.42l52.32 52.73A16 16 0 1 1 238 347.27l-79.39-80a16 16 0 0 1 0-22.54l79.39-80a16 16 0 0 1 22.65-.09" /></svg>
+                Back to Prime
+            </a>
+        }
+        <a href="/Timesheet/UserMannual" target="_blank" class="flex items-center gap-2 ml-auto p-2 rounded text-blue-500">
+            <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M15.75 13a.75.75 0 0 0-.75-.75H9a.75.75 0 0 0 0 1.5h6a.75.75 0 0 0 .75-.75m0 4a.75.75 0 0 0-.75-.75H9a.75.75 0 0 0 0 1.5h6a.75.75 0 0 0 .75-.75" /><path fill="currentColor" fill-rule="evenodd" d="M7 2.25A2.75 2.75 0 0 0 4.25 5v14A2.75 2.75 0 0 0 7 21.75h10A2.75 2.75 0 0 0 19.75 19V7.968c0-.381-.124-.751-.354-1.055l-2.998-3.968a1.75 1.75 0 0 0-1.396-.695zM5.75 5c0-.69.56-1.25 1.25-1.25h7.25v4.397c0 .414.336.75.75.75h3.25V19c0 .69-.56 1.25-1.25 1.25H7c-.69 0-1.25-.56-1.25-1.25z" clip-rule="evenodd" /></svg>
+            <span class="text-sm font-medium">FAQ</span>
+        </a>
+
+    </div>
+    <div class="flex justify-between items-center mb-4">
+        <div class="flex items-center gap-2">
+            <img class="w-8 h-8" src="~/assets/images/fill_timesheet_icon.svg" alt="">
+            <div>
+                <p class="font-bold text-xl">Create Month for Timesheet Entry</p>
+                <p class="text-sm">Start by selecting or creating a month. Fill in daily timesheets for accurate tracking.</p>
+            </div>
+        </div>
+        <button id="openDatePicker" class="relative flex items-center gap-2 bg-blue-500 text-white rounded-full px-6 py-3 hover:shadow-2xl transition-all">
+            <input type="month" id="select-month" class="opacity-0 absolute pointer-events-none inset-0" onchange="SelectMonth(this);">
+            <img src="~/assets/images/select_month_icon.svg" alt="">
+            Select Month
+        </button>
+    </div>
+    <div class="timesheet_months-wrapper flex flex-col gap-4 flex-1 overflow-y-auto min-h-0">
+        @if (Model != null)
+        {
+            foreach (var item in Model)
+            {
+                <div class="rounded-md border bg-gray-100 p-4 flex items-center justify-between">
+                    <div class="flex items-center gap-2 timesheet_month_detail">
+                        <img class="w-6 h-6" src="~/assets/images/timesheet_month.svg" alt="">
+                        <p class="font-medium" data-monthyear="@item.Monthyear">Month : @item.Monthyear</p>
+                    </div>
+                    <div class="flex items-center gap-2 timesheet_month_detail desktop-only">
+                        <img class="w-6 h-6" src="~/assets/images/total_working_days_icon.svg" alt="">
+                        <p class="font-medium" data-monthyear="@item.Monthyear">Total Working Days : @item.TotalWorkigDay</p>
+                    </div>
+
+                    @* Match monthlyEntryCounts with Monthyear *@
+                    @{
+                        // Cast ViewBag.MonthlyEntryCounts to List<MonthlyEntryCount>
+                        var monthlyEntryCounts = ViewBag.MonthlyEntryCounts as List<MonthlyEntryCount>;
+
+                        // Parse the item.Monthyear (which may be in format like "jun-24")
+                        DateTime parsedMonthYear;
+                        var isValidMonthYear = DateTime.TryParseExact(item.Monthyear, "MMM-yy",
+                        CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedMonthYear);
+
+                        // If the parsing is successful, compare with monthlyEntryCounts
+                        var monthEntryCount = isValidMonthYear
+                        ? monthlyEntryCounts?.FirstOrDefault(me =>
+                        me.Year == parsedMonthYear.Year && me.Month == parsedMonthYear.Month)
+                        : null;
+                    }
+
+
+                    <div class="flex items-center gap-2 timesheet_month_detail desktop-only">
+                        <img class="w-6 h-6" src="~/assets/images/timesheet_filled_icon.svg" alt="">
+                        <p class="font-medium" data-monthyear="@item.Monthyear">
+                            Timesheet Filled : @(monthEntryCount != null ? monthEntryCount.EntryCount.ToString() : "0")
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-2 timesheet_month_detail desktop-only">
+                        <img class="w-6 h-6" src="~/assets/images/timesheet_pending_icon.svg" alt="">
+                        <p class="font-medium" data-monthyear="@item.Monthyear">
+                            Timesheet Pending: @Math.Max(item.TotalWorkigDay - (monthEntryCount != null ? monthEntryCount.EntryCount : 0), 0)
+                        </p>
+                    </div>
+
+                    <div class="timesheet_month_detail">
+                        <a href="/Timesheet/Add?id=@item.Timesheetid&amp;month=@item.Monthyear" title="Fill Timesheet">
+                            <img class="w-6 h-6" src="~/assets/images/timesheet_edit_link.svg" alt="">
+                        </a>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
+</div>
+@section Scripts{
+    <script type="text/javascript">
+        $(function () {
+            document.querySelector(".main").classList.add("flex", "flex-col");
+        @if (ViewData["error"] != null)
+        {
+            <text>
+                    toastr.error("@ViewData["error"]", "Error", { "iconClass": 'new-error' });
+            </text>
+        }
+        @if (ViewData["success"] != null)
+        {
+            <text>
+                    toastr.success("@ViewData["success"]");
+            </text>
+        }
+                $(function () {
+                    document.querySelector(".main").classList.add("flex", "flex-col");
+
+        @if (TempData.ContainsKey("error"))
+        {
+            <text>
+                            toastr.error("@TempData["error"]", "Error", { "iconClass": 'new-error' });
+            </text>
+        }
+
+        @if (TempData.ContainsKey("success"))
+        {
+            <text>
+                            toastr.success("@TempData["success"]");
+            </text>
+        }
+                                        });
+        });
+
+        const datePick = document.querySelector('#openDatePicker')
+        datePick.addEventListener('click', function () {
+            const dateInput = document.querySelector("#select-month");
+            dateInput.showPicker();
+        })
+
+
+        function setMonthSelectLimits() {
+            const monthSelect = document.querySelector("#select-month");
+            const currentDate = new Date();
+            const maxValue = `${currentDate.getFullYear()}-${currentDate.getMonth() + 1 < 10 ? '0' + (currentDate.getMonth() + 1) : currentDate.getMonth() + 1}`;
+            const minValue = `${currentDate.getFullYear()}-${currentDate.getMonth() + 1 < 10 ? '0' + (currentDate.getMonth() + 1) : currentDate.getMonth() + 1}`;
+
+            //const minValue = `${currentDate.getFullYear()}-${currentDate.getMonth() - 1 <= 0 ? '01' : '0' + (currentDate.getMonth())}`;
+            monthSelect.setAttribute("max", maxValue);
+            monthSelect.setAttribute("min", minValue);
+        }
+
+        setMonthSelectLimits();
+
+        let months = ["January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"];
+
+        function checkMonthExists(dateStr) {
+            const date = new Date(dateStr);
+            const year = String(date.getFullYear()).substr(-2);
+            const month = date.toLocaleString('default', { month: 'short' });
+            const monthYearStr = `${month}-${year}`;
+            const monthDiv = document.querySelector(`[data-monthyear='${monthYearStr}']`);
+            return monthDiv ? true : false;
+        }
+
+        function SelectMonth(input) {
+            //console.log(input.value);
+            const monthAlreadyExists = checkMonthExists(input.value);
+            if (monthAlreadyExists) {
+                toastr.error("Month already exists");
+                return;
+            }
+            document.querySelector("#loader").style.display = "flex";
+            let monthData = input.value.split("-");
+            const monthName = `${months[Number(monthData[1]) - 1]}-${monthData[0]}`;
+            var formData = new FormData();
+            formData.append("date", monthName);
+
+            $.ajax({
+                url: '/Timesheet/CreateMonth',
+                type: 'POST',
+                processData: false,
+                contentType: false,
+                //contentType: 'application/json',
+                data: formData,
+                success: function (res) {
+                    if (res.success == true) {
+                        $("#loader").hide();
+                        toastr.success(res.msg);
+                        console.log('Data submitted successfully');
+                        setTimeout(() => {
+                            window.location.href = "/Timesheet/Index"
+                        }, 1500)
+                    } else {
+                        toastr.error(res.msg);
+                        $("#loader").hide();
+                        console.log('Data not submitted successfully');
+
+                    }
+                }
+            });
+        }
+
+        let datatable = new DataTable("#datatable");
+        $(document).ready(function () {
+            checkTableRows();
+        });
+
+        function checkTableRows() {
+            var submitAllButton = $("#submitAll");
+            var lengthofTable = document.querySelectorAll('#datatable tbody tr')
+            console.log(lengthofTable);
+            if (lengthofTable.length > 1) {
+                submitAllButton.show();
+            } else {
+                submitAllButton.hide();
+            }
+        }
+        function myFunction() {
+            document.querySelector("#loader").style.display = "flex";
+            var timesheetId = document.querySelector('#tsId').value;
+            var timesheetData = {
+                timesheetId: timesheetId,
+            };
+            console.log(timesheetData);
+            $.ajax({
+                url: '/Timesheet/SubmitTimesheet',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(timesheetData),
+                success: function (res) {
+                    if (res.success == true) {
+                        $("#loader").hide();
+                        toastr.success(res.msg);
+                        console.log('Data submitted successfully');
+                        setTimeout(() => {
+                            window.location.href = "/Timesheet/Index"
+                        }, 1500)
+                    } else {
+                        toastr.error(res.msg);
+                        $("#loader").hide();
+                        console.log('Data not submitted successfully');
+
+                    }
+                }
+            });
+
+
+        }
+        function SubmitAll() {
+            document.querySelector("#loader").style.display = "flex";
+            const timesheets = [];
+            var timesheetIds = document.querySelectorAll('#tsId');
+            if (timesheetIds === null) {
+
+            }
+            timesheetIds.forEach(item => {
+                var timesheet = {
+                    Timesheetid: parseInt(item.value)
+                };
+                timesheets.push(timesheet);
+            });
+
+            const submitAllData = {
+                timesheets: timesheets
+            };
+
+            console.log(submitAllData);
+
+            $.ajax({
+                url: '/Timesheet/SubmitAll',
+                type: 'POST',
+                contentType: 'application/json',
+                dataType: 'json',
+                data: JSON.stringify(submitAllData),
+                success: function (response) {
+                    if (response.success == true) {
+                        $("#loader").hide();
+                        toastr.success(response.msg);
+                        setTimeout(() => {
+                            window.location.href = "/Timesheet/Index"
+                        }, 1500)
+                    } else {
+                        toastr.error(response.msg);
+                        $("#loader").hide();
+                        console.log('Failure');
+                    }
+                }
+            });
+        }
+
+
+    </script>
+}

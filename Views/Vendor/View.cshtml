@@ -1,0 +1,433 @@
+﻿@model RMS.Client.Models.Vendor.VendorWithDetailDto
+<div id="less_info">
+    @if (Model != null)
+    {
+        <div class="flex items-center gap-4 mb-5">
+            <a asp-action="Index" asp-controller="Vendor" class="py-2 px-2 inline-flex justify-center items-center gap-2 rounded-md border border-gray-400 bg-gray-700 text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all text-sm sm:text-base" title="Back">
+                <svg class="w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M11.707 5.293a1 1 0 0 1 0 1.414L7.414 11H19a1 1 0 1 1 0 2H7.414l4.293 4.293a1 1 0 0 1-1.414 1.414l-6-6a1 1 0 0 1 0-1.414l6-6a1 1 0 0 1 1.414 0z" /></svg>
+            </a>
+
+            <h2 class="font-extrabold text-xl 2xl:text-2xl text-[#4B4E5C]">Detailed View: @Model.vendorname</h2>
+        </div>
+        <div class="customer-info-wrapper my-4 bg-[#fafafa] py-3 px-4 rounded overflow-x-auto flex items-stretch gap-5">
+            <div class="border-r border-r-slate-300 flex items-center gap-3 pr-4">
+                <div class="customer-logo-wrapper w-10 h-10 bg-white rounded-full flex items-center justify-center">
+                    <img class="w-6 h-6 rounded-full object-cover" src=" /assets/images/employment.svg" alt="">
+                </div>
+                <div>
+                    <p class="text-xs font-medium text-[#4B4E5C] whitespace-nowrap">Vendor</p>
+                    <p class="text-2xl font-black text-[#4B4E5C] whitespace-nowrap">
+                        @if (string.IsNullOrEmpty(Model.vendorname))
+                        {
+                            <span>N/A</span>
+                        }
+                        else
+                        {
+                            @Model.vendorname
+                        }
+                    </p>
+                </div>
+            </div>
+            <div class="flex items-center border-r border-r-slate-300 pr-4">
+                <div>
+                    <p class="text-xs text-[#4B4E5C] whitespace-nowrap">Email</p>
+                    <p class="text-xs text-[#4B4E5C] whitespace-nowrap">
+                        @if (string.IsNullOrEmpty(Model.email))
+                        {
+                            <span>N/A</span>
+                        }
+                        else
+                        {
+                            @Model.email
+                        }
+                    </p>
+                </div>
+            </div>
+            <div class="flex items-center border-r border-r-slate-300 pr-4">
+                <div>
+                    <p class="text-xs text-[#4B4E5C] whitespace-nowrap">Phone No:</p>
+                    <p class="text-xs text-[#4B4E5C] whitespace-nowrap">
+                        @if (string.IsNullOrEmpty(Model.phone1))
+                        {
+                            <span>N/A</span>
+                        }
+                        else
+                        {
+                            @Model.phone1
+                        }
+                    </p>
+                </div>
+            </div>
+            <div class="flex items-center border-r border-r-slate-300 pr-4">
+                <div>
+                    <p class="text-xs text-[#4B4E5C] whitespace-nowrap">Location:</p>
+                    <p class="text-xs text-[#4B4E5C] whitespace-nowrap">
+                        @if (string.IsNullOrEmpty(Model.address1))
+                        {
+                            <span>N/A</span>
+                        }
+                        else
+                        {
+                            @Model.address1
+                        }
+                    </p>
+                </div>
+            </div>
+            <div class="flex items-center">
+                <button id="all_info_btn" type="button" class="whitespace-nowrap py-2 px-4 inline-flex justify-center items-center gap-2 rounded-full border border-transparent font-semibold bg-black text-white hover:bg-black focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 transition-all text-xs xl:text-sm">
+                    All Info
+                </button>
+            </div>
+
+            <div class="bg-white p-3 rounded flex items-center gap-3">
+
+                <div>
+                    <p class="text-xs font-medium text-[#4B4E5C] whitespace-nowrap">Total Resources</p>
+                    <p class="text-2xl font-black text-[#4B4E5C] whitespace-nowrap">
+                        @((Model.employees != null) ? Model.employees.Count() : 0)
+
+                    </p>
+                </div>
+
+
+
+            </div>
+            <a type="button" id="btnAdd" asp-action="AddVendorEmployee" asp-controller="Vendor" asp-route-vendorid="@Model.vendorid" class="self-end ml-auto mr-2 py-3 px-4 inline-flex justify-center items-center gap-2 rounded-md border border-emerald-400 font-semibold bg-[#00cc83] text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm w-full sm:w-auto">
+                <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M18 12.998h-5v5a1 1 0 0 1-2 0v-5H6a1 1 0 0 1 0-2h5v-5a1 1 0 0 1 2 0v5h5a1 1 0 0 1 0 2z" /></svg>
+                Add
+            </a>
+        </div>
+    }
+    @if (Model != null)
+    {
+        <div class="flex flex-col">
+            <div class="-m-1.5 overflow-x-auto">
+                <div class="p-1.5 min-w-full block align-middle">
+                    <div class="overflow-hidden">
+                        <table id="vendorListTable" class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-sm 2xl:text-base font-medium text-black uppercase">
+                                        TMC
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-sm 2xl:text-base font-medium text-black uppercase">
+                                        Resource Name
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-sm 2xl:text-base font-medium text-black uppercase">
+                                        Employee Email
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-sm 2xl:text-base font-medium text-black uppercase">
+                                        Contact No.
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-sm 2xl:text-base font-medium text-black uppercase">
+                                        Status.
+                                    </th>
+                                    @*  <th scope="col"
+                                class="px-6 py-3 whitespace-nowrap text-left text-sm 2xl:text-base font-medium text-black uppercase">
+                                Designation
+                                </th>
+                                <th scope="col"
+                                class="px-6 py-3 whitespace-nowrap text-left text-sm 2xl:text-base font-medium text-black uppercase">
+                                Branch
+                                </th>
+                                <th scope="col"
+                                class="px-6 py-3 whitespace-nowrap text-left text-sm 2xl:text-base font-medium text-black uppercase">
+                                Sub-Practice
+                                </th> *@
+
+                                    @* <th scope="col"
+                                class="px-6 py-3 whitespace-nowrap text-left text-sm 2xl:text-base font-medium text-black uppercase">
+                                detailed view
+                                </th> *@
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-sm 2xl:text-base font-medium text-black uppercase">
+                                        edit
+                                    </th>
+                                </tr>
+                            </thead>
+                            @if (Model.employees != null)
+                            {
+
+
+                                @foreach (var project in Model.employees)
+                                {
+                                    <tbody class="divide-y divide-gray-200">
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
+                                                @project.userid
+                                            </td>
+
+                                            <td class="px-6 py-4 text-sm text-gray-800">@project.Employeename</td>
+
+                                            <td class="px-6 py-4 text-sm text-gray-800">@project.companyemail</td>
+                                            <td class="px-6 py-4 text-sm text-gray-800">@project.contactno</td>
+                                            <td class="px-6 py-4 text-sm text-gray-800">
+                                              
+                                                    <span class="font-bold text-@(project.isactive == false && project.isdeleted == true ? "yellow-400" : "emerald-400")">
+                                                    @(project.isactive == false && project.isdeleted == true ? "InActive" : "Active")
+                                                    </span>
+                                                </td>
+                                            @* <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@project.</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"> *@
+                                            @* <span class="status @(project.projectstatus == "pending" ? "pending" : project.projectstatus == "submitted" ? "progress" : project.projectstatus == "completed" ? "completed" : project.projectstatus == "approved" ? "approved" : project.projectstatus == "draft" ? "draft" : project.projectstatus == "rejected" ? "rejected" : project.projectstatus != null ? project.projectstatus : "-")">
+
+                                </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                <a class="text-gray-800 hover:text-blue-700 underline"
+                                asp-action="view" asp-controller="project" asp-route-id="@project.projectid">
+                                view all details
+                                </a>
+                                </td>*@
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                <div class="hs-dropdown relative inline-flex">
+                                                    <button id="hs-dropdown-default" type="button" class="hs-dropdown-toggle py-1 px-2 inline-flex justify-center items-center gap-2 border border-transparent rounded-md font-medium text-gray-700 shadow-sm align-middle hover:bg-gray-50 hover:border-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-emerald-600 transition-all text-sm">
+                                                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg"
+                                                             width="20" height="20" viewBox="0 0 20 20">
+                                                            <g fill="currentColor">
+                                                                <circle cx="10" cy="15" r="2" />
+                                                                <circle cx="10" cy="10" r="2" />
+                                                                <circle cx="10" cy="5" r="2" />
+                                                            </g>
+                                                        </svg>
+                                                    </button>
+
+                                                    <div class="hs-dropdown-menu transition-[opacity,margin] duration-[0.1ms] hs-dropdown-open:opacity-100 opacity-0 hidden z-30 mt-2 bg-white shadow-md rounded-lg" style="width: 8rem;"
+                                                         aria-labelledby="hs-dropdown-default">
+                                                        <a type="button"
+                                                           class="flex items-center gap-x-3.5 py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-blue-500"
+                                                           asp-action="AddVendorEmployee" asp-controller="Vendor" asp-route-id="@project.employeeid">
+                                                            Edit
+                                                        </a>
+                                                        <a type="button"
+                                                           class="flex items-center gap-x-3.5 py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-blue-500"
+                                                           asp-action="DeleteVendorEmployee" asp-controller="Vendor" asp-route-id="@project.employeeid"
+                                                           onclick="return confirm('Are you sure you want to delete this vendor Employee?');">
+                                                            @(project.isactive == false && project.isdeleted == true ? "Activate" : "DeActivate")
+                                                        </a>
+                                                       
+
+                                                    </div>
+                                                </div>
+                                                @* <a type="button"
+                                                   class="inline-flex flex-shrink-0 justify-center items-center gap-2 h-6 w-6 rounded-md border border-transparent font-medium bg-white text-gray-700 shadow-sm align-middle hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-white transition-all text-xs"
+                                                   asp-action="AddVendorEmployee" asp-controller="Vendor" asp-route-id="@project.employeeid">
+                                                    <svg class="w-5 h-5 text-gray-800 hover:text-emerald-500"
+                                                         xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                         viewBox="0 0 24 24">
+                                                        <g fill="none">
+                                                            <path d="M24 0v24H0V0h24ZM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035c-.01-.004-.019-.001-.024.005l-.004.010l-.017.428l.005.020l.010.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.010-.009-.017-.017-.018Zm.265-.113l-.013.002l-.185.093l-.010.010l-.003.011l.018.43l.005.012l.008.007l.201.093c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.010-.020-.020-.022Zm-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.020.017.024l.015-.002l.201-.093l.010-.008l.004-.011l.017-.43l-.003-.012l-.010-.010l-.184-.092Z" />
+                                                            <path fill="currentColor"
+                                                                  d="M13 3a1 1 0 0 1 .117 1.993L13 5H5v14h14v-8a1 1 0 0 1 1.993-.117L21 11v8a2 2 0 0 1-1.85 1.995L19 21H5a2 2 0 0 1-1.995-1.85L3 19V5a2 2 0 0 1 1.85-1.995L5 3h8Zm6.243.343a1 1 0 0 1 1.497 1.32l-.083.095l-9.9 9.899a1 1 0 0 1-1.497-1.32l.083-.094l9.9-9.9Z" />
+                                                        </g>
+                                                    </svg>
+                                                </a> *@
+                                                @* <a type="button"
+                                    class="inline-flex flex-shrink-0 justify-center items-center gap-2 h-6 w-6 rounded-md border border-transparent font-medium bg-white text-gray-700 shadow-sm align-middle hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-white transition-all text-xs"
+                                    asp-action="DeleteVendorEmployee" asp-controller="Vendor" asp-route-id="@project.employeeid">
+                                    <svg class="w-4 h-4 text-black" xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024"><path fill="currentColor" d="M360 184h-8c4.4 0 8-3.6 8-8v8h304v-8c0 4.4 3.6 8 8 8h-8v72h72v-80c0-35.3-28.7-64-64-64H352c-35.3 0-64 28.7-64 64v80h72v-72zm504 72H160c-17.7 0-32 14.3-32 32v32c0 4.4 3.6 8 8 8h60.4l24.7 523c1.6 34.1 29.8 61 63.9 61h454c34.2 0 62.3-26.8 63.9-61l24.7-523H888c4.4 0 8-3.6 8-8v-32c0-17.7-14.3-32-32-32zM731.3 840H292.7l-24.2-512h487l-24.2 512z" /></svg>
+                                    </a> *@
+                                                @* <a type="button"
+                                                   class="inline-flex flex-shrink-0 justify-center items-center gap-2 h-6 w-6 rounded-md border border-transparent font-medium bg-white text-gray-700 shadow-sm align-middle hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-white transition-all text-xs"
+                                                   asp-action="DeleteVendorEmployee" asp-controller="Vendor" asp-route-id="@project.employeeid"
+                                                   onclick="return confirm('Are you sure you want to delete this vendor Employee?');">
+                                                    <svg class="w-4 h-4 text-black" xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+                                                        <path fill="currentColor" d="M360 184h-8c4.4 0 8-3.6 8-8v8h304v-8c0 4.4 3.6 8 8 8h-8v72h72v-80c0-35.3-28.7-64-64-64H352c-35.3 0-64 28.7-64 64v80h72v-72zm504 72H160c-17.7 0-32 14.3-32 32v32c0 4.4 3.6 8 8 8h60.4l24.7 523c1.6 34.1 29.8 61 63.9 61h454c34.2 0 62.3-26.8 63.9-61l24.7-523H888c4.4 0 8-3.6 8-8v-32c0-17.7-14.3-32-32-32zM731.3 840H292.7l-24.2-512h487l-24.2 512z" />
+                                                    </svg>
+                                                </a> *@
+
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                }
+                            }
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+</div>
+<div id="more_info" style="display: none;">
+    <div class="flex items-center gap-4 mb-4">
+        <button id="hide_all_info_btn" type="button" class="whitespace-nowrap py-2 px-4 inline-flex justify-center items-center gap-2 rounded-full border border-transparent font-semibold bg-black text-white hover:bg-black focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 transition-all text-xs xl:text-sm">
+            Back
+        </button>
+        <span class="text-2xl font-extrabold block text-left">Vendor Details</span>
+    </div>
+    @if (Model != null)
+    {
+        <div class="h-[1px] bg-gray-200 my-4"></div>
+
+        <div class="p-4 rounded mb-4 flex items-center gap-4 flex-wrap">
+            <div class="flex items-center gap-2 sm:border-r pr-3">
+                <div class="logo w-10 h-10 bg-white rounded-full overflow-hidden flex items-center justify-center">
+                    <img class="w-8 h-8 rounded-full object-cover" src="/assets/images/customer_default.svg" alt="">
+                </div>
+                <div>
+                    <p class="text-[.625rem]">Vendor</p>
+                    <p class="font-bold">@Model.vendorname</p>
+                </div>
+            </div>
+            <div class="flex flex-wrap pl-3 items-center gap-4">
+                <div>
+                    <div>
+                        <span class="text-sm">Email Id</span>
+                    </div>
+                    <p class="text-sm font-bold">@Model.email</p>
+                </div>
+                <div>
+                    <div>
+                        <span class="text-sm">Phone No</span>
+                    </div>
+                    <p class="text-sm font-bold">@Model.phone1</p>
+                </div>
+                <div>
+                    <div>
+                        <span class="text-sm">Location</span>
+                    </div>
+                    <p class="text-sm font-bold">@Model.address1</p>
+                </div>
+            </div>
+        </div>
+        <div class="h-[1px] bg-gray-200 my-4"></div>
+        <span class="text-2xl font-extrabold block text-left mb-4">Other Information</span>
+        <div class="p-4 rounded mb-4 flex gap-4 flex-wrap">
+            <div>
+                <p class="text-sm 2xl:text-base">Vendor Code:</p>
+                <p class="text-sm 2xl:text-base font-bold">
+                    @Model.vendorcode
+                </p>
+            </div>
+
+            <div>
+                <p class="text-sm 2xl:text-base">Vendor Name:</p>
+                <p class="text-sm 2xl:text-base font-bold">@Model.vendorname</p>
+            </div>
+
+            <div>
+                <p class="text-sm 2xl:text-base">Pan No:</p>
+                <p class="text-sm 2xl:text-base font-bold">@Model.pannumber</p>
+            </div>
+
+            <div>
+                <p class="text-sm 2xl:text-base">Currency:</p>
+                <p class="text-sm 2xl:text-base font-bold">@(Model.currency.currencyName ?? "")</p>
+            </div>
+
+            <div>
+                <p class="text-sm 2xl:text-base">GST No:</p>
+                <p class="text-sm 2xl:text-base font-bold">@Model.gstnumber</p>
+            </div>
+
+            <div>
+                <p class="text-sm 2xl:text-base">Payment Terms:</p>
+                <p class="text-sm 2xl:text-base font-bold">@(Model.paymentTerm.paymentTermName ?? "")</p>
+            </div>
+        </div>
+
+        <div class="h-[1px] bg-gray-200 my-4"></div>
+        <span class="text-2xl font-extrabold block text-left mb-4">Address</span>
+        <div class="p-4 rounded mb-4 flex gap-4 flex-wrap">
+
+            <div>
+                <p class="text-sm 2xl:text-base">Country:</p>
+                <p class="text-sm 2xl:text-base font-bold">@(Model.city?.state?.country?.countryName ?? "")</p>
+            </div>
+            <div>
+                <p class="text-sm 2xl:text-base">State:</p>
+                <p class="text-sm 2xl:text-base font-bold">@(Model.city?.state?.stateName ?? "")</p>
+            </div>
+            <div>
+                <p class="text-sm 2xl:text-base">City:</p>
+                <p class="text-sm 2xl:text-base font-bold">@(Model.city?.cityName ?? "")</p>
+            </div>
+            <div>
+                <p class="text-sm 2xl:text-base">Zip Code:</p>
+                <p class="text-sm 2xl:text-base font-bold">@Model.zipcode</p>
+            </div>
+            <div>
+                <p class="text-sm 2xl:text-base">Address:</p>
+                <p class="text-sm 2xl:text-base font-bold">@Model.address1</p>
+            </div>
+            <div>
+                <p class="text-sm 2xl:text-base">Address Line 2:</p>
+                <p class="text-sm 2xl:text-base font-bold">@Model.address2</p>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        $(function () {
+            document.querySelector(".main").classList.add("flex", "flex-col");
+        @if (ViewData["error"] != null)
+        {
+            <text>
+                    toastr.error("@ViewData["error"]", "Error", { "iconClass": 'new-error' });
+            </text>
+        }
+        @if (ViewData["success"] != null)
+        {
+            <text>
+                    toastr.success("@ViewData["success"]");
+            </text>
+        }
+                $(function () {
+                    document.querySelector(".main").classList.add("flex", "flex-col");
+
+        @if (TempData.ContainsKey("error"))
+        {
+            <text>
+                            toastr.error("@TempData["error"]", "Error", { "iconClass": 'new-error' });
+            </text>
+        }
+
+        @if (TempData.ContainsKey("success"))
+        {
+            <text>
+                            toastr.success("@TempData["success"]");
+            </text>
+        }
+        });
+
+                let _custName = $("#hidCustomerName").val();
+            let _projId = $("#hidProjectId").val();
+
+            var _customerId = 0;
+            if (_custName != "" && _custName != undefined) {
+                $("#CustomerDropdown option").each(function () {
+                    if ($(this).text() == _custName) {
+                        $(this).attr('selected', 'selected');
+                        _customerId = $(this).attr('value');
+                        changeCustomer(_customerId, _projId);
+                        return false;
+                    }
+                });
+            }
+        });
+        const allInfoBtn = document.getElementById("all_info_btn");
+        const hideAllInfoBtn = document.getElementById("hide_all_info_btn");
+
+        allInfoBtn.addEventListener("click", () => {
+            document.getElementById("less_info").style.display = "none";
+            document.getElementById("more_info").style.display = "block";
+        })
+        hideAllInfoBtn.addEventListener("click", () => {
+            document.getElementById("less_info").style.display = "block";
+            document.getElementById("more_info").style.display = "none";
+        })
+
+        const vendorTable = new DataTable("#vendorListTable", {
+            scrollX: true,
+        })
+    </script>
+    }

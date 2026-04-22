@@ -1,0 +1,766 @@
+﻿@using System.Globalization;
+@model RMS.Client.Models.Contract.CostSheet;
+@section PageStyles {
+    <style>
+        .custom-grid {
+            grid-template-columns: 1fr 1fr auto 1fr 1fr auto 1fr 1fr 1fr;
+        }
+
+        @@media screen and (max-width: 1100px) {
+            .custom-grid {
+                grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+            }
+        }
+
+        @@media screen and (max-width: 800px) {
+            .custom-grid {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+        }
+
+        @@media screen and (max-width: 636px) {
+            .custom-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @@media screen and (max-width: 480px) {
+            .custom-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+}
+
+<div class="flex items-center justify-between mb-5 flex-wrap gap-4">
+    <div class="flex items-center gap-4 mb-5">
+        <button onclick="window.history.back();" class="py-2 px-2 inline-flex justify-center items-center gap-2 rounded-md border border-gray-400 bg-gray-700 text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all text-sm sm:text-base" title="Back">
+            <svg class="w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M11.707 5.293a1 1 0 0 1 0 1.414L7.414 11H19a1 1 0 1 1 0 2H7.414l4.293 4.293a1 1 0 0 1-1.414 1.414l-6-6a1 1 0 0 1 0-1.414l6-6a1 1 0 0 1 1.414 0z" /></svg>
+        </button>
+        <div>
+            <h2 class="font-extrabold text-xl 2xl:text-2xl text-[#4B4E5C]">Create New</h2>
+            <p>Please create the costing sheet by filling the requires information</p>
+        </div>
+    </div>
+    <div class="flex items-center gap-4">
+        <div>
+            <span>Total Cost:</span>
+            <span id="totalCostFinal" class="status pending">@(Model.costsheetdetails != null ? @Model.costsheetdetails.Sum(a => a.Totalcost) : 0.00)</span>
+        </div>
+        <div>
+            <span>Total Price:</span>
+            <span id="totalPriceFinal" class="status completed">@(Model.costsheetdetails != null ? @Model.costsheetdetails.Sum(a => a.Totalprice) : 0.00)</span>
+        </div>
+    </div>
+</div>
+
+<form onsubmit="submitCostingSheet(event);">
+    <div class="mb-4">
+        <span class="mb-2 font-medium block">Costing Sheet Name*</span>
+        <div class="flex items-center gap-3 flex-wrap">
+            <input type="hidden" value="@Model.costsheetid" id="costsheetid">
+            <input type="text" id="costingSheetName" value="@Model.costsheetname" onchange="checkCostSheetName(this);"
+                   class="py-3 px-4 block flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                   placeholder="Costing Sheet Name">
+        </div>
+        <p id="alreadyexist" class="text-red-500"></p>
+    </div>
+    <div id="costingModalWrapper" class="flex flex-col gap-6">
+        @if (Model != null && Model.costsheetid > 0)
+        {
+            int index = 0;
+            @foreach (var item in Model.costsheetdetails)
+            {
+
+                <div class="grid custom-grid gap-3">
+                    <div>
+                        <span class="mb-2 font-medium block">Skill Name*</span>
+                        <input type="hidden" id="hidskillid" value="@item.Skillid" />
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <select class="k-input skill_name" onchange="getexp(this);" id="cost">
+                                <option value="">Select Skill</option>
+                                @foreach (var skillItem in ViewBag.skilllist)
+                                {
+                                    <option value="@skillItem.Value">@skillItem.Text</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <input type="hidden" id="hidexpid" value="@item.skillexperience" />
+                        <span class="mb-2 font-medium block">Skill Experience*</span>
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <select class="k-input skill_exp" onchange="CalcAmount(this);" id="exp">
+                                <option value="">Select</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <span class="mb-2 font-medium block">Resources*</span>
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <input type="text" onchange="CalcAmount(this);" style="width: 5rem"
+                                   class="required_resources py-3 px-4 block flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                   placeholder="Required Resources" value="@item.Requiredresource" readonly>
+                        </div>
+                    </div>
+
+                    <div>
+                        <span class="font-medium block mb-2">Skill Cost</span>
+                        <div class="flex items-center gap-3">
+                            <input type="text"
+                                   class="skill_cost py-3 px-4 flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                   placeholder="Skill Cost" readonly value="@item.Skillcost">
+                        </div>
+                    </div>
+                    <div>
+                        <span class="font-medium block mb-2">Period(Days)</span>
+                        <div class="flex items-center gap-3">
+                            <input type="number" min="0" onchange="handlePeriodChange(this)" ;
+                                   class="period_days cs-period py-3 px-4 flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                   placeholder="Enter Days" value="@item.Perioddays">
+                        </div>
+                    </div>
+
+                    <div>
+                        <span class="font-medium block mb-2">Customer Price</span>
+                        <div class="flex items-center gap-3">
+                            <input type="number" min="0"
+                                   class="cus-price py-3 px-4 flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                   placeholder="0" onchange="handleCPChange(this);" value="@item.Customerprice">
+                        </div>
+                    </div>
+                    <div>
+                        <span class="font-medium block mb-2">X Value</span>
+                        <div class="flex items-center gap-3">
+                            <input type="number" min="0" step="any" style="width: 5.25rem"
+                                   class="x-value py-3 px-4 flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                   placeholder="X Value" onchange="handleXValueChange(this)" value="@item.Xvalue">
+                        </div>
+                    </div>
+                    <div>
+                        <span class="font-medium block mb-2">Total Cost</span>
+                        <div class="flex items-center gap-3">
+                            <input type="text"
+                                   class="total-cost py-3 px-4 flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                   placeholder="0" readonly value="@item.Totalcost">
+                        </div>
+                    </div>
+                    <div>
+                        @if (index > 0)
+                        {
+                            <div class="flex items-center justify-between">
+                                <span class="font-medium block mb-2">Total Price</span>
+                                <button onclick="this.closest('.grid').remove();">
+                                    <svg class="w-4 h-4 text-red-500" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 1024 1024"><path fill="currentColor" d="M512 64a448 448 0 1 1 0 896a448 448 0 0 1 0-896M288 512a38.4 38.4 0 0 0 38.4 38.4h371.2a38.4 38.4 0 0 0 0-76.8H326.4A38.4 38.4 0 0 0 288 512" /></svg>
+                                </button>
+                            </div>
+                        }
+                        else
+                        {
+                            <span class="font-medium block mb-2">Total Price</span>
+                        }
+                        <div class="flex items-center gap-3">
+                            <input type="text"
+                                   class="total-price py-3 px-4 flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                   placeholder="0" readonly value="@item.Totalprice">
+                        </div>
+                    </div>
+                </div>
+
+                index++;
+            }
+        }
+        else
+        {
+            <div class="grid custom-grid gap-3">
+                <div>
+                    <span class="mb-2 font-medium block">Skill Name*</span>
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <select class="k-input skill_name" onchange="getexp(this);" id="cost">
+                            <option value="">Select Skill</option>
+                            @foreach (var skillItem in ViewBag.skilllist)
+                            {
+                                <option value="@skillItem.Value">@skillItem.Text</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                @* </div> *@
+
+                <div>
+                    <span class="mb-2 font-medium block">Skill Experience*</span>
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <select class="k-input skill_exp" onchange="CalcAmount(this);" id="exp">
+                            <option value="">Select</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <span class="mb-2 font-medium block">Resources*</span>
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <input type="text" onchange="CalcAmount(this);" style="width: 5rem"
+                               class="required_resources py-3 px-4 block flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                               placeholder="Required Resources" value="1" readonly>
+                    </div>
+                </div>
+
+                <div>
+                    <span class="font-medium block mb-2">Skill Cost</span>
+                    <div class="flex items-center gap-3">
+                        <input type="text"
+                               class="skill_cost py-3 px-4 flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                               placeholder="Skill Cost" readonly value="">
+                    </div>
+                </div>
+                <div>
+                    <span class="font-medium block mb-2">Period(Days)</span>
+                    <div class="flex items-center gap-3">
+                        <input type="number" min="0" onchange="handlePeriodChange(this)" ;
+                               class="period_days cs-period py-3 px-4 flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                               placeholder="Enter Days" value="">
+                    </div>
+                </div>
+                <div>
+                    <span class="font-medium block mb-2">X Value</span>
+                    <div class="flex items-center gap-3">
+                        <input type="number" min="0" step="0.1" style="width: 5.25rem"
+                               class="x-value py-3 px-4 flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                               placeholder="X Value" onchange="handleXValueChange(this)" value="">
+                    </div>
+                </div>
+
+                <div>
+                    <span class="font-medium block mb-2">Customer Price</span>
+                    <div class="flex items-center gap-3">
+                        <input type="number" min="0"
+                               class="cus-price py-3 px-4 flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                               placeholder="0" onchange="handleCPChange(this);" value="">
+                    </div>
+                </div>
+                <div>
+                    <span class="font-medium block mb-2">Total Cost</span>
+                    <div class="flex items-center gap-3">
+                        <input type="text" onchange="calculateTotalCost();"
+                               class="total-cost py-3 px-4 flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                               placeholder="0" readonly value="">
+                    </div>
+                </div>
+                <div>
+                    <span class="font-medium block mb-2">Total Price</span>
+                    <div class="flex items-center gap-3">
+                        <input type="text" onchange="calculateTotalPrice();"
+                               class="total-price py-3 px-4 flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                               placeholder="0" readonly value="">
+                    </div>
+                </div>
+            </div>
+
+        }
+    </div>
+
+    <div class="mt-4">
+        <button type="button"
+                class="mb-4 py-2 px-3 inline-flex justify-center items-center gap-2 rounded-md border border-transparent font-semibold bg-white text-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm"
+                id="costingModalBtn" onclick="AddMore()">
+
+            <svg class="w-5 h-5" width="21" height="21" viewBox="0 0 21 21" fill="none"
+                 xmlns="http://www.w3.org/2000/svg">
+                <path d="M10.5 0C7.72562 0.0334721 5.07431 1.15047 3.11239 3.11239C1.15047 5.07431 0.0334721 7.72562 0 10.5C0.0334721 13.2744 1.15047 15.9257 3.11239 17.8876C5.07431 19.8495 7.72562 20.9665 10.5 21C13.2744 20.9665 15.9257 19.8495 17.8876 17.8876C19.8495 15.9257 20.9665 13.2744 21 10.5C20.9665 7.72562 19.8495 5.07431 17.8876 3.11239C15.9257 1.15047 13.2744 0.0334721 10.5 0ZM16.5 11.25H11.25V16.5H9.75V11.25H4.5V9.75H9.75V4.5H11.25V9.75H16.5V11.25Z"
+                      fill="#00CC83" />
+                <path d="M16.5 11.25H11.25V16.5H9.75V11.25H4.5V9.75H9.75V4.5H11.25V9.75H16.5V11.25Z"
+                      fill="white" />
+            </svg>
+            Add More
+        </button>
+    </div>
+    <div class="flex justify-end items-center gap-x-2 py-3 px-4 border-t -ml-4 -mr-4 -mb-4 sticky -bottom-4 bg-white pt-4">
+        @* <button type="button" class="hs-dropdown-toggle py-3 px-4 inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-white text-gray-700 shadow-sm align-middle hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-blue-600 transition-all text-sm" data-hs-overlay="#costing-sheet-modal">
+        Close
+        </button> *@
+        <button type="submit" class="py-3 px-4 inline-flex justify-center items-center gap-2 rounded-md border border-transparent font-semibold bg-emerald-500 text-white hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm" href="#">
+            Save changes
+        </button>
+    </div>
+</form>
+
+
+<div class="hs-accordion-group mt-4">
+    <div class="hs-accordion" id="hs-basic-heading-one">
+        <button class="hs-accordion-toggle hs-accordion-active:text-emerald-600 py-3 inline-flex items-center gap-2 w-full font-semibold text-start text-gray-800 hover:text-gray-500 rounded-lg disabled:opacity-50 disabled:pointer-events-none" aria-controls="cost-sheet-versions">
+            <svg class="hs-accordion-active:hidden block size-3.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12h14"></path>
+                <path d="M12 5v14"></path>
+            </svg>
+            <svg class="hs-accordion-active:block hidden size-3.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12h14"></path>
+            </svg>
+            Previous Versions
+        </button>
+        <div id="cost-sheet-versions" class="hs-accordion-content hidden w-full overflow-hidden transition-[height] duration-300" aria-labelledby="hs-basic-heading-one">
+            @if (Model != null)
+            {
+                @if (Model.CostSheetHistory != null && Model.CostSheetHistory.Count > 0)
+                {
+                    @foreach (var versions in Model?.CostSheetHistory)
+                    {
+                        <div class="mb-4">
+                            <p class="font-bold">Version-@versions.Version</p>
+                            <div>
+                                <button class="hs-collapse-toggle text-sm text-blue-500 underline" data-hs-collapse="#detailCollapse@(versions.Version)">Show Details</button>
+                                <div class="hs-collapse hidden transition-[height] duration-300" id="detailCollapse@(versions.Version)">
+                                    <div class="w-full" style="max-width: 100%; overflow-x: auto;">
+                                        <table class="table-auto w-full text-left">
+                                            <thead>
+                                                <tr>
+                                                    <th class="px-4 py-2">Skill Name</th>
+                                                    <th class="px-4 py-2">Skill Experience</th>
+                                                    <th class="px-4 py-2">Required Resource</th>
+                                                    <th class="px-4 py-2">Skill Cost</th>
+                                                    <th class="px-4 py-2">X Value</th>
+                                                    <th class="px-4 py-2">Period Days</th>
+                                                    <th class="px-4 py-2">Customer Price</th>
+                                                    <th class="px-4 py-2">Total Cost</th>
+                                                    <th class="px-4 py-2">Total Price</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var item in versions.CostSheetDetails)
+                                                {
+                                                    <tr>
+                                                        <td class="border px-4 py-2">@item.Skillname</td>
+                                                        <td class="border px-4 py-2">@item.skillexperience</td>
+                                                        <td class="border px-4 py-2">@item.Requiredresource</td>
+                                                        <td class="border px-4 py-2">@item.Skillcost</td>
+                                                        <td class="border px-4 py-2">@item.Xvalue</td>
+                                                        <td class="border px-4 py-2">@item.Perioddays</td>
+                                                        <td class="border px-4 py-2">@item.Customerprice</td>
+                                                        <td class="border px-4 py-2">@item.Totalcost</td>
+                                                        <td class="border px-4 py-2">@item.Totalprice</td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            }
+        </div>
+
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        // for cost sheet
+
+        window.addEventListener("DOMContentLoaded", async () => {
+            setSkillData();
+            const _costSheetId = document.querySelector("#costsheetid").value;
+            if (_costSheetId && _costSheetId != '0') {
+                document.querySelector("#loader").style.display = "flex";
+                setTimeout(() => {
+                    setSkillNames();
+                    document.querySelector("#loader").style.display = "none";
+                }, 2000)
+            }
+        })
+
+        function setSkillNames() {
+            const allRows = document.querySelectorAll("#costingModalWrapper > .grid");
+            allRows.forEach(item => {
+                const hiddenSkillId = item.querySelector("#hidskillid").value;
+                const skillName = item.querySelector(".skill_name");
+                skillName.value = hiddenSkillId;
+                const changeEvent = new Event("change");
+                skillName.dispatchEvent(changeEvent);
+
+                setTimeout(() => {
+                    const expInput = item.querySelector(".skill_exp");
+                    const hiddenExpId = item.querySelector("#hidexpid").value;
+                    expInput.value = hiddenExpId;
+                    expInput.dispatchEvent(changeEvent);
+                }, 500)
+            })
+        }
+
+        let skillsData = [];
+        // Skill
+
+        async function setSkillData() {
+            const response = await fetch("/Base/GetSkill");
+            if (response.status === 200) {
+                const select = document.querySelector(".skill_name");
+
+                const data = await response.json();
+
+                skillsData = data;
+                // data.forEach(skill => {
+                //     select.innerHTML += `<option value="${skill.skillid}">${skill.skillname}</option>`;
+                // })
+            }
+        }
+
+        function AddMore() {
+            const BtnAdd = document.querySelector("#costingModalBtn");
+            const card = document.querySelector("#costingModalWrapper");
+            const row = card.querySelector("div:first-child");
+
+            const newDiv = document.createElement("div");
+            newDiv.classList.add("grid", "custom-grid", "gap-3")
+            let html = `<div>
+                                                                                                                                                                <span class="mb-2 font-medium block">Skill Name</span>
+                                                                                                                                                                <div class="flex items-center gap-3 flex-wrap">
+                                                                                                                                                                    <select class="k-input skill_name" onchange="getexp(this);">
+                                                                                                                                                                        <option value="">Select skill</option>`;
+            skillsData.forEach(skill => {
+                html += `<option value="${skill.skillid}">${skill.skillname}</option>`;
+            })
+
+            html += '</select></div></div>'
+
+            html += `<div>
+                                                                                                                <span class="mb-2 font-medium block">Skill Experience*</span>
+                                                                                                                <div class="flex items-center gap-3 flex-wrap">
+                                                                                                                    <select class="k-input skill_exp" onchange="CalcAmount(this);" id="exp">
+                                                                                                                        <option value="">Select</option>
+                                                                                                                    </select>
+                                                                                                                </div>
+                                                                                                            </div>
+
+                                                                                                            <div>
+                                                                                                                <span class="mb-2 font-medium block">Resources*</span>
+                                                                                                                <div class="flex items-center gap-3 flex-wrap">
+                                                                                                                    <input type="text" onchange="CalcAmount(this);" style="width: 5rem"
+                                                                                                                           class="required_resources py-3 px-4 block flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                                                                                                           placeholder="Required Resources" value="1" readonly>
+                                                                                                                </div>
+                                                                                                            </div>
+
+                                                                                                            <div>
+                                                                                                                <span class="font-medium block mb-2">Skill Cost</span>
+                                                                                                                <div class="flex items-center gap-3">
+                                                                                                                    <input type="text"
+                                                                                                                           class="skill_cost py-3 px-4 flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                                                                                                           placeholder="Skill Cost" readonly>
+                                                                                                                </div>
+                                                                                                            </div>
+                                                                                                            <div>
+                                                                                                                <span class="font-medium block mb-2">Period(Days)</span>
+                                                                                                                <div class="flex items-center gap-3">
+                                                                                                                            <input type="number" min="0" onchange="handlePeriodChange(this)";
+                                                                                                                           class="period_days cs-period py-3 px-4 flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                                                                                                           placeholder="Enter Days">
+                                                                                                                </div>
+                                                                                                            </div>
+                                                                                                            <div>
+                                                                                                                <span class="font-medium block mb-2">X Value</span>
+                                                                                                                <div class="flex items-center gap-3">
+                                                                                                                                    <input type="number" min="0" step="0.1" style="width: 5.25rem"
+                                                                                                                           class="x-value py-3 px-4 flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                                                                                                           placeholder="X Value" onchange="handleXValueChange(this)">
+                                                                                                                </div>
+                                                                                                            </div>
+                                                                                                            <div>
+                                                                                                                <span class="font-medium block mb-2">Customer Price</span>
+                                                                                                                <div class="flex items-center gap-3">
+                                                                                                                            <input type="number" min="0"
+                                                                                                                           class="cus-price py-3 px-4 flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                                                                                                           placeholder="0" onchange="handleCPChange(this);">
+                                                                                                                </div>
+                                                                                                            </div>
+                                                                                                            <div>
+                                                                                                                <span class="font-medium block mb-2">Total Cost</span>
+                                                                                                                <div class="flex items-center gap-3">
+                                                                                                                                    <input type="text" onchange="calculateTotalCost();"
+                                                                                                                           class="total-cost py-3 px-4 flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                                                                                                           placeholder="0" readonly>
+                                                                                                                </div>
+                                                                                                            </div>
+                                                                                                            <div>
+                                                                                                                <div class="flex items-center justify-between">
+                                                                                                                    <span class="font-medium block mb-2">Total Price</span>
+                                                                                                                    <button onclick="removeRow(this);">
+                                                                                                                        <svg class="w-4 h-4 text-red-500" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 1024 1024"><path fill="currentColor" d="M512 64a448 448 0 1 1 0 896a448 448 0 0 1 0-896M288 512a38.4 38.4 0 0 0 38.4 38.4h371.2a38.4 38.4 0 0 0 0-76.8H326.4A38.4 38.4 0 0 0 288 512"/></svg>
+                                                                                                                    </button>
+                                                                                                                </div>
+                                                                                                                <div class="flex items-center gap-3">
+                                                                                                                            <input type="text" onchange="calculateTotalPrice();"
+                                                                                                                           class="total-price py-3 px-4 flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                                                                                                           placeholder="0" readonly>
+                                                                                                                </div>
+                                                                                                            </div>`;
+            newDiv.innerHTML = html;
+            card.append(newDiv);
+        }
+
+        async function submitCostingSheet(e) {
+            if (!validateCostingSheet()) {
+                e.preventDefault();
+                return;
+            }
+            e.preventDefault();
+            const formData = new FormData();
+            const _costingSheetName = document.querySelector("#costingSheetName").value;
+            var _costsheetid = document.querySelector("#costsheetid").value;
+            const _costingSheetValues = [];
+            const allCostingSheetVal = document.querySelectorAll("#costingModalWrapper > div");
+            allCostingSheetVal.forEach(item => {
+                const _skillName = item.querySelector(".skill_name").value;
+                const _skillExp = item.querySelector(".skill_exp").value;
+                const _requiredResources = item.querySelector(".required_resources").value;
+                const _skillCost = item.querySelector(".skill_cost").value;
+                const _skillid = item.querySelector(".skill_name").value;
+                const _perioddays = item.querySelector(".period_days").value;
+                const _xvalue = item.querySelector(".x-value").value;
+                const _customerprice = item.querySelector(".cus-price").value;
+                const _totalcost = item.querySelector(".total-cost").value;
+                const _totalprice = item.querySelector(".total-price").value;
+                const _costingSheetValueItem = {
+                    skillexperience: _skillExp,
+                    requiredresource: _requiredResources,
+                    skillcost: _skillCost,
+                    skillid: _skillid,
+                    xvalue: _xvalue,
+                    perioddays: _perioddays,
+                    customerprice: _customerprice,
+                    totalcost: _totalcost,
+                    totalprice: _totalprice
+                };
+                _costingSheetValues.push(_costingSheetValueItem);
+            });
+
+            // Convert _costingSheetValues to JSON string
+            const costingSheetValueJSON = JSON.stringify(_costingSheetValues);
+
+
+            const jsonData = {
+                "costsheetname": _costingSheetName,
+                "costsheetdetails": _costingSheetValues,
+                "costsheetid": _costsheetid
+            }
+
+            formData.append("jsonObject", JSON.stringify(jsonData));
+            if (_costsheetid) {
+                formData.append("costsheetid", _costsheetid);
+            }
+
+            try {
+                const response = await fetch("/CostingSheet/CostingSheetPost", {
+                    method: "POST",
+                    body: formData
+                });
+
+                if (response.ok) {
+
+                    const responseData = await response.json();
+                    console.log(responseData);
+                    toastr.success("Cost sheet created successfully");
+                    setTimeout(() => {
+                        window.location.href = "/CostingSheet/";
+                    }, 500)
+                }
+                else {
+
+                    alert("Error: " + errorData.message);
+                }
+            } catch (error) {
+
+            }
+        }
+
+        function validateCostingSheet() {
+            let flag = true;
+            if (!document.querySelector("#costingSheetName").value || document.querySelector("#costingSheetName").classList.contains("is-invalid")) {
+                document.querySelector("#costingSheetName").classList.add("is-invalid");
+                flag = false;
+            } else {
+                document.querySelector("#costingSheetName").classList.remove("is-invalid");
+            }
+
+            const allCostingSheetValues = document.querySelectorAll("#costingModalWrapper > div.grid");
+
+            allCostingSheetValues.forEach(row => {
+                const rowInputs = row.querySelectorAll("input, select");
+                rowInputs.forEach(input => {
+                    if (!input.value) {
+                        input.classList.add("is-invalid");
+                        flag = false;
+                    } else {
+                        input.classList.remove("is-invalid");
+                    }
+                })
+            })
+
+            return flag;
+        }
+
+        function getexp(skillinput) {
+            const costSheetRow = skillinput.closest(".grid");
+            const _skillid = skillinput.value;
+            const _skillData = skillsData.filter(item => item.skillid == _skillid);
+            const select = costSheetRow.querySelector(".skill_exp");
+            select.innerHTML = "";
+            select.innerHTML += '<option>Select Experience</option>';
+            _skillData[0]?.skillcostings.forEach(item => {
+                select.innerHTML += `<option value="${item.expname}">${item.expname}</option>`;
+            });
+
+            const changeEvent = new Event("change");
+            select.dispatchEvent(changeEvent);
+            costSheetRow.querySelector(".cus-price").value = 0;
+            costSheetRow.querySelector(".total-cost").value = 0;
+            costSheetRow.querySelector(".total-price").value = 0;
+        }
+
+        function CalcAmount(inp) {
+            const costSheetRow = inp.closest(".grid");
+            const skillid = costSheetRow.querySelector(".skill_name").value;
+            const _exp = costSheetRow.querySelector(".skill_exp").value;
+            const no_of_resources = costSheetRow.querySelector(".required_resources");
+            const finalAmountExp = costSheetRow.querySelector(".skill_cost");
+
+            if (skillid) {
+                let exp_amount;
+
+                skillsData.forEach(skill => {
+                    if (skill.skillid == skillid) {
+                        skill.skillcostings.forEach(exp => {
+                            if (exp.expname == _exp) {
+                                exp_amount = exp.amount;
+                            }
+                        })
+                    }
+                })
+
+                if (exp_amount && no_of_resources.value) {
+                    const calculatedAmount = Number(exp_amount) * Number(no_of_resources.value);
+                    finalAmountExp.value = calculatedAmount;
+                } else {
+                    finalAmountExp.value = "";
+                }
+            }
+            const changeEvent = new Event("change");
+            costSheetRow.querySelector(".cs-period").dispatchEvent(changeEvent);
+            costSheetRow.querySelector(".x-value").dispatchEvent(changeEvent);
+        }
+
+        function handleXValueChange(inp) {
+            const skillCost = inp.closest(".custom-grid").querySelector(".skill_cost")?.value;
+            if (!skillCost) return;
+
+            inp.closest(".custom-grid").querySelector(".cus-price").value = Number(skillCost) * Number(inp.value);
+
+            const costSheetPeriod = inp.closest(".custom-grid").querySelector(".cs-period")?.value;
+
+            if (!costSheetPeriod) return;
+
+            inp.closest(".custom-grid").querySelector(".total-price").value = Number((Number(inp.closest(".custom-grid").querySelector(".cus-price")?.value) * Number(costSheetPeriod)) / 30).toFixed(2);
+            dispatchChange(inp.closest(".custom-grid").querySelector(".total-cost"))
+            dispatchChange(inp.closest(".custom-grid").querySelector(".total-price"))
+        }
+
+        function dispatchChange(el) {
+            const changeEvt = new Event("change");
+            el.dispatchEvent(changeEvt);
+        }
+
+        function handlePeriodChange(inp) {
+            const skillCost = inp.closest(".custom-grid").querySelector(".skill_cost")?.value;
+            if (!skillCost) return;
+
+            inp.closest(".custom-grid").querySelector(".total-cost").value = Number((Number(skillCost) * Number(inp.value)) / 30).toFixed(2);
+
+            const customerPrice = inp.closest(".custom-grid").querySelector(".cus-price")?.value;
+
+            if (!customerPrice) return;
+
+            inp.closest(".custom-grid").querySelector(".total-price").value = Number((Number(customerPrice) * Number(inp.value)) / 30).toFixed(2);
+
+            dispatchChange(inp.closest(".custom-grid").querySelector(".total-cost"))
+            dispatchChange(inp.closest(".custom-grid").querySelector(".total-price"))
+        }
+
+        function handleCPChange(inp) {
+            const row = inp.closest(".custom-grid");
+            if (!inp.value || !row.querySelector(".skill_cost").value) return;
+            row.querySelector(".x-value").value = Number(Number(inp.value) / Number(row.querySelector(".skill_cost").value))
+            const changeEvt = new Event("change");
+            row.querySelector(".x-value").dispatchEvent(changeEvt);
+        }
+
+        function calculateTotalPrice() {
+            const allCostInp = document.querySelectorAll(".total-price");
+            let _total = 0;
+            allCostInp.forEach(item => {
+                const _price = Number(item.value);
+                _total += _price ? _price : 0;
+            })
+            document.querySelector("#totalPriceFinal").innerHTML = formatCurrency(_total);
+        }
+
+        function calculateTotalCost() {
+            const allCostInp = document.querySelectorAll(".total-cost");
+            let _total = 0;
+            allCostInp.forEach(item => {
+                const _price = Number(item.value);
+                _total += _price ? _price : 0;
+            })
+            document.querySelector("#totalCostFinal").innerHTML = formatCurrency(_total);
+        }
+
+        function formatCurrency(num) {
+            return num.toLocaleString('en-IN', {
+                maximumFractionDigits: 2,
+                style: 'currency',
+                currency: 'INR'
+            });
+        }
+
+        function removeRow(btn) {
+            btn.closest(".grid").remove();
+            dispatchChange(btn.closest(".custom-grid").querySelector(".total-cost"))
+            dispatchChange(btn.closest(".custom-grid").querySelector(".total-price"))
+        }
+        let iscostsheetunique = true;
+        async function checkCostSheetName(inp) {
+            if (!inp.value.trim()) {
+                return;
+            }
+
+            const formData = new FormData();
+            var costsheetid = $("#costsheetid").val();
+            formData.append("costsheetname", inp.value.trim());
+            formData.append("costsheetid", costsheetid);
+
+            const response = await fetch("/CostingSheet/CheckCostSheetName", {
+                method: "POST",
+                body: formData
+            })
+
+            if (response.status === 200) {
+                const data = await response.json();
+                console.log(data);
+                if (data.responseContent != "false") {
+                    inp.classList.add("is-invalid");
+                    iscostsheetunique = false;
+                    document.querySelector("#alreadyexist").innerHTML = "Costsheet name already exist.";
+                }
+                else {
+                    document.querySelector("#alreadyexist").innerHTML = "";
+                    inp.classList.remove("is-invalid");
+                    iscostsheetunique = true;
+                }
+            } else {
+                toastr.error("Something went wong");
+            }
+
+        }
+    </script>
+        }

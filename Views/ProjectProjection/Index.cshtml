@@ -1,0 +1,2509 @@
+﻿@model List<RMS.Client.Models.Projection.CrmDeal>
+@{
+    bool lReadPermit = false;
+    bool lWritePermit = false;
+    bool lDeletePermit = false;
+    string role = Context.Session.GetString("RoleName");
+    if (ViewBag.AuthPages != null)
+    {
+        var pages = (List<RMS.Client.Models.Account.AuthorizePages>)ViewBag.AuthPages;
+        var pageFound = pages.FirstOrDefault(x => x.Controller == "Customer");
+        if (pageFound != null)
+        {
+            lReadPermit = pageFound.Isreadpermit ?? false;
+            lWritePermit = pageFound.Iswritepermit ?? false;
+            lDeletePermit = pageFound.Isdeletepermit ?? false;
+        }
+    }
+    var colLists = new List<string>
+{
+    "Deal ID", "Deal Name", "Amount","Sales Account Name",
+     "Stage Name",
+    "Status","Created By",
+    "Territory Name", "Created At", "Website", "Action"
+};
+
+}
+
+@section PageStyles {
+    <style>
+        tr:has(+ tr.employeeProjectData:not(.hidden)) .toggleProjectsIcon {
+            transform: rotate(90deg);
+        }
+
+        .last-column-fixed th:last-child, .last-column-fixed td:last-child {
+            z-index: 30;
+        }
+    </style>
+}
+
+@* <partial name="~/Views/Shared/Controls/_PageHead.cshtml" model="@(new RMS.Client.Models.Common.PageHead
+{ PageHeading="List of Projection", LinkText="Add Projection", LinkController="Customer", LinkAction="Create", Columns = colLists})" /> *@
+
+
+<div class="flex items-center gap-4 justify-between flex-wrap mb-6">
+    <h2 class="font-extrabold text-xl 2xl:text-2xl text-[#4B4E5C]">Projections</h2>
+    @* <button type="button" data-hs-overlay="#extend-contract-modal"
+    class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-transparent bg-[#00cc83] text-white hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm 2xl:text-base">
+    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+    <path fill="currentColor"
+    d="M16 2A14.172 14.172 0 0 0 2 16a14.172 14.172 0 0 0 14 14a14.172 14.172 0 0 0 14-14A14.172 14.172 0 0 0 16 2Zm8 15h-7v7h-2v-7H8v-2h7V8h2v7h7Z" />
+    <path fill="none" d="M24 17h-7v7h-2v-7H8v-2h7V8h2v7h7v2z" />
+    </svg>
+    Add Projection
+    </button> *@
+</div>
+
+<div class="overflow-x-auto bg-white shadow-custom rounded mb-4">
+    <nav class="flex space-x-2" aria-label="Tabs" role="tablist">
+        <div type="button"
+             class="hs-tab-active:font-semibold hs-tab-active:border-emerald-600 py-2 px-5 inline-flex items-baseline gap-2 border-b-[3px] border-transparent text-sm whitespace-nowrap text-gray-500 hover:text-emerald-600 active"
+             id="tabs-with-underline-item-1" data-hs-tab="#tabs-with-underline-1"
+             aria-controls="tabs-with-underline-1" role="tab">
+            <img class="h-4 w-auto" src="~/assets/images/total-projects-icon.svg" alt="">
+            <div>
+                <span class="text-base font-semibold block text-left">Total Deals</span>
+                <span class="text-2xl font-extrabold block text-left">@Model.Count()</span>
+            </div>
+        </div>
+        <div type="button"
+             class="hs-tab-active:font-semibold hs-tab-active:border-emerald-600 py-2 px-5 inline-flex items-baseline gap-2 border-b-[3px] border-transparent text-sm whitespace-nowrap text-gray-500 hover:text-emerald-600"
+             id="tabs-with-underline-item-1" data-hs-tab="#tabs-with-underline-1"
+             aria-controls="tabs-with-underline-1" role="tab">
+            <img class="h-4 w-auto" src="~/assets/images/total-projects-icon.svg" alt="">
+            <div>
+                <span class="text-base font-semibold block text-left">Converted Deals</span>
+                <span class="text-2xl font-extrabold block text-left">
+                    @Model.Where(a => a.Projectionid > 0).Count()
+                </span>
+            </div>
+
+        </div>
+    </nav>
+</div>
+
+<div class="flex flex-col">
+    <div class="-m-1.5 overflow-x-auto">
+        <div class="p-1.5 min-w-full block align-middle">
+            <div class="overflow-hidden">
+                <table id="tblData" class="last-column-fixed min-w-full divide-y divide-gray-200">
+                    <thead>
+                        <tr>
+                            @foreach (var col in colLists)
+                            {
+                                <th scope="col"
+                                    class="whitespace-nowrap px-2 py-3 text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                    @col
+
+                                    @if (col != "Territory Name" && col != "Sales Account Name" && col != "Website" && col != "Action")
+                                    {
+                                        <div style="vertical-align: middle;" class="filter-dropdown mx-1 hs-dropdown relative sm:inline-flex z-20 [--auto-close:inside]">
+                                            <button id="hs-dropdown-auto-close-inside" type="button" class="hs-dropdown-toggle p-1 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-gray-100 text-gray-800 shadow-sm disabled:opacity-50 disabled:pointer-events-none">
+                                                <svg class="w-4 h-4 text-gray-800" xmlns="http://www.w3.org/2000/svg"
+                                                     width="512" height="512" viewBox="0 0 512 512">
+                                                    <path fill="currentColor"
+                                                          d="M472 168H40a24 24 0 0 1 0-48h432a24 24 0 0 1 0 48m-80 112H120a24 24 0 0 1 0-48h272a24 24 0 0 1 0 48m-96 112h-80a24 24 0 0 1 0-48h80a24 24 0 0 1 0 48" />
+                                                </svg>
+                                            </button>
+
+                                            <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 mt-2" aria-labelledby="hs-dropdown-auto-close-inside">
+                                                <div class="mb-1">
+                                                    <input type="search" oninput="handleFilterSearch(this);" placeholder="Search" class="py-2 px-4 block w-full border-gray-200 rounded-lg text-xs focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                                </div>
+                                                <div class="filter-item-list" style="height: 10rem; overflow-y: auto;"></div>
+
+                                            </div>
+                                        </div>
+                                    }
+                                </th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        @if (Model != null)
+                        {
+                            var sortedModel = Model.OrderByDescending(deal => deal.CreatedAt).ToList();
+                            foreach (var item in sortedModel)
+                            {
+                                <tr>
+                                    <input type="hidden" value="@item.Crmid" />
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800  ">
+                                        @item.CrmDealsId
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800  ">
+                                        @item.DealName
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800  ">
+                                        @item.Amount
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800  ">
+                                        @item.SalesAccountName
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 ">
+                                        <span class="px-2 py-1 rounded
+                    @(item.StagePosition == 7 ? "bg-green-100 text-green-600" :
+                      item.StagePosition == 8 ? "bg-red-100 text-red-600" :
+                      (item.StagePosition == 5 || item.StagePosition == 6) ? "bg-red-100 text-red-600" :
+                      "bg-red-100 text-red-600")">@item.StageName</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                        <span class="@(item.Projectionid > 0 ? "status completed" : "status onbench")">@(item.Projectionid > 0 ? "Converted" : "Not Converted")</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800  ">
+                                        @item.CreatedBy
+                                    </td>
+
+
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800  ">
+                                        @item.TerritoryName
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800  ">
+                                        @item.CreatedAt.ToString("dd/MMM/yyyy")
+                                    </td>
+
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800  ">
+                                        @(string.IsNullOrEmpty(item.Website) ? "N/A" : item.Website)
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                        @if (item.Projectionid > 0)
+                                        {
+                                            <a href="@Url.Action("DetailProjection", "projectprojection", new { id = item.Projectionid })">
+                                                <button style="border-radius: 5rem;" class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-transparent bg-gray-400 text-white hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-all text-sm 2xl:text-base">Linked Projection</button>
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <button onclick="handleConvertProjection(this);" style="border-radius: 5rem;" class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-transparent bg-[#00cc83] text-white hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm 2xl:text-base">Convert To Projection</button>
+                                        }
+                                    </td>
+
+                                </tr>
+                            }
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="extend-contract-modal" data-hs-overlay-keyboard="false" class="hs-overlay hidden w-full h-full fixed top-0 left-0 z-[60] overflow-x-hidden overflow-y-auto [--overlay-backdrop:static]">
+    <div class="hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all h-[calc(100%-3.5rem)]" style="max-width: 90%; margin-inline: auto;">
+        <div class="max-h-full overflow-hidden flex flex-col bg-white border shadow-sm rounded-xl">
+            <div class="flex justify-between items-center py-3 px-4 border-b">
+                <div>
+                    <h2 class="font-bold text-gray-800 text-xl">Add New Projection</h2>
+                </div>
+                <button type="button" class="hs-dropdown-toggle inline-flex flex-shrink-0 justify-center items-center h-8 w-8 rounded-md text-gray-500 hover:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-white transition-all text-sm" onclick="handleCloseModal('projection');">
+                    <span class="sr-only">Close</span>
+                    <svg class="w-3.5 h-3.5" width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0.258206 1.00652C0.351976 0.912791 0.479126 0.860131 0.611706 0.860131C0.744296 0.860131 0.871447 0.912791 0.965207 1.00652L3.61171 3.65302L6.25822 1.00652C6.30432 0.958771 6.35952 0.920671 6.42052 0.894471C6.48152 0.868271 6.54712 0.854471 6.61352 0.853901C6.67992 0.853321 6.74572 0.865971 6.80722 0.891111C6.86862 0.916251 6.92442 0.953381 6.97142 1.00032C7.01832 1.04727 7.05552 1.1031 7.08062 1.16454C7.10572 1.22599 7.11842 1.29183 7.11782 1.35822C7.11722 1.42461 7.10342 1.49022 7.07722 1.55122C7.05102 1.61222 7.01292 1.6674 6.96522 1.71352L4.31871 4.36002L6.96522 7.00648C7.05632 7.10078 7.10672 7.22708 7.10552 7.35818C7.10442 7.48928 7.05182 7.61468 6.95912 7.70738C6.86642 7.80018 6.74102 7.85268 6.60992 7.85388C6.47882 7.85498 6.35252 7.80458 6.25822 7.71348L3.61171 5.06702L0.965207 7.71348C0.870907 7.80458 0.744606 7.85498 0.613506 7.85388C0.482406 7.85268 0.357007 7.80018 0.264297 7.70738C0.171597 7.61468 0.119017 7.48928 0.117877 7.35818C0.116737 7.22708 0.167126 7.10078 0.258206 7.00648L2.90471 4.36002L0.258206 1.71352C0.164476 1.61976 0.111816 1.4926 0.111816 1.36002C0.111816 1.22744 0.164476 1.10028 0.258206 1.00652Z" fill="currentColor" />
+                    </svg>
+                </button>
+            </div>
+            <div class="p-4 overflow-y-auto">
+                <form class="flex-1 flex flex-col" id="projectionForm">
+                    <div class="multipart-form-wrapper">
+                        <div class="multipart-form active flex-col" id="formPart1" style="min-height: 30rem;">
+                            <div style="min-height: 30rem; overflow-y: auto;">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                                    <div>
+                                        <span class="mb-2 font-medium block">Select Customer <span class="toggle-mandatory-icon">*</span></span>
+                                        <div class="flex items-center gap-3 flex-wrap">
+                                            <select id="customerDropdown" name="CustomerId" class="multi-select">
+                                                <option value="0" selected>Select Customer</option>
+                                                @foreach (var customer in ViewBag.customerList)
+                                                {
+                                                    {
+                                                        <option value="@customer.CustomerId">
+                                                            @(customer.CustomerCompanyName)
+                                                        </option>
+                                                    }
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span class="mb-2 font-medium block">Project Type *</span>
+                                        <div class="flex items-center gap-3 flex-wrap">
+                                            <select id="projectTypeDropdown" name="ProjectTypeId" class="multi-select">
+                                                <option value="0" selected>Select Project Type</option>
+
+                                                @foreach (var projectType in ViewBag.ProjectTypeList)
+                                                {
+                                                    if (ViewBag.ProjectTypeList != null)
+                                                    {
+                                                        <option value="@projectType.Value">
+                                                            @projectType.Text
+                                                        </option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="0">Select Project Type</option>
+                                                    }
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                                    <div>
+                                        <span>Projection Name <span class="toggle-mandatory-icon">*</span></span>
+                                        <input type="text" id="projectionName" class="k-input w-full" />
+                                    </div>
+                                    <div>
+                                        <span>Projection Description</span>
+                                        <input type="text" id="projectionDescription" class="k-input w-full" />
+                                    </div>
+                                    <div>
+                                        <span>Start Date <span class="toggle-mandatory-icon">*</span></span>
+                                        <input type="date" id="projectionstartdate" class="k-input w-full" oninput="setEndDateMinProjection(this.value)" min="@ViewBag.YearGapDate" value="@ViewBag.TodayDate" />
+                                    </div>
+                                    <div>
+                                        <span>End Date <span class="toggle-mandatory-icon">*</span></span>
+                                        <input type="date" id="projectionenddate" class="k-input w-full" min="@ViewBag.TodayDate" />
+                                    </div>
+                                    <div>
+                                        <span class="mb-2 font-medium block">Practice<span class="toggle-mandatory-icon">*</span></span>
+                                        <div class="flex items-center gap-3 flex-wrap">
+                                            <select id="practiceDropdown" name="PracticeId" class="multi-select" onchange="handlePracticeChange(this);">
+                                                <option value="0" selected>Select Practice</option>
+                                                @foreach (var practiceList in ViewBag.Practices)
+                                                {
+                                                    <option value="@practiceList.Value" data-prac-id="@practiceList.Value" data-prac-n="@practiceList.Text">@practiceList.Text</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span class="mb-2 font-medium block">Sub Practice <span class="toggle-mandatory-icon">*</span></span>
+                                        <div class="flex items-center gap-3 flex-wrap">
+                                            <select id="subPracticeDropdown" class="multi-select">
+                                                <option value="0" selected>Select Sub Practice</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span class="mb-2 font-medium block">Cost Sheet *</span>
+                                        <div class="flex items-center gap-3 flex-wrap">
+                                            <select id="costsheetdropdown" name="costsheetid" class="multi-select">
+                                                <option value="0" selected>Select CostSheet</option>
+
+                                                @foreach (var costsheet in ViewBag.costsheet)
+                                                {
+                                                    if (ViewBag.costsheet != null)
+                                                    {
+                                                        <option value="@costsheet.Value">
+                                                            @costsheet.Text
+                                                        </option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="0">Select CostSheet</option>
+                                                    }
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                    @* <div>
+                                    <span class="mb-2 font-medium block">Period (in months)</span>
+                                    <div class="flex items-center gap-3 flex-wrap">
+                                    <input type="text" class="k-input" />
+                                    </div>
+                                    </div> *@
+                                    <div>
+                                        <span class="mb-2 font-medium block">Deal Price <span class="toggle-mandatory-icon">*</span></span>
+                                        <div class="flex items-center gap-3 flex-wrap">
+                                            <input type="text" class="k-input" id="customerPrice" onchange="handleCustomerPriceChange(this)" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="pt-2 pb-4 sticky -bottom-4 bg-white actionrow">
+                                <div class="flex items-center gap-4 justify-between flex-wrap">
+                                    <p>Don't have a customer? <button type="button" class="text-blue-400 font-medium" data-hs-overlay="#customerCreateModal">Create New Customer</button></p>
+                                    @* <button type="button" id="nextButton" onclick=""
+                                    class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-emerald-400 bg-[#00cc83] text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm sm:text-base">
+                                    Next
+                                    </button> *@
+                                    <button type="button" onclick="handleCreateProjection(this);"
+                                            class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-emerald-400 bg-[#00cc83] text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm sm:text-base">
+                                        Create
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="multipart-form flex-col" id="formPart2">
+                            <div style="overflow-y: auto; max-height: auto;">
+                                @*  <div>
+                                <h2 class="font-bold text-gray-800">Deploy Resources</h2>
+                                </div>
+                                <button type="button" class="hs-dropdown-toggle inline-flex flex-shrink-0 justify-center items-center h-8 w-8 rounded-md text-gray-500 hover:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-white transition-all text-sm" data-hs-overlay="#deployResourceModal">
+                                <span class="sr-only">Close</span>
+                                <svg class="w-3.5 h-3.5" width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M0.258206 1.00652C0.351976 0.912791 0.479126 0.860131 0.611706 0.860131C0.744296 0.860131 0.871447 0.912791 0.965207 1.00652L3.61171 3.65302L6.25822 1.00652C6.30432 0.958771 6.35952 0.920671 6.42052 0.894471C6.48152 0.868271 6.54712 0.854471 6.61352 0.853901C6.67992 0.853321 6.74572 0.865971 6.80722 0.891111C6.86862 0.916251 6.92442 0.953381 6.97142 1.00032C7.01832 1.04727 7.05552 1.1031 7.08062 1.16454C7.10572 1.22599 7.11842 1.29183 7.11782 1.35822C7.11722 1.42461 7.10342 1.49022 7.07722 1.55122C7.05102 1.61222 7.01292 1.6674 6.96522 1.71352L4.31871 4.36002L6.96522 7.00648C7.05632 7.10078 7.10672 7.22708 7.10552 7.35818C7.10442 7.48928 7.05182 7.61468 6.95912 7.70738C6.86642 7.80018 6.74102 7.85268 6.60992 7.85388C6.47882 7.85498 6.35252 7.80458 6.25822 7.71348L3.61171 5.06702L0.965207 7.71348C0.870907 7.80458 0.744606 7.85498 0.613506 7.85388C0.482406 7.85268 0.357007 7.80018 0.264297 7.70738C0.171597 7.61468 0.119017 7.48928 0.117877 7.35818C0.116737 7.22708 0.167126 7.10078 0.258206 7.00648L2.90471 4.36002L0.258206 1.71352C0.164476 1.61976 0.111816 1.4926 0.111816 1.36002C0.111816 1.22744 0.164476 1.10028 0.258206 1.00652Z" fill="currentColor" />
+                                </svg>
+                                </button>
+                                </div> *@
+                                <div class="p-4 overflow-y-auto">
+                                    <div class="flex items-center justify-between mb-5">
+                                        <div>
+                                            <h2 class="font-extrabold text-xl 2xl:text-2xl text-[#4B4E5C]">Add Resources</h2>
+                                            <p>Allocate Resoruces based on Cost Sheet</p>
+                                        </div>
+                                        <div class="flex items-center gap-4">
+                                            <div class="flex flex-col gap-2">
+                                                <p class="font-medium text-left sm:text-center">PO Capital</p>
+                                                <p class="font-bold text-left sm:text-center px-6 py-2 rounded-full bg-blue-100 text-blue-500" id="povalue">0.00</p>
+                                            </div>
+                                            <div class="flex flex-col gap-2">
+                                                <p class="font-medium text-left sm:text-center">Allocated Capital</p>
+                                                <p class="font-bold text-left sm:text-center px-6 py-2 rounded-full bg-emerald-100 text-emerald-500" id="allocatedValue">0.00</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col mb-4">
+                                        <div class="-m-1.5 overflow-x-auto">
+                                            <div class="p-1.5 min-w-full inline-block align-middle">
+                                                <div class="border rounded-lg overflow-hidden">
+                                                    <table class="min-w-full divide-y divide-gray-200" id="costSheetTableModal">
+                                                        <thead class="bg-gray-50">
+                                                            <tr>
+                                                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">Costing Sheet</th>
+                                                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">Skills</th>
+                                                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">Experience</th>
+                                                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">X Value</th>
+                                                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">Period Days</th>
+                                                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">Cost Per Skill</th>
+                                                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">Action</th>
+                                                                @*                                                                 <th scope="col" class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">Status</th>
+                                                                *@
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody class="divide-y divide-gray-200">
+                                                            <!-- Costsheet rows will be appended here dynamically -->
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="min-height: 5rem; overflow-y: auto; max-height: calc(100vh - 20rem);">
+                                @*
+                                <div class="flex-1">
+                                <span class="mb-2 font-medium block">Skills<span class="toggle-mandatory-icon">*</span></span>
+                                <div class="flex items-center gap-3 flex-wrap" id="skillDropDown">
+                                <select class="multi-select" id="skillSelect" onchange="getEmployee(this)">
+                                <option value="0">Select Skills</option>
+                                @foreach (var skills in ViewBag.skilllist)
+                                {
+                                <option value="@skills.Value">@skills.Text</option>
+                                }
+                                </select>
+                                </div>
+                                </div>
+                                <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                <span class="mb-2 font-medium block">Resource<span class="toggle-mandatory-icon">*</span></span>
+                                <div>
+                                <div class="flex justify-end">
+                                <div class="flex items-center">
+                                <label for="chkAllEmp" class="text-sm text-gray-500" style="margin-right: .25rem;">Bench Only</label>
+                                <input type="checkbox" onchange="handleBenchOnly(this);" id="benchOnlyResources" style="box-shadow: none;" class="relative w-[3.25rem] h-7 p-px bg-black border-transparent text-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 disabled:opacity-50 disabled:pointer-events-none checked:bg-none checked:text-emerald-600 checked:border-emerald-600 focus:checked:border-emerald-600 before:absolute before:top-0 before:bottom-0 before:my-auto before:inline-block before:w-6 before:h-6 before:bg-white checked:before:bg-emerald-200 before:translate-x-0 checked:before:translate-x-full before:rounded-full before:shadow before:transform before:ring-0 before:transition before:ease-in-out before:duration-200">
+                                </div>
+                                </div>
+                                </div>
+                                </div>
+                                <div class="flex items-center gap-3 flex-wrap">
+                                <select class="multi-select" id="resourceSelect">
+                                <option value="0" selected>Select Resource</option>
+                                </select>
+                                </div>
+                                </div>
+                                <div class="flex-1">
+                                <span class="mb-2 font-medium block">Start Date<span class="toggle-mandatory-icon">*</span></span>
+                                <div class="flex items-center gap-3 flex-wrap">
+                                <input type="date" id="contractstartdate" class="k-input" oninput="setEndDateMin(this.value)" min="@ViewBag.YearGapDate" />
+                                </div>
+                                </div>
+                                <div class="flex-1">
+                                <span class="mb-2 font-medium block">End Date<span class="toggle-mandatory-icon">*</span></span>
+                                <div class="flex items-center gap-3 flex-wrap">
+                                <input type="date" class="k-input" id="contractenddate" />
+                                </div>
+                                </div>
+                                <div style="align-self: flex-end;">
+                                <button onclick="" type="button" id="addResource" class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-emerald-400 bg-[#00cc83] text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm sm:text-base">
+                                Add
+                                </button>
+                                </div> *@
+
+                                <div class="flex flex-col mb-4">
+                                    <div class="-m-1.5 overflow-x-auto">
+                                        <div class="p-1.5 min-w-full inline-block align-middle">
+                                            <div class="overflow-hidden">
+                                                <table id="employeeTable" class="min-w-full divide-y divide-gray-200">
+                                                    <thead>
+                                                        <tr>
+                                                            <th scope="col" width="10%"
+                                                                class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                                                S.No
+                                                            </th>
+                                                            @*  <th scope="col" width="10%"
+                                                            class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                                            TMC
+                                                            </th> *@
+                                                            <th scope="col" width="10%"
+                                                                class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                                                Resource Name
+                                                            </th>
+                                                            <th scope="col" width="20%"
+                                                                class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                                                Start Date
+                                                            </th>
+                                                            <th scope="col" width="60%"
+                                                                class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                                                End Date
+                                                            </th>
+                                                            <th scope="col" width="10%"
+                                                                class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                                                Action
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody class="divide-y divide-gray-200">
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @*  <div class="bg-white p-2 shadow" style="position: sticky; bottom:0;">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+                                </div>
+                                </div> *@
+                            </div>
+
+                            <div class="pt-2 pb-4 sticky -bottom-4 bg-white">
+                                <div class="flex items-center gap-4 justify-between flex-wrap">
+                                    <input type="hidden" id="modelcrmid" />
+                                    <input type="hidden" id="modelProjectionId" />
+                                    <input type="hidden" id="modelCostsheetId" />
+
+                                    <div>
+                                        <button type="button" onclick="skipProjection()" id="skipButton"
+                                                class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-emerald-400 bg-[#00cc83] text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm sm:text-base">
+                                            Skip
+                                        </button>
+                                    </div>
+                                    <button type="button" onclick="handleDeployEmployees(this);"
+                                            class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-emerald-400 bg-[#00cc83] text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm sm:text-base">
+                                        Deploy
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="customerCreateModal" data-hs-overlay-keyboard="false" class="hs-overlay hidden w-full h-full fixed top-0 left-0 z-[60] overflow-x-hidden overflow-y-auto  [--overlay-backdrop:static]">
+    <div class="hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all h-[calc(100%-3.5rem)]" style="max-width: 90%; margin-inline: auto;">
+        <div class="max-h-full overflow-hidden flex flex-col bg-white border shadow-sm rounded-xl">
+            <div class="flex justify-between items-center py-3 px-4 border-b">
+                <div class="flex items-center gap-2">
+                    <button data-hs-overlay="#extend-contract-modal" class="py-2 px-2 inline-flex justify-center items-center gap-2 rounded-md border border-gray-400 bg-gray-700 text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all text-sm sm:text-base" title="Back">
+                        <svg class="w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M11.707 5.293a1 1 0 0 1 0 1.414L7.414 11H19a1 1 0 1 1 0 2H7.414l4.293 4.293a1 1 0 0 1-1.414 1.414l-6-6a1 1 0 0 1 0-1.414l6-6a1 1 0 0 1 1.414 0z" /></svg>
+                    </button>
+                    <h2 class="font-bold text-gray-800 text-xl">Create New Customer</h2>
+                </div>
+                <button type="button" class="hs-dropdown-toggle inline-flex flex-shrink-0 justify-center items-center h-8 w-8 rounded-md text-gray-500 hover:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-white transition-all text-sm" onclick="handleCloseModal('customer');">
+                    <span class="sr-only">Close</span>
+                    <svg class="w-3.5 h-3.5" width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0.258206 1.00652C0.351976 0.912791 0.479126 0.860131 0.611706 0.860131C0.744296 0.860131 0.871447 0.912791 0.965207 1.00652L3.61171 3.65302L6.25822 1.00652C6.30432 0.958771 6.35952 0.920671 6.42052 0.894471C6.48152 0.868271 6.54712 0.854471 6.61352 0.853901C6.67992 0.853321 6.74572 0.865971 6.80722 0.891111C6.86862 0.916251 6.92442 0.953381 6.97142 1.00032C7.01832 1.04727 7.05552 1.1031 7.08062 1.16454C7.10572 1.22599 7.11842 1.29183 7.11782 1.35822C7.11722 1.42461 7.10342 1.49022 7.07722 1.55122C7.05102 1.61222 7.01292 1.6674 6.96522 1.71352L4.31871 4.36002L6.96522 7.00648C7.05632 7.10078 7.10672 7.22708 7.10552 7.35818C7.10442 7.48928 7.05182 7.61468 6.95912 7.70738C6.86642 7.80018 6.74102 7.85268 6.60992 7.85388C6.47882 7.85498 6.35252 7.80458 6.25822 7.71348L3.61171 5.06702L0.965207 7.71348C0.870907 7.80458 0.744606 7.85498 0.613506 7.85388C0.482406 7.85268 0.357007 7.80018 0.264297 7.70738C0.171597 7.61468 0.119017 7.48928 0.117877 7.35818C0.116737 7.22708 0.167126 7.10078 0.258206 7.00648L2.90471 4.36002L0.258206 1.71352C0.164476 1.61976 0.111816 1.4926 0.111816 1.36002C0.111816 1.22744 0.164476 1.10028 0.258206 1.00652Z" fill="currentColor" />
+                    </svg>
+                </button>
+            </div>
+            <div class="p-4 overflow-y-auto">
+                <form action="/Customer/Upsert" method="POST" enctype="multipart/form-data" id="customerForm">
+                    <div class="mb-4 max-w-2xl">
+                        <span class="mb-2 font-medium block text-sm 2xl:text-base">Primary Contact*</span>
+                        <div class="flex gap-3 items-center flex-wrap">
+                            <input type="text" id="Firstname" name="Firstname"
+                                   oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '');"
+                                   class="py-3 px-4 block flex-1 border-gray-200 rounded-md text-xs 2xl:text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                   placeholder="First Name">
+                            <input type="text" id="Lastname" name="Lastname"
+                                   oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '');"
+                                   class="py-3 px-4 block flex-1 border-gray-200 rounded-md text-xs 2xl:text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                   placeholder="Last Name">
+                            <input type="hidden" name="CustomerId">
+                        </div>
+                    </div>
+                    <div class="mb-4 max-w-2xl">
+                        <span class="mb-2 font-medium block text-sm 2xl:text-base">Customer Name*</span>
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <input type="text" name="Companyname" id="CompanyName"
+                                   class="py-3 px-4 block flex-1 border-gray-200 rounded-md text-xs 2xl:text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                   placeholder="Enter Company Name">
+                            @*  <div class="flex gap-2 flex-1 items-center">
+                            <label class="block flex-1 border py-3 px-4 pr-8 rounded relative">
+                            <span id="fileName" class="block text-xs 2xl:text-sm text-gray-500 w-full whitespace-nowrap overflow-hidden text-ellipsis max-w-[20rem]">
+                            Choose Customer company logo
+                            </span>
+
+                            <input type="file" accept="image/*" name="logo" class="hidden" onchange="handleFileName(event, this);" />
+                            <svg class="w-4 h-4 absolute right-2 top-0 bottom-0 my-auto text-gray-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M5 21q-.825 0-1.413-.588T3 19V5q0-.825.588-1.413T5 3h14q.825 0 1.413.588T21 5v14q0 .825-.588 1.413T19 21H5Zm0-2h14V5H5v14Zm1-2h12l-3.75-5l-3 4L9 13l-3 4Zm-1 2V5v14Z" /></svg>
+                            </label>
+                            <div class="hs-tooltip inline-block [--trigger:click]">
+                            <a class="hs-tooltip-toggle block text-center" href="javascript:;">
+                            <span class="w-10 h-10 inline-flex justify-center items-center gap-2 rounded-md bg-gray-50 border border-gray-200 text-gray-600 hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-600">
+                            <svg class="w-4 h-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M11 17h2v-6h-2v6Zm1-8q.425 0 .713-.288T13 8q0-.425-.288-.713T12 7q-.425 0-.713.288T11 8q0 .425.288.713T12 9Zm0 13q-2.075 0-3.9-.788t-3.175-2.137q-1.35-1.35-2.137-3.175T2 12q0-2.075.788-3.9t2.137-3.175q1.35-1.35 3.175-2.137T12 2q2.075 0 3.9.788t3.175 2.137q1.35 1.35 2.138 3.175T22 12q0 2.075-.788 3.9t-2.137 3.175q-1.35 1.35-3.175 2.138T12 22Zm0-2q3.35 0 5.675-2.325T20 12q0-3.35-2.325-5.675T12 4Q8.65 4 6.325 6.325T4 12q0 3.35 2.325 5.675T12 20Zm0-8Z" /></svg>
+                            </span>
+                            <div class="hs-tooltip-content hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible opacity-0 transition-opacity inline-block absolute invisible z-10 py-3 px-4 bg-white border text-sm text-gray-600 rounded-md shadow-md" role="tooltip">
+                            <p>Accept only png jpg</p>
+                            </div>
+                            </a>
+                            </div>
+                            <div>
+                            <img id="previewImage" style="width: 3rem; height: 3rem; border-radius: .5rem; object-fit:cover;" />
+                            </div>
+                            </div> *@
+                        </div>
+                    </div>
+                    <div class="mb-4 max-w-2xl flex flex-col sm:flex-row gap-3">
+                        <div class="flex-1">
+                            <span class="mb-2 font-medium block text-sm 2xl:text-base">Customer Email*</span>
+                            <input type="text" name="Companyemail"
+                                   class="w-full py-3 px-4 block flex-1 border-gray-200 rounded-md text-xs 2xl:text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                   placeholder="Enter Customer Email">
+                        </div>
+                        @* <div class="flex-1">
+                        <span class="mb-2 font-medium block text-sm 2xl:text-base">Customer Phone</span>
+                        <input type="number" name="Phone1"
+                        class="w-full py-3 px-4 block flex-1 border-gray-200 rounded-md text-xs 2xl:text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                        placeholder="Work Phone" min='0' pattern="[0-9]{10}" maxlength="10" title="Please enter a 10-digit contact number" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);">
+                        </div>
+
+                        <div class="flex-1">
+                        <span class="mb-2 font-medium block text-sm 2xl:text-base text-transparent">Alternate Phone</span>
+                        <input type="number" name="Phone2"
+                        class="w-full py-3 px-4 block flex-1 border-gray-200 rounded-md text-xs 2xl:text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                        placeholder="Alternate phone" pattern="[0-9]{10}" maxlength="10" min='0'>
+                        </div> *@
+                        <div class="flex-1">
+                            <span class="mb-2 font-medium block text-sm 2xl:text-base">Customer Phone*</span>
+                            <input type="text" name="Phone1"
+                                   class="w-full py-3 px-4 block flex-1 border-gray-200 rounded-md text-xs 2xl:text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                   placeholder="Work Phone" pattern="\d{10}" maxlength="10" title="Please enter a 10-digit contact number"
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);">
+                        </div>
+
+                        <div class="flex-1">
+                            <span class="mb-2 font-medium block text-sm 2xl:text-base text-transparent">Alternate Phone</span>
+                            <input type="text" name="Phone2"
+                                   class="w-full py-3 px-4 block flex-1 border-gray-200 rounded-md text-xs 2xl:text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                   placeholder="Alternate phone" pattern="\d{10}" maxlength="10" title="Please enter a 10-digit contact number"
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);">
+                        </div>
+                    </div>
+                    <div class="multipart-wrapper">
+                        <div class="multipart-indicators-wrapper flex items-center border-b">
+                            <div class="multipart-indicator py-2 px-4 active">Other Details</div>
+                            <div class="multipart-indicator py-2 px-4">Address</div>
+                        </div>
+                        <div class="multipart-form-wrapper mt-4">
+                            <div class="multipart-form active w-full max-w-2xl flex-col">
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                    <div>
+                                        <span class="mb-2 font-medium block text-sm 2xl:text-base">PAN</span>
+                                        <div class="flex items-center gap-3 flex-wrap">
+                                            <input type="text" name="Pannumber"
+                                                   class="py-3 px-4 block flex-1 border-gray-200 rounded-md text-xs 2xl:text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                                   placeholder="Enter PAN Number" maxlength="10">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <input type="hidden" id="hiddenPaymenttermId" />
+                                        <input type="hidden" id="hiddenCurrencyId" />
+
+                                        <span class="mb-2 font-medium block text-sm 2xl:text-base">Currency*</span>
+                                        <div class="flex items-center gap-3 flex-wrap">
+                                            <input type="hidden" id="hiddenCurrencyId" />
+
+                                            <select id="Currencyid" type="text" name="Currencyid"
+                                                    class="multi-select"
+                                                    placeholder="Select Currency">
+                                                <option value="">Select Currency</option> <!-- Default option -->
+                                                @foreach (var item in ViewBag.Currency)
+                                                {
+                                                    <option value="@item.Value">@item.Text</option>
+                                                }
+                                            </select>
+                                        </div>
+
+                                    </div>
+                                    <div>
+                                        <span class="mb-2 font-medium block text-sm 2xl:text-base">GST No.</span>
+                                        <div class="flex items-center gap-3 flex-wrap">
+                                            <input type="text" name="Gstnumber"
+                                                   class="py-3 px-4 block flex-1 border-gray-200 rounded-md text-xs 2xl:text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                                   placeholder="Enter GST Number" onkeypress="limit(this, 10);" oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '');" maxlength="15">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span class="mb-2 font-medium block text-sm 2xl:text-base">Payment Terms*</span>
+                                        <input type="hidden" id="hiddenPaymenttermId" />
+
+                                        <select id="Paymenttermid" type="text" name="Paymenttermid"
+                                                class="multi-select"
+                                                placeholder="Enter">
+                                            <option value="">Select Payment Term</option>
+                                            @foreach (var item in ViewBag.PaymentTermList)
+                                            {
+                                                <option value="@item.Value">@item.Text</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="flex gap-3 items-center mt-3">
+                                    <button onclick="validateOtherDetails();" type="button" class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-transparent bg-[#00cc83] text-white hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-xs sm:text-sm 2xl:text-base">
+                                        Next
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="multipart-form w-full max-w-2xl flex-col">
+                                <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                                    <div>
+                                        <span class="mb-2 font-medium block">Country/Region*</span>
+                                        <div class="flex items-center gap-3 flex-wrap">
+                                            <select id="countryDropdown" type="text"
+                                                    class="multi-select"
+                                                    placeholder="Select Country">
+
+                                                <option value="">Select Country</option>
+                                                @foreach (var item in ViewBag.CountryList)
+                                                {
+                                                    <option value="@item.Value">@item.Text</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span class="mb-2 font-medium block">State*</span>
+                                        <div class="flex items-center gap-3 flex-wrap">
+                                            <select id="stateDropdown" type="text"
+                                                    class="multi-select"
+                                                    placeholder="Enter state"></select>
+                                        </div>
+                                    </div>
+                                    <div>
+
+                                        <input type="hidden" id="hiddenCityId" />
+
+                                        <span class="mb-2 font-medium block">City*</span>
+                                        <div class="flex items-center gap-3 flex-wrap">
+                                            <select id="cityDropdown" type="text" name="Cityid"
+                                                    class="multi-select"
+                                                    placeholder="Select City"></select>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span class="mb-2 font-medium block">Zipcode</span>
+                                        <div class="flex items-center gap-3 flex-wrap">
+                                            <input type="text" name="Zipcode"
+                                                   class="w-full py-3 px-4 block flex-1 border-gray-200 rounded-md text-xs 2xl:text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                                   placeholder="Zip Code" maxlength="9">
+                                        </div>
+                                    </div>
+                                    <div class="col-span-1 sm:col-span-2">
+                                        <span class="mb-2 font-medium block">Address</span>
+                                        <div class="flex items-center gap-3 flex-wrap mb-4">
+                                            <input type="text" name="Address1"
+                                                   class="w-full py-3 px-4 block flex-1 border-gray-200 rounded-md text-xs 2xl:text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                                   placeholder="Address Line 1">
+                                        </div>
+                                    </div>
+                                    <div class="col-span-1 sm:col-span-2">
+
+                                        <span class="mb-2 font-medium hidden sm:block text-transparent">Address2</span>
+                                        <input type="text"
+                                               class="py-3 w-full px-4 block flex-1 border-gray-200 rounded-md text-xs 2xl:text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                               placeholder="Address Line 2">
+                                    </div>
+                                </div>
+                                <div class="flex gap-3 items-center">
+                                    <button type="button" class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-gray-400 bg-gray-700 text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all text-sm sm:text-base" onclick="showFormStepCustomer(1);">Prev</button>
+                                    <button type="submit" class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-transparent bg-[#00cc83] text-white hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-xs sm:text-sm 2xl:text-base" onclick="handleCustomerSubmit(event)">
+                                        Save
+                                    </button>
+                                </div>
+                                <p class="text-sm text-gray-400 mt-2">After saving the details you can add projects for the new customer</p>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+
+    <script type="text/javascript">
+        var skillsData = [];
+        $(function () {
+        @if (ViewData["error"] != null)
+        {
+            <text>
+                        toastr.error("@ViewData["error"]", "Error", {"iconClass": 'new-error' });
+            </text>
+        }
+        @if (ViewData["success"] != null)
+        {
+            <text>
+                        toastr.success("@ViewData["success"]");
+            </text>
+        }
+                                                                                                                                        });
+        function validateField(fieldName) {
+            const field = document.querySelector(fieldName);
+            const value = field.value.trim();
+
+            if (fieldName === "[name='Companyemail']") {
+                if (!value || !value.match(/^[a-zA-Z0-9._-]+@@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/)) {
+                    field.classList.add("is-invalid");
+                    return false;
+                } else {
+                    field.classList.remove("is-invalid");
+                    return true;
+                }
+            } else if (fieldName === "[name='Phone1']") {
+                if (value.length !== 10 || !/^\d{10}$/.test(value)) {
+                    field.classList.add("is-invalid");
+                    return false;
+                } else {
+                    field.classList.remove("is-invalid");
+                    return true;
+                }
+            } else if (fieldName === "[name='Phone2']") {
+                if (value !== "" && (value.length !== 10 || !/^\d{10}$/.test(value))) {
+                    field.classList.add("is-invalid");
+                    return false;
+                } else {
+                    field.classList.remove("is-invalid");
+                    return true;
+                }
+            }
+            else {
+                // Handle other fields validation here
+                if (value === "") {
+                    field.classList.add("is-invalid");
+                    return false;
+                } else {
+                    field.classList.remove("is-invalid");
+                    return true;
+                }
+            }
+        }
+
+        function handleFilterSearch(input) {
+            const allFilterItems = input.closest(".hs-dropdown-menu").querySelector(".filter-item-list").querySelectorAll("span");
+            allFilterItems.forEach(item => {
+                if (item.innerText.trim().toLowerCase().includes(input.value.trim().toLowerCase())) {
+                    item.closest(".filter-item").style.display = "flex"
+                } else {
+                    item.closest(".filter-item").style.display = "none";
+                }
+            })
+        }
+
+
+        let datatable = new DataTable("#tblData", {
+            scrollX: true,
+            ordering: false,
+            scrollY: '45vh',
+            dom: "lBfrtip",
+            buttons: [{
+                extend: 'excelHtml5',
+                exportOptions: {
+                    trim: false,
+                    stripHtml: false,
+                    format: {
+                        header: function (html, index, node) {
+                            return node.innerText;
+                        },
+                        body: function (data, row, column, node) {
+                            return node.innerText;
+                        }
+                    }
+                }
+            }],
+            "fnInitComplete": function (oSettings, json) {
+                document.querySelector("#loader").style.display = "none";
+                const _dt = this.api();
+                console.log("initdone")
+                // $("#loader").hide();
+                document.querySelector("#loader").style.display = "none";
+                // docu
+                const allTh = document.querySelectorAll(".dataTables_scroll:has(#tblData) .dataTables_scrollHead table thead th");
+                const allThWithFilter = [];
+                Array.from(allTh).forEach((item, index) => {
+                    if (item.querySelector(".hs-dropdown")) {
+                        allThWithFilter.push({ item, index });
+                    }
+                });
+                console.log(allThWithFilter);
+                allThWithFilter.forEach(item => {
+                    // console.log(Number(item.index));
+                    const column = _dt.columns(Number(item.index)).data().unique().sort();
+                    console.log(column);
+                    // const column = document.querySelectorAll(`td:nth-child(${item.index + 1})`);
+                    const uniqueColumnContentSet = new Set();
+
+                    column[0].forEach(colItem => {
+                        if (colItem.includes("hs-dropdown")) {
+                            const tempElem = document.createElement("div");
+                            tempElem.innerHTML = colItem;
+                            uniqueColumnContentSet.add(tempElem.querySelector("button span").innerText);
+                        } else if (colItem.includes("span") || colItem.includes("</p>")) {
+                            const tempElem = document.createElement("div");
+                            tempElem.innerHTML = colItem;
+                            uniqueColumnContentSet.add(tempElem.innerText.trim());
+                        } else {
+                            uniqueColumnContentSet.add(colItem.trim());
+                        }
+                    });
+
+                    // console.log(uniqueColumnContent);
+                    const uniqueColumnContent = Array.from(uniqueColumnContentSet).sort();
+
+                    const dropdownBody = item?.item.querySelector(".hs-dropdown-menu .filter-item-list");
+                    dropdownBody.innerHTML = "";
+                    console.log(dropdownBody);
+                    uniqueColumnContent.forEach(dItem => {
+                        const dropdownItem = document.createElement("div");
+                        dropdownItem.classList.add("relative", "flex", "items-start", "py-2", "px-3", "rounded-lg", "hover:bg-gray-100", "filter-item");
+                        let checkBoxId = `chk-${Math.floor(Math.random() * 9999999)}`;
+                        dropdownItem.innerHTML = `<div class="flex items-center">
+                                                                                                                                                <input value="${dItem}" id="${checkBoxId}" type="checkbox" class="shrink-0 border-gray-200 rounded text-emerald-600 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                                                                                                                            </div>
+                                                                                                                                            <label for="${checkBoxId}" class="flex-1 ms-2">
+                                                                                                                                                <span class="block text-xs text-gray-800">${dItem}</span>
+                                                                                                                                            </label>`;
+                        dropdownBody.appendChild(dropdownItem);
+                    })
+                    if (!dropdownBody.nextElementSibling) {
+                        dropdownBody.parentElement.innerHTML += `<div class="flex gap-2"><button onclick="clearFilter(this, ${item?.index});" class="flex mt-2 w-full items-center justify-center gap-x-3.5 py-2 px-3 rounded-lg text-xs text-gray-800 bg-gray-100 hover:bg-gray-50 focus:outline-none focus:bg-gray-100">Clear</button><button onclick="filterTable(this, ${item?.index});" class="flex mt-2 w-full items-center justify-center gap-x-3.5 py-2 px-3 rounded-lg text-xs text-gray-800 bg-gray-100 hover:bg-gray-50 focus:outline-none focus:bg-gray-100" href="#">Apply</button></div>`
+                    }
+                })
+            },
+        });
+
+        function escapeRegExp(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole string
+        }
+
+        function filterTable(btn, colInd) {
+            const values = [];
+            btn.closest(".hs-dropdown").querySelectorAll("input:checked").forEach(chkbox => {
+                values.push(chkbox.value);
+            })
+            HSDropdown.close(btn.closest(".hs-dropdown"));
+            setTimeout(() => {
+                if (values.length) {
+                    console.log(values)
+                    const escapedValues = values.map(escapeRegExp);
+                    datatable.columns(Number(colInd)).search('^(' + escapedValues.join("|") + ')$', true, false).draw();
+                } else {
+                    datatable.columns(Number(colInd)).search("", true, false).draw();
+                }
+            }, 200)
+        }
+
+        function clearFilter(btn, colInd) {
+            btn.closest(".hs-dropdown").querySelectorAll("input:checked").forEach(chkbox => {
+                chkbox.checked = false;
+            })
+            btn.closest(".hs-dropdown").querySelector("input[type='search']").value = "";
+            const _inpEvent = new Event("input");
+            btn.closest(".hs-dropdown").querySelector("input[type='search']").dispatchEvent(_inpEvent);
+            HSDropdown.close(btn.closest(".hs-dropdown"));
+            setTimeout(() => {
+                datatable.columns(Number(colInd)).search("", true, false).draw();
+            }, 200)
+        }
+
+        function showFormPart(formPart = 1, btn) {
+            const allParts = document.querySelector("#projectionForm").querySelectorAll(".multipart-form.active");
+            const partToShow = document.querySelector("#projectionForm").querySelector(`.multipart-form:nth-child(${formPart})`);
+
+            allParts.forEach(item => {
+                item.classList.remove("active");
+            })
+
+            partToShow.classList.add("active");
+        }
+
+        function RemoveErrorClass(form) {
+            const allInput = document.querySelectorAll(form + " .is-invalid");
+            allInput.forEach(inp => {
+                inp.classList.remove("is-invalid");
+            })
+        }
+
+        function handleCustomerPriceChange(inp) {
+            const endDate = document.querySelector("#projectionenddate");
+            endDate.dispatchEvent(new Event("change"));
+        }
+
+
+        const startDate = document.querySelector("#projectionstartdate");
+        const endDate = document.querySelector("#projectionenddate");
+        startDate.addEventListener("change", createBillingSpiltTable);
+        endDate.addEventListener("change", createBillingSpiltTable);
+
+        function createBillingSpiltTable() {
+            const startDate = document.querySelector("#projectionstartdate");
+            const endDate = document.querySelector("#projectionenddate");
+            if (!startDate.value || !endDate.value) return;
+            console.log("here");
+            const months = generateSplitMonths(startDate.value, endDate.value);
+            console.log(months)
+            if (!months.length) return;
+
+            const monthTable = createMonthTable(months);
+            if (document.querySelector(".projectionsplitbilling")) {
+                document.querySelector(".projectionsplitbilling").remove();
+            }
+            document.querySelector("#formPart1").insertBefore(monthTable, document.querySelector(".actionrow"));
+        }
+
+        function createMonthTable(months) {
+            if (!months || !months.length) return null;
+            const customerPrice = document.querySelector("#customerPrice").value;
+            const div = document.createElement("div");
+            div.classList.add("flex", "flex-col", "projectionsplitbilling");
+            let divhtml = "";
+
+            divhtml += '<div class="-m-1.5 overflow-x-auto">';
+            divhtml += '    <div class="p-1.5 min-w-full inline-block align-middle" style="max-width: 100%;">';
+            divhtml += '        <div class="border rounded-lg overflow-x-auto" style="max-width: 100%; max-height: 20rem;">';
+            divhtml += '            <table id="initialsBillingInfo" class="min-w-full divide-y divide-gray-200">';
+            divhtml += '                <thead class="bg-gray-50" style="position: sticky; top: 0; z-index: 10;">';
+            divhtml += '                    <tr>';
+            divhtml += '                        <th scope="col" class="px-2 py-2 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase" style="position: sticky; width: 10rem; left: 0; background-color: rgb(249 250 251);">';
+            divhtml += '                            Deal Price'
+            divhtml += '                        </th>';
+            divhtml += '                        <th scope="col" class="px-2 py-2 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase" style="position: sticky; width: 10rem; left: 0; background-color: rgb(249 250 251);">';
+            divhtml += '                            Current Total'
+            divhtml += '                        </th>';
+            months.forEach(item => {
+                divhtml += '                        <th scope="col" class="px-2 py-2 text-center text-sm font-bold whitespace-nowrap text-gray-600 uppercase" style="position: sticky; width: 10rem; left: 0; background-color: rgb(249 250 251);">';
+                divhtml += item;
+                divhtml += '                        </th>';
+            })
+            divhtml += '                    </tr>';
+            divhtml += '                </thead>';
+            divhtml += '                <tbody class="divide-y divide-gray-200">';
+            divhtml += '                    <tr>';
+            divhtml += `                        <td class="px-6 text-left py-4 whitespace-nowrap text-sm text-gray-800">${customerPrice}</td>`;
+            divhtml += `                        <td class="px-6 text-left py-4 whitespace-nowrap text-sm text-gray-800" style=" background-color: #dcfce7;">${customerPrice}</td>`;
+            months.forEach(item => {
+                divhtml += '                        <td class="px-2 py-2 text-center whitespace-nowrap text-sm text-gray-800">';
+        @* divhtml += `                           <input class="k-input" type="number" value="'+ Number(Number(customerPrice) / months.length).toFixed(2) + '"`; *@
+                    divhtml += `                          <input type="text" onchange="handleBillingChange(this);" class="text-center border-transparent p-1 mb-1 rounded block" value="${Number(Number(customerPrice) / months.length).toFixed(2)}" style="min-width: 5rem; font-size: 1.125rem;" min="0" />`;
+                divhtml += '                        </td>';
+            })
+        @* divhtml += '                        <td class="px-2 py-2 whitespace-nowrap text-sm font-medium text-gray-800" style="position: sticky; left: 0; background-color: white; width: 10rem; overflow: hidden; text-overflow: ellipsis;">';
+            divhtml += '                        </td>'; *@
+                divhtml += '                    </tr>';
+            divhtml += '                </tbody>';
+            divhtml += '            </table>';
+            divhtml += '        </div>';
+            divhtml += '    </div>';
+            divhtml += '</div>';
+
+            div.innerHTML = divhtml;
+            return div;
+        }
+
+        function handleBillingChange(inp) {
+            const allTd = inp.closest("tr").querySelectorAll("td");
+            const billingTable = document.querySelector("#initialsBillingInfo");
+            const dealAmount = Number(billingTable.querySelector("tbody tr td:nth-child(1)").innerText.trim());
+            const currentTotalTd = billingTable.querySelector("tbody tr td:nth-child(2)");
+            let totalAmount = 0;
+            for (let i = 2; i < allTd.length; i++) {
+                totalAmount += Number(allTd[i].querySelector("input").value);
+            }
+            totalAmount = Math.round(totalAmount);
+
+            currentTotalTd.innerText = totalAmount;
+
+            if (totalAmount > dealAmount) {
+                currentTotalTd.style.backgroundColor = "#fee2e2";
+            } else if (totalAmount < dealAmount) {
+                currentTotalTd.style.backgroundColor = "#fef08a";
+            } else {
+                currentTotalTd.style.backgroundColor = "#dcfce7";
+            }
+        }
+
+        function generateSplitMonths(startDate, endDate) {
+
+            const cStartDate = new Date(startDate);
+            cStartDate.setDate(1);
+            const cEndDate = new Date(endDate);
+
+        @* console.log(cStartDateStr, cEndDateStr); *@
+
+                    const monthsArr = [];
+
+            while (true) {
+                const month = cStartDate.toLocaleString('default', { month: 'short' });
+                const monthYear = month + '-' + String(cStartDate.getFullYear()).match(/.{1,2}/g)[1];
+
+                const month2 = cEndDate.toLocaleString('default', { month: 'short' });
+                const monthYear2 = month2 + '-' + String(cEndDate.getFullYear()).match(/.{1,2}/g)[1];
+
+                monthsArr.push(monthYear);
+                cStartDate.setMonth(cStartDate.getMonth() + 1);
+
+                //console.log(monthYear, monthYear2);
+                //console.log(cStartDate.getMonth() === cEndDate.getMonth() && cStartDate.getFullYear() === cEndDate.getFullYear())
+
+                if (monthYear === monthYear2) break;
+            }
+
+            return monthsArr;
+        }
+
+
+
+        function handleCloseModal(modal) {
+            switch (modal) {
+                case "projection":
+                    document.querySelector("#projectionForm").reset();
+                    document.querySelector(".projectionsplitbilling")?.remove();
+                    projectTypeMultiSelect.setSelected("0");
+
+
+                    RemoveErrorClass("#projectionForm")
+                    showFormPart(1);
+                    customerMultiSelect.setSelected("0");
+                    practiceDropdown.setSelected("0");
+                    //resourceMultiSelect.setSelected("0");
+                    resourceMultiSelectArray.forEach(item => {
+                        item.setSelected('0');
+                    })
+                    document.querySelector("#employeeTable tbody").innerHTML = "";
+                    HSOverlay.close(document.querySelector("#extend-contract-modal"))
+                    break;
+                case "customer":
+                    document.querySelector("#customerForm").reset();
+                    showFormStepCustomer(1);
+                    HSOverlay.close(document.querySelector("#customerCreateModal"))
+                    break;
+                default:
+                    console.log("No Modal")
+            }
+        }
+
+        HSOverlay.on("close", (modal) => {
+            console.log(modal);
+            if (modal.id === "customerCreateModal") {
+                document.querySelector("#customerForm").reset();
+                showFormStepCustomer(1);
+                const allInput = document.querySelectorAll("#customerForm input");
+                const allSelect = document.querySelectorAll("#customerForm select");
+                allInput.forEach(item => {
+                    item.classList.remove("is-invalid");
+                })
+                allSelect.forEach(item => {
+                    item.classList.remove("is-invalid");
+                })
+            }
+        })
+
+        $(document).ready(function () {
+            $('.addProjectButton').click(function () {
+                // $('#extend-contract-modal').modal('show');
+                HSOverlay.open(document.querySelector("#extend-contract-modal"));
+                // $.ajax({
+                //     url: '@Url.Action("GetListofCustomers", "ProjectProjection")',
+                //     type: 'GET',
+                //     success: function (data) {
+                //         var $customerDropdown = $('#customer');
+                //         $customerDropdown.empty();
+                //         $customerDropdown.append($('<option>', {
+                //             value: '',
+                //             text: '---Select Customer---'
+                //         }));
+
+                //         $.each(data, function (index, customer) {
+                //             $customerDropdown.append($('<option>', {
+                //                 value: customer.CustomerId,
+                //                 text: customer.customerCompanyName
+                //             }));
+                //         });
+                //     },
+                //     error: function () {
+                //         alert('Failed to load customers.');
+                //     }
+                // });
+                $.ajax({
+                    url: '@Url.Action("GetListofSkillsWithExp", "ProjectProjection")',
+                    type: 'GET',
+                    success: function (data) {
+                        skillsData = data;
+                        var $skillDropdown = $('#skill');
+                        $skillDropdown.empty();
+                        $skillDropdown.append($('<option>', {
+                            value: '',
+                            text: '---Select Skill---'
+                        }));
+                        console.log(data);
+
+                        $.each(data, function (index, skill) {
+                            $skillDropdown.append($('<option>', {
+                                value: skill.skillId,
+                                text: skill.skill
+                            }));
+                        });
+                    },
+                    error: function () {
+                        alert('Failed to load skills.');
+                    }
+                });
+            });
+        });
+
+
+        // $(document).ready(function () {
+        //     $.ajax({
+        //         url: '@Url.Action("GetListofSkillsWithExp", "ProjectProjection")',
+        //         type: 'GET',
+        //         success: function (data) {
+        //             skillsData = data;
+        //             var $skillDropdown = $('#skill');
+        //             $skillDropdown.empty();
+        //             $skillDropdown.append($('<option>', {
+        //                 value: '',
+        //                 text: '---Select Skill---'
+        //             }));
+        //             console.log(data);
+
+        //             $.each(data, function (index, skill) {
+        //                 $skillDropdown.append($('<option>', {
+        //                     value: skill.skillId,
+        //                     text: skill.skill
+        //                 }));
+        //             });
+        //         },
+        //         error: function () {
+        //             alert('Failed to load skills.');
+        //         }
+        //     });
+        // });
+
+        $('#skill').on('change', function () {
+            console.log(skillsData);
+            var selectedSkillId = $(this).val();
+            console.log(selectedSkillId);
+            $('#experience').empty();
+            if (selectedSkillId) {
+                var selectedSkill = skillsData.find(skill => skill.skillId == selectedSkillId);
+                console.log(selectedSkill);
+                $('#experience').append($('<option>', {
+                    value: '',
+                    text: '---Select Experince---'
+                }));
+                $.each(selectedSkill.skillExp, function (index, exp) {
+                    $('#experience').append(
+                        $('<option>', {
+                            value: exp,
+                            text: exp
+                        })
+                    );
+                });
+            }
+        });
+
+        $('#experience').on('change', function () {
+            var selectedSkillId = $('#skill').val();
+            var selectedExperience = $(this).val();
+            if (selectedSkillId && selectedExperience) {
+
+                $.ajax({
+                    url: '@Url.Action("GetListOfResources", "ProjectProjection")',
+                    type: 'GET',
+                    data: {
+                        skillId: selectedSkillId,
+                        experience: selectedExperience
+                    },
+                    success: function (data) {
+                        var $resourceDropdown = $('#resource');
+                        $resourceDropdown.empty();
+                        $resourceDropdown.append($('<option>', {
+                            value: '',
+                            text: '---Select Resource---'
+                        }));
+                        console.log(data);
+
+                        $.each(data, function (index, resource) {
+                            $resourceDropdown.append($('<option>', {
+                                value: resource.employeeId,
+                                text: resource.employeeName
+                            }));
+                        });
+                    },
+                    error: function () {
+                        alert('Failed to load skills.');
+                    }
+                });
+            }
+
+        });
+
+        function validateResourceForm(index) {
+            let isValid = true;
+            const resource = resourceMultiSelectArray[index].getSelected();
+            const dropdownMenu = resourceMultiSelectArray[index].selectEl.closest(".hs-dropdown-menu");
+            const ExistingResource = document.querySelector(`tr[data-resourceid='${resource[0]}']`)
+            const startDate = dropdownMenu.querySelector("#contractstartdate").value;
+            const endDate = dropdownMenu.querySelector("#contractenddate").value;
+
+            if (!resource.length || resource[0] === '0') {
+                isValid = false;
+                toastr.error("Select a resource first.")
+        @* document.querySelector("#resourceSelect").classList.add("is-invalid") *@
+                            } else {
+        @* document.querySelector("#resourceSelect").classList.remove("is-invalid") *@
+                            }
+            if (!startDate) {
+                isValid = false;
+                dropdownMenu.querySelector("#contractstartdate").classList.add("is-invalid")
+            } else {
+                dropdownMenu.querySelector("#contractstartdate").classList.remove("is-invalid")
+            }
+            if (!endDate) {
+                isValid = false;
+                dropdownMenu.querySelector("#contractenddate").classList.add("is-invalid")
+            } else {
+                dropdownMenu.querySelector("#contractenddate").classList.remove("is-invalid")
+            }
+            if (ExistingResource) {
+                isValid = false;
+                toastr.error("Resource already added");
+            }
+
+            return isValid;
+        }
+
+        function recalculateRowCount() {
+            const allTr = document.querySelectorAll("#employeeTable > tbody > tr:not(.employeeProjectData)");
+            allTr.forEach((item, index) => {
+                item.querySelector("td span").innerHTML = (index + 1) < 10 ? "0" + (index + 1) : (index + 1);
+            })
+        }
+
+
+        function handleaddResource(btn) {
+            const rowIndex = Number(btn.closest("tr").getAttribute("data-index"));
+            const isResourceFormValid = validateResourceForm(rowIndex);
+            if (!isResourceFormValid) return;
+
+            var startDate = btn.closest(".hs-dropdown-menu").querySelector('#contractstartdate').value;
+            var endDate = btn.closest(".hs-dropdown-menu").querySelector('#contractenddate').value;
+            var resourceid = resourceMultiSelectArray[rowIndex].getSelected()[0];
+            var resourceName = resourceMultiSelectArray[rowIndex].selectEl.querySelector(`option[value='${resourceid}']`).innerText.trim();
+            var $tablebody = $('#employeeTable tbody');
+            // $tablebody.empty();
+
+
+            const fData = new FormData();
+            fData.append("data", JSON.stringify({
+                startdate: startDate,
+                enddate: endDate,
+                employeeid: resourceid
+            }))
+
+            document.querySelector("#loader").style.display = "flex";
+
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("ActiveEmployeeProject", "ProjectProjection")",
+                data: fData,
+                contentType: false,
+                processData: false,
+                success: function (res) {
+                    console.log(res)
+                    $("#loader").hide();
+                    if (res?.success) {
+                        addResourceToTable(resourceid, resourceName, startDate, endDate, res?.data)
+                    } else {
+                        toastr.error("Something went wrong");
+                    }
+                },
+                error: function (err) {
+                    $("#loader").hide();
+                    toastr.error("Something went wrong");
+                }
+            });
+
+            HSDropdown.close(btn.closest(".hs-dropdown"))
+            ResetDropdowns(rowIndex);
+            document.getElementById("skipButton").style.display = "none";
+        }
+
+        @* $('#addResource').click(function (event) {
+        console.log(event?.target);
+        return;
+        const rowIndex = Number(dropdown.closest("tr").getAttribute("data-index"));
+        const isResourceFormValid = validateResourceForm();
+        if (!isResourceFormValid) return;
+
+        var startDate = $('#contractstartdate').val();
+        var endDate = $('#contractenddate').val();
+        var resourceid = skillMultiSelectArray[rowIndex].getSelected()[0];
+        var resourceName = resourceMultiSelect.selectEl.querySelector(`option[value='${resourceid}']`).innerText.trim();
+        var $tablebody = $('#employeeTable tbody');
+        // $tablebody.empty();
+
+
+        const fData = new FormData();
+        fData.append("data", JSON.stringify({
+        startdate: startDate,
+        enddate: endDate,
+        employeeid: resourceid
+        }))
+
+        document.querySelector("#loader").style.display = "flex";
+
+        $.ajax({
+        type: "POST",
+        url: "@Url.Action("ActiveEmployeeProject", "ProjectProjection")",
+        data: fData,
+        contentType: false,
+        processData: false,
+        success: function (res) {
+        console.log(res)
+        $("#loader").hide();
+        if (res?.success) {
+        addResourceToTable(resourceid, resourceName, startDate, endDate, res?.data)
+        } else {
+        toastr.error("Something went wrong");
+        }
+        },
+        error: function (err) {
+        $("#loader").hide();
+        toastr.error("Something went wrong");
+        }
+        });
+
+        ResetDropdowns();
+        document.getElementById("skipButton").style.display = "none";
+
+        }); *@
+
+            function showProjects(btn) {
+                btn.closest("tr").nextElementSibling.classList.toggle("hidden")
+            }
+
+        function addResourceToTable(resourceid, resourceName, startDate, endDate, employeeProjectData = null) {
+            var tablebody = document.querySelector('#employeeTable tbody');
+            var rowLength = document.querySelectorAll("#employeeTable > tbody > tr:not(.employeeProjectData)").length + 1;
+            if (!employeeProjectData || employeeProjectData?.length == 0) {
+                //Add Employee WIthout Projects
+
+                var row = $(`<tr data-resourceid="${resourceid}" data-resourcename="${resourceName}">`).append(
+                    $('<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800  ">').text(rowLength < 10 ? "0" + rowLength : rowLength),
+        @*  $('<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800  ">').text(resourceid), *@
+                    $('<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800  ">').text(resourceName),
+                    $('<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800  ">').text(startDate),
+                    $('<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800  ">').text(endDate),
+                    $('<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800  ">').html(
+                        '<button type="button" data-employeeid="' + resourceid + '" onclick="RemoveEmployee(this)">'
+                        + '<svg class="w-6 h-6 text-red-500" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 1024 1024"><path fill="currentColor" d="M512 64a448 448 0 1 1 0 896a448 448 0 0 1 0-896M288 512a38.4 38.4 0 0 0 38.4 38.4h371.2a38.4 38.4 0 0 0 0-76.8H326.4A38.4 38.4 0 0 0 288 512"/></svg>'
+                        + '</button>')
+                );
+                $("#employeeTable > tbody").append(row);
+            } else {
+                //Add Employee WIth Projects
+                const row = document.createElement("tr");
+                row.setAttribute("data-resourceid", resourceid);
+                row.setAttribute("data-resourcename", resourceName);
+
+                row.innerHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"><div class="flex items-center gap-2">
+                                                                                    <button class="toggleProjectBtn p-2 bg-gray-100 rounded" type='button' onclick="showProjects(this);"><svg class="w-6 h-6 toggleProjectsIcon" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-dasharray="12" stroke-dashoffset="12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12l-7 -7M16 12l-7 7"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.3s" values="12;0"/></path></svg></button>
+                                                                                    <span>${rowLength < 10 ? "0" + rowLength : rowLength}<span><div>
+                                                                            </td>`;
+                row.innerHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800  ">${resourceName}</td>`
+                row.innerHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800  ">${startDate}</td>`
+                row.innerHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800  ">${endDate}</td>`
+                row.innerHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800  ">
+                                                                                    <button type="button" data-employeeid="${resourceid}" onclick="RemoveEmployeeWithProjects(this)">
+                                                                                        <svg class="w-6 h-6 text-red-500" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 1024 1024"><path fill="currentColor" d="M512 64a448 448 0 1 1 0 896a448 448 0 0 1 0-896M288 512a38.4 38.4 0 0 0 38.4 38.4h371.2a38.4 38.4 0 0 0 0-76.8H326.4A38.4 38.4 0 0 0 288 512"/></svg>
+                                                                                        </button>
+                                                                        </td>`
+
+                const projectDataRow = document.createElement("tr");
+                projectDataRow.classList.add("employeeProjectData", "hidden");
+                let projectDataRowHtml = ''
+                projectDataRowHtml += '<td colspan="5" class="p-4 bg-gray-100">'
+                projectDataRowHtml += '<div style="overflow-x: auto;">'
+                projectDataRowHtml += '<table>';
+                projectDataRowHtml += '<thead>';
+                projectDataRowHtml += '<tr>';
+                projectDataRowHtml += '<th class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">S.No</th>';
+                projectDataRowHtml += '<th class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">Project Name</th>';
+                projectDataRowHtml += '<th class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">Contract End Date</th>';
+                projectDataRowHtml += '<th class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">Contract End Date</th>';
+                projectDataRowHtml += '<th class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">DA Name</th>';
+                projectDataRowHtml += '<th class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">Action</th>';
+                projectDataRowHtml += '</tr>';
+                projectDataRowHtml += '</thead>';
+                projectDataRowHtml += '<tbody>';
+
+                employeeProjectData.forEach((item, index) => {
+                    projectDataRowHtml += `<tr class="resourceProject" data-daid="${item?.deliveryAnchorId}" data-requestsent="false">`;
+                    projectDataRowHtml += `<td class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm text-black">${index + 1}</td>`;
+                    projectDataRowHtml += `<td class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm text-black">${item.projectName}</td>`;
+                    projectDataRowHtml += `<td class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm text-black">${item.contractStartDate}</td>`;
+                    projectDataRowHtml += `<td class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm text-black">${item.contractEndDate}</td>`;
+                    projectDataRowHtml += `<td class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm text-black">${item.deliveryAnchorName}</td>`;
+                    projectDataRowHtml += `<td class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm text-black">
+                                                                                    <button type="button" onclick="sendReleaseRequest(this);" class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-transparent bg-blue-500 text-white hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm">Send Request</button>
+                                                                            </td>`;
+                    projectDataRowHtml += '</tr>';
+                });
+                projectDataRowHtml += '</tbody>';
+                projectDataRowHtml += '</table>';
+                projectDataRowHtml += '</div>';
+                projectDataRowHtml += '</td>'
+
+                projectDataRow.innerHTML += projectDataRowHtml;
+
+                tablebody.appendChild(row);
+                tablebody.appendChild(projectDataRow);
+            }
+        }
+
+        function sendReleaseRequest(btn) {
+            const employeeId = btn.closest(".employeeProjectData").previousElementSibling.getAttribute("data-resourceid");
+            const crmId = document.querySelector("#modelcrmid").value;
+            const row = btn.closest("tr");
+
+            const projectionId = document.querySelector("#modelProjectionId").value;
+            //const daId = btn.closest("tr").getAttribute("data-daid");
+            const sentTo = btn.closest("tr").getAttribute("data-daid");
+            const fData = new FormData();
+            fData.append("data", JSON.stringify({
+                employeeId,
+                crmId,
+                sentTo,
+                status: "Pending",
+                projectionId
+        @*  crmId,
+            daId  *@
+                                            }))
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("EmployeeReleaseRequest", "ProjectProjection")",
+            data: fData,
+            contentType: false,
+            processData: false,
+            success: function (res) {
+                console.log(res)
+                row.querySelector("td:last-child").innerHTML = "<span class='status pending'>Request Pending</span>";
+                row.setAttribute("data-requestsent", true);
+                RemoveActionIfRequestSend(row);
+                $("#loader").hide();
+            },
+            error: function (err) {
+                $("#loader").hide();
+
+            }
+        });
+                                        }
+
+        function ResetDropdowns() {
+            $('#contractstartdate').val('');
+            $('#contractenddate').val('');
+            resourceMultiSelectArray.forEach(item => {
+                item.setSelected('0');
+            })
+            skillMultiSelectArray.forEach(item => {
+                item.setSelected('0');
+            })
+
+            costsheetMultiSelect.setSelected('0');
+        }
+
+        function RemoveEmployee(button) {
+            var employeeid = $(button).attr('data-employeeid');
+            console.log(employeeid);
+
+            var buttons = $('[data-employeeid=' + employeeid + ']').each(function (index, element) {
+                element.closest('   tr').remove();
+
+            });
+            recalculateRowCount();
+            const removeRow = document.querySelectorAll("#employeeTable tbody > tr");
+            if (removeRow.length == 0) {
+                document.getElementById("skipButton").style.display = "inline-flex";
+
+            }
+        }
+
+        function RemoveEmployeeWithProjects(btn) {
+            const empRow = btn.closest("tr");
+            const projectRow = empRow.nextElementSibling;
+
+            if (projectRow.classList.contains("employeeProjectData")) {
+                projectRow.remove();
+            }
+            empRow.remove();
+            recalculateRowCount();
+            const removeRow = document.querySelectorAll("#employeeTable tbody > tr");
+            if (removeRow.length == 0) {
+                document.getElementById("skipButton").style.display = "inline-flex";
+
+            }
+        }
+
+
+
+        // $(document).ready(function () {
+        //     $('#nextButton').on('click', function (e) {
+        //         var customer = $('#customer').val();
+        //         if (customer === '') {
+        //             e.preventDefault();
+        //             $('#customer').addClass("is-invalid");
+        //             $('#formPart1').show().siblings('.multipart-form').hide();
+        //             $('html, body').animate({
+        //                 scrollTop: $('#formPart1').offset().top
+        //             }, 500);
+        //             $('#myModal').css('height', 'auto').css('width', 'auto');
+        //         } else {
+        //             $('#customer').removeClass("is-invalid");
+        //             showFormPart(2);
+        //         }
+        //     });
+        // });
+
+        // function showFormPart(partNumber) {
+        //     $('.multipart-form').hide();
+        //     $('#formPart' + partNumber).show();
+        //     $('html, body').animate({
+        //         scrollTop: $('#formPart' + partNumber).offset().top
+        //     }, 500);
+        // }
+
+        function handleConvertProjection(btn) {
+            console.log(btn);
+            const tblCrmid = btn.closest("tr").querySelector("input[type='hidden']").value;
+            const amount = btn.closest("tr").querySelectorAll("td")[2].textContent.trim();
+            const dealName = btn.closest("tr").querySelectorAll("td")[1].textContent.trim();
+            const companyName = btn.closest("tr").querySelectorAll("td")[3].textContent.trim();
+            console.log(companyName);
+            document.querySelector("#CompanyName").value = companyName;
+            document.querySelector("#customerPrice").value = amount;
+            document.querySelector("#projectionName").value = dealName;
+            document.querySelector("#modelcrmid").value = tblCrmid;
+
+            showFormPart(1);
+            HSOverlay.open(document.querySelector("#extend-contract-modal"))
+        }
+        function setEndDateMin(startDate) {
+            const endDateInput = document.getElementById('contractenddate');
+            endDateInput.setAttribute('min', startDate);
+        }
+        function setEndDateMinProjection(startDate) {
+            const endDateInput = document.getElementById('projectionenddate');
+            endDateInput.setAttribute('min', startDate);
+        }
+        const skillMultiSelect = new SlimSelect({
+            select: "#skillSelect"
+        })
+        const costsheetMultiSelect = new SlimSelect({
+            select: "#costsheetdropdown"
+        })
+        const customerMultiSelect = new SlimSelect({
+            select: "#customerDropdown"
+        })
+        const resourceMultiSelect = new SlimSelect({
+            select: "#resourceSelect"
+        })
+        const projectTypeMultiSelect = new SlimSelect({
+            select: "#projectTypeDropdown"
+        })
+        const practiceDropdown = new SlimSelect({
+            select: "#practiceDropdown",
+            settings: {
+                allowDeselect: false,
+                closeOnSelect: true,
+                maxValuesShown: 1
+            }
+        });
+        const subPracticeDropdown = new SlimSelect({
+            select: "#subPracticeDropdown",
+            settings: {
+                allowDeselect: false,
+                closeOnSelect: true,
+                maxValuesShown: 1
+            }
+        });
+        const paymentDropdown = new SlimSelect({
+            select: "#Paymenttermid",
+            settings: {
+                allowDeselect: false,
+                closeOnSelect: true,
+                maxValuesShown: 1
+            }
+        })
+        const currencyDropdown = new SlimSelect({
+            select: "#Currencyid",
+            settings: {
+                allowDeselect: false,
+                closeOnSelect: true,
+                maxValuesShown: 1
+            }
+        })
+        const countrySelect = new SlimSelect({
+            select: "#countryDropdown",
+            settings: {
+                allowDeselect: false,
+                closeOnSelect: true,
+                maxValuesShown: 1
+            }
+        })
+
+        const stateSelect = new SlimSelect({
+            select: "#stateDropdown",
+            settings: {
+                allowDeselect: false,
+                closeOnSelect: true,
+                maxValuesShown: 1
+            }
+        })
+
+        const citySelect = new SlimSelect({
+            select: "#cityDropdown",
+            settings: {
+                allowDeselect: false,
+                closeOnSelect: true,
+                maxValuesShown: 1
+            }
+        })
+
+        const countryDropdown = document.getElementById('countryDropdown');
+        const stateDropdown = document.getElementById('stateDropdown');
+
+        countryDropdown.addEventListener('change', async () => {
+            const selectedCountryId = countryDropdown.value;
+            stateDropdown.innerHTML = '<option value="">Select State</option>'; // Clear state options
+
+            if (selectedCountryId) {
+                const response = await fetch(`/Base/GetState?countryId=${selectedCountryId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    // console.log(data);
+                    const stateData = [{ text: "Select State", value: "" }];
+                    data.forEach(country => {
+                        const _countryVal = {
+                            text: country?.text,
+                            value: country?.value
+                        }
+                        stateData.push(_countryVal);
+                    })
+                    console.log(stateDropdown);
+                    stateSelect.setData(stateData);
+
+                    // Clear the stateDropdown and then add options
+                    stateDropdown.innerHTML = '<option value="">Select State</option>';
+
+                    data.forEach(item => {
+                        const option = document.createElement('option');
+                        option.value = item.value;
+                        option.textContent = item.text;
+                        stateDropdown.appendChild(option);
+                    });
+
+                } else {
+                    console.error('Error fetching state data:', response.statusText);
+                }
+            }
+        });
+
+        const cityDropdown = document.getElementById('cityDropdown');
+
+        stateDropdown.addEventListener('change', async () => {
+            const selectedStateId = stateDropdown.value;
+            cityDropdown.innerHTML = '<option value="">Select City</option>'; // Clear city options
+
+            if (selectedStateId) {
+                const response = await fetch(`/Base/GetCity?StateId=${selectedStateId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log(data);
+                    // Clear the cityDropdown and then add options
+                    // cityDropdown.innerHTML = '<option value="">Select City</option>';
+                    const cityData = [{ text: "Select City", value: "" }];
+                    data.forEach(item => {
+                        cityData.push({ text: item?.text, value: item?.value });
+                    });
+
+                    citySelect.setData(cityData);
+
+                    if (document.querySelector("#hiddenCityId").value) {
+                        console.log(document.querySelector("#hiddenCityId").value)
+                        citySelect.setSelected(document.querySelector("#hiddenCityId").value)
+                    }
+
+
+
+                } else {
+                    console.error('Error fetching city data:', response.statusText);
+                }
+            }
+        });
+
+
+        function validateFirstPart(btn) {
+            let isValid = true;
+
+
+
+            isValid && showFormPart(2, btn);
+        }
+        async function handlePracticeChange(inp) {
+            const selectedPracticeId = inp.value;
+            console.log(inp.value);
+            subPracticeDropdown.setData([]);
+            if (selectedPracticeId) {
+                const response = await fetch(`/Base/GetSubPracticeByPracticeId?practiceId=${selectedPracticeId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    // console.log(data);
+                    const stateData = [{ text: "Select Sub Practice", value: "" }];
+                    data.forEach(country => {
+                        const _countryVal = {
+                            text: country?.text,
+                            value: country?.value
+                        }
+                        stateData.push(_countryVal);
+                    })
+                    console.log(stateData);
+                    subPracticeDropdown.setData(stateData);
+
+
+
+                } else {
+                    console.error('Error fetching Subpractice data:', response.statusText);
+                }
+            }
+        }
+
+        function validateProjectionForm() {
+            let isValid = true;
+
+            const customerDropdown = document.querySelector("#customerDropdown");
+            const ProjectionStartDate = document.getElementById("projectionstartdate");
+            const ProjectionEndDate = document.getElementById("projectionenddate");
+            const ProjectName = document.getElementById("projectionName");
+            const ProjectDescription = document.getElementById("projectionDescription");;
+            const selectedCustomerValue = customerMultiSelect.getSelected();
+
+        @* var EmployeeList = document.querySelectorAll("#employeeTable tbody tr"); *@
+                                            const subPracticeDropdownEl = document.querySelector("#subPracticeDropdown");
+            const projectType = document.querySelector("#projectTypeDropdown");
+            const projectTypeValue = projectTypeMultiSelect.getSelected();
+            const CustomerPrice = document.querySelector("#customerPrice");
+            const selectedSubpracticeValue = subPracticeDropdown.getSelected();
+
+            const costsheetDropdwon = document.querySelector("#costsheetdropdown");
+            const cosheetValue = costsheetMultiSelect.getSelected();
+
+            if (!cosheetValue.length || cosheetValue[0] == '0') {
+                isValid = false;
+                costsheetDropdwon.classList.add("is-invalid");
+            } else {
+                costsheetDropdwon.classList.remove("is-invalid");
+            }
+            if (!selectedCustomerValue.length || selectedCustomerValue[0] == '0') {
+                isValid = false;
+                customerDropdown.classList.add("is-invalid");
+            } else {
+                customerDropdown.classList.remove("is-invalid");
+            }
+            if (!projectTypeValue.length || projectTypeValue[0] == '0') {
+                isValid = false;
+                projectType.classList.add("is-invalid");
+            } else {
+                projectType.classList.remove("is-invalid");
+            }
+            if (!ProjectionStartDate.value) {
+                isValid = false;
+                ProjectionStartDate.classList.add("is-invalid");
+            } else {
+                ProjectionStartDate.classList.remove("is-invalid");
+            }
+            if (!ProjectionEndDate.value) {
+                isValid = false;
+                ProjectionEndDate.classList.add("is-invalid");
+            } else {
+                ProjectionEndDate.classList.remove("is-invalid");
+            }
+            if (!ProjectName.value.trim()) {
+                isValid = false;
+                ProjectName.classList.add("is-invalid");
+            } else {
+                ProjectName.classList.remove("is-invalid");
+            }
+        @* if (!ProjectDescription.value.trim()) {
+            isValid = false;
+            ProjectDescription.classList.add("is-invalid");
+            } else {
+            ProjectDescription.classList.remove("is-invalid");
+            } *@
+
+                            if (!selectedSubpracticeValue.length || selectedSubpracticeValue[0] == '0' || !selectedSubpracticeValue[0].trim()) {
+                isValid = false;
+                subPracticeDropdownEl.classList.add("is-invalid");
+            } else {
+                subPracticeDropdownEl.classList.remove("is-invalid");
+            }
+
+            if (!CustomerPrice.value) {
+                isValid = false;
+                CustomerPrice.classList.add("is-invalid");
+            } else {
+                CustomerPrice.classList.remove("is-invalid");
+            }
+
+        @* if (!EmployeeList.length) {
+            isValid = false;
+            toastr.error("Please add atleast 1 resource");
+            } *@
+                    const billingTable = document.querySelector("#initialsBillingInfo");
+            const dealAmount = Number(billingTable.querySelector("tbody tr td:nth-child(1)").innerText.trim());
+            const currentTotal = Number(billingTable.querySelector("tbody tr td:nth-child(2)").innerText.trim());
+            if (dealAmount != currentTotal) {
+                isValid = false;
+                toastr.error("Deal price is mismatching.")
+            }
+
+            return isValid;
+        }
+
+
+        function handleCreateProjection(btn) {
+            const isProjectionValid = validateProjectionForm();
+            if (!isProjectionValid) return;
+
+            const customer = customerMultiSelect.getSelected()[0];
+            const practice = practiceDropdown.getSelected()[0];
+            const subPractice = subPracticeDropdown.getSelected()[0];
+            const customerPrice = document.querySelector("#customerPrice").value;
+            const projectType = document.querySelector("#projectTypeDropdown").value;
+            const projectionName = document.querySelector("#projectionName").value;
+            const projectionDescription = document.querySelector("#projectionDescription").value;
+            const projectionStartDate = document.getElementById("projectionstartdate").value;
+            const projectionEndDate = document.getElementById("projectionenddate").value;
+            const costsheet = document.querySelector("#costsheetdropdown").value;
+            const crmdId = document.querySelector("#modelcrmid").value;
+
+            const allResourceTr = document.querySelectorAll("#employeeTable tbody tr");
+            const resourceList = [];
+
+            allResourceTr.forEach(tr => {
+                resourceList.push({
+                    DeployedEmployeeId: tr.getAttribute("data-resourceid"),
+                    DeployedEmployeeName: tr.getAttribute("data-resourcename"),
+                    StartDate: tr.querySelector("td:nth-child(3)").innerText,
+                    EndDate: tr.querySelector("td:nth-child(4)").innerText,
+                    CategorySubStatusId: 4,
+                })
+            })
+
+            const billingInfo = [];
+
+            const allTh = document.querySelectorAll("#initialsBillingInfo th");
+            const allTd = document.querySelectorAll("#initialsBillingInfo td");
+            for (let i = 2; i < allTh.length; i++) {
+                billingInfo.push({
+                    MonthYear: allTh[i].innerText.trim(),
+                    Amount: allTd[i].querySelector("input").value
+                })
+            }
+
+            const data = {
+                projectionName: projectionName,
+                projectionDescription: projectionDescription,
+                Customerid: customer,
+                Subpracticeid: subPractice,
+                Startdate: projectionStartDate,
+                Enddate: projectionEndDate,
+                Projectioncost: customerPrice,
+                Statusid: 2,
+                DeployedEmployees: resourceList,
+                CrmId: crmdId,
+                ProjectTypeId: projectType,
+                ProjectionInitialBilling: billingInfo,
+                CostsheetId: costsheet
+            }
+            const fData = new FormData();
+            fData.append("data", JSON.stringify(data));
+            document.querySelector("#loader").style.display = "flex";
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("PostProjection", "ProjectProjection")",
+                data: fData,
+                contentType: false,
+                processData: false,
+                success: function (res) {
+                    console.log(res)
+                    $("#loader").hide();
+        @* handleCloseModal("projection"); *@
+
+                                                    if (res.statusCode == 200) {
+                        toastr.success("Projection Created Successfully");
+                        const createdProjectionData = JSON.parse(res.responseContent)
+                        console.log(createdProjectionData);
+        @* setTimeout(() => {
+                        window.location.href = "/ProjectProjection/Index"
+                        }, 1000) *@
+                            document.querySelector("#modelProjectionId").value = createdProjectionData.data.projectionid;
+                        document.querySelector("#modelCostsheetId").value = createdProjectionData.data.costsheetid;
+                        const costsheetId = document.querySelector("#modelCostsheetId").value;
+
+                        if (costsheetId) {
+                            showFormPart(2);
+                            GetCostSheet(costsheetId);
+                        }
+                        showFormPart(2);
+                    } else {
+                        toastr.error("Error Creating Projection");
+                        $("#loader").hide();
+                        handleCloseModal("projection");
+                        window.location.reload();
+                    }
+                },
+                error: function (err) {
+                    toastr.error("Error Creating Projection");
+                    $("#loader").hide();
+                    window.location.reload();
+                }
+            });
+        }
+
+        function GetCostSheet(costsheetId) {
+            if (costsheetId == '0') return;
+        @* console.log("hi");
+            return; *@
+                $.ajax({
+                    url: '@Url.Action("GetCostSheet", "Base")',
+                    type: 'GET',
+                    data: {
+                        id: costsheetId,
+                    },
+                    success: function (data) {
+                        const costSheetHistory = data.costSheetHistory;
+                        const costsheetdetails = data.costsheetdetails;
+
+                        console.log(data);
+                        createCostsheet(data);
+
+                        return;
+                    }
+                })
+        }
+
+        function createCostsheet(data) {
+            var tablebody = document.querySelector('#costSheetTableModal tbody');
+
+            if (!data || !data.costsheetdetails || data.costsheetdetails.length === 0) {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                            <td colspan="8" class="px-6 py-4 text-center text-sm font-medium text-gray-600">
+                                No Cost Sheet Data Available
+                            </td>`;
+                tablebody.appendChild(row);
+                return;
+            }
+
+        @*  let totalResources = 0;
+            let totalCost = 0;
+
+            // Calculate total resources and cost
+            data.costsheetdetails.forEach(detail => {
+            totalResources += detail.Requiredresource || 0; // Use 0 as fallback for undefined values
+            totalCost += detail.Skillcost || 0; // Use 0 as fallback for undefined values
+            }); *@
+                data.costsheetdetails.forEach((detail, index) => {
+                    const row = document.createElement("tr");
+                    row.setAttribute("data-index", index);
+                    row.setAttribute("data-skillid", detail.skillid)
+                    row.dataset.ind = index + 1;
+                    let rowHtml = '';
+                    if (index == 0) {
+                        rowHtml += `<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">Cost Sheet Name: <span class="font-bold">  ${index === 0 ? (data.costsheetname || 'N/A') : ''}</span></td>`
+
+                    } @* else if (index == 1) {
+                    rowHtml += `<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">Total Resources Required: <span class="font-bold"> ${index === 0 ? (totalResources || 'N/A'):''}</span></td>`
+
+                    }
+                    else if (index == 2) {
+                    rowHtml += `<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">Total Skills Required: <span class="font-bold">${index === 0 ? (data.costsheetdetails.length || 'N/A'):''}</span></td>`
+
+                    } *@
+                        else {
+                        rowHtml += `<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800"></td>`
+                    }
+                    rowHtml += `
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">${detail.skillname || 'N/A'}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"> ${detail.skillexperience || 'N/A'}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">${detail.xvalue || 'N/A'}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">${detail.perioddays || 'N/A'}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">${detail.skillcost || 'N/A'}</td>
+
+                         <input type="hidden" class="costsheetdetailid" Value="${detail.costsheetdetailid}">
+                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                            <div class="assign-dropdown mt-1 mx-1 sm:mt-1 hs-dropdown relative sm:inline-flex [--auto-close:inside]">
+                            <button id="hs-dropdown-auto-close-inside" type="button" class="hs-dropdown-toggle p-1 inline-flex items-center gap-x-2 text-sm font-medium text-gray-800 underline disabled:opacity-50 disabled:pointer-events-none">
+                                        Deploy
+                            </button>
+
+        @*  <div style="min-width: 10rem; z-index: 40;" class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 mt-2" aria-labelledby="hs-dropdown-auto-close-inside">
+                                                                                <select class="k-input w-full mb-4 selectEmployee">
+                                                                                    <option value="">Select Employee</option>
+            @foreach (var employee in ViewBag.resource)
+            {
+                                                                                            <option value="@employee.Employeeid" data-tmcid="@employee.TmcId">@employee.Employeename</option>
+            }
+                                                                                </select>
+                                                                                <div class="deployment-dates-wrapper">
+                                                                                    <div class="flex items-center gap-4 mb-4 deployment-date-row">
+                                                                                        <div class="flex-1">
+                                                                                            <label>From</label>
+                                                                                            <input min="@Model.OafData.contractstartdate?.ToString("yyyy-MM-dd")" max="@Model.OafData.contractenddate?.ToString("yyyy-MM-dd")" type="date" class="k-input deployStartDate" />
+                                                                                        </div>
+                                                                                        <div class="flex-1">
+                                                                                            <label>To</label>
+                                                                                            <input min="@Model.OafData.contractstartdate?.ToString("yyyy-MM-dd")" max="@Model.OafData.contractenddate?.ToString("yyyy-MM-dd")" type="date" class="k-input deployEndDate" />
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="flex justify-end mb-4">
+                                                                                    <button class="text-blue-400" onclick="addNewDeploymentDate(this);">Add New</button>
+                                                                                </div>
+                                                                                <select id="selectEmpStatus" class="k-input w-full mb-4 deployStatus" asp-items="@ViewBag.status">
+                                                                                    <option value="">Select Status</option>
+                                                                                </select>
+                                                                                <div>
+                                                                                    <button onclick="assignEmployee(this);" class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-emerald-400 bg-[#00cc83] text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm sm:text-base">Assign</button>
+                                                                                </div>
+                                                                            </div>
+                                                                             </div> *@
+                                                     <div style="min-width: 10rem; z-index: 40;" class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 mt-2" aria-labelledby="hs-dropdown-auto-close-inside">
+                                                        <div class="flex-1 gap-2">
+                                                        <span class="mb-2 font-medium block">Skills<span class="toggle-mandatory-icon">*</span></span>
+                                                        <div class="flex items-center gap-3 flex-wrap" id="skillDropDown">
+                                                            <select class="multi-select skillSelect" onchange="getEmployee(this)">
+                                                                <option value="0">Select Skills</option>
+        @foreach (var skills in ViewBag.skilllist)
+        {
+                                                                            <option value="@skills.Value">@skills.Text</option>
+        }
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex-1 gap-2">
+                                                        <div class="flex items-center justify-between">
+                                                            <span class="mb-2 font-medium block">Resource<span class="toggle-mandatory-icon">*</span></span>
+                                                            <div>
+                                                                        <div class="flex justify-end mt-1 mb-1">
+                                                                    <div class="flex items-center">
+                                                                        <label for="chkAllEmp" class="text-sm text-gray-500" style="margin-right: .25rem;">Bench Only</label>
+                                                                        <input type="checkbox" onchange="handleBenchOnly(this);" id="benchOnlyResources" style="box-shadow: none;" class="relative w-[3.25rem] h-7 p-px bg-black border-transparent text-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 disabled:opacity-50 disabled:pointer-events-none checked:bg-none checked:text-emerald-600 checked:border-emerald-600 focus:checked:border-emerald-600 before:absolute before:top-0 before:bottom-0 before:my-auto before:inline-block before:w-6 before:h-6 before:bg-white checked:before:bg-emerald-200 before:translate-x-0 checked:before:translate-x-full before:rounded-full before:shadow before:transform before:ring-0 before:transition before:ease-in-out before:duration-200">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex items-center gap-3 flex-wrap">
+                                                                    <select class="multi-select resourceSelect">
+                                                                <option value="0" selected>Select Resource</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex items-center gap-2">
+                                                    <div class="flex-1">
+                                                        <span class="mb-2 font-medium block">Start Date<span class="toggle-mandatory-icon">*</span></span>
+                                                        <div class="flex items-center gap-3 flex-wrap">
+                                                            <input type="date" id="contractstartdate" class="k-input" oninput="setEndDateMin(this.value)" min="@ViewBag.YearGapDate" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex-1">
+                                                        <span class="mb-2 font-medium block">End Date<span class="toggle-mandatory-icon">*</span></span>
+                                                        <div class="flex items-center gap-3 flex-wrap">
+                                                            <input type="date" class="k-input" id="contractenddate" />
+                                                        </div>
+                                                    </div>
+                                                    </div>
+                                                            <div style="align-self: flex-end; margin-top:2%">
+                                                        <button type="button" onclick="handleaddResource(this)" class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-emerald-400 bg-[#00cc83] text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm sm:text-base">
+                                                            Add
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                               </td>
+                               <td></td>
+                                   `;
+                    row.innerHTML = rowHtml;
+                    tablebody.appendChild(row);
+                });
+            const selectedSkills = document.querySelectorAll(".skillSelect");
+            selectedSkills.forEach(item => {
+                const skillMultiSelect = new SlimSelect({
+                    select: item
+                })
+                skillMultiSelectArray.push(skillMultiSelect);
+            })
+
+            const resourceSelect = document.querySelectorAll(".resourceSelect");
+            resourceSelect.forEach(item => {
+                const resourceMultiSelect = new SlimSelect({
+                    select: item
+                })
+                resourceMultiSelectArray.push(resourceMultiSelect);
+            })
+        }
+
+
+        function checkAllRequestSent() {
+            const allRequestTr = document.querySelectorAll("tr.resourceProject[data-requestsent='false']");
+
+            return allRequestTr.length ? false : true;
+        }
+
+        function skipProjection() {
+            const allResourceTr = document.querySelectorAll("#employeeTable > tbody > tr:not(.employeeProjectData)");
+            if (allResourceTr.length <= 0) {
+
+                setTimeout(() => {
+                    window.location.href = "/ProjectProjection/Index"
+                }, 1000);
+            }
+            else {
+                document.getElementById("skipButton").style.display = "none";
+            }
+        }
+
+        function handleDeployEmployees() {
+            const allRequestSent = checkAllRequestSent();
+            if (!allRequestSent) {
+                toastr.error("Send Release request all employees");
+                return;
+            }
+            const projectionId = document.querySelector("#modelProjectionId").value;
+            const crmdId = document.querySelector("#modelcrmid").value;
+
+            const allResourceTr = document.querySelectorAll("#employeeTable > tbody > tr:not(.employeeProjectData)");
+            if (allResourceTr.length <= 0) {
+                toastr.error("Select at least a resource");
+                return;
+            }
+            const resourceList = [];
+
+            allResourceTr.forEach(tr => {
+                resourceList.push({
+                    DeployedEmployeeId: tr.getAttribute("data-resourceid"),
+                    DeployedEmployeeName: tr.getAttribute("data-resourcename"),
+                    StartDate: tr.querySelector("td:nth-child(3)").innerText,
+                    EndDate: tr.querySelector("td:nth-child(4)").innerText,
+                    CategorySubStatusId: 4,
+                })
+            })
+
+            const data = {
+                projectionId,
+                CrmId: crmdId,
+                DeployedEmployees: resourceList,
+            }
+            const fData = new FormData();
+            fData.append("data", JSON.stringify(data));
+            document.querySelector("#loader").style.display = "flex";
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("PostProjection", "ProjectProjection")",
+                data: fData,
+                contentType: false,
+                processData: false,
+                success: function (res) {
+                    console.log(res)
+                    $("#loader").hide();
+                    handleCloseModal("projection");
+
+                    if (res.statusCode == 200) {
+                        toastr.success("Projection Created Successfully");
+                        const createdProjectionData = JSON.parse(res.responseContent)
+                        console.log(createdProjectionData);
+                        setTimeout(() => {
+                            window.location.href = "/ProjectProjection/Index"
+                        }, 1000)
+                        document.querySelector("#modelProjectionId").value = createdProjectionData.data.projectionid;
+                        showFormPart(2);
+                    } else {
+                        toastr.error("Error Creating Projection");
+                        $("#loader").hide();
+                        handleCloseModal("projection");
+                        window.location.reload();
+                    }
+                },
+                error: function (err) {
+                    toastr.error("Error Creating Projection");
+                    window.location.reload();
+                }
+            });
+        }
+
+        function handleFileName(e, input) {
+            const [file] = e.target.files;
+            if (!file) {
+                e.preventDefault();
+                return;
+            }
+            const { size, type } = file;
+            if (
+                type !== "application/pdf" && type !== "application/wps-office.pdf" &&
+                type !== "image/jpg" && type !== "image/jpeg" && type !== "image/png"
+            ) {
+                e.preventDefault();
+                throw "not the right type"
+            } else {
+                console.log("file valid")
+            }
+            document.querySelector("#fileName").innerHTML = input.files[0].name;
+            handleImagePreview(input.files[0]);
+        }
+
+        function handleImagePreview(file) {
+            document.querySelector("#previewImage").setAttribute("src", URL.createObjectURL(file))
+        }
+
+        function showFormStepCustomer(step) {
+            const allStepIndicators = document.querySelectorAll("#customerForm .multipart-indicator")
+            const allStepForm = document.querySelectorAll("#customerForm .multipart-form")
+
+            const _step = step - 1;
+
+            allStepIndicators.forEach((item, index) => {
+                item.classList.remove("active");
+                allStepForm[index].classList.remove("active");
+            })
+
+            allStepIndicators[_step].classList.add("active")
+            allStepForm[_step].classList.add("active")
+        }
+
+        function validateOtherDetails() {
+            let validFlag = true;
+            if (paymentDropdown.getSelected()[0].length === 0) {
+                document.querySelector("#Paymenttermid").classList.add("is-invalid");
+                validFlag = false;
+            } else {
+                document.querySelector("#Paymenttermid").classList.remove("is-invalid");
+            }
+
+            if (currencyDropdown.getSelected()[0].length === 0) {
+                document.querySelector("#Currencyid").classList.add("is-invalid");
+                validFlag = false;
+            } else {
+                document.querySelector("#Currencyid").classList.remove("is-invalid");
+            }
+
+            if (validFlag) {
+                showFormStepCustomer(2);
+            }
+        }
+
+        function handleCustomerSubmit(e) {
+            e.preventDefault();
+
+            const isFirstNameValid = validateField("#Firstname");
+            const isLastNameValid = validateField("#Lastname");
+            const isCompanyNameValid = validateField("[name='Companyname']");
+            const isCompanyEmailValid = validateField("[name='Companyemail']");
+            const isCountryValid = validateField("#countryDropdown");
+            const isStateValid = validateField("#stateDropdown");
+            const isCityValid = validateField("#cityDropdown");
+            const isPhoneFirst = validateField("[name='Phone1']");
+            const isPhoneSecond = validateField("[name='Phone2']");
+
+
+            if (!isFirstNameValid || !isLastNameValid || !isCompanyNameValid || !isCompanyEmailValid || !isCityValid || !isCountryValid || !isStateValid || !isPhoneFirst || !isPhoneSecond) {
+                return;
+            }
+
+            document.querySelector("#loader").style.display = "flex";
+
+            const fData = new FormData(document.querySelector("#customerForm"));
+
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("CreateCustomer", "ProjectProjection")",
+                data: fData,
+                contentType: false,
+                processData: false,
+                success: function (res) {
+                    console.log(res);
+                    const _newCustomer = JSON.parse(res?.data)
+                    addNewCustomerOption(_newCustomer?.data?.customerId, _newCustomer?.data?.customerName);
+                    handleCloseModal("customer");
+                    HSOverlay.open(document.querySelector("#extend-contract-modal"));
+                    $("#loader").hide();
+                    if (res.success == true) {
+                        toastr.success(res.msg);
+        @* setTimeout(() => {
+                        window.location.href = "/ProjectProjection/Index"
+                        }, 1000) *@
+                                                                            } else {
+                        toastr.error(res.msg);
+                        $("#loader").hide();
+        @* window.location.href = "/ProjectProjection/Index" *@
+                                                                                                            }
+                }
+            });
+
+        }
+
+        function addNewCustomerOption(value, text) {
+            if (!value || !text) return;
+            const newOption = document.createElement('option');
+            newOption.value = value;
+            newOption.textContent = text;
+
+            // Append the new option to the select element
+            customerMultiSelect.selectEl.appendChild(newOption);
+        }
+
+        const resourceMultiSelectArray = [];
+        const skillMultiSelectArray = [];
+
+        HSDropdown.on("open", (dropdown) => {
+            console.log(dropdown);
+            const rowIndex = Number(dropdown.closest("tr").getAttribute("data-index"));
+            const skillId = Number(dropdown.closest("tr").getAttribute("data-skillid"));
+            skillMultiSelectArray[rowIndex].setSelected(skillId);
+            skillMultiSelectArray[rowIndex].disable();
+
+        })
+
+        HSDropdown.on("close", (dropdown) => {
+            dropdown.querySelector("#benchOnlyResources").checked = false;
+            dropdown.querySelector("#contractstartdate").value = '';
+            dropdown.querySelector("#contractenddate").value = '';
+        })
+
+        function getEmployee(inp) {
+            const rowIndex = Number(inp.closest("tr").getAttribute("data-index"));
+            const skillId = inp.value;
+            if (skillId == '0') {
+                return;
+            }
+            $.ajax({
+                url: '@Url.Action("GetEmployeeBySkills", "Base")',
+                type: 'GET',
+                data: {
+                    skillId: skillId,
+                },
+                success: function (data) {
+        @*  var $resourceDropdown = $('#resource');
+                    $resourceDropdown.empty();
+                    $resourceDropdown.append($('<option>', {
+                    value: '',
+                    text: '---Select Resource---'
+                    })); *@
+
+
+                                    const dropdowndata = [{ text: "Select Resource", value: '0' }];
+                    if (!data.length) {
+                        toastr.error("No Resource for this Skill");
+                        resourceMultiSelectArray[rowIndex].setData(dropdowndata);
+                        return;
+                    }
+                    data.forEach(item => {
+                        dropdowndata.push({
+                            text: item?.text,
+                            value: item?.value
+                        })
+                    })
+                    resourceMultiSelectArray[rowIndex].setData(dropdowndata);
+                    console.log(data);
+
+        @*  $.each(data, function (index, resource) {
+                    $resourceDropdown.append($('<option>', {
+                    value: resource.employeeId,
+                    text: resource.employeeName
+                    }));
+                    }); *@
+                                         },
+                error: function () {
+                    alert('Failed to load skills.');
+                }
+            });
+        }
+
+        function RemoveActionIfRequestSend(btn) {
+            console.log(btn);
+            const allRequestTr = btn.closest("tbody").querySelector("tr.resourceProject[data-requestsent='true']");
+            console.log(allRequestTr);
+            if (allRequestTr) {
+                btn.closest("table").closest("tr").previousElementSibling.querySelector("td:last-child").innerHTML = "";
+            }
+        }
+
+        function handleBenchOnly(inp) {
+            const rowIndex = Number(inp.closest("tr").getAttribute("data-index"));
+
+            if (inp.checked) {
+                //skillMultiSelect.disable();
+                //skillMultiSelect.setSelected("0");
+                document.querySelector("#loader").style.display = "flex";
+
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("GetBenchResources", "Employee")',
+                    contentType: false,
+                    processData: false,
+                    success: function (res) {
+                        document.querySelector("#loader").style.display = "none";
+                        console.log(res);
+                        resourceMultiSelectArray[rowIndex].setData(res);
+                    },
+                    error: function (err) {
+                        document.querySelector("#loader").style.display = "none";
+                        console.log(err);
+                        toastr.error("Error fetching bench resources");
+                    }
+                });
+            } else {
+                // skillMultiSelect.enable();
+                resourceMultiSelectArray[rowIndex].setData([{ text: "Select Resource", value: "0" }])
+            }
+        }
+
+    </script>
+}

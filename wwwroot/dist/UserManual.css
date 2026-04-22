@@ -1,0 +1,221 @@
+﻿:root {
+    --color-1: #00cc83;
+    --color-dark-1: #001016;
+    --color-dark-2: #002a2d;
+    --color-orange: #F99944;
+}
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+.bg-green-1 {
+    background-color: var(--color-1);
+}
+
+.color-green-1 {
+    color: var(--color-1);
+}
+
+.bg-dark-1 {
+    background-color: var(--color-dark-1);
+}
+
+.color-dark-1 {
+    color: var(--color-dark-1);
+}
+
+.bg-dark-2 {
+    background-color: var(--color-dark-2);
+}
+
+.color-dark-2 {
+    color: var(--color-dark-2);
+}
+
+.bg-orange-1 {
+    background-color: var(--color-orange);
+}
+
+.color-orange-1 {
+    color: var(--color-orange);
+}
+
+body {
+    font-family: sans-serif;
+    background-color: #f2f3f8;
+}
+
+section.hero {
+    background-color: #001016;
+}
+
+section.steps {
+    background-color: #002A2D;
+}
+
+section.presales .container {
+    background-color: #002A2D;
+}
+
+section.footer img {
+    width: 8rem;
+    height: auto;
+    margin-bottom: -4rem;
+}
+
+section.footer img {
+    position: relative;
+    top: -5rem;
+}
+
+.heading-icon {
+    width: 4rem;
+    height: 4rem;
+}
+
+.visit_btn {
+    text-decoration: none;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    position: relative;
+    z-index: 1;
+}
+
+    .visit_btn::after {
+        content: "";
+        position: absolute;
+        right: -.5rem;
+        top: 0;
+        bottom: 0;
+        margin-block: auto;
+        width: 2rem;
+        height: 2rem;
+        background-color: var(--color-1);
+        z-index: -1;
+        border-radius: 5rem;
+        transition: all .5s ease;
+    }
+
+    .visit_btn:hover::after {
+        width: 8rem;
+    }
+
+.timesheet_features {
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+}
+
+.timesheet_feature_card img {
+    height: 12rem;
+    width: auto;
+    margin-bottom: .5rem;
+}
+
+.timesheet_dashboard {
+    background: linear-gradient(to bottom, var(--color-dark-2) 25%, #f2f3f8 25%);
+}
+
+section.faq {
+    background: linear-gradient(to bottom, var(--color-dark-2) 20rem, #f2f3f8 20rem);
+}
+
+.faq_container {
+}
+
+.faq_question {
+    color: #16502C;
+}
+
+.faq_answer {
+    max-height: 0px;
+    overflow: hidden;
+    color: #393A51;
+    font-weight: 500;
+}
+
+.faq_container:has(input[type='checkbox']:checked) + .faq_answer {
+    max-height: 500px;
+    transition: max-height 1s ease;
+}
+
+.faq_container svg path:first-child {
+    fill: #16502C;
+}
+
+.faq_container .faq-icons {
+    width: 2rem;
+    height: 2rem;
+    flex-shrink: 0;
+}
+
+.faq_container .faq_shrink_icon {
+    display: none;
+}
+
+.faq_container:has(input[type='checkbox']:checked) .faq_shrink_icon {
+    display: block;
+}
+
+.faq_container:has(input[type='checkbox']:checked) .faq_expand_icon {
+    display: none;
+}
+
+.highlight_one {
+    position: relative;
+    z-index: 1;
+}
+
+    .highlight_one::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        margin-block: auto;
+        background-color: #007ACC;
+        width: 5rem;
+        height: 5rem;
+        border-radius: 50%;
+        z-index: -1;
+        transform: translateX(-15%);
+    }
+
+.highlight_two {
+    position: relative;
+    z-index: 1;
+}
+
+    .highlight_two::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        margin-inline: auto;
+        background-color: var(--color-orange);
+        height: 1rem;
+        border-radius: 50%;
+        z-index: -1;
+    }
+
+
+.faq_img {
+    width: 15%;
+    height: auto;
+    position: absolute;
+    /* top: 0; */
+    transform: translateY(-100%);
+}
+
+    .faq_img.img_one {
+        left: 0;
+    }
+
+    .faq_img.img_two {
+        right: 0;
+    }

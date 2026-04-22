@@ -1,0 +1,63 @@
+﻿.sidebar.shrinked .logo_text {
+    display: none;
+}
+
+.sidebar.shrinked .menu-item-text {
+    display: none;
+}
+
+.sidebar.shrinked {
+    width: 5rem;
+    padding-left: .5rem;
+    padding-right: .5rem;
+}
+
+    .sidebar.shrinked .menu-item {
+        justify-content: center;
+    }
+
+    .sidebar.shrinked .logo {
+        justify-content: center;
+    }
+
+    .sidebar.shrinked + .header {
+        width: calc(100vw - 5rem);
+    }
+
+:has(.sidebar.shrinked) .main {
+    padding-left: 6rem;
+}
+
+.open-mobile-sidebar {
+    display: none;
+}
+
+@media screen and (max-width: 1000px) {
+    .sidebar {
+        display: none;
+    }
+
+    .header {
+        width: 100vw !important;
+    }
+
+    .main {
+        padding-left: 1rem !important;
+    }
+
+    .sidebar-toggle {
+        display: none;
+    }
+
+    .open-mobile-sidebar {
+        display: inline-flex;
+    }
+}
+
+.dh-checklist-fill textarea {
+    display: none !important;
+}
+
+.dh-checklist-fill:has(input:checked) textarea {
+    display: block !important;
+}

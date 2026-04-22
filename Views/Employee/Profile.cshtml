@@ -1,0 +1,872 @@
+﻿@model RMS.Client.Models.Employee.Profile
+@section PageStyles {
+    <style>
+        .ss-main.multi-select {
+            min-width: 18rem;
+        }
+
+        .skill-remove {
+            top: 0;
+            right: 0;
+            opacity: 0;
+            pointer-events: none;
+            background-color: white;
+            padding-left: .5rem;
+            transform: scale(0);
+            transition: all .125s ease;
+            transform-origin: top right;
+        }
+
+        .skill-card:hover .skill-remove {
+            opacity: 1;
+            pointer-events: all;
+            transform: scale(1)
+        }
+
+        .secondary-skills-wrapper.selfOnly .managerRating {
+            display: none;
+        }
+
+        .secondary-skills-wrapper.selfOnly .selfRating {
+            display: inline-flex;
+        }
+
+        .secondary-skills-wrapper.managerOnly .managerRating {
+            display: inline-flex;
+        }
+
+        .secondary-skills-wrapper.managerOnly .selfRating {
+            display: none;
+        }
+    </style>
+}
+@{
+    var colList = new List<string> { "Contract Start Date", "Contract End Date", "Practice", "Sub-Practice", "Project Type", "Customer", "Delivery Anchor", "Status", "Action" };
+    var employeeid = ViewBag.Employeeid;
+    var role = Context.Session.GetString("RoleName");
+}
+<input type="hidden" value="@employeeid" id="hiddenEmployeeId"/>
+<div class="flex items-center gap-4 mb-4">
+    <button onclick="window.history.back();" class="py-2 px-2 inline-flex justify-center items-center gap-2 rounded-md border border-gray-400 bg-gray-700 text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all text-sm sm:text-base" title="Back">
+        <svg class="w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M11.707 5.293a1 1 0 0 1 0 1.414L7.414 11H19a1 1 0 1 1 0 2H7.414l4.293 4.293a1 1 0 0 1-1.414 1.414l-6-6a1 1 0 0 1 0-1.414l6-6a1 1 0 0 1 1.414 0z" /></svg>
+    </button>
+    <div>
+        <h2 class="font-extrabold text-xl 2xl:text-2xl text-[#4B4E5C]">Employee Profile</h2>
+    </div>
+</div>
+<div class="bg-[#f9f9f9] p-4 rounded">
+    <div class="flex gap-4 flex-wrap items-center mb-4">
+        <div class="bg-white rounded p-4 flex gap-4 items-center">
+            <div class="relative w-20 h-20 rounded-full">
+                @* <form id="profilePictureUpdateForm">
+                    <label for="profile-input" class="w-6 h-6 rounded-full bg-slate-600 absolute left-0 top-0 flex">
+                        <input type="file" name="profile" id="profile-input" class="hidden" onchange="handleProfileChange(this);">
+                        <svg class="w-4 h-4 text-white m-auto" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 21h18M12.222 5.828L15.05 3L20 7.95l-2.828 2.828m-4.95-4.95l-5.607 5.607a1 1 0 0 0-.293.707v4.536h4.536a1 1 0 0 0 .707-.293l5.607-5.607m-4.95-4.95l4.95 4.95" /></svg>
+                    </label>
+                </form> *@
+                <img class="w-full h-full object-cover" src="~/assets/images/default_user_icon.png" alt="User Profile">
+            </div>
+            <div>
+                @{
+                    var name = Model.Employeename.Split(' ');
+                }
+
+                <p class="font-bold text-xl">@name[0]</p>
+                <p class="font-bold text-xl">@name[1]</p>
+            </div>
+        </div>
+        <div>
+            <div class="flex items-center gap-x-6 2xl:gap-x-8 gap-y-4 flex-wrap">
+                <p class="whitespace-nowrap">Designation: <span class="font-bold">@Model.DesignationName</span></p>
+                <p class="whitespace-nowrap">TMC: <span class="font-bold">@Model.Userid</span></p>
+                <p class="whitespace-nowrap">Date of joining: <span class="font-bold">@Model.Dateofjoining</span></p>
+                <p class="whitespace-nowrap">Department: <span class="font-bold">@Model.DepartmentName</span></p>
+                <p class="whitespace-nowrap">Location: <span class="font-bold">@Model.BranchName</span></p>
+                <p class="whitespace-nowrap">Reporting Manager: <span class="font-bold">@Model.ReportheadName</span></p>
+            </div>
+            @* <div class="mt-4">
+                <div class="inline-flex bg-white rounded shadow py-3 px-6">
+                    <input type="checkbox" class="shrink-0 mt-0.5 border-gray-200 rounded text-emerald-600 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none" id="resigned-flag">
+                    <label for="resigned-flag" class="text-sm text-gray-500 ms-3">Resigned</label>
+                </div>
+            </div> *@
+        </div>
+    </div>
+    @* <div class="flex flex-wrap items-start justify-between gap-x-4 gap-y-8 mb-6">
+        <div>
+            <div class="flex items-center gap-4 mb-4">
+                <img src="~/assets/images/default_user_icon.png" alt="" class="w-16 h-16 2xl:w-20 2xl:h-20 rounded-full object-cover">
+
+                <div>
+                    <h2 class="font-extrabold text-lg 2xl:text-2xl text-[#4B4E5C]">@Model.EmployeeName</h2>
+                    <h2 class="font-extrabold text-base 2xl:text-xl text-[#4B4E5C]">TMC: @Model.UserId</h2>
+                </div>
+            </div>
+
+        </div>
+        <div>
+            <p>Date of Joining: @Model.DateOfJoining</p>
+            <p>Department: @Model.DepartmentName</p>
+            <p>Location: @Model.BranchName</p>
+            <p>Phone: @Model.ContactNo</p>
+        </div>
+        <div>
+            <p>Email Id: @Model.CompanyEmail</p>
+            <p>DOB: @Model.DateOfBirth</p>
+        </div>
+    </div> *@
+    <h2 class="font-extrabold text-xl text-[#4B4E5C]">Assigned Roles</h2>
+    <div class="roles-wrapper flex items-center gap-2 flex-wrap mt-2">
+        @if (Model.EmployeeRoles != null)
+        {
+            foreach (var rolename in Model.EmployeeRoles) {
+                <span class="px-4 py-2 text-xs bg-white rounded-full border">@rolename.Rolename</span>
+            }
+        }
+    </div>
+
+    <div class="flex flex-col sm:flex-row items-center flex-wrap gap-4 mt-4">
+        <div class="bg-white rounded p-4 col-span-3 flex-[4] w-full">
+            <p class="font-bold mb-2">Contact Details</p>
+            <div class="flex items-center gap-4 flex-wrap">
+                <div>
+                    <p class="text-sm">Phone:</p>
+                    <p class="font-bold">@Model.Contactno</p>
+                </div>
+                <div>
+                    <p class="text-sm">Email Id:</p>
+                    <p class="font-bold">@Model.Companyemail</p>
+                </div>
+                <div>
+                    <p class="text-sm">Date Of Birth:</p>
+                    <p class="font-bold">@Model.Dateofbirth</p>
+                </div>
+            </div>
+        </div>
+        @* <div class="bg-white rounded p-4 col-span-2 flex-[3] w-full">
+            <p class="font-bold mb-2">Demography</p>
+            
+        </div> *@
+        <div class="bg-white rounded p-4 col-span-1 flex-[2] w-full">
+            <p class="font-bold mb-2">Experience</p>
+            <div class="flex items-center gap-4 flex-wrap">
+                <div>
+                    <p class="text-sm">Total Experience:</p>
+                    <p class="font-bold">
+                        @{
+                            try
+                            {
+                                int totalDays = Convert.ToInt32(Model.pastworkexperience) + Convert.ToInt32(Model.teamworkexperience);
+                                int totalYears = totalDays / 365;
+                                int totalMonths = (totalDays % 365) / 30;
+                                int totalRemainingDays = (totalDays % 365) % 30;
+                                @($"{totalYears} Y {totalMonths} M {totalRemainingDays} D")
+                                ;
+                            }
+                            catch (Exception)
+                            {
+                                @("N/A")
+                                // Display a default message in case of an error
+                            }
+                        }
+                    </p>
+                </div>
+                <div>
+                    <p class="text-sm">Past Experience:</p>
+                    <p class="font-bold">
+                        @{
+                            try
+                            {
+                                int pastDays = Convert.ToInt32(Model.pastworkexperience);
+                                int pastYears = pastDays / 365;
+                                int pastMonths = (pastDays % 365) / 30;
+                                int pastRemainingDays = (pastDays % 365) % 30;
+                                @($"{pastYears} Y {pastMonths} M {pastRemainingDays} D")
+                                ;
+                            }
+                            catch (Exception)
+                            {
+                                @("N/A")
+                                // Default message in case of an error
+                            }
+                        }
+                    </p>
+                </div>
+                <div>
+                    <p class="text-sm">Team Computer Experience:</p>
+                    <p class="font-bold">
+                        @{
+                            try
+                            {
+                                int teamDays = Convert.ToInt32(Model.teamworkexperience);
+                                int teamYears = teamDays / 365;
+                                int teamMonths = (teamDays % 365) / 30;
+                                int teamRemainingDays = (teamDays % 365) % 30;
+                                @($"{teamYears} Y {teamMonths} M {teamRemainingDays} D")
+                                ;
+                            }
+                            catch (Exception)
+                            {
+                                @("N/A")
+                                // Default message in case of an error
+                            }
+                        }
+                    </p>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+
+
+
+<div class="mt-4">
+    <nav class="flex space-x-2" aria-label="Tabs" role="tablist">
+                <button type="button"
+                class="hs-tab-active:bg-gray-800 bg-gray-200 hs-tab-active:text-white py-2 px-5 inline-flex items-center gap-2 text-sm font-medium text-center text-gray-500 rounded-lg hover:text-emerald-400 active"
+                id="skills-tab" data-hs-tab="#skills-tab-content"
+                aria-controls="pills-on-gray-color-1" role="tab">
+            Skills
+        </button>
+    </nav>
+
+
+    <div class="mt-3">
+        
+
+        <div id="skills-tab-content" role="tabpanel" aria-labelledby="skills-tab-content">
+            <!-- <div class="mb-4 mt-4">
+                <h2 class="font-extrabold text-xl 2xl:text-2xl text-[#4B4E5C]">Skills</h2>
+                <p>Add Or Update Skills</p>
+            </div> -->
+            <div class="flex flex-col sm:flex-row items-start gap-y-4 gap-x-8 mt-4">
+                <div class="order-2 sm:order-1">
+                    <div class="flex items-center gap-2 mb-4 sm:mb-6">
+                        <h2 class="font-extrabold text-xl text-[#4B4E5C]">Primary Skills</h2>
+                        @* @if (Model?.PrimarySkill != null)
+                        {
+                            <button onclick="handlePrimarySkillEdit();">
+                                <svg class="w-6 h-6 text-slate-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                        <path d="m16.475 5.408l2.117 2.117m-.756-3.982L12.109 9.27a2.118 2.118 0 0 0-.58 1.082L11 13l2.648-.53c.41-.082.786-.283 1.082-.579l5.727-5.727a1.853 1.853 0 1 0-2.621-2.621" />
+                                        <path d="M19 15v3a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h3" />
+                                    </g>
+                                </svg>
+                            </button>
+                        } *@
+                    </div>
+                    <div>
+                        @if (Model?.PrimarySkill != null)
+                        {
+                            <p class="font-semibold mb-1">@Model?.PrimarySkill?.SkillName</p>
+                            <p class="mb-1">Exp: @(Model?.PrimarySkill?.Experinceinmonth.HasValue == true ? ((double)Model.PrimarySkill.Experinceinmonth.Value / 12.0).ToString("0.##") : "N/A") years</p>
+                                <p class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-slate-100 text-sm">
+                                <svg class="w-5 h-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                    <path fill="currentColor" d="m5.825 22l1.625-7.025L2 10.25l7.2-.625L12 3l2.8 6.625l7.2.625l-5.45 4.725L18.175 22L12 18.275z" />
+                                </svg>
+                                @{
+                                    decimal? rating = Model?.PrimarySkill?.ManagerRating != null ? Model?.PrimarySkill?.ManagerRating : 0;
+                                }
+
+                                @rating /5
+                            </p>
+                        }
+                        else
+                        {
+                            @if (role != "Employee") {
+                                <button onclick="handlePrimarySkillEdit();" class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-transparent bg-[#00cc83] text-white hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm 2xl:text-base">
+                                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                                        <path fill="currentColor" d="M16 2A14.172 14.172 0 0 0 2 16a14.172 14.172 0 0 0 14 14a14.172 14.172 0 0 0 14-14A14.172 14.172 0 0 0 16 2Zm8 15h-7v7h-2v-7H8v-2h7V8h2v7h7Z"></path>
+                                        <path fill="none" d="M24 17h-7v7h-2v-7H8v-2h7V8h2v7h7v2z"></path>
+                                    </svg>
+                                    Add Primary Skill
+                                </button>
+                            }
+                        }
+                    </div>
+                </div>
+                <div class="flex-1 order-3 sm:order-2">
+                    <div class="flex items-center gap-2 mb-4 sm:mb-6">
+                        <h2 class="font-extrabold text-xl text-[#4B4E5C]">Secondary Skills</h2>
+                        @if (Model?.SecondarySkill != null && Model?.SecondarySkill.Count > 0)
+                        {
+                            <button onclick="handleSecondarySkillEdit();">
+                                <svg class="w-6 h-6 text-slate-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                        <path d="m16.475 5.408l2.117 2.117m-.756-3.982L12.109 9.27a2.118 2.118 0 0 0-.58 1.082L11 13l2.648-.53c.41-.082.786-.283 1.082-.579l5.727-5.727a1.853 1.853 0 1 0-2.621-2.621" />
+                                        <path d="M19 15v3a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h3" />
+                                    </g>
+                                </svg>
+                            </button>
+                        }
+                    </div>
+                    <div class="secondary-skills-wrapper flex items-center gap-4 flex-wrap selfOnly">
+                        @if (Model?.SecondarySkill != null && Model?.SecondarySkill.Count > 0)
+                        {
+                            foreach (var skill in Model?.SecondarySkill)
+                            {
+                                <div class="relative skill-card">
+                                    <p class="font-semibold mb-1">@skill.SkillName</p>
+                                    <p class="mb-1">Exp: @(((double)(skill.Experinceinmonth ?? 0) / 12.0).ToString("0.##")) years</p>
+
+                                    <p class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-slate-100 text-sm managerRating">
+                                        <svg class="w-5 h-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                            <path fill="currentColor" d="m5.825 22l1.625-7.025L2 10.25l7.2-.625L12 3l2.8 6.625l7.2.625l-5.45 4.725L18.175 22L12 18.275z" />
+                                        </svg>
+
+                                        @{
+                                            decimal? mratings = skill.ManagerRating != null ? skill.ManagerRating : 0;
+                                        }
+                                        @mratings /5
+                                    </p>
+                                    <p class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-emerald-100 text-sm selfRating">
+                                        <svg class="w-5 h-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                            <path fill="currentColor" d="m5.825 22l1.625-7.025L2 10.25l7.2-.625L12 3l2.8 6.625l7.2.625l-5.45 4.725L18.175 22L12 18.275z" />
+                                        </svg>
+
+                                        @{
+                                            decimal? sratings = skill.SelfRating != null ? skill.SelfRating : 0;
+                                        }
+                                        @sratings /5
+                                    </p>
+                                    <div class="absolute skill-remove" onclick="removeSkill(this)" data-employeeskillid="@skill.EmployeeskillId">
+                                        <button>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 1024 1024"><path fill="#ff5252" d="M512 64a448 448 0 1 1 0 896a448 448 0 0 1 0-896M288 512a38.4 38.4 0 0 0 38.4 38.4h371.2a38.4 38.4 0 0 0 0-76.8H326.4A38.4 38.4 0 0 0 288 512" /></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <button onclick="handleSecondarySkillEdit();" class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-transparent bg-gray-700 text-white hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-all text-sm 2xl:text-base">
+                                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                                    <path fill="currentColor" d="M16 2A14.172 14.172 0 0 0 2 16a14.172 14.172 0 0 0 14 14a14.172 14.172 0 0 0 14-14A14.172 14.172 0 0 0 16 2Zm8 15h-7v7h-2v-7H8v-2h7V8h2v7h7Z"></path>
+                                    <path fill="none" d="M24 17h-7v7h-2v-7H8v-2h7V8h2v7h7v2z"></path>
+                                </svg>
+                                Add Secondary Skill
+                            </button>
+                        }
+
+                    </div>
+                </div>
+                <div class="flex items-center gap-4 order-1 sm:order-3 ">
+                    <p class="font-extrabold text-xl text-[#4B4E5C]">Rating</p>
+                    <select name="" id="" class="k-input min-w-[10rem]" onchange="switchRating(this);">
+                        <option value="1">Self</option>
+                        <option value="2">Manager</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div id="add-skill-modal"
+     class="hs-overlay hidden w-full h-full fixed top-0 left-0 z-[60] overflow-x-hidden overflow-y-auto">
+    <div class="hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all md:max-w-4xl md:w-full m-3 md:mx-auto">
+        <div class="flex flex-col bg-white border shadow-sm rounded-xl ">
+            <div class="flex justify-between items-center py-3 px-4 ">
+                <div>
+                    <h3 class="font-bold text-xl">Add Secondary Skills</h3>
+                    <p>Edit or view skill details</p>
+                </div>
+                <button type="button"
+                        class="hs-dropdown-toggle inline-flex flex-shrink-0 justify-center items-center h-8 w-8 rounded-md text-gray-500 hover:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-white transition-all text-sm"
+                        data-hs-overlay="#add-skill-modal">
+                    <span class="sr-only">Close</span>
+                    <svg class="w-3.5 h-3.5" width="8" height="8" viewBox="0 0 8 8" fill="none"
+                         xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0.258206 1.00652C0.351976 0.912791 0.479126 0.860131 0.611706 0.860131C0.744296 0.860131 0.871447 0.912791 0.965207 1.00652L3.61171 3.65302L6.25822 1.00652C6.30432 0.958771 6.35952 0.920671 6.42052 0.894471C6.48152 0.868271 6.54712 0.854471 6.61352 0.853901C6.67992 0.853321 6.74572 0.865971 6.80722 0.891111C6.86862 0.916251 6.92442 0.953381 6.97142 1.00032C7.01832 1.04727 7.05552 1.1031 7.08062 1.16454C7.10572 1.22599 7.11842 1.29183 7.11782 1.35822C7.11722 1.42461 7.10342 1.49022 7.07722 1.55122C7.05102 1.61222 7.01292 1.6674 6.96522 1.71352L4.31871 4.36002L6.96522 7.00648C7.05632 7.10078 7.10672 7.22708 7.10552 7.35818C7.10442 7.48928 7.05182 7.61468 6.95912 7.70738C6.86642 7.80018 6.74102 7.85268 6.60992 7.85388C6.47882 7.85498 6.35252 7.80458 6.25822 7.71348L3.61171 5.06702L0.965207 7.71348C0.870907 7.80458 0.744606 7.85498 0.613506 7.85388C0.482406 7.85268 0.357007 7.80018 0.264297 7.70738C0.171597 7.61468 0.119017 7.48928 0.117877 7.35818C0.116737 7.22708 0.167126 7.10078 0.258206 7.00648L2.90471 4.36002L0.258206 1.71352C0.164476 1.61976 0.111816 1.4926 0.111816 1.36002C0.111816 1.22744 0.164476 1.10028 0.258206 1.00652Z"
+                              fill="currentColor" />
+                    </svg>
+                </button>
+            </div>
+            <div class="p-4 overflow-y-auto">
+                <div style="min-height: 20rem;">
+                    <div class="skill-input-row-wrapper mb-4 max-h-96 overflow-y-auto" id="secondary-row-wrapper">
+                        <div class="skill-input-row grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                            <div>
+                                <label for="">Skill Name</label>
+                                <select name="" id="" class="k-input w-full">
+                                    <option value="">Select Skill</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="">Skill Experience</label>
+                                <select name="" id="" class="k-input w-full">
+                                    <option value="">Select Experience</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="">Skill Rating</label>
+                                <input type="number" name="" id="" class="k-input w-full" max="5" placeholder="Out of 5">
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <button onclick="addSkillRow();" type="button" class="text-white bg-black rounded px-4 py-2 hover:opacity-70">Add</button>
+                    </div>
+                </div>
+                <div class="flex justify-center">
+                    <button type="button" onclick="handleSkillSubmit('secondary')"
+                            class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-emerald-400 bg-[#00cc83] text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm sm:text-base">
+                        Submit
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="add-primary-skill-modal"
+     class="hs-overlay hidden w-full h-full fixed top-0 left-0 z-[60] overflow-x-hidden overflow-y-auto">
+    <div class="hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all md:max-w-4xl md:w-full m-3 md:mx-auto">
+        <div class="flex flex-col bg-white border shadow-sm rounded-xl ">
+            <div class="flex justify-between items-center py-3 px-4 ">
+                <div>
+                    <h3 class="font-bold text-xl">Add Primary Skill</h3>
+                </div>
+                <button type="button"
+                        class="hs-dropdown-toggle inline-flex flex-shrink-0 justify-center items-center h-8 w-8 rounded-md text-gray-500 hover:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-white transition-all text-sm"
+                        data-hs-overlay="#add-primary-skill-modal">
+                    <span class="sr-only">Close</span>
+                    <svg class="w-3.5 h-3.5" width="8" height="8" viewBox="0 0 8 8" fill="none"
+                         xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0.258206 1.00652C0.351976 0.912791 0.479126 0.860131 0.611706 0.860131C0.744296 0.860131 0.871447 0.912791 0.965207 1.00652L3.61171 3.65302L6.25822 1.00652C6.30432 0.958771 6.35952 0.920671 6.42052 0.894471C6.48152 0.868271 6.54712 0.854471 6.61352 0.853901C6.67992 0.853321 6.74572 0.865971 6.80722 0.891111C6.86862 0.916251 6.92442 0.953381 6.97142 1.00032C7.01832 1.04727 7.05552 1.1031 7.08062 1.16454C7.10572 1.22599 7.11842 1.29183 7.11782 1.35822C7.11722 1.42461 7.10342 1.49022 7.07722 1.55122C7.05102 1.61222 7.01292 1.6674 6.96522 1.71352L4.31871 4.36002L6.96522 7.00648C7.05632 7.10078 7.10672 7.22708 7.10552 7.35818C7.10442 7.48928 7.05182 7.61468 6.95912 7.70738C6.86642 7.80018 6.74102 7.85268 6.60992 7.85388C6.47882 7.85498 6.35252 7.80458 6.25822 7.71348L3.61171 5.06702L0.965207 7.71348C0.870907 7.80458 0.744606 7.85498 0.613506 7.85388C0.482406 7.85268 0.357007 7.80018 0.264297 7.70738C0.171597 7.61468 0.119017 7.48928 0.117877 7.35818C0.116737 7.22708 0.167126 7.10078 0.258206 7.00648L2.90471 4.36002L0.258206 1.71352C0.164476 1.61976 0.111816 1.4926 0.111816 1.36002C0.111816 1.22744 0.164476 1.10028 0.258206 1.00652Z"
+                              fill="currentColor" />
+                    </svg>
+                </button>
+            </div>
+            <div class="p-4 overflow-y-auto">
+                <div style="min-height: 10rem;">
+                    <div class="skill-input-row-wrapper mb-4 max-h-96 overflow-y-auto" id="primary-row-wrapper">
+                        <div class="skill-input-row grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                            <div>
+                                <label for="">Skill Name</label>
+                                <select name="" id="" class="k-input w-full">
+                                    <option value="">Select Skill</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="">Skill Experience</label>
+                                <select name="" id="" class="k-input w-full">
+                                    <option value="">Select Experience</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="">Skill Rating</label>
+                                <input type="number" name="" id="" class="k-input w-full" max="5" placeholder="Out of 5">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-center">
+                    <button type="button" onclick="handleSkillSubmit('primary')"
+                            class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-emerald-400 bg-[#00cc83] text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm sm:text-base">
+                        Submit
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div id="hs-profile-update"
+     class="hs-overlay hidden w-full h-full fixed top-0 left-0 z-[60] overflow-x-hidden overflow-y-auto">
+    <div class="hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all md:max-w-4xl md:w-full m-3 md:mx-auto">
+        <div class="flex flex-col bg-white border shadow-sm rounded-xl ">
+            <div class="flex justify-between items-center py-3 px-4 ">
+                <div>
+                    <h3 class="font-bold text-xl">Add Primary Skill</h3>
+                </div>
+                <button type="button"
+                        class="hs-dropdown-toggle inline-flex flex-shrink-0 justify-center items-center h-8 w-8 rounded-md text-gray-500 hover:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-white transition-all text-sm"
+                        data-hs-overlay="#add-primary-skill-modal">
+                    <span class="sr-only">Close</span>
+                    <svg class="w-3.5 h-3.5" width="8" height="8" viewBox="0 0 8 8" fill="none"
+                         xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0.258206 1.00652C0.351976 0.912791 0.479126 0.860131 0.611706 0.860131C0.744296 0.860131 0.871447 0.912791 0.965207 1.00652L3.61171 3.65302L6.25822 1.00652C6.30432 0.958771 6.35952 0.920671 6.42052 0.894471C6.48152 0.868271 6.54712 0.854471 6.61352 0.853901C6.67992 0.853321 6.74572 0.865971 6.80722 0.891111C6.86862 0.916251 6.92442 0.953381 6.97142 1.00032C7.01832 1.04727 7.05552 1.1031 7.08062 1.16454C7.10572 1.22599 7.11842 1.29183 7.11782 1.35822C7.11722 1.42461 7.10342 1.49022 7.07722 1.55122C7.05102 1.61222 7.01292 1.6674 6.96522 1.71352L4.31871 4.36002L6.96522 7.00648C7.05632 7.10078 7.10672 7.22708 7.10552 7.35818C7.10442 7.48928 7.05182 7.61468 6.95912 7.70738C6.86642 7.80018 6.74102 7.85268 6.60992 7.85388C6.47882 7.85498 6.35252 7.80458 6.25822 7.71348L3.61171 5.06702L0.965207 7.71348C0.870907 7.80458 0.744606 7.85498 0.613506 7.85388C0.482406 7.85268 0.357007 7.80018 0.264297 7.70738C0.171597 7.61468 0.119017 7.48928 0.117877 7.35818C0.116737 7.22708 0.167126 7.10078 0.258206 7.00648L2.90471 4.36002L0.258206 1.71352C0.164476 1.61976 0.111816 1.4926 0.111816 1.36002C0.111816 1.22744 0.164476 1.10028 0.258206 1.00652Z"
+                              fill="currentColor" />
+                    </svg>
+                </button>
+            </div>
+            <div class="p-4 overflow-y-auto">
+                <div class="p-4 sm:p-14 text-center overflow-y-auto">
+                    <img src="~/assets/images/default_user_icon.png" class="w-20 h-auto" />
+
+                    <h3 class="mb-2 text-2xl font-bold text-gray-800 dark:text-neutral-200">
+                        Cookies!
+                    </h3>
+                    <p class="text-gray-500 dark:text-neutral-500">
+                        This website uses cookies to make your experience better.
+                    </p>
+                </div>
+
+                <div class="flex items-center">
+                    <button type="button" class="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-es-xl border border-transparent bg-gray-100 text-gray-800 hover:bg-gray-200 disabled:opacity-50 disabled:pointer-events-none dark:bg-white/10 dark:hover:bg-white/20 dark:text-white dark:hover:text-white" data-hs-overlay="#hs-cookies">
+                        Cancel
+                    </button>
+                    <button type="button" class="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-ee-xl border border-transparent bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none" data-hs-overlay="#hs-cookies">
+                        Update
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts{
+    <script type="text/javascript">
+        const secondarySkills = @Html.Raw(Json.Serialize(Model?.SecondarySkill)) || [];
+        const primarySkill = [@Html.Raw(Json.Serialize(Model.PrimarySkill))];
+        // const primarySkill = [];
+
+        const skillList = @Html.Raw(Json.Serialize(ViewBag.skilllist));
+
+        @if (ViewData["error"] != null)
+        {
+            <text>
+                toastr.error("@ViewData["error"]", "Error", { "iconClass": 'new-error' });
+            </text>
+        }
+        @if (ViewData["success"] != null)
+        {
+            <text>
+                toastr.success("@ViewData["success"]");
+            </text>
+        }
+
+                                                                                                const datatable = new DataTable("#tblProjects", {
+            scrollX: true,
+        });
+
+ 
+
+        function addSkillRow() {
+            const newRow = document.createElement("div");
+            // <div class="skill-input-row grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+            //                 </div>
+            newRow.classList.add("skill-input-row", "grid", "grid-cols-1", "sm:grid-cols-3", "gap-4", "mb-4");
+            newRow.innerHTML = `<div>
+                                                                                            <label for="">Skill Name</label>
+                                                                                            <select name="" id="" class="k-input w-full" onchange="handleSkillSelect(this);">
+                                                                                                <option value="">Select Skill</option>
+                                                                                                ${getSkillOptions()}
+                                                                                            </select>
+                                                                                        </div>
+                                                                                        <div>
+                                                                                            <label for="">Skill Experience</label>
+                                                                                            <input type="number" class="k-input w-full experience" />
+                                                                                        </div>
+                                                                                        <div>
+                                                                                            <label for="">Skill Rating</label>
+                                                                                            <div class="flex items-center gap-2">
+                                                                                                <input type="number" name="" id="" class="k-input w-full rating" max="5" placeholder="Out of 5">
+                                                                                                <button onclick="deleteRow(this);" class="py-3 px-4 inline-flex justify-center items-center gap-2 rounded-md border-2 border-red-200 font-semibold text-red-500 hover:text-white hover:bg-red-500 hover:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-200 focus:ring-offset-2 transition-all text-sm">
+                                                                                                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024"><path fill="currentColor" d="M360 184h-8c4.4 0 8-3.6 8-8v8h304v-8c0 4.4 3.6 8 8 8h-8v72h72v-80c0-35.3-28.7-64-64-64H352c-35.3 0-64 28.7-64 64v80h72v-72zm504 72H160c-17.7 0-32 14.3-32 32v32c0 4.4 3.6 8 8 8h60.4l24.7 523c1.6 34.1 29.8 61 63.9 61h454c34.2 0 62.3-26.8 63.9-61l24.7-523H888c4.4 0 8-3.6 8-8v-32c0-17.7-14.3-32-32-32zM731.3 840H292.7l-24.2-512h487l-24.2 512z"/></svg>
+                                                                                                </button>
+                                                                                            </div>
+                                                                                        </div>`;
+            document.querySelector("#secondary-row-wrapper").appendChild(newRow);
+        }
+
+        function deleteRow(btn) {
+            btn.closest(".skill-input-row").remove();
+        }
+
+        function handlePrimarySkillEdit() {
+            setExistingSkillsInModal(primarySkill, "primary");
+            HSOverlay.open(document.querySelector("#add-primary-skill-modal"));
+        }
+
+        function handleSecondarySkillEdit() {
+            setExistingSkillsInModal(secondarySkills, "secondary");
+            HSOverlay.open(document.querySelector("#add-skill-modal"));
+        }
+
+        function setExistingSkillsInModal(skills, modal) {
+            if (!modal || !skills) return;
+            if (modal === "primary") {
+                setExistingPrimary(skills);
+            } else {
+                setExistingSecondary(skills);
+            }
+        }
+
+        function setExistingPrimary(skills) {
+            document.querySelector("#primary-row-wrapper").innerHTML = "";
+            if (skills.length) {
+                skills.forEach(item => {
+                    const skillRow = getSkillRow(item?.skillId, item?.experinceinmonths, item?.managerRating, item?.employeeSkillId);
+                    document.querySelector("#primary-row-wrapper").appendChild(skillRow);
+                })
+            } else {
+                const skillRow = getSkillRow();
+                document.querySelector("#primary-row-wrapper").appendChild(skillRow);
+            }
+        }
+
+        function setExistingSecondary(skills) {
+            // if (!skills.length) return;
+            document.querySelector("#secondary-row-wrapper").innerHTML = "";
+            if (skills.length) {
+                skills.forEach(item => {
+                    const skillRow = getSkillRow(item?.skillId, item?.experinceinmonth, item?.selfRating, item?.employeeskillId);
+                    document.querySelector("#secondary-row-wrapper").appendChild(skillRow);
+                })
+            } else {
+                const skillRow = getSkillRow();
+                document.querySelector("#secondary-row-wrapper").appendChild(skillRow);
+            }
+        }
+
+        function getSkillRow(skillId = 0, experience = 0, rating = 0, rowId) {
+            const row = document.createElement("div");
+            row.classList.add("skill-input-row", "grid", "grid-cols-1", "sm:grid-cols-3", "gap-4", "mb-4");
+            row.setAttribute("data-rowid", rowId);
+            row.setAttribute("id", Date.now());
+            row.innerHTML = `<div>
+                                                                        <label for="">Skill Name</label>
+                                                                        <select name="" id="" class="k-input w-full">
+                                                                            <option value="0">Select Skill</option>
+                                                                            ${getSkillOptions(skillId)}
+                                                                        </select>
+                                                                    </div>
+                                                                    <div>
+                                                                        <label for="">Skill Experience (In Months)</label>
+                                                                        <input type="number" class="k-input w-full experience" value="${experience ? experience : ""}" />
+                                                                    </div>
+                                                                    <div>
+                                                                        <label for="">Skill Rating</label>
+        <input type="number" name="" id="" class="k-input w-full rating" max="5" placeholder="Out of 5" value="${rating ? rating : ""}"
+            oninput="this.value = this.value > 5 ? 5 : (this.value < 0 ? 0 : this.value)">                                                                    </div>`;
+
+            return row;
+        }
+
+        function getSkillOptions(skillId = 0) {
+            let skillOptionStr = '';
+            skillList.forEach(item => {
+                skillOptionStr += `<option value="${item?.value}" ${skillId == item?.value ? "selected" : ""}>${item?.text}</option>`;
+            })
+            return skillOptionStr;
+        }
+
+
+        function handleSkillSubmit(type) {
+            if (type === "primary") {
+                primarySkillSubmit();
+            } else {
+                secondarySkillSubmit();
+            }
+        }
+
+        function validateRows(rows) {
+            let flag = true;
+            if (!rows || !rows.length) return !flag;
+
+            const skillRowData = {};
+
+            rows.forEach((item, index) => {
+                const skillInp = item.querySelector("select");
+                const expInp = item.querySelector("input.experience");
+                const ratingInp = item.querySelector("input.rating");
+
+
+                if (!skillInp.value || skillInp.value === '0') {
+                    skillInp.classList.add("is-invalid");
+                    flag = false;
+                } else {
+                    skillInp.classList.remove("is-invalid");
+                    if (skillRowData[`${skillInp.value}`]) {
+                        skillRowData[`${skillInp.value}`] = [...skillRowData[`${skillInp.value}`], { rowInd: index }]
+                    } else {
+                        skillRowData[`${skillInp.value}`] = [{ rowInd: index }];
+                    }
+                }
+
+                if (!expInp.value || Number(expInp.value) <= 0) {
+                    expInp.classList.add("is-invalid");
+                    flag = false;
+                } else {
+                    expInp.classList.remove("is-invalid");
+                }
+
+                if (!ratingInp.value || Number(ratingInp.value) <= 0 || Number(ratingInp.value) > 5) {
+                    ratingInp.classList.add("is-invalid");
+                    flag = false;
+                } else {
+                    ratingInp.classList.remove("is-invalid");
+                }
+            })
+
+            Object.keys(skillRowData).forEach(item => {
+                if (skillRowData[`${item}`].length > 1) {
+                    flag = false;
+                    skillRowData[`${item}`].forEach(r => {
+                        rows[r.rowInd].querySelector("select").classList.add("is-invalid");
+                    })
+                }
+            })
+
+            return flag;
+        }
+
+        function primarySkillSubmit() {
+            const allRows = document.querySelectorAll("#primary-row-wrapper .skill-input-row");
+            const isValid = validateRows(allRows);
+            if (!isValid) return;
+            $('#loader').show();
+            const formSkillData = [];
+            allRows.forEach(item => {
+                const _formSkillDataItem = {
+                    Skillid: item.querySelector("select").value,
+                    Experinceinmonths: item.querySelector("input.experience").value,
+                    Selfreting: item.querySelector("input.rating").value,
+                    Employeeid: $("#hiddenEmployeeId").val(),
+                    isPrimary: true,
+                }
+                const rowId = item.getAttribute("data-rowid");
+                if (rowId && rowId !== 'undefined') {
+                    _formSkillDataItem.employeeSkillId = rowId;
+                }
+                formSkillData.push(_formSkillDataItem);
+            })
+
+            const fdata = new FormData();
+            fdata.append("jobject", JSON.stringify(formSkillData));
+
+            $.ajax({
+                url: "@Url.Action("UpdateSkill", "Employee")",
+                type: "POST",
+                cache: false,
+                data: fdata,
+                contentType: false,
+                processData: false,
+                success: function (res) {
+                    console.log(res);
+                    if (res.success == true) {
+                        //
+                        // HSOverlay.close(document.querySelector("#prov-billing-overlay"));
+                        window.location.reload();
+                        toastr.success("Primary skills updated")
+                    } else {
+                        $('#loader').hide();
+                        toastr.error(res?.msg);
+                    }
+                },
+                error: function (err) {
+                    toastr.error(err);
+                }
+            });
+        }
+        function secondarySkillSubmit() {
+            const allRows = document.querySelectorAll("#secondary-row-wrapper .skill-input-row");
+            const isValid = validateRows(allRows);
+            if (!isValid) return;
+            $('#loader').show();
+            const formSkillData = [];
+            allRows.forEach(item => {
+                const _formSkillDataItem = {
+                    Skillid: item.querySelector("select").value,
+                    Experinceinmonths: item.querySelector("input.experience").value,
+                    Selfreting: item.querySelector("input.rating").value,
+                    Employeeid: $("#hiddenEmployeeId").val(),
+                }
+                const rowId = item.getAttribute("data-rowid");
+                if (rowId && rowId !== 'undefined') {
+                    _formSkillDataItem.employeeSkillId = rowId;
+                }
+                formSkillData.push(_formSkillDataItem);
+            })
+
+            const fdata = new FormData();
+            fdata.append("jobject", JSON.stringify(formSkillData));
+
+            $.ajax({
+                url: "@Url.Action("UpdateSkill", "Employee")",
+                type: "POST",
+                cache: false,
+                data: fdata,
+                contentType: false,
+                processData: false,
+                success: function (res) {
+                    console.log(res);
+                    if (res.success == true) {
+                        //
+                        // HSOverlay.close(document.querySelector("#prov-billing-overlay"));
+                        window.location.reload();
+                        toastr.success("Secondary skills updated ")
+                    } else {
+                        $('#loader').hide();
+                        toastr.error(res?.msg);
+                    }
+                },
+                error: function (err) {
+                    toastr.error(err);
+                }
+            });
+        }
+
+        function removeSkill(btn) {
+            const employeeSkillId = btn.getAttribute("data-employeeskillid");
+            if (employeeSkillId) {
+                if (!confirm("Do you really want to delete?")) return;
+                const fdata = new FormData();
+                fdata.append("employeeskillid", employeeSkillId);
+                $.ajax({
+                    url: "@Url.Action("DeleteEmployeeSkill", "Employee")",
+                    type: "POST",
+                    cache: false,
+                    data: fdata,
+                    contentType: false,
+                    processData: false,
+                    success: function (res) {
+                        debugger;
+                        const responseContent = JSON.parse(res.data);
+                        console.log(res);
+                        if (responseContent?.responseCode === 200) {
+                            //
+                            // HSOverlay.close(document.querySelector("#prov-billing-overlay"));
+                            window.location.reload();
+                            toastr.success(responseContent?.responseMessage)
+                        } else {
+                            $('#loader').hide();
+                            toastr.error(res?.msg);
+                            window.location.reload();
+                        }
+                    },
+                    error: function (err) {
+                        toastr.error(err);
+                        window.location.reload();
+                    }
+                });
+            }
+        }
+
+        function handleProfileChange() {
+
+        }
+
+        function switchRating(select) {
+            if (select.value === "1") {
+                document.querySelector(".secondary-skills-wrapper").classList.add("selfOnly")
+                document.querySelector(".secondary-skills-wrapper").classList.remove("managerOnly")
+            } else {
+                document.querySelector(".secondary-skills-wrapper").classList.remove("selfOnly")
+                document.querySelector(".secondary-skills-wrapper").classList.add("managerOnly")
+            }
+        }
+    </script>
+}

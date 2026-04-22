@@ -1,0 +1,126 @@
+﻿@model List<RMS.Client.Models.Projection.Projection>
+@{
+    bool lReadPermit = false;
+    bool lWritePermit = false;
+    bool lDeletePermit = false;
+    string role = Context.Session.GetString("RoleName");
+    if (ViewBag.AuthPages != null)
+    {
+        var pages = (List<RMS.Client.Models.Account.AuthorizePages>)ViewBag.AuthPages;
+        var pageFound = pages.FirstOrDefault(x => x.Controller == "Customer");
+        if (pageFound != null)
+        {
+            lReadPermit = pageFound.Isreadpermit ?? false;
+            lWritePermit = pageFound.Iswritepermit ?? false;
+            lDeletePermit = pageFound.Isdeletepermit ?? false;
+        }
+    }
+    var colLists = new List<string>
+{
+    "S.No","Projection Name","Start Date","End Date","Projection Cost","Customer Name", "Action"
+};
+
+}
+
+@* <partial name="~/Views/Shared/Controls/_PageHead.cshtml" model="@(new RMS.Client.Models.Common.PageHead
+{ PageHeading="List of Projection", LinkText="Add Projection", LinkController="Customer", LinkAction="Create", Columns = colLists})" /> *@
+
+
+<div class="flex items-center gap-4 justify-between flex-wrap mb-6">
+    <h2 class="font-extrabold text-xl 2xl:text-2xl text-[#4B4E5C]">Projections</h2>
+    @* <button type="button" data-hs-overlay="#extend-contract-modal"
+    class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-transparent bg-[#00cc83] text-white hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm 2xl:text-base">
+    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+    <path fill="currentColor"
+    d="M16 2A14.172 14.172 0 0 0 2 16a14.172 14.172 0 0 0 14 14a14.172 14.172 0 0 0 14-14A14.172 14.172 0 0 0 16 2Zm8 15h-7v7h-2v-7H8v-2h7V8h2v7h7Z" />
+    <path fill="none" d="M24 17h-7v7h-2v-7H8v-2h7V8h2v7h7v2z" />
+    </svg>
+    Add Projection
+    </button> *@
+</div>
+
+<div class="flex flex-col">
+    <div class="-m-1.5 overflow-x-auto">
+        <div class="p-1.5 min-w-full block align-middle">
+            <div class="overflow-hidden">
+                <table id="tblData" class="last-column-fixed min-w-full divide-y divide-gray-200">
+                    <thead>
+                        <tr>
+                            @foreach (var col in colLists)
+                            {
+                                <th scope="col"
+                                    class="whitespace-nowrap px-2 py-3 text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                    @col
+                                </th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        @if (Model != null)
+                        {
+                            // var sortedModel = Model.OrderByDescending(deal => deal.cr).ToList();
+                            int i = 1;
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800  ">
+                                        @i
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800  ">
+                                        @item.ProjectionName
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800  ">
+                                        @(item.StartDate.HasValue ? item.StartDate.Value.ToString("dd/MM/yyyy") : "")
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800  ">
+                                        @(item.EndDate.HasValue ? item.EndDate.Value.ToString("dd/MM/yyyy") : "")
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800  ">
+                                        @item.ProjectionCost
+                                    </td>
+
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800  ">
+                                        @item.CustomerName
+                                    </td>
+
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800  ">
+                                        <a href="DetailProjection/@item.Projectionid" style="border-radius: 5rem;" class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-transparent bg-[#00cc83] text-white hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm 2xl:text-base">Detailed View</a>
+                                    </td>
+                                </tr>
+                                i++;
+                            }
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        let datatable = new DataTable("#tblData", {
+            scrollX: true,
+            scrollY: '55vh',
+            dom: "lBfrtip",
+            buttons: [{
+                extend: 'excelHtml5',
+                exportOptions: {
+                    trim: false,
+                    stripHtml: false,
+                    format: {
+                        header: function (html, index, node) {
+                            return node.innerText;
+                        },
+                        body: function (data, row, column, node) {
+                            return node.innerText;
+                        }
+                    }
+                }
+            }]
+        });
+
+    </script>
+
+}

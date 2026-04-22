@@ -1,0 +1,436 @@
+﻿@model RMS.Client.Models.Vendor.Vendors
+<div class="flex items-center gap-4 mb-5">
+    <a asp-action="Index" asp-controller="Vendor" class="py-2 px-2 inline-flex justify-center items-center gap-2 rounded-md border border-gray-400 bg-gray-700 text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all text-sm sm:text-base" title="Back">
+        <svg class="w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M11.707 5.293a1 1 0 0 1 0 1.414L7.414 11H19a1 1 0 1 1 0 2H7.414l4.293 4.293a1 1 0 0 1-1.414 1.414l-6-6a1 1 0 0 1 0-1.414l6-6a1 1 0 0 1 1.414 0z" /></svg>
+    </a>
+
+    <div>
+        <h2 class="font-extrabold text-xl 2xl:text-2xl text-[#4B4E5C]">Add/Edit Vendor</h2>
+        <p>Add the required details for the Vendor</p>
+    </div>
+</div>
+<form action="/Vendor/Upsert" method="POST" enctype="multipart/form-data">
+    <div class="mb-4 max-w-2xl flex flex-col sm:flex-row gap-3">
+        <div class="flex-1">
+        <span class="mb-2 font-medium block text-sm 2xl:text-base">Vendor Code*</span>
+        
+            <input type="text" id="VendorCode" name="VendorCode" value="@Model.VendorCode"
+                   class="w-full py-3 px-4 block flex-1 border-gray-200 rounded-md text-xs 2xl:text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                   placeholder="Vendor Code">
+        </div>
+            <div class="flex-1">
+                <span class="mb-2 font-medium block text-sm 2xl:text-base">Vendor Name*</span>
+            <input type="text" id="VendorName" name="VendorName" value="@Model.VendorName"
+                   class="w-full py-3 px-4 block flex-1 border-gray-200 rounded-md text-xs 2xl:text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                   placeholder="Enter Vendor Name">
+           
+            <input type="hidden" id="VendorId" name="VendorId" value="@Model.vendorid">
+        </div>
+        <div class="mb-4 max-w-2xl flex flex-col sm:flex-row gap-3">
+            <div class="flex-1">
+                <span class="mb-2 font-medium block text-sm 2xl:text-base">Vendor Phone</span>
+                <input type="tel" class="w-full py-3 px-4 block flex-1 border-gray-200 rounded-md text-xs 2xl:text-sm focus:border-emerald-500 focus:ring-emerald-500" id="Phone1" name="Phone1" value="@Model.Phone1" placeholder="Enter 10 Digit Mobile No." pattern="[0-9]{10}" maxlength="10" title="Please enter a 10-digit contact number" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);">
+            </div>
+
+        </div>
+    </div>
+    
+    <div class="mb-4 max-w-2xl flex flex-col sm:flex-row gap-3">
+        <div class="flex-1">
+            <span class="mb-2 font-medium block text-sm 2xl:text-base">Contact Person Name*</span>
+            <input type="text"  id="VendorContact" name="vendorcontact" value="@Model.Vendorcontact"
+                   class="w-full py-3 px-4 block flex-1 border-gray-200 rounded-md text-xs 2xl:text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                   placeholder="Vendor Contact Person Name">
+
+        </div>
+        <div class="flex-1">
+            <span class="mb-2 font-medium block text-sm 2xl:text-base">Email*</span>
+            <input type="email" id="Email" name="Email" value="@Model.Email"
+                   class="w-full py-3 px-4 block flex-1 border-gray-200 rounded-md text-xs 2xl:text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                   placeholder="Enter Email">
+        </div>
+
+    </div>
+       
+    <div class="multipart-wrapper">
+        <div class="multipart-indicators-wrapper flex items-center border-b">
+            <div class="multipart-indicator py-2 px-4 active">Other Details</div>
+            <div class="multipart-indicator py-2 px-4">Address</div>
+        </div>
+        <div class="multipart-form-wrapper mt-4">
+            <div class="multipart-form active w-full max-w-2xl flex-col">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <span class="mb-2 font-medium block text-sm 2xl:text-base">PAN</span>
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <input type="text" name="Pannumber" value="@Model.Pannumber"
+                                   class="py-3 px-4 block flex-1 border-gray-200 rounded-md text-xs 2xl:text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                   placeholder="Enter PAN Number">
+                        </div>
+                    </div>
+                    <div>
+                        <input type="hidden" value="@Model.Paymenttermid" id="hiddenPaymenttermId" />
+                       
+
+                        <span class="mb-2 font-medium block text-sm 2xl:text-base">Currency</span>
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <input type="hidden" value="@Model.Currencyid" id="hiddenCurrencyId" />
+
+                            <select id="Currencyid" type="text" name="Currencyid"
+                                    class="multi-select"
+                                    placeholder="Select Currency">
+                                <option value="">Select Currency</option> <!-- Default option -->
+                                @foreach (var item in ViewBag.CurrencyList)
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            </select>
+                        </div>
+
+                    </div>
+                    <div>
+                        <span class="mb-2 font-medium block text-sm 2xl:text-base">GST No.</span>
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <input type="text" name="Gstnumber" value="@Model.Gstnumber"
+                                   class="py-3 px-4 block flex-1 border-gray-200 rounded-md text-xs 2xl:text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                   placeholder="Enter GST Number">
+                        </div>
+                    </div>
+                    <div>
+                        <span class="mb-2 font-medium block text-sm 2xl:text-base">Payment Terms</span>
+
+                        <select id="Paymenttermid" type="text" name="Paymenttermid"
+                                class="multi-select "
+                                placeholder="Enter">
+                            <option value="">Payment Term</option>
+                            @foreach (var item in ViewBag.PaymentTermList)
+                            {
+                                <option value="@item.Value">@item.Text</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="flex gap-3 items-center mt-3">
+                    <button onclick="validateOtherDetails();" type="button" class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-transparent bg-[#00cc83] text-white hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-xs sm:text-sm 2xl:text-base">
+                        Next
+                    </button>
+                </div>
+            </div>
+            <div class="multipart-form w-full max-w-2xl flex-col">
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                    <div>
+                        <span class="mb-2 font-medium block">Country/Region</span>
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <select id="countryDropdown" type="text"
+                                    class="multi-select"
+                                    placeholder="Select Country">
+
+                                <option value="">Country List</option>
+                                @foreach (var item in ViewBag.CountryList)
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="mb-2 font-medium block">State</span>
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <select id="stateDropdown" type="text"
+                                    class="multi-select"
+                                    placeholder="Enter state"></select>
+                        </div>
+                    </div>
+                    <div>
+
+                        <input type="hidden" value="@Model.Cityid" id="hiddenCityId" />
+
+                        <span class="mb-2 font-medium block">City</span>
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <select id="cityDropdown" type="text" name="Cityid"
+                                    class="multi-select"
+                                    placeholder="Select City"></select>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="mb-2 font-medium block">Zipcode</span>
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <input type="text" name="Zipcode" value="@Model.Zipcode"
+                                   class="w-full py-3 px-4 block flex-1 border-gray-200 rounded-md text-xs 2xl:text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                   placeholder="Zip Code">
+                        </div>
+                    </div>
+                    <div class="col-span-1 sm:col-span-2">
+                        <span class="mb-2 font-medium block">Address</span>
+                        <div class="flex items-center gap-3 flex-wrap mb-4">
+                            <input type="text" name="Address1" value="@Model.Address1"
+                                   class="w-full py-3 px-4 block flex-1 border-gray-200 rounded-md text-xs 2xl:text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                   placeholder="Address Line 1">
+                        </div>
+                    </div>
+                    <div class="col-span-1 sm:col-span-2">
+
+                        <span class="mb-2 font-medium hidden sm:block text-transparent">Address2</span>
+                        <input type="text" name="Address2" value="@Model.Address2"
+                               class="py-3 w-full px-4 block flex-1 border-gray-200 rounded-md text-xs 2xl:text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                               placeholder="Address Line 2">
+                    </div>
+                </div>
+                <div class="flex gap-3 items-center">
+                    <button type="button" class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-gray-400 bg-gray-700 text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all text-sm sm:text-base" onclick="showFormStep(1);">Prev</button>
+                    <button type="submit" class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-transparent bg-[#00cc83] text-white hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-xs sm:text-sm 2xl:text-base" onclick="handleSubmit(event)">
+                        Save
+                    </button>
+                </div>
+                <p class="text-sm text-gray-400 mt-2">After saving the details you can add projects for the new vendor</p>
+            </div>
+        </div>
+    </div>
+</form>
+@section Scripts {
+    <script>
+        $(function () {
+        @if (ViewData["error"] != null)
+        {
+            <text>
+                    toastr.error("@ViewData["error"]", "Error", { "iconClass": 'new-error' });
+            </text>
+        }
+        @if (ViewData["success"] != null)
+        {
+            <text>
+                    toastr.success("@ViewData["success"]");
+            </text>
+        }
+
+        });
+        const multiSelect = new SlimSelect({
+            select: "#Paymenttermid",
+            settings: {
+                allowDeselect: false,
+                closeOnSelect: true,
+                maxValuesShown: 1
+            }
+        })
+        const multiSelect1 = new SlimSelect({
+            select: "#Currencyid",
+            settings: {
+                allowDeselect: false,
+                closeOnSelect: true,
+                maxValuesShown: 1
+            }
+        })
+        const multiSelect4 = new SlimSelect({
+            select: "#countryDropdown",
+            settings: {
+                allowDeselect: false,
+                closeOnSelect: true,
+                maxValuesShown: 1
+            }
+        })
+        $(document).ready(async () => {
+            const vendorId = '@Model.VendorId';
+            console.log(vendorId);
+            if (vendorId) {
+
+                const currencyVal = '@Model.Currencyid';
+                console.log(currencyVal);
+
+                if (currencyVal) {
+
+                    document.querySelector("#Currencyid").value = currencyVal;
+                }
+
+                const paymentVal = '@Model.Paymenttermid';
+                console.log(paymentVal);
+                if (paymentVal) {
+                    document.querySelector("#Paymenttermid").value = paymentVal;
+                }
+
+                const countryVal = '@Model.countryId';
+                console.log(countryVal);
+                console.log(countryVal);
+                if (countryVal) {
+                    document.querySelector("#countryDropdown").value = countryVal;
+                    document.querySelector("#countryDropdown").dispatchEvent(new Event("change"));
+
+                    const stateVal = '@Model.stateId';
+                    console.log(stateVal);
+                    if (stateVal) {
+                        setTimeout(() => {
+                            document.querySelector("#stateDropdown").value = stateVal;
+                            document.querySelector("#stateDropdown").dispatchEvent(new Event("change"));
+
+                            const cityVal = '@Model.Cityid';
+                            console.log(cityVal);
+                            if (cityVal) {
+                                setTimeout(() => {
+                                    document.querySelector("#cityDropdown").value = cityVal;
+                                }, 1000)
+                            }
+                        }, 1000)
+                    }
+                }
+            } else {
+
+            }
+
+
+            if (document.querySelector("#hiddenCurrencyId").value) {
+                multiSelect1.setSelected(document.querySelector("#hiddenCurrencyId").value)
+            }
+            if (document.querySelector("#hiddenPaymenttermId").value) {
+                multiSelect.setSelected(document.querySelector("#hiddenPaymenttermId").value)
+            }
+        });
+
+        function showFormStep(step) {
+            const allStepIndicators = document.querySelectorAll(".multipart-indicator")
+            const allStepForm = document.querySelectorAll(".multipart-form")
+
+            const _step = step - 1;
+
+            allStepIndicators.forEach((item, index) => {
+                item.classList.remove("active");
+                allStepForm[index].classList.remove("active");
+            })
+
+            allStepIndicators[_step].classList.add("active")
+            allStepForm[_step].classList.add("active")
+        }
+        const countryDropdown = document.getElementById('countryDropdown');
+        const stateDropdown = document.getElementById('stateDropdown');
+        countryDropdown.addEventListener('change', async () => {
+            const selectedCountryId = countryDropdown.value;
+            stateDropdown.innerHTML = '<option value="">Select State</option>'; // Clear state options
+
+            if (selectedCountryId) {
+                const response = await fetch(`/Base/GetState?countryId=${selectedCountryId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    // console.log(data);
+                    const stateData = [{ text: "Select State", value: "" }];
+                    data.forEach(country => {
+                        const _countryVal = {
+                            text: country?.text,
+                            value: country?.value
+                        }
+                        stateData.push(_countryVal);
+                    })
+                    console.log(stateDropdown);
+                    stateSelect.setData(stateData);
+
+                    // Clear the stateDropdown and then add options
+                    stateDropdown.innerHTML = '<option value="">Select State</option>';
+
+                    data.forEach(item => {
+                        const option = document.createElement('option');
+                        option.value = item.value;
+                        option.textContent = item.text;
+                        stateDropdown.appendChild(option);
+                    });
+
+                } else {
+                    console.error('Error fetching state data:', response.statusText);
+                }
+            }
+        });
+        const cityDropdown = document.getElementById('cityDropdown');
+
+        stateDropdown.addEventListener('change', async () => {
+            const selectedStateId = stateDropdown.value;
+            cityDropdown.innerHTML = '<option value="">Select City</option>'; // Clear city options
+
+            if (selectedStateId) {
+                const response = await fetch(`/Base/GetCity?StateId=${selectedStateId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log(data);
+                    // Clear the cityDropdown and then add options
+                    // cityDropdown.innerHTML = '<option value="">Select City</option>';
+                    const cityData = [{ text: "Select City", value: "" }];
+                    data.forEach(item => {
+                        cityData.push({ text: item?.text, value: item?.value });
+                    });
+
+                    citySelect.setData(cityData);
+
+                    if (document.querySelector("#hiddenCityId").value) {
+                        console.log(document.querySelector("#hiddenCityId").value)
+                        citySelect.setSelected(document.querySelector("#hiddenCityId").value)
+                    }
+
+
+
+                } else {
+                    console.error('Error fetching city data:', response.statusText);
+                }
+            }
+        });
+        function validateOtherDetails() {
+            let validFlag = true;
+            if (multiSelect.getSelected()[0].length === 0) {
+                document.querySelector("#Paymenttermid").classList.add("is-invalid");
+                validFlag = false;
+            } else {
+                document.querySelector("#Paymenttermid").classList.remove("is-invalid");
+            }
+
+            if (multiSelect1.getSelected()[0].length === 0) {
+                document.querySelector("#Currencyid").classList.add("is-invalid");
+                validFlag = false;
+            } else {
+                document.querySelector("#Currencyid").classList.remove("is-invalid");
+            }
+
+            if (validFlag) {
+                showFormStep(2);
+            }
+        }
+        function validateField(fieldName) {
+            const field = document.querySelector(fieldName);
+            const value = field.value.trim();
+
+            if (value === "") {
+                field.classList.add("is-invalid");
+                return false;
+            } else {
+                field.classList.remove("is-invalid");
+                return true;
+            }
+        }
+        function handleSubmit(e) {
+            const isVendorPointOfContact = validateField("#VendorCode");
+            const isVendorContact = validateField("#VendorContact");
+            const isVendorName = validateField("#VendorName");
+            const isVendorEmail = validateField("#Email");
+            const isCountryValid = validateField("#countryDropdown");
+            const isStateValid = validateField("#stateDropdown");
+            const isCityValid = validateField("#cityDropdown");
+
+            if (!isVendorPointOfContact || !isVendorContact || !isVendorName || !isVendorEmail || !isCityValid || !isCountryValid || !isStateValid) {
+                e.preventDefault();
+            }
+            else {
+                document.querySelector("#loader").style.display = "flex";
+            }
+        }
+        const stateSelect = new SlimSelect({
+            select: "#stateDropdown",
+            settings: {
+                allowDeselect: false,
+                closeOnSelect: true,
+                maxValuesShown: 1
+            }
+        })
+
+        const citySelect = new SlimSelect({
+            select: "#cityDropdown",
+            settings: {
+                allowDeselect: false,
+                closeOnSelect: true,
+                maxValuesShown: 1
+            }
+        })
+    </script>
+ }

@@ -1,0 +1,650 @@
+﻿@model RMS.Client.Models.Dashboard.HRDashboard
+@{
+    bool lReadPermit = false;
+    bool lWritePermit = false;
+    bool lDeletePermit = false;
+    bool extracolumn = false;
+    if (ViewBag.AuthPages != null)
+    {
+        var pages = (List<RMS.Client.Models.Account.AuthorizePages>)ViewBag.AuthPages;
+        var pageFound = pages.FirstOrDefault(x => x.Controller == "Employee");
+        if (pageFound != null)
+        {
+            lReadPermit = pageFound.Isreadpermit ?? false;
+            lWritePermit = pageFound.Iswritepermit ?? false;
+            lDeletePermit = pageFound.Isdeletepermit ?? false;
+        }
+    }
+    var colLists = new List<string> { "TMC", "Resource Name", "Practice", "Reporting Head", "Project Name", "Project Type", "Current Month Billing", "Customer Name", "DA", "SubPractice", "Resource Status" };
+    //if (lReadPermit)
+    //    colLists.Add("Detailed View");
+
+    if (lWritePermit)
+        colLists.Add("Edit");
+}
+
+@section PageStyles {
+    <style>
+        .activeSubTab {
+            border-color: rgb(5 150 105);
+        }
+    </style>
+}
+
+<partial name="~/Views/Shared/Controls/_PageHead.cshtml" model="@(new RMS.Client.Models.Common.PageHead
+{ PageHeading="List of Employees", ShowCreateButton=false, Columns = colLists, extracolumn=true})" />
+
+
+<input type="hidden" id="hidRowLevel" value="@(ViewBag.RowLevel  == true ? "true" : "false")" />
+
+
+
+
+<div class="border-b border-gray-200 overflow-x-auto">
+    <nav class="flex space-x-2 bg-[#fafafa]" aria-label="Tabs" role="tablist">
+        <button type="button" onclick="fnShowEmployee(this)" data-type="1"
+                class="hs-tab-active:font-semibold hs-tab-active:border-emerald-600 py-2 px-5 inline-flex items-baseline gap-2 border-b-[3px] border-transparent text-sm whitespace-nowrap text-gray-500 hover:text-emerald-600 active"
+                id="tabs-with-underline-item-1" data-hs-tab="#tabs-with-underline-1"
+                aria-controls="tabs-with-underline-1" role="tab">
+            <img class="h-4 w-auto" src="~/assets/images/total-projects-icon.svg" alt="">
+            <div>
+                <span class="text-base font-semibold block text-left">Total Employees</span>
+                <span class="text-2xl font-extrabold block text-left" id="totalcount">@Model.EmployeeCount</span>
+            </div>
+        </button>
+        <button type="button" onclick="fnShowEmployee(this)" data-type="2"
+                class="hs-tab-active:font-semibold hs-tab-active:border-emerald-600 py-2 px-5 inline-flex items-baseline gap-2 border-b-[3px] border-transparent text-sm whitespace-nowrap text-gray-500 hover:text-emerald-600"
+                id="tabs-with-underline-item-2" data-hs-tab="#tabs-with-underline-1"
+                aria-controls="tabs-with-underline-2" role="tab">
+            <img class="h-4 w-auto" src="~/assets/images/total-employees-icon.svg" alt="">
+            <div>
+                <span class="text-base font-semibold block text-left">Overrun Employees</span>
+                <span class="text-2xl font-extrabold block text-left" id="overruncount">@Model.EmployeeOverrun</span>
+            </div>
+        </button>
+        <button type="button" onclick="fnShowEmployee(this)" data-type="3"
+                class="hs-tab-active:font-semibold hs-tab-active:border-emerald-600 py-2 px-5 inline-flex items-baseline gap-2 border-b-[3px] border-transparent text-sm whitespace-nowrap text-gray-500 hover:text-emerald-600"
+                id="tabs-with-underline-item-3" data-hs-tab="#tabs-with-underline-1"
+                aria-controls="tabs-with-underline-3" role="tab">
+            <img class="h-4 w-auto" src="~/assets/images/overrun-employees-icon.svg" alt="">
+            <div>
+                <span class="text-base font-semibold block text-left">On Bench Employees</span>
+                <span class="text-2xl font-extrabold block text-left" id="benchcount">@Model.EmployeeOnbench</span>
+            </div>
+        </button>
+        <button type="button" onclick="fnShowEmployee(this)" data-type="4"
+                class="hs-tab-active:font-semibold hs-tab-active:border-emerald-600 py-2 px-5 inline-flex items-baseline gap-2 border-b-[3px] border-transparent text-sm whitespace-nowrap text-gray-500 hover:text-emerald-600"
+                id="tabs-with-underline-item-3" data-hs-tab="#tabs-with-underline-1"
+                aria-controls="tabs-with-underline-3" role="tab">
+            <img class="h-4 w-auto" src="~/assets/images/onbench-employees-icon.svg" alt="">
+            <div>
+                <span class="text-base font-semibold block text-left">Deployed Employees</span>
+                <span class="text-2xl font-extrabold block text-left" id="deployedcount">@Model.EmployeeDeployed</span>
+            </div>
+        </button>
+        @if (ViewBag.RowLevel != null && ViewBag.RowLevel == true)
+        {
+            //<div class="flex my-2 justify-end ml-auto">
+            //    <div class="flex items-center">
+            //        <input type="checkbox" id="chkAllEmp" class="relative w-11 h-6 p-px bg-gray-100 border-transparent text-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:ring-emerald-600 disabled:opacity-50 disabled:pointer-events-none checked:bg-none checked:text-emerald-600 checked:border-emerald-600 focus:checked:border-emerald-600 before:inline-block before:w-5 before:h-5 before:bg-white checked:before:bg-emerald-200 before:absolute before:top-0 before:bottom-0 before:my-auto before:translate-x-0 checked:before:translate-x-full before:rounded-full before:shadow before:transform before:ring-0 before:transition before:ease-in-out before:duration-200">
+            //        <label for="hs-small-switch" class="text-sm text-gray-500 ms-3">Show All</label>
+            //    </div>
+            //</div>
+            <div class="flex justify-end" style="margin-left: auto; margin-right: 1rem;">
+                <div class="flex items-center">
+                    <input type="checkbox" id="chkAllEmp" class="relative w-[3.25rem] h-7 p-px bg-black border-transparent text-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:ring-emerald-600 disabled:opacity-50 disabled:pointer-events-none checked:bg-none checked:text-emerald-600 checked:border-emerald-600 focus:checked:border-emerald-600 before:absolute before:top-0 before:bottom-0 before:my-auto before:inline-block before:w-6 before:h-6 before:bg-white checked:before:bg-emerald-200 before:translate-x-0 checked:before:translate-x-full before:rounded-full before:shadow before:transform before:ring-0 before:transition before:ease-in-out before:duration-200">
+                    <label for="chkAllEmp" class="text-sm text-gray-500 ms-3">Show All</label>
+                </div>
+            </div>
+        }
+
+    </nav>
+</div>
+
+
+
+<div class="mt-3">
+    <div id="tabs-with-underline-1" role="tabpanel" aria-labelledby="tabs-with-underline-item-1">
+        <div class="subTabs hidden">
+            <nav class="flex space-x-2 bg-[#fafafa]" aria-label="Tabs" role="tablist">
+                <button type="button"
+                        class="hs-tab-active:font-semibold hs-tab-active:border-emerald-600 py-2 px-5 inline-flex items-center gap-2 border-b-[3px] border-transparent text-sm whitespace-nowrap text-gray-500 hover:text-emerald-600 active innerTab"
+                        id="benchFreshers"
+                        aria-controls="tabs-with-underline-1" data-hs-tab="#null" role="tab" onclick="toggleInnerActive(this)">
+                    @* <img class="h-4 w-auto" src="~/assets/images/total-projects-icon.svg" alt=""> *@
+                    <svg class="h-6 w-auto" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 36 36"><circle cx="16.86" cy="9.73" r="6.46" fill="currentColor" /><path fill="currentColor" d="M21 28h7v1.4h-7z" /><path fill="currentColor" d="M15 30v3a1 1 0 0 0 1 1h17a1 1 0 0 0 1-1V23a1 1 0 0 0-1-1h-7v-1.47a1 1 0 0 0-2 0V22h-2v-3.58a32.12 32.12 0 0 0-5.14-.42a26 26 0 0 0-11 2.39a3.28 3.28 0 0 0-1.88 3V30Zm17 2H17v-8h7v.42a1 1 0 0 0 2 0V24h6Z" /></svg>
+                    <div class="flex items-center gap-2">
+                        <span class="text-base font-semibold block text-left">Freshers</span>
+                        <span class="flex items-center justify-center rounded-full bg-emerald-500 px-2" style="width: auto; height: 1.25rem; color: white; font-size: .75rem;" id="benchfreshercount">@Model.BenchFreshersCount</span>
+                    </div>
+                </button>
+                <button type="button" data-type="1"
+                        class="hs-tab-active:font-semibold hs-tab-active:border-emerald-600 py-2 px-5 inline-flex items-center gap-2 border-b-[3px] border-transparent text-sm whitespace-nowrap text-gray-500 hover:text-emerald-600 innerTab"
+                        id="benchExperienced"
+                        aria-controls="tabs-with-underline-2" data-hs-tab="#null" role="tab" onclick="toggleInnerActive(this)">
+                    @* <img class="h-4 w-auto" src="~/assets/images/total-employees-icon.svg" alt=""> *@
+                    <svg class="h-6 w-auto" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 36 36"><circle cx="16.86" cy="9.73" r="6.46" fill="currentColor" /><path fill="currentColor" d="M21 28h7v1.4h-7z" /><path fill="currentColor" d="M15 30v3a1 1 0 0 0 1 1h17a1 1 0 0 0 1-1V23a1 1 0 0 0-1-1h-7v-1.47a1 1 0 0 0-2 0V22h-2v-3.58a32.12 32.12 0 0 0-5.14-.42a26 26 0 0 0-11 2.39a3.28 3.28 0 0 0-1.88 3V30Zm17 2H17v-8h7v.42a1 1 0 0 0 2 0V24h6Z" /></svg>
+
+                    <div class="flex items-center gap-2">
+                        <span class="text-base font-semibold block text-left">Experienced</span>
+                        <span class="flex items-center justify-center rounded-full bg-emerald-500 px-2" style="width: auto; height: 1.25rem; color: white; font-size: .75rem;" id="benchexpcount">@Model.BenchExpCount</span>
+                    </div>
+                </button>
+            </nav>
+        </div>
+        <div class="flex flex-col">
+            <div class="-m-1.5 overflow-x-auto">
+                <div class="p-1.5 min-w-full block align-middle">
+                    <div class="overflow-hidden">
+                        <table id="tblEmployee" class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr>
+                                    <th class="hidden"></th>
+                                    @foreach (var col in colLists)
+                                    {
+                                        <th scope="col" style="vertical-align: middle;"
+                                            class="px-4 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                            @col
+                                            @if (col != "Edit" && col != "Resource Status" && col != "Project Name")
+                                            {
+                                                <div style="vertical-align: middle; z-index: 10;" class="filter-dropdown mx-1 hs-dropdown relative sm:inline-flex [--auto-close:inside]">
+                                                    <button id="hs-dropdown-auto-close-inside" type="button" class="hs-dropdown-toggle p-1 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-gray-100 text-gray-800 shadow-sm disabled:opacity-50 disabled:pointer-events-none">
+                                                        <svg class="w-4 h-4 text-gray-800" xmlns="http://www.w3.org/2000/svg"
+                                                             width="512" height="512" viewBox="0 0 512 512">
+                                                            <path fill="currentColor"
+                                                                  d="M472 168H40a24 24 0 0 1 0-48h432a24 24 0 0 1 0 48m-80 112H120a24 24 0 0 1 0-48h272a24 24 0 0 1 0 48m-96 112h-80a24 24 0 0 1 0-48h80a24 24 0 0 1 0 48" />
+                                                        </svg>
+                                                    </button>
+
+                                                    <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 mt-2" aria-labelledby="hs-dropdown-auto-close-inside">
+                                                        <div class="mb-1">
+                                                            <input type="search" oninput="handleFilterSearch(this);" placeholder="Search" class="py-2 px-4 block w-full border-gray-200 rounded-lg text-xs focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                                        </div>
+                                                        <div class="filter-item-list" style="height: 10rem; overflow-y: auto;"></div>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </th>
+                                    }
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200" id="tblEmployeeBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script type="text/javascript">
+        @if (ViewData["error"] != null)
+        {
+            <text>
+                toastr.error("@ViewData["error"]", "Error", { "iconClass": 'new-error' });
+            </text>
+        }
+        @if (ViewData["success"] != null)
+        {
+            <text>
+                toastr.success("@ViewData["success"]");
+            </text>
+        }
+
+            let datatable = new DataTable("#tblEmployee", {
+                scrollX: true,
+                ordering: false,
+                dom: "lBfrtip",
+                buttons: [{
+                    extend: 'excelHtml5',
+                    exportOptions: {
+                        trim: false,
+                        stripHtml: false,
+                        format: {
+                            header: function (html, index, node) {
+                                return node.innerText;
+                            },
+                            body: function (data, row, column, node) {
+                                if (node.querySelector(".status-toggle")) {
+                                    return node.querySelector(".status-toggle").innerText;
+                                }
+                                return node.innerText;
+                            }
+                        }
+                    }
+                }]
+            });
+
+        $(document).ready(function () {
+            fnShowEmployee(1);
+            // setTimeout(() => {
+            // }, 1000)
+
+            $("#chkAllEmp").on("change", function () {
+                if ($(this).prop("checked")) {
+                    fnShowEmployee();
+                } else {
+                    window.location.reload();
+                }
+            });
+
+        });
+
+        function fnShowEmployee(btn) {
+            document.querySelector("#loader").style.display = "flex";
+            var _mode;
+            setTimeout(() => {
+                if (btn) {
+                    _mode = $(btn).attr("data-type");
+                }
+                else {
+                    _mode = document.querySelector("[data-type].active").getAttribute("data-type");
+                }
+
+                var _rowlevel = $("#hidRowLevel").val();
+
+
+                var _all = Boolean(_rowlevel) == true ? $("#chkAllEmp").prop("checked") : true;
+
+                $("#tblEmployeeBody").empty();
+                datatable.destroy();
+
+                var fdata = new FormData();
+                fdata.append("mode", parseInt(_mode));
+                fdata.append("all", _all);
+
+                if (_mode && (_mode === "3")) {
+                    document.querySelector(".subTabs").classList.remove("hidden")
+                } else {
+                    document.querySelector(".subTabs").classList.add("hidden")
+                }
+
+                $.ajax({
+                    async: false,
+                    url: "@Url.Action("GetEmployeeInfo", "Home")",
+                    type: "POST",
+                    cache: false,
+                    data: fdata,
+                    contentType: false,
+                    processData: false,
+                    success: function (data) {
+                        console.log(data);
+                        $('#overruncount').html(data.overrun);
+                        $('#totalcount').html(data.total);
+                        $('#benchcount').html(data.onBench);
+                        $('#deployedcount').html(data.deployed);
+                        $('#benchexpcount').html(data.benchExpCount);
+                        $('#benchfreshercount').html(data.benchFreshersCount);
+                        var _htmlBody = '';
+                        var result = data.employees;
+                        console.log(result);
+
+                        let currentActiveTab = null;
+                        if (document.querySelector(".innerTab.active").id === "benchFreshers") {
+                            currentActiveTab = "Fresher"
+                        } else if (document.querySelector(".innerTab.active").id === "benchExperienced") {
+                            currentActiveTab = "Experienced";
+                        }
+                        for (i = 0; i < result.length; i++) {
+                            if (_mode === "3") {
+                                // console.log(result[i]?.experience);
+                            // if(result[i]?.Experience)
+                                if (result[i]?.experience != currentActiveTab) {
+                                    continue;
+                                }
+                            }
+                            if (result[i].employeeProjects.length > 0) {
+                                for (j = 0; j < result[i].employeeProjects.length; j++) {
+                                    let _currentMonthContractBilling = null;
+                                    if (result[i].employeeProjects[j]?.contractbillings.length) {
+                                        _currentMonthContractBilling = result[i].employeeProjects[j]?.contractbillings.filter(item => item.billingMonthYear === getCurrentMonthStr());
+                                    } else {
+                                        _currentMonthContractBilling = [{ costing: 0 }]
+                                    }
+                                    _htmlBody += '<tr>';
+                                    _htmlBody += `    <td class="hidden" data-empid="${result[i].employeeid}"></td>`;
+                                    _htmlBody += '    <td class="px-4 py-4 text-sm font-medium text-gray-800 ">' + result[i].tmcId + '</td>';
+                                    _htmlBody += `    <td class="px-4 py-4 text-sm ${result[i]?.udf3 === '1' ? 'text-red-500' : 'text-gray-800'}">` + result[i].employeename + '</td>';
+
+                                    _htmlBody += '    <td class="px-4 py-4 text-sm text-gray-800 ">' + (result[i].employeeProjects[j].practicename == null ? "" : result[i].employeeProjects[j].practicename) + '</td>';
+                                    _htmlBody += '    <td class="px-4 py-4 text-sm text-gray-800 ">' + result[i].reporthead + '</td>';
+                                    _htmlBody += '    <td class="px-4 py-4 text-sm text-gray-800 ">' + (result[i].categorySubStatusName !== "Bench" ? result[i].employeeProjects[j].projectname == null ? result[i].employeeProjects[j].customerCompanyname == null ? "" : result[i].employeeProjects[j].customerCompanyname : result[i].employeeProjects[j].projectname : "") + '</td>';
+                                    _htmlBody += '    <td class="px-4 py-4 text-sm text-gray-800 ">' + (result[i].categorySubStatusName !== "Bench" ? result[i].employeeProjects[j].projecttypename == null ? "" : result[i].employeeProjects[j].projecttypename : "") + '</td>';
+
+                                    _htmlBody += '    <td class="px-4 py-4 text-sm text-gray-800 ">' + result[i].employeeProjects[j].billingCosting + '</td>';
+                                    //_htmlBody += '    <td class="px-4 py-4 text-sm text-gray-800 ">' + _currentMonthContractBilling[0].costing + '</td>';
+                                    _htmlBody += '    <td class="px-4 py-4 text-sm text-gray-800 ">' + (result[i].categorySubStatusName !== "Bench" ? result[i].employeeProjects[j].customerCompanyname == null ? "" : result[i].employeeProjects[j].customerCompanyname : "") + '</td>';
+
+                                    if (result[i].employeeProjects[j] && result[i].employeeProjects[j].contracts[0]) {
+                                        _htmlBody += '    <td class="px-4 py-4 text-sm text-gray-800 ">' + result[i].employeeProjects[j].contracts[0].deliveryAnchorName + '</td>';
+                                    } else {
+                                        _htmlBody += '    <td class="px-4 py-4 text-sm text-gray-800 ">N/A</td>';
+                                    }
+
+                                    _htmlBody += '    <td class="px-4 py-4 text-sm text-gray-800 ">' + (result[i].categorySubStatusName !== "Bench" ? result[i].employeeProjects[j].subpracticename == null ? result[i].costcenter : result[i].employeeProjects[j].subpracticename : result[i].costcenter) + '</td>';
+                                    _htmlBody += '    <td class="px-4 py-4 text-sm text-gray-800 ">';
+
+
+                                    if (result[i].employeeProjects[j]?.categorysubstatusname == "Bench" || result[i].employeeProjects[j]?.categorysubstatusname == "Released" || result[i].employeeProjects.length == 0 || result[i].categorySubStatusName == "Bench") {
+                                        _htmlBody += '<span class="status onbench">Onbench</span>';
+                                    } else if (result[i].employeeProjects[j]?.categorysubstatusname == "Deployed") {
+                                        _htmlBody += '<span class="status deployed">Deployed</span>';
+                                    } else if (result[i].employeeProjects[j]?.categorysubstatusname == "Over Run") {
+                                        _htmlBody += '<span class="status overrun">Over Run</span>';
+                                    } else if (result[i].categorySubStatusName == "Maternity Leave") {
+                                        _htmlBody += '<span class="status maternityleave">Maternity Leave</span>';
+                                    } else if (result[i].categorySubStatusName == "Leave Without Pay") {
+                                        _htmlBody += '<span class="status lwp">LWP</span>';
+                                    } else if (result[i].employeeProjects[j]?.categorysubstatusname == "Projection") {
+                                        _htmlBody += '<span class="status projection">Projection</span>';
+                                    } else if (result[i].employeeProjects[j]?.categorysubstatusname == "Shadow") {
+                                        _htmlBody += '<span class="status shadow">Shadow</span>';
+                                    }
+
+                                    _htmlBody += '    </td>';
+
+                                    if (@lWritePermit.ToString().ToLower() == true) {
+                                        _htmlBody += '    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">';
+                                        _htmlBody += '        <a href="/Employee/Update?id=' + result[i].employeeid + '"';
+                                        _htmlBody += '                class="inline-flex flex-shrink-0 justify-center items-center gap-2 h-6 w-6 rounded-md border border-transparent font-medium bg-white text-gray-700 shadow-sm align-middle hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-white transition-all text-xs"';
+                                        _htmlBody += '          >';
+                                        _htmlBody += '            <svg class="w-5 h-5 text-gray-800 hover:text-emerald-500"';
+                                        _htmlBody += '                    xmlns="http://www.w3.org/2000/svg" width="24" height="24"';
+                                        _htmlBody += '                    viewBox="0 0 24 24">';
+                                        _htmlBody += '                <g fill="none">';
+                                        _htmlBody += '                    <path d="M24 0v24H0V0h24ZM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.01-.009-.017-.017-.018Zm.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.01-.02-.02-.022Zm-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.02.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01l-.184-.092Z" />';
+                                        _htmlBody += '                    <path fill="currentColor"';
+                                        _htmlBody += '                            d="M13 3a1 1 0 0 1 .117 1.993L13 5H5v14h14v-8a1 1 0 0 1 1.993-.117L21 11v8a2 2 0 0 1-1.85 1.995L19 21H5a2 2 0 0 1-1.995-1.85L3 19V5a2 2 0 0 1 1.85-1.995L5 3h8Zm6.243.343a1 1 0 0 1 1.497 1.32l-.083.095l-9.9 9.899a1 1 0 0 1-1.497-1.32l.083-.094l9.9-9.9Z" />';
+                                        _htmlBody += '                </g>';
+                                        _htmlBody += '            </svg>';
+                                        _htmlBody += '        </button>';
+                                        _htmlBody += '    </td>';
+                                    }
+
+                                    _htmlBody += '</tr>';
+                                }
+                            }
+                            else {
+                                _htmlBody += '<tr>';
+
+                                _htmlBody += `    <td class="hidden" data-empid="${result[i].employeeid}"></td>`;
+                                _htmlBody += '    <td class="px-4 py-4 text-sm font-medium text-gray-800 ">' + result[i].tmcId + '</td>';
+                                _htmlBody += `    <td class="px-4 py-4 text-sm ${result[i]?.udf3 === '1' ? 'text-red-500' : 'text-gray-800'}">` + result[i].employeename + '</td>';
+                                _htmlBody += '    <td class="px-4 py-4 text-sm text-gray-800 ">' + (result[i].practiceName == null ? "" : result[i].practiceName) + '</td>';
+                                _htmlBody += '    <td class="px-4 py-4 text-sm text-gray-800 ">' + result[i].reporthead + '</td>';
+                                _htmlBody += '    <td class="px-4 py-4 text-sm text-gray-800 "></td>';
+                                _htmlBody += '    <td class="px-4 py-4 text-sm text-gray-800 "></td>';
+                                _htmlBody += '    <td class="px-4 py-4 text-sm text-gray-800 "></td>';
+                                _htmlBody += '    <td class="px-4 py-4 text-sm text-gray-800 "></td>';
+                                _htmlBody += '    <td class="px-4 py-4 text-sm text-gray-800 "></td>';
+                                _htmlBody += '    <td class="px-4 py-4 text-sm text-gray-800 ">' + result[i].costcenter + '</td>';
+
+                                _htmlBody += '    <td class="px-4 py-4 text-sm text-gray-800 ">';
+
+                                if (result[i]?.categorySubStatusName == "Released" || result[i].categorySubStatusName == "Bench" || result[i].categorySubStatusName == "onbench") {
+                                    _htmlBody += '<span class="status onbench">Onbench</span>';
+                                } else if (result[i]?.categorySubStatusName == "Deployed") {
+                                    _htmlBody += '<span class="status deployed">Deployed</span>';
+                                } else if (result[i]?.categorySubStatusName == "Over Run") {
+                                    _htmlBody += '<span class="status overrun">Over Run</span>';
+                                } else if (result[i].categorySubStatusName == "Maternity Leave") {
+                                    _htmlBody += '<span class="status maternityleave">Maternity Leave</span>';
+                                } else if (result[i].categorySubStatusName == "Leave Without Pay") {
+                                    _htmlBody += '<span class="status lwp">LWP</span>';
+                                }
+
+
+                                if (@lWritePermit.ToString().ToLower() == true) {
+                                    _htmlBody += '    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">';
+                                    _htmlBody += '        <a href="/Employee/Update?id=' + result[i].employeeid + '"';
+                                    _htmlBody += '                class="inline-flex flex-shrink-0 justify-center items-center gap-2 h-6 w-6 rounded-md border border-transparent font-medium bg-white text-gray-700 shadow-sm align-middle hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-white transition-all text-xs"';
+                                    _htmlBody += '          >';
+                                    _htmlBody += '            <svg class="w-5 h-5 text-gray-800 hover:text-emerald-500"';
+                                    _htmlBody += '                    xmlns="http://www.w3.org/2000/svg" width="24" height="24"';
+                                    _htmlBody += '                    viewBox="0 0 24 24">';
+                                    _htmlBody += '                <g fill="none">';
+                                    _htmlBody += '                    <path d="M24 0v24H0V0h24ZM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.01-.009-.017-.017-.018Zm.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.01-.02-.02-.022Zm-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.02.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01l-.184-.092Z" />';
+                                    _htmlBody += '                    <path fill="currentColor"';
+                                    _htmlBody += '                            d="M13 3a1 1 0 0 1 .117 1.993L13 5H5v14h14v-8a1 1 0 0 1 1.993-.117L21 11v8a2 2 0 0 1-1.85 1.995L19 21H5a2 2 0 0 1-1.995-1.85L3 19V5a2 2 0 0 1 1.85-1.995L5 3h8Zm6.243.343a1 1 0 0 1 1.497 1.32l-.083.095l-9.9 9.899a1 1 0 0 1-1.497-1.32l.083-.094l9.9-9.9Z" />';
+                                    _htmlBody += '                </g>';
+                                    _htmlBody += '            </svg>';
+                                    _htmlBody += '        </button>';
+                                    _htmlBody += '    </td>';
+                                }
+
+                                _htmlBody += '</tr>';
+                            }
+                        }
+
+                        $("#tblEmployeeBody").html(_htmlBody);
+                        $("#loader").hide();
+                        console.log("htmldone");
+                        datatable = new DataTable("#tblEmployee", {
+                            ordering: false,
+                            scrollX: true,
+                            scrollY: '45vh',
+                            dom: "lBfrtip",
+                            destroy: true,
+                            buttons: [{
+                                extend: 'excelHtml5',
+                                exportOptions: {
+                                    trim: false,
+                                    stripHtml: false,
+                                    format: {
+                                        header: function (html, index, node) {
+                                            return node.innerText;
+                                        },
+                                        body: function (data, row, column, node) {
+                                            if (node.querySelector(".status-toggle")) {
+                                                return node.querySelector(".status-toggle").innerText;
+                                            }
+                                            return node.innerText;
+                                        }
+                                    }
+                                }
+                            }],
+                            "fnInitComplete": function (oSettings, json) {
+                                const _dt = this.api();
+                                console.log("initdone")
+                                // $("#loader").hide();
+                                document.querySelector("#loader").style.display = "none";
+                                // docu
+                                const allTh = document.querySelectorAll(".dataTables_scrollHead table thead th");
+                                const allThWithFilter = [];
+                                Array.from(allTh).forEach((item, index) => {
+                                    if (item.querySelector(".hs-dropdown")) {
+                                        allThWithFilter.push({ item, index });
+                                    }
+                                });
+                                console.log(allThWithFilter);
+                                allThWithFilter.forEach(item => {
+                                    // console.log(Number(item.index));
+                                    const column = _dt.columns(Number(item.index)).data().unique().sort();
+                                    // const column = document.querySelectorAll(`td:nth-child(${item.index + 1})`);
+                                    const uniqueColumnContentSet = new Set();
+
+                                    column[0].forEach(colItem => {
+                                        if (colItem.includes("hs-dropdown")) {
+                                            const tempElem = document.createElement("div");
+                                            tempElem.innerHTML = colItem;
+                                            uniqueColumnContentSet.add(tempElem.querySelector("button span").innerText);
+                                        } else if (colItem.includes("span")) {
+                                            const tempElem = document.createElement("div");
+                                            tempElem.innerHTML = colItem;
+                                            uniqueColumnContentSet.add(tempElem.innerText.trim());
+                                        } else {
+                                            uniqueColumnContentSet.add(colItem.trim());
+                                        }
+                                    });
+
+                                    const uniqueColumnContent = Array.from(uniqueColumnContentSet).sort();
+
+                                    console.log(uniqueColumnContent);
+
+                                    const dropdownBody = item?.item.querySelector(".hs-dropdown-menu .filter-item-list");
+                                    dropdownBody.innerHTML = "";
+                                    uniqueColumnContent.forEach(dItem => {
+                                        const dropdownItem = document.createElement("div");
+                                        dropdownItem.classList.add("relative", "flex", "items-start", "py-2", "px-3", "rounded-lg", "hover:bg-gray-100", "filter-item");
+                                        let checkBoxId = `chk-${Math.floor(Math.random() * 9999999)}`;
+                                        dropdownItem.innerHTML = `<div class="flex items-center">
+                                                                        <input value="${dItem}" id="${checkBoxId}" type="checkbox" class="shrink-0 border-gray-200 rounded text-emerald-600 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                                                    </div>
+                                                                    <label for="${checkBoxId}" class="flex-1 ms-2">
+                                                                        <span class="block text-xs text-gray-800">${dItem}</span>
+                                                                    </label>`;
+                                        dropdownBody.appendChild(dropdownItem);
+                                    })
+                                    if (!dropdownBody.nextElementSibling) {
+                                        dropdownBody.parentElement.innerHTML += `<div class="flex gap-2"><button onclick="clearFilter(this, ${item?.index});" class="flex mt-2 w-full items-center justify-center gap-x-3.5 py-2 px-3 rounded-lg text-xs text-gray-800 bg-gray-100 hover:bg-gray-50 focus:outline-none focus:bg-gray-100">Clear</button><button onclick="filterTable(this, ${item?.index});" class="flex mt-2 w-full items-center justify-center gap-x-3.5 py-2 px-3 rounded-lg text-xs text-gray-800 bg-gray-100 hover:bg-gray-50 focus:outline-none focus:bg-gray-100" href="#">Apply</button></div>`
+                                    }
+                                })
+                            }
+                        });
+                    },
+                    error: function (err) {
+
+                    }
+                });
+            }, 200);
+
+        }
+
+        function getCurrentMonthStr() {
+            const _currentDate = new Date();
+            return _currentDate.toLocaleString('default', { month: 'short' }) + "-" + String(_currentDate.getFullYear()).match(/.{1,2}/g)[1];
+        }
+
+        function changeStatus(btn) {
+            const empId = btn.closest("tr").querySelector("td").getAttribute("data-empid");
+            const _status = btn.getAttribute("data-status");
+            const dropdownMenu = btn.parentElement;
+            if (!_status) {
+                return;
+            }
+            if (_status === "LWP") {
+                changeEmpStatus(empId, 8);
+                btn.closest(".hs-dropdown").querySelector(".status-toggle").classList.remove("overrun", "onbench", "ml", "deployed");
+                btn.closest(".hs-dropdown").querySelector(".status-toggle").classList.add("lwp");
+                btn.closest(".hs-dropdown").querySelector(".status-toggle span").innerText = "LWP";
+                dropdownMenu.innerHTML = "";
+                dropdownMenu.innerHTML = `<button onclick="changeStatus(this);" data-status="ML" class="w-full flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-blue-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100">
+                                                                    Maternity Leave
+                                                                </button>
+                                                                <button onclick="changeStatus(this);" data-status="On Bench" class="w-full flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-red-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100">
+                                                                    On Bench
+                                                                </button>`;
+
+            } else if (_status === "ML") {
+                changeEmpStatus(empId, 7);
+                btn.closest(".hs-dropdown").querySelector(".status-toggle").classList.remove("deployed", "onbench", "overrun", "lwp");
+                btn.closest(".hs-dropdown").querySelector(".status-toggle").classList.add("ml");
+                btn.closest(".hs-dropdown").querySelector(".status-toggle span").innerText = "Maternity Leave";
+                dropdownMenu.innerHTML = "";
+                dropdownMenu.innerHTML = `<button onclick="changeStatus(this);" data-status="LWP" class="w-full flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-emerald-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100">
+                                                                    Leave Without Pay
+                                                                </button>
+                                                                <button onclick="changeStatus(this);" data-status="On Bench" class="w-full flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-red-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100">
+                                                                    On Bench
+                                                                </button>`;
+            }
+            else if (_status === "On Bench") {
+                changeEmpStatus(empId, 10);
+                btn.closest(".hs-dropdown").querySelector(".status-toggle").classList.remove("deployed", "overrun", "lwp", "ml");
+                btn.closest(".hs-dropdown").querySelector(".status-toggle").classList.add("onbench");
+                btn.closest(".hs-dropdown").querySelector(".status-toggle span").innerText = "On Bench";
+                dropdownMenu.innerHTML = "";
+                dropdownMenu.innerHTML = `<button onclick="changeStatus(this);" data-status="LWP" class="w-full flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-emerald-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100">
+                                                                    Leave Without Pay
+                                                                </button>
+                                                                <button onclick="changeStatus(this);" data-status="ML" class="w-full flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-blue-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100">
+                                                                    Maternity Leave
+                                                                </button>`;
+            }
+        }
+
+        function filterTable(btn, colInd) {
+            const values = [];
+            btn.closest(".hs-dropdown").querySelectorAll("input:checked").forEach(chkbox => {
+                values.push(chkbox.value);
+            })
+            HSDropdown.close(btn.closest(".hs-dropdown"));
+            setTimeout(() => {
+                console.log(values.join("|"))
+                if (values.length) {
+                    datatable.columns(Number(colInd)).search('^' + values.join("|") + '$', true, false).draw();
+                } else {
+                    datatable.columns(Number(colInd)).search("", true, false).draw();
+                }
+            }, 200)
+        }
+
+        function clearFilter(btn, colInd) {
+            btn.closest(".hs-dropdown").querySelectorAll("input:checked").forEach(chkbox => {
+                chkbox.checked = false;
+            })
+            btn.closest(".hs-dropdown").querySelector("input[type='search']").value = "";
+            const _inpEvent = new Event("input");
+            btn.closest(".hs-dropdown").querySelector("input[type='search']").dispatchEvent(_inpEvent);
+            HSDropdown.close(btn.closest(".hs-dropdown"));
+            setTimeout(() => {
+                datatable.columns(Number(colInd)).search("", true, false).draw();
+            }, 200)
+        }
+
+
+        function changeEmpStatus(empId, statusId) {
+            console.log(empId, statusId);
+
+            var _ProjectAssign = {
+                employeeid: empId,
+                categorysubstatusid: statusId
+            };
+
+            // Convert the JavaScript object to a JSON string
+            var jsonString = JSON.stringify(_ProjectAssign);
+
+            // Make an AJAX POST request
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("Update", "Employee")",
+                data: { jobject: jsonString }, // Send the JSON string as an object property
+                success: function (data) {
+                    console.log(data);
+                    const res = JSON.parse(data.data);
+                    // Redirect to a new page after successful AJAX call
+                    if (res.responseCode === 200) {
+                        console.log(data.data);
+                        setTimeout(() => { window.location.href = "@Url.Action("Index", "Employee")"; }, 1000)
+
+                    } else {
+                        console.log(data);
+                        alert("Error: " + "Something Went Wrong!!"); // Handle errors here
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert("AJAX Request Error: " + errorThrown); // Handle AJAX request errors here
+                }
+            });
+        }
+
+        function handleFilterSearch(input) {
+            const allFilterItems = input.closest(".hs-dropdown-menu").querySelector(".filter-item-list").querySelectorAll("span");
+            allFilterItems.forEach(item => {
+                if (item.innerText.trim().toLowerCase().includes(input.value.trim().toLowerCase())) {
+                    item.closest(".filter-item").style.display = "flex"
+                } else {
+                    item.closest(".filter-item").style.display = "none";
+                }
+            })
+        }
+
+        function toggleInnerActive(btn) {
+            document.querySelector(".innerTab.active").classList.remove("active");
+            btn.classList.add("active");
+
+            fnShowEmployee(document.querySelector("#tabs-with-underline-item-3"))
+        }
+
+    </script>
+}

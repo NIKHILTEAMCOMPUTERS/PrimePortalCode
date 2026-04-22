@@ -1,0 +1,29 @@
+﻿{
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:42821",
+      "sslPort": 44372
+    }
+  },
+  "profiles": {
+    "RMS.Client": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "hotReloadProfile": "aspnetcore",
+      "launchBrowser": true,
+      "applicationUrl": "https://localhost:7145;http://localhost:5172",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+    "IIS Express": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

@@ -1,0 +1,368 @@
+﻿@model IEnumerable<RMS.Client.Models.Timesheet.TimesheetHRDto>;
+@{
+    Layout = "Timesheet";
+    ViewBag.Title = "Team Timesheet";
+    int totalWorkingDays = ViewBag.TotalWorkingDays ?? 0;
+    int totalTimesheetsLeft = ViewBag.TotalTimesheetsLeft ?? 0;
+    string monthName = ViewBag.monthname ?? "N/A";
+    
+    var colLists = new List<string> { "Employee Name", "Reporting Head", "Employee TMC", "Month Year", "Detail Count (Submitted Timesheets)", "Total Working Days", "Total Timesheets Left" };
+
+}
+@section PageStyles {
+    <style>
+        .arrow {
+            transition: transform .25s ease;
+        }
+
+        tr:has(+ .hidden-row) .arrow {
+            transform: rotate(-180deg);
+        }
+
+        .hidden-row td:nth-child(1) {
+            width: 5rem;
+        }
+
+        .hidden-row td:nth-child(2) {
+            width: 12rem;
+        }
+
+        .hidden-row td:nth-child(3) {
+            width: 8rem;
+        }
+
+        .hidden-row td:nth-child(5) {
+            width: 10rem;
+        }
+
+        .hidden-row td:nth-child(4) {
+            width: 18rem;
+        }
+
+        .declineSelectedBtn {
+            display: none;
+            /* visibility: hidden; */
+            /* pointer-events: none; */
+        }
+
+        .activityTable:has(input[type='checkbox']:checked) .declineSelectedBtn {
+            display: flex;
+            /* visibility: visible; */
+            /* pointer-events: all; */
+        }
+
+        .activityTable tr:has(input[type='checkbox']:checked) .declineBtn {
+            visibility: hidden;
+            pointer-events: none;
+        }
+    </style>
+}
+
+<!-- Table Section -->
+<div class="mt-4 mx-auto w-full">
+    <!-- Card -->
+    <div class="flex flex-col">
+        <div class="-m-1.5 overflow-x-auto">
+            <div class="p-1.5 min-w-full block align-middle">
+                <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                    <!-- Header -->
+                    <!-- End Header -->
+                    <!-- Table -->
+
+                    <div class="relative w-full mx-auto p-4">
+                        <div class="flex items-center gap-4 justify-between flex-wrap mb-4">
+                            <div class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 48 48"><path fill="#3b82f6" d="M18 11a6 6 0 1 1 12 0a6 6 0 0 1-12 0m19-4a5 5 0 1 0 0 10a5 5 0 0 0 0-10M11 7a5 5 0 1 0 0 10a5 5 0 0 0 0-10m8.25 12A4.25 4.25 0 0 0 15 23.25V34a9 9 0 1 0 18 0V23.25A4.25 4.25 0 0 0 28.75 19zM13 23.25c0-1.6.602-3.061 1.592-4.167A4.272 4.272 0 0 0 13.75 19h-5.5A4.25 4.25 0 0 0 4 23.25V33a7 7 0 0 0 10.293 6.179A10.951 10.951 0 0 1 13 34zM35 34c0 1.872-.468 3.635-1.293 5.179A7 7 0 0 0 44 33v-9.75A4.25 4.25 0 0 0 39.75 19h-5.5c-.288 0-.57.029-.842.083A6.227 6.227 0 0 1 35 23.25z" /></svg>
+                                <p class="font-extrabold text-lg lg:text-xl" style="margin-left: 0.3rem;">TDE Timesheet Tracker</p>
+                            </div>
+                            <button id="downloadExcel" onclick="downloadTimesheetExcel()" class="flex items-center gap-2">
+                                <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 32 32"><defs><linearGradient id="vscodeIconsFileTypeExcel0" x1="4.494" x2="13.832" y1="-2092.086" y2="-2075.914" gradientTransform="translate(0 2100)" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#18884f" /><stop offset=".5" stop-color="#117e43" /><stop offset="1" stop-color="#0b6631" /></linearGradient></defs><path fill="#185c37" d="M19.581 15.35L8.512 13.4v14.409A1.19 1.19 0 0 0 9.705 29h19.1A1.19 1.19 0 0 0 30 27.809V22.5Z" /><path fill="#21a366" d="M19.581 3H9.705a1.19 1.19 0 0 0-1.193 1.191V9.5L19.581 16l5.861 1.95L30 16V9.5Z" /><path fill="#107c41" d="M8.512 9.5h11.069V16H8.512Z" /><path d="M16.434 8.2H8.512v16.25h7.922a1.2 1.2 0 0 0 1.194-1.191V9.391A1.2 1.2 0 0 0 16.434 8.2" opacity="0.1" /><path d="M15.783 8.85H8.512V25.1h7.271a1.2 1.2 0 0 0 1.194-1.191V10.041a1.2 1.2 0 0 0-1.194-1.191" opacity="0.2" /><path d="M15.783 8.85H8.512V23.8h7.271a1.2 1.2 0 0 0 1.194-1.191V10.041a1.2 1.2 0 0 0-1.194-1.191" opacity="0.2" /><path d="M15.132 8.85h-6.62V23.8h6.62a1.2 1.2 0 0 0 1.194-1.191V10.041a1.2 1.2 0 0 0-1.194-1.191" opacity="0.2" /><path fill="url(#vscodeIconsFileTypeExcel0)" d="M3.194 8.85h11.938a1.193 1.193 0 0 1 1.194 1.191v11.918a1.193 1.193 0 0 1-1.194 1.191H3.194A1.19 1.19 0 0 1 2 21.959V10.041A1.19 1.19 0 0 1 3.194 8.85" /><path fill="#fff" d="m5.7 19.873l2.511-3.884l-2.3-3.862h1.847L9.013 14.6c.116.234.2.408.238.524h.017q.123-.281.26-.546l1.342-2.447h1.7l-2.359 3.84l2.419 3.905h-1.809l-1.45-2.711A2.4 2.4 0 0 1 9.2 16.8h-.024a1.7 1.7 0 0 1-.168.351l-1.493 2.722Z" /><path fill="#33c481" d="M28.806 3h-9.225v6.5H30V4.191A1.19 1.19 0 0 0 28.806 3" /><path fill="#107c41" d="M19.581 16H30v6.5H19.581Z" /></svg>
+                                @*                                 <span class="underline font-bold text-sm">Export To Excel</span>
+                                *@
+                            </button>
+                            @* <button class="flex items-center gap-2">
+                            <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 32 32"><defs><linearGradient id="vscodeIconsFileTypeExcel0" x1="4.494" x2="13.832" y1="-2092.086" y2="-2075.914" gradientTransform="translate(0 2100)" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#18884f" /><stop offset=".5" stop-color="#117e43" /><stop offset="1" stop-color="#0b6631" /></linearGradient></defs><path fill="#185c37" d="M19.581 15.35L8.512 13.4v14.409A1.19 1.19 0 0 0 9.705 29h19.1A1.19 1.19 0 0 0 30 27.809V22.5Z" /><path fill="#21a366" d="M19.581 3H9.705a1.19 1.19 0 0 0-1.193 1.191V9.5L19.581 16l5.861 1.95L30 16V9.5Z" /><path fill="#107c41" d="M8.512 9.5h11.069V16H8.512Z" /><path d="M16.434 8.2H8.512v16.25h7.922a1.2 1.2 0 0 0 1.194-1.191V9.391A1.2 1.2 0 0 0 16.434 8.2" opacity="0.1" /><path d="M15.783 8.85H8.512V25.1h7.271a1.2 1.2 0 0 0 1.194-1.191V10.041a1.2 1.2 0 0 0-1.194-1.191" opacity="0.2" /><path d="M15.783 8.85H8.512V23.8h7.271a1.2 1.2 0 0 0 1.194-1.191V10.041a1.2 1.2 0 0 0-1.194-1.191" opacity="0.2" /><path d="M15.132 8.85h-6.62V23.8h6.62a1.2 1.2 0 0 0 1.194-1.191V10.041a1.2 1.2 0 0 0-1.194-1.191" opacity="0.2" /><path fill="url(#vscodeIconsFileTypeExcel0)" d="M3.194 8.85h11.938a1.193 1.193 0 0 1 1.194 1.191v11.918a1.193 1.193 0 0 1-1.194 1.191H3.194A1.19 1.19 0 0 1 2 21.959V10.041A1.19 1.19 0 0 1 3.194 8.85" /><path fill="#fff" d="m5.7 19.873l2.511-3.884l-2.3-3.862h1.847L9.013 14.6c.116.234.2.408.238.524h.017q.123-.281.26-.546l1.342-2.447h1.7l-2.359 3.84l2.419 3.905h-1.809l-1.45-2.711A2.4 2.4 0 0 1 9.2 16.8h-.024a1.7 1.7 0 0 1-.168.351l-1.493 2.722Z" /><path fill="#33c481" d="M28.806 3h-9.225v6.5H30V4.191A1.19 1.19 0 0 0 28.806 3" /><path fill="#107c41" d="M19.581 16H30v6.5H19.581Z" /></svg>
+                            <span class="underline font-bold text-sm">Export To Excel</span>
+                            </button> *@
+                        </div>
+                        <div class="flex justify-between items-center gap-4 border p-2 rounded-md" style="background-color: #f2f3f8;">
+                            <label onclick="this.querySelector('input').showPicker();" for="select-month" class="whitespace-nowrap relative flex items-center gap-2 border bg-white text-gray-800 rounded px-6 py-3 hover:shadow-2xl transition-all" style="flex-shrink: 0;">
+                                <input type="month" id="select-month" class="opacity-0 absolute pointer-events-none inset-0" value="@ViewBag.monthname" onchange="monthChange(this)">
+                                <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M17 3h4a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h4V1h2v2h6V1h2zM4 9v10h16V9zm2 2h2v2H6zm5 0h2v2h-2zm5 0h2v2h-2z" /></svg>
+                                <span>
+                                    @(!String.IsNullOrEmpty(ViewBag.MonthName) ? ViewBag.MonthName : "Select Month")
+                                </span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 32 32"><path fill="currentColor" d="M8.037 11.166L14.5 22.36c.825 1.43 2.175 1.43 3 0l6.463-11.195c.826-1.43.15-2.598-1.5-2.598H9.537c-1.65 0-2.326 1.17-1.5 2.6z" /></svg>
+                            </label>
+
+                        </div>
+
+                    </div>
+
+                    <table class="min-w-full divide-y divide-gray-200" id="datatable">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                @foreach (var col in colLists)
+                                {
+                                    <th scope="col" class="px-6 py-3 text-left">
+                                        <div class="flex items-center gap-x-2">
+                                            
+                                            @col
+
+                                            <div style="vertical-align: middle; z-index: 10;" class="filter-dropdown mx-1 hs-dropdown relative sm:inline-flex [--auto-close:inside]">
+                                                <button id="hs-dropdown-auto-close-inside" type="button" class="hs-dropdown-toggle p-1 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-gray-100 text-gray-800 shadow-sm disabled:opacity-50 disabled:pointer-events-none">
+                                                    <svg class="w-4 h-4 text-gray-800" xmlns="http://www.w3.org/2000/svg"
+                                                         width="512" height="512" viewBox="0 0 512 512">
+                                                        <path fill="currentColor"
+                                                              d="M472 168H40a24 24 0 0 1 0-48h432a24 24 0 0 1 0 48m-80 112H120a24 24 0 0 1 0-48h272a24 24 0 0 1 0 48m-96 112h-80a24 24 0 0 1 0-48h80a24 24 0 0 1 0 48" />
+                                                    </svg>
+                                                </button>
+
+                                                <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 mt-2" aria-labelledby="hs-dropdown-auto-close-inside">
+                                                    <div class="mb-1">
+                                                        <input type="search" oninput="handleFilterSearch(this);" placeholder="Search" class="py-2 px-4 block w-full border-gray-200 rounded-lg text-xs focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                                    </div>
+                                                    <div class="filter-item-list" style="height: 10rem; overflow-y: auto;"></div>
+
+                                                </div>
+                                            </div>
+
+
+                                        </div>
+                                    </th>
+                                }
+
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            @if (Model != null)
+                            {
+                                foreach (var customer in Model)
+                                {
+                                    <tr>
+                                        <td class="px-6 py-2 2xl:py-4 whitespace-nowrap text-xs 2xl:text-sm text-gray-800 ">
+                                            @customer.EmployeeName
+                                        </td>
+                                        <td class="px-6 py-2 2xl:py-4 whitespace-nowrap text-xs 2xl:text-sm text-gray-800 ">
+                                            @customer.ReportingHead
+                                        </td>
+
+                                        <td class="px-6 py-2 2xl:py-4 whitespace-nowrap text-xs 2xl:text-sm text-gray-800 ">
+                                            @customer.EmployeeUserId
+                                        </td>
+                                        <td class="px-6 py-2 2xl:py-4 whitespace-nowrap text-xs 2xl:text-sm text-gray-800 ">
+                                            @customer.MonthYear
+                                        </td>
+                                        <td class="px-6 py-2 2xl:py-4 whitespace-nowrap text-xs 2xl:text-sm text-gray-800 ">
+                                            @customer.DetailCount
+                                        </td>
+                                        <td class="px-6 py-2 2xl:py-4 whitespace-nowrap text-xs 2xl:text-sm text-gray-800 ">
+                                            @totalWorkingDays
+                                        </td>
+                                        <td class="px-6 py-2 2xl:py-4 whitespace-nowrap text-xs 2xl:text-sm text-gray-800">
+                                            @{
+                                                var remainingTimesheet = totalWorkingDays - customer.DetailCount;
+                                            }
+                                            <span style="color: @(remainingTimesheet > 2 ? "red" : "green")">
+                                                @remainingTimesheet
+                                            </span>
+                                        </td>
+
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Card -->
+</div>
+<!-- End Table Section -->
+@section Scripts {
+    <script src="https://unpkg.com/slim-select@latest/dist/slimselect.min.js"></script>
+
+    @* <link href="https://unpkg.com/tabulator-tables@6.2.1/dist/css/tabulator.min.css" rel="stylesheet">
+    <script type="text/javascript" src="https://unpkg.com/tabulator-tables@6.2.1/dist/js/tabulator.min.js"></script> *@
+    <script>
+
+        function todayDate() {
+            const today = Date.now();
+            const month = today.getMonth
+        }
+
+        window.addEventListener("DOMContentLoaded", () => {
+            initdatatable();
+            setMonthSelectLimits();
+
+            document.querySelector("#select-month").value = document.querySelector("#select-month").getAttribute("value");
+
+            //GetDetails(document.querySelector("#select-month"), 3)
+        })
+
+        var monthName = "";
+        var projectId = 0;
+        var employeeId = 0;
+
+        // let datatable;
+
+        function initdatatable() {
+            datatable = new DataTable("#datatable", {
+                ordering: false,
+                destroy: true,
+                scrollX: true
+            })
+            // datatable = new Tabulator("#datatable")
+        }
+
+        var monthyear = "";
+
+        function downloadTimesheetExcel() {
+            // var formData = new FormData();
+            // const date = document.querySelector("#select-month");
+            // formData.append("date", monthyear);
+
+            // var date = monthName;
+            const dateInput = document.querySelector("#select-month");
+            const selectedDate = dateInput.value; // Get the value from the input
+            const monthName = new Date(selectedDate).toLocaleString('default', { month: 'long' }); // Convert to month name
+
+            $.ajax({
+                url: `/Timesheet/HrDataExcel?monthyear=${selectedDate}`,
+                type: 'GET',
+                success: function (response) {
+                    if (response.success) {
+                        var downloadUrl = response.fileUrl;
+                        window.location.href = downloadUrl;
+                    } else {
+                        alert('Error: ' + response.msg);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('An error occurred:', error);
+                    alert('Failed to download the file. Please try again.');
+                }
+            });
+        }
+
+
+
+        function setMonthSelectLimits() {
+            const monthSelect = document.querySelector("#select-month");
+            const currentDate = new Date();
+            const maxValue = `${currentDate.getFullYear()}-${currentDate.getMonth() + 1 < 10 ? '0' + (currentDate.getMonth() + 1) : currentDate.getMonth() + 1}`;
+            monthSelect.setAttribute("max", maxValue);
+        }
+
+
+
+        function monthChange(inp) {
+            console.log(inp);
+            var selectedDate = inp.value;
+            let Url = window.location.origin + window.location.pathname;
+            var date = new Date(selectedDate);
+            var formattedDate = date.toLocaleString('en-US', { year: 'numeric', month: 'short' }).split(' ').join('-');
+            inp.closest('label').querySelector('span').textContent = monthName;
+
+            window.location.href = Url + "?monthyear=" + formattedDate;
+
+        }
+        let datatable = new DataTable("#datatable", {
+            scrollX: true,
+            scrollY: '55vh',
+            ordering: false,
+            dom: "lBfrtip",
+            destroy: true,
+            buttons: [
+                'excel',
+            ],
+            "fnInitComplete": function (oSettings, json) {
+                const _dt = this.api();
+                console.log("initdone")
+                document.querySelector("#loader").style.display = "none";
+                const allTh = document.querySelectorAll(".dataTables_scrollHead table thead th");
+                const allThWithFilter = [];
+                Array.from(allTh).forEach((item, index) => {
+                    if (item.querySelector(".hs-dropdown")) {
+                        allThWithFilter.push({ item, index });
+                    }
+                });
+                console.log(allThWithFilter);
+                allThWithFilter.forEach(item => {
+                    const column = _dt.columns(Number(item.index)).data().unique().sort();
+                    const uniqueColumnContentSet = new Set();
+
+                    column[0].forEach(colItem => {
+                        if (!colItem.includes("span")) {
+                            uniqueColumnContentSet.add(colItem.trim());
+                        } else {
+                            const tempElem = document.createElement("div");
+                            tempElem.innerHTML = colItem;
+                            uniqueColumnContentSet.add(tempElem.innerText.trim());
+                        }
+                    });
+
+                    const uniqueColumnContent = Array.from(uniqueColumnContentSet).sort();
+                    const dropdownBody = item?.item.querySelector(".hs-dropdown-menu .filter-item-list");
+                    dropdownBody.innerHTML = "";
+                    uniqueColumnContent.forEach(dItem => {
+                        const dropdownItem = document.createElement("div");
+                        dropdownItem.classList.add("relative", "flex", "items-start", "py-2", "px-3", "rounded-lg", "hover:bg-gray-100", "filter-item");
+                        let checkBoxId = `chk-${Math.floor(Math.random() * 9999999)}`;
+                        dropdownItem.innerHTML = `<div class="flex items-center">
+                                                                                        <input value="${dItem}" id="${checkBoxId}" type="checkbox" class="shrink-0 border-gray-200 rounded text-emerald-600 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                                                                    </div>
+                                                                                    <label for="${checkBoxId}" class="flex-1 ms-2">
+                                                                                        <span class="block text-xs text-gray-800">${dItem}</span>
+                                                                                    </label>`;
+                        dropdownBody.appendChild(dropdownItem);
+                    })
+                    if (!dropdownBody.nextElementSibling) {
+                        dropdownBody.parentElement.innerHTML += `<div class="flex gap-2"><button onclick="clearFilter(this, ${item?.index});" class="flex mt-2 w-full items-center justify-center gap-x-3.5 py-2 px-3 rounded-lg text-xs text-gray-800 bg-gray-100 hover:bg-gray-50 focus:outline-none focus:bg-gray-100">Clear</button><button onclick="filterTable(this, ${item?.index});" class="flex mt-2 w-full items-center justify-center gap-x-3.5 py-2 px-3 rounded-lg text-xs text-gray-800 bg-gray-100 hover:bg-gray-50 focus:outline-none focus:bg-gray-100" href="#">Apply</button></div>`
+                    }
+                })
+            }
+        });
+        function filterTable(btn, colInd) {
+            const values = [];
+            btn.closest(".hs-dropdown").querySelectorAll("input:checked").forEach(chkbox => {
+                values.push(chkbox.value);
+            })
+            HSDropdown.close(btn.closest(".hs-dropdown"));
+            setTimeout(() => {
+                if (values.length) {
+                    datatable.columns(Number(colInd)).search('^(' + values.join("|") + ')$', true, false).draw();
+                } else {
+                    datatable.columns(Number(colInd)).search("", true, false).draw();
+                }
+            }, 200)
+        }
+
+        function clearFilter(btn, colInd) {
+            btn.closest(".hs-dropdown").querySelectorAll("input:checked").forEach(chkbox => {
+                chkbox.checked = false;
+            })
+            btn.closest(".hs-dropdown").querySelector("input[type='search']").value = "";
+            const _inpEvent = new Event("input");
+            btn.closest(".hs-dropdown").querySelector("input[type='search']").dispatchEvent(_inpEvent);
+            HSDropdown.close(btn.closest(".hs-dropdown"));
+            setTimeout(() => {
+                datatable.columns(Number(colInd)).search("", true, false).draw();
+            }, 200)
+        }
+        function handleFilterSearch(input) {
+            const allFilterItems = input.closest(".hs-dropdown-menu").querySelector(".filter-item-list").querySelectorAll("span");
+            allFilterItems.forEach(item => {
+                if (item.innerText.trim().toLowerCase().includes(input.value.trim().toLowerCase())) {
+                    item.closest(".filter-item").style.display = "flex"
+                } else {
+                    item.closest(".filter-item").style.display = "none";
+                }
+            })
+        }
+
+        let months = ["January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"];
+    </script>
+}

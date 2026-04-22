@@ -1,0 +1,731 @@
+﻿@using System.Globalization;
+@model IEnumerable<RMS.Client.Models.Contract.Billing>
+@{
+   
+    // Function to parse date with detailed logging
+    DateTime ParseMonthYear(string monthYear)
+    {
+        try
+        {
+            
+            // Convert monthYear to uppercase to ensure consistent parsing
+            string monthYearUpper = monthYear.ToUpperInvariant();
+            DateTime parsedDate = DateTime.ParseExact("01-" + monthYearUpper, "dd-MMM-yy", CultureInfo.InvariantCulture);
+            
+            return parsedDate;
+        }
+        catch (FormatException ex)
+        {
+           
+            return DateTime.MinValue;
+        }
+    }
+    List<DateTime> columns = Model.Select(c => Convert.ToDateTime("01" + c.monthYear)).OrderBy(x => x).ToList().Distinct().ToList();
+    var cols = columns.Select(c => c.ToString("MMM-yy")).ToList();
+    var colLists = new List<string> { "Code", "Resource Name", "Customer Name", "Project Name", "Delivery Anchor", "Practice", "SubPractice", "StartDate", "EndDate" };
+
+}
+
+
+
+<partial name="~/Views/Shared/Controls/_PageHead.cshtml" model="@(new RMS.Client.Models.Common.PageHead
+{ PageHeading="Billing Information", ShowCreateButton=false, Columns = colLists, extracolumn=false})" />
+
+<div class="flex justify-between flex-wrap gap-4 items-center">
+
+    <div class="flex items-center gap-2">
+        <button data-hs-overlay="#hs-reject-modal" type="button" onclick="filterRecord('employeewise')"
+                class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-black @(ViewBag.mode == "employeewise" ? "bg-black text-white": "bg-white text-black") hover:bg-black hover:text-white focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 transition-all text-sm sm:text-base">
+            Employee Wise
+        </button>
+        <button data-hs-overlay="#hs-reject-modal" type="button" onclick="filterRecord('customerwise')"
+                class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-black @(ViewBag.mode == "customerwise" ? "bg-black text-white" : "bg-white text-black") hover:bg-black hover:text-white focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 transition-all text-sm sm:text-base">
+            Customer Wise
+        </button>
+        <input type="hidden" id="ctlMode" value="@ViewBag.mode" />
+        <input class="k-input" type="month" id="ctlFdate" value="@ViewBag.fDate" onchange="filterRecord()" />
+        <input class="k-input" type="month" id="ctlTdate" value="@ViewBag.tDate" onchange="filterRecord()" />
+        @* <a class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-black" asp-action="ContractBillingProvisionReport" asp-controller="Billing" title="Provision Reports">
+        Provision Reports
+        </a> *@
+    </div>
+</div>
+
+<div class="mt-3">
+    <div class="flex flex-col">
+        <div class="-m-1.5 overflow-x-auto">
+            <div class="p-1.5 min-w-full block align-middle">
+                <div class="border rounded-lg overflow-hidden">
+                    <table id="tblData" class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" rowspan="2"
+                                    class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                    Code
+                                    <div style="vertical-align: middle;" class="filter-dropdown mx-1 hs-dropdown relative sm:inline-flex z-20 [--auto-close:inside]">
+                                        <button id="hs-dropdown-auto-close-inside" type="button" class="hs-dropdown-toggle p-1 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-gray-100 text-gray-800 shadow-sm disabled:opacity-50 disabled:pointer-events-none">
+                                            <svg class="w-4 h-4 text-gray-800" xmlns="http://www.w3.org/2000/svg"
+                                                 width="512" height="512" viewBox="0 0 512 512">
+                                                <path fill="currentColor"
+                                                      d="M472 168H40a24 24 0 0 1 0-48h432a24 24 0 0 1 0 48m-80 112H120a24 24 0 0 1 0-48h272a24 24 0 0 1 0 48m-96 112h-80a24 24 0 0 1 0-48h80a24 24 0 0 1 0 48" />
+                                            </svg>
+                                        </button>
+
+                                        <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 mt-2" aria-labelledby="hs-dropdown-auto-close-inside">
+                                            <div class="mb-1">
+                                                <input type="search" oninput="handleFilterSearch(this);" placeholder="Search" class="py-2 px-4 block w-full border-gray-200 rounded-lg text-xs focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                            </div>
+                                            <div class="filter-item-list" style="height: 10rem; overflow-y: auto;"></div>
+                                        </div>
+                                    </div>
+                                </th>
+
+
+                                @if (ViewBag.mode == "employeewise")
+                                {
+                                    <th scope="col" rowspan="2"
+                                        class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                        Resource Name
+                                        <div style="vertical-align: middle; z-index: 10;" class="filter-dropdown mx-1 hs-dropdown relative sm:inline-flex [--auto-close:inside]">
+                                            <button id="hs-dropdown-auto-close-inside" type="button" class="hs-dropdown-toggle p-1 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-gray-100 text-gray-800 shadow-sm disabled:opacity-50 disabled:pointer-events-none">
+                                                <svg class="w-4 h-4 text-gray-800" xmlns="http://www.w3.org/2000/svg"
+                                                     width="512" height="512" viewBox="0 0 512 512">
+                                                    <path fill="currentColor"
+                                                          d="M472 168H40a24 24 0 0 1 0-48h432a24 24 0 0 1 0 48m-80 112H120a24 24 0 0 1 0-48h272a24 24 0 0 1 0 48m-96 112h-80a24 24 0 0 1 0-48h80a24 24 0 0 1 0 48" />
+                                                </svg>
+                                            </button>
+
+                                            <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 mt-2" aria-labelledby="hs-dropdown-auto-close-inside">
+                                                <div class="mb-1">
+                                                    <input type="search" oninput="handleFilterSearch(this);" placeholder="Search" class="py-2 px-4 block w-full border-gray-200 rounded-lg text-xs focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                                </div>
+                                                <div class="filter-item-list" style="height: 10rem; overflow-y: auto;"></div>
+                                            </div>
+                                        </div>
+                                    </th>
+                                }
+
+                                <th scope="col" rowspan="2"
+                                    class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                    Customer Name
+                                    <div style="vertical-align: middle; z-index: 10;" class="filter-dropdown mx-1 hs-dropdown relative sm:inline-flex [--auto-close:inside]">
+                                        <button id="hs-dropdown-auto-close-inside" type="button" class="hs-dropdown-toggle p-1 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-gray-100 text-gray-800 shadow-sm disabled:opacity-50 disabled:pointer-events-none">
+                                            <svg class="w-4 h-4 text-gray-800" xmlns="http://www.w3.org/2000/svg"
+                                                 width="512" height="512" viewBox="0 0 512 512">
+                                                <path fill="currentColor"
+                                                      d="M472 168H40a24 24 0 0 1 0-48h432a24 24 0 0 1 0 48m-80 112H120a24 24 0 0 1 0-48h272a24 24 0 0 1 0 48m-96 112h-80a24 24 0 0 1 0-48h80a24 24 0 0 1 0 48" />
+                                            </svg>
+                                        </button>
+
+                                        <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 mt-2" aria-labelledby="hs-dropdown-auto-close-inside">
+                                            <div class="mb-1">
+                                                <input type="search" oninput="handleFilterSearch(this);" placeholder="Search" class="py-2 px-4 block w-full border-gray-200 rounded-lg text-xs focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                            </div>
+                                            <div class="filter-item-list" style="height: 10rem; overflow-y: auto;"></div>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th scope="col" rowspan="2"
+                                    class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                    Project Name
+                                </th>
+                                <th scope="col" rowspan="2"
+                                    class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                    Delivery Anchor
+                                    <div style="vertical-align: middle; z-index: 10;" class="filter-dropdown mx-1 hs-dropdown relative sm:inline-flex [--auto-close:inside]">
+                                        <button id="hs-dropdown-auto-close-inside" type="button" class="hs-dropdown-toggle p-1 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-gray-100 text-gray-800 shadow-sm disabled:opacity-50 disabled:pointer-events-none">
+                                            <svg class="w-4 h-4 text-gray-800" xmlns="http://www.w3.org/2000/svg"
+                                                 width="512" height="512" viewBox="0 0 512 512">
+                                                <path fill="currentColor"
+                                                      d="M472 168H40a24 24 0 0 1 0-48h432a24 24 0 0 1 0 48m-80 112H120a24 24 0 0 1 0-48h272a24 24 0 0 1 0 48m-96 112h-80a24 24 0 0 1 0-48h80a24 24 0 0 1 0 48" />
+                                            </svg>
+                                        </button>
+
+                                        <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 mt-2" aria-labelledby="hs-dropdown-auto-close-inside">
+                                            <div class="mb-1">
+                                                <input type="search" oninput="handleFilterSearch(this);" placeholder="Search" class="py-2 px-4 block w-full border-gray-200 rounded-lg text-xs focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                            </div>
+                                            <div class="filter-item-list" style="height: 10rem; overflow-y: auto;"></div>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th scope="col" rowspan="2"
+                                    class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                    Practice
+                                    <div style="vertical-align: middle; z-index: 10;" class="filter-dropdown mx-1 hs-dropdown relative sm:inline-flex [--auto-close:inside]">
+                                        <button id="hs-dropdown-auto-close-inside" type="button" class="hs-dropdown-toggle p-1 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-gray-100 text-gray-800 shadow-sm disabled:opacity-50 disabled:pointer-events-none">
+                                            <svg class="w-4 h-4 text-gray-800" xmlns="http://www.w3.org/2000/svg"
+                                                 width="512" height="512" viewBox="0 0 512 512">
+                                                <path fill="currentColor"
+                                                      d="M472 168H40a24 24 0 0 1 0-48h432a24 24 0 0 1 0 48m-80 112H120a24 24 0 0 1 0-48h272a24 24 0 0 1 0 48m-96 112h-80a24 24 0 0 1 0-48h80a24 24 0 0 1 0 48" />
+                                            </svg>
+                                        </button>
+
+                                        <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 mt-2" aria-labelledby="hs-dropdown-auto-close-inside">
+                                            <div class="mb-1">
+                                                <input type="search" oninput="handleFilterSearch(this);" placeholder="Search" class="py-2 px-4 block w-full border-gray-200 rounded-lg text-xs focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                            </div>
+                                            <div class="filter-item-list" style="height: 10rem; overflow-y: auto;"></div>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th scope="col" rowspan="2"
+                                    class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                    SubPractice
+                                    <div style="vertical-align: middle; z-index: 10;" class="filter-dropdown mx-1 hs-dropdown relative sm:inline-flex [--auto-close:inside]">
+                                        <button id="hs-dropdown-auto-close-inside" type="button" class="hs-dropdown-toggle p-1 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-gray-100 text-gray-800 shadow-sm disabled:opacity-50 disabled:pointer-events-none">
+                                            <svg class="w-4 h-4 text-gray-800" xmlns="http://www.w3.org/2000/svg"
+                                                 width="512" height="512" viewBox="0 0 512 512">
+                                                <path fill="currentColor"
+                                                      d="M472 168H40a24 24 0 0 1 0-48h432a24 24 0 0 1 0 48m-80 112H120a24 24 0 0 1 0-48h272a24 24 0 0 1 0 48m-96 112h-80a24 24 0 0 1 0-48h80a24 24 0 0 1 0 48" />
+                                            </svg>
+                                        </button>
+
+                                        <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 mt-2" aria-labelledby="hs-dropdown-auto-close-inside">
+                                            <div class="mb-1">
+                                                <input type="search" oninput="handleFilterSearch(this);" placeholder="Search" class="py-2 px-4 block w-full border-gray-200 rounded-lg text-xs focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                            </div>
+                                            <div class="filter-item-list" style="height: 10rem; overflow-y: auto;"></div>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th scope="col" rowspan="2"
+                                    class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                    StartDate
+                                    <div style="vertical-align: middle; z-index: 10;" class="filter-dropdown mx-1 hs-dropdown relative sm:inline-flex [--auto-close:inside]">
+                                        <button id="hs-dropdown-auto-close-inside" type="button" class="hs-dropdown-toggle p-1 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-gray-100 text-gray-800 shadow-sm disabled:opacity-50 disabled:pointer-events-none">
+                                            <svg class="w-4 h-4 text-gray-800" xmlns="http://www.w3.org/2000/svg"
+                                                 width="512" height="512" viewBox="0 0 512 512">
+                                                <path fill="currentColor"
+                                                      d="M472 168H40a24 24 0 0 1 0-48h432a24 24 0 0 1 0 48m-80 112H120a24 24 0 0 1 0-48h272a24 24 0 0 1 0 48m-96 112h-80a24 24 0 0 1 0-48h80a24 24 0 0 1 0 48" />
+                                            </svg>
+                                        </button>
+
+                                        <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 mt-2" aria-labelledby="hs-dropdown-auto-close-inside">
+                                            <div class="mb-1">
+                                                <input type="search" oninput="handleFilterSearch(this);" placeholder="Search" class="py-2 px-4 block w-full border-gray-200 rounded-lg text-xs focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                            </div>
+                                            <div class="filter-item-list" style="height: 10rem; overflow-y: auto;"></div>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th scope="col" rowspan="2"
+                                    class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                    EndDate
+                                    <div style="vertical-align: middle; z-index: 10;" class="filter-dropdown mx-1 hs-dropdown relative sm:inline-flex [--auto-close:inside]">
+                                        <button id="hs-dropdown-auto-close-inside" type="button" class="hs-dropdown-toggle p-1 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-gray-100 text-gray-800 shadow-sm disabled:opacity-50 disabled:pointer-events-none">
+                                            <svg class="w-4 h-4 text-gray-800" xmlns="http://www.w3.org/2000/svg"
+                                                 width="512" height="512" viewBox="0 0 512 512">
+                                                <path fill="currentColor"
+                                                      d="M472 168H40a24 24 0 0 1 0-48h432a24 24 0 0 1 0 48m-80 112H120a24 24 0 0 1 0-48h272a24 24 0 0 1 0 48m-96 112h-80a24 24 0 0 1 0-48h80a24 24 0 0 1 0 48" />
+                                            </svg>
+                                        </button>
+
+                                        <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 mt-2" aria-labelledby="hs-dropdown-auto-close-inside">
+                                            <div class="mb-1">
+                                                <input type="search" oninput="handleFilterSearch(this);" placeholder="Search" class="py-2 px-4 block w-full border-gray-200 rounded-lg text-xs focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                            </div>
+                                            <div class="filter-item-list" style="height: 10rem; overflow-y: auto;"></div>
+                                        </div>
+                                    </div>
+                                </th>
+
+                                @{
+                                    if (Model != null && Model.Count() > 0)
+                                    {
+                                        foreach (var month in cols)
+                                        {
+                                            <th scope="col" colspan="2" style="border-bottom: 1px solid #f0f0f0;"
+                                                class="px-6 py-3 text-center text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                @month
+                                            </th>
+                                        }
+                                    }
+                                }
+                            </tr>
+                            <tr>
+
+
+                                @* <th></th>
+                                @if (ViewBag.mode == "employeewise")
+                                {
+                                <th></th>
+                                }
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th> *@
+                                @{
+                                    if (Model != null && Model.Count() > 0)
+                                    {
+                                        foreach (var month in cols)
+                                        {
+                                            <th scope="col" style="border-left: 1px solid #f0f0f0;"
+                                                class="px-6 py-3 text-center text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                <span class="hidden">@month</span>
+                                                Provision
+                                            </th>
+                                            <th scope="col" style="border-right: 1px solid #f0f0f0;"
+                                                class="px-6 py-3 text-center text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                <span class="hidden">@month</span>
+                                                Actual
+                                            </th>
+                                        }
+                                    }
+                                }
+                            </tr>
+                        </thead>
+                        @*   <tbody class="divide-y divide-gray-200">
+                        @{
+                        if (Model != null && Model.Count() > 0)
+                        {
+                        var groupedList = Model
+                        .GroupBy(x => new
+                        {
+                        x.code,
+                        x.name,
+                        customername = x.CustomerName,
+                        projectname = x.ProjectName,
+                        deliveryanchor = x.deliveryAnchor,
+                        practicename = x.PracticeName,
+                        subpracticename = x.SubPracticeName,
+                        startdate = x.StartDate,
+                        enddate = x.EndDate
+                        })
+                        .Select(g => new { Key = g.Key, Value = g.ToList() })
+                        .ToList();
+
+                        foreach (var item in groupedList)
+                        {
+                        <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
+                        @item.Key.code
+                        </td>
+
+                        @if (ViewBag.mode == "employeewise")
+                        {
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                        @item.Key.name
+                        </td>
+                        }
+
+                        <td class="px-6 py-4 text-sm text-gray-800">
+                        @item.Key.customername
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-800">
+                        @item.Key.projectname
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-800">
+                        @item.Key.deliveryanchor
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                        @item.Key.practicename
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                        @item.Key.subpracticename
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                        @(item.Key.startdate != null ? Convert.ToDateTime(item.Key.startdate).ToShortDateString() : "")
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                        @(item.Key.enddate != null ? Convert.ToDateTime(item.Key.enddate).ToShortDateString() : "")
+                        </td>
+
+                        @{
+                        var groupedCostList = item.Value
+                        .GroupBy(x => new
+                        {
+                        x.CustomerName,
+                        x.ProjectName,
+                        x.deliveryAnchor,
+                        x.PracticeName,
+                        x.SubPracticeName,
+                        x.StartDate,
+                        x.EndDate,
+                        x.code,
+                        x.monthYear,
+                        x.name
+                        })
+                        .Select(g => new { Key = g.Key, Value = g.Sum(c => c.cost) })
+                        .ToList();
+
+
+                        if (Model != null && Model.Count() > 0)
+                        {
+
+                        foreach (var month in cols)
+                        {
+                        var _month = month;
+                        if (_month.Contains("Sept"))
+                        {
+                        _month = _month.Replace("Sept", "Sep");
+                        }
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                        @{
+                        if (groupedCostList.Any(c => c.Key.monthYear == _month))
+                        {
+                        var val = groupedCostList.Where(x => x.Key.monthYear == _month).FirstOrDefault().Value;
+                        <p>@val</p>
+                        }
+                        else
+                        {
+                        <p>0</p>
+                        }
+                        }
+                        </td>
+                        }
+                        }
+
+                        // @foreach (var li in groupedCostList)
+                        // {
+                        //     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                        //         <p>@li.Value</p>
+                        //     </td>
+                        // }
+                        }
+                        </tr>
+                        }
+                        }
+                        }
+                        </tbody> *@
+                        <tbody class="divide-y divide-gray-200">
+                            @{
+                                if (Model != null && Model.Count() > 0)
+                                {
+                                    var groupedList = Model
+                                    .GroupBy(x => new
+                                    {
+                                        x.code,
+                                        x.name,
+                                        customername = x.CustomerName,
+                                        projectname = x.ProjectName,
+                                        deliveryanchor = x.deliveryAnchor,
+                                        practicename = x.PracticeName,
+                                        subpracticename = x.SubPracticeName,
+                                        startdate = x.StartDate,
+                                        enddate = x.EndDate
+                                    })
+                                    .Select(g => new { Key = g.Key, Value = g.ToList() })
+                                    .ToList();
+
+                                    foreach (var item in groupedList)
+                                    {
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
+                                                @item.Key.code
+                                            </td>
+
+                                            @if (ViewBag.mode == "employeewise")
+                                            {
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                    @item.Key.name
+                                                </td>
+                                            }
+
+                                            <td class="px-6 py-4 text-sm text-gray-800">
+                                                @item.Key.customername
+                                            </td>
+                                            <td class="px-6 py-4 text-sm text-gray-800">
+                                                @item.Key.projectname
+                                            </td>
+                                            <td class="px-6 py-4 text-sm text-gray-800">
+                                                @item.Key.deliveryanchor
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                @item.Key.practicename
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                @item.Key.subpracticename
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                @(item.Key.startdate != null ? Convert.ToDateTime(item.Key.startdate).ToShortDateString() : "")
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                @(item.Key.enddate != null ? Convert.ToDateTime(item.Key.enddate).ToShortDateString() : "")
+                                            </td>
+
+                                            @{
+                                                var groupedCostList = item.Value
+                                                .GroupBy(x => new
+                                                {
+                                                    x.CustomerName,
+                                                    x.ProjectName,
+                                                    x.deliveryAnchor,
+                                                    x.PracticeName,
+                                                    x.SubPracticeName,
+                                                    x.StartDate,
+                                                    x.EndDate,
+                                                    x.code,
+                                                    x.monthYear,
+                                                    x.name
+                                                })
+                                                .Select(g => new { Key = g.Key, Value = g.ToList() })
+                                                .ToList();
+
+
+                                                if (Model != null && Model.Count() > 0)
+                                                {
+                                                    decimal? cost = 0;
+                                                    decimal? provisionCost = 0;
+
+                                                    foreach (var month in cols)
+                                                    {
+                                                        var _month = month;
+                                                        if (_month.Contains("Sept"))
+                                                        {
+                                                            _month = _month.Replace("Sept", "Sep");
+                                                        }
+
+                                                        if (groupedCostList.Any(c => c.Key.monthYear == _month))
+                                                        {
+                                                            cost = groupedCostList.FirstOrDefault(c => c.Key.monthYear == _month)?.Value.Sum(x => x.cost);
+                                                            provisionCost = groupedCostList.FirstOrDefault(c => c.Key.monthYear == _month)?.Value.Sum(x => x.ProvisionCost);
+
+                                                        }
+                                                        else
+                                                        {
+                                                            cost = 0;
+                                                            provisionCost = 0;
+                                                        }
+
+
+                                                        <td style="border-left: 1px solid #f0f0f0;" class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 text-center">@provisionCost</td>
+                                                        <td style="border-right: 1px solid #f0f0f0;" class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 text-center">@cost</td>
+
+                                                    }
+
+                                                }
+
+                                                // @foreach (var li in groupedCostList)
+                                                // {
+                                                //     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                //         <p>@li.Value</p>
+                                                //     </td>
+                                                // }
+                                            }
+                                        </tr>
+                                    }
+                                }
+                            }
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script type="text/javascript" src="~/assets/js/connections.js"></script>
+    <script type="text/javascript">
+        // function createConnectionsTh() {
+        //     const allTh = document.querySelectorAll("#tblData thead tr:first-child th");
+        //     console.log(allTh)
+        //     for (let i = 9; i < allTh.length; i++) {
+        //         $(`.dataTables_scroll thead tr:first-child th:nth-child(${i})`).connections({ to: `.dataTables_scroll thead tr:last-child th:nth-child(${i})` })
+        //         $(`.dataTables_scroll thead tr:first-child th:nth-child(${i})`).connections({ to: `.dataTables_scroll thead tr:last-child th:nth-child(${i + 1})` })
+        //     }
+        // }
+        let datatable = new DataTable("#tblData", {
+            scrollX: true,
+            scrollY: '45vh',
+            ordering: false,
+            dom: "lBfrtip",
+            destroy: true,
+            buttons: [{
+                extend: 'excelHtml5',
+            }],
+            "fnInitComplete": function (oSettings, json) {
+                dtApi = this;
+                calculateTotalBillingByMonth(this);
+                const _dt = this.api();
+                setTimeout(() => {
+                    console.log("adjusting")
+                    _dt.columns.adjust();
+                }, 100)
+                console.log("initdone")
+                // $("#loader").hide();
+                document.querySelector("#loader").style.display = "none";
+                // docu
+                const allTh = document.querySelectorAll(".dataTables_scrollHead table thead th");
+                const allThWithFilter = [];
+                Array.from(allTh).forEach((item, index) => {
+                    if (item.querySelector(".hs-dropdown")) {
+                        allThWithFilter.push({ item, index });
+                    }
+                });
+                console.log(allThWithFilter);
+                allThWithFilter.forEach(item => {
+                    // console.log(Number(item.index));
+                    const column = _dt.columns(Number(item.index)).data().unique().sort();
+                    // const column = document.querySelectorAll(`td:nth-child(${item.index + 1})`);
+                    const uniqueColumnContentSet = new Set();
+
+                    column[0].forEach(colItem => {
+                        if (!colItem.includes("span")) {
+                            uniqueColumnContentSet.add(colItem);
+                        } else {
+                            const tempElem = document.createElement("div");
+                            tempElem.innerHTML = colItem;
+                            uniqueColumnContentSet.add(tempElem.innerText);
+                        }
+                    });
+                    const uniqueColumnContent = Array.from(uniqueColumnContentSet).sort();
+                    const dropdownBody = item?.item.querySelector(".hs-dropdown-menu .filter-item-list");
+                    dropdownBody.innerHTML = "";
+                    uniqueColumnContent.forEach(dItem => {
+                        const dropdownItem = document.createElement("div");
+                        dropdownItem.classList.add("relative", "flex", "items-start", "py-2", "px-3", "rounded-lg", "hover:bg-gray-100", "filter-item");
+                        let checkBoxId = `chk-${Math.floor(Math.random() * 9999999)}`;
+                        dropdownItem.innerHTML = `<div class="flex items-center">
+                                                                                                                                <input value="${dItem}" id="${checkBoxId}" type="checkbox" class="shrink-0 border-gray-200 rounded text-emerald-600 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                                                                                                            </div>
+                                                                                                                            <label for="${checkBoxId}" class="flex-1 ms-2">
+                                                                                                                                <span class="block text-xs text-gray-800">${dItem}</span>
+                                                                                                                            </label>`;
+                        dropdownBody.appendChild(dropdownItem);
+                    })
+                    if (!dropdownBody.nextElementSibling) {
+                        dropdownBody.parentElement.innerHTML += `<div class="flex gap-2"><button onclick="clearFilter(this, ${item?.index});" class="flex mt-2 w-full items-center justify-center gap-x-3.5 py-2 px-3 rounded-lg text-xs text-gray-800 bg-gray-100 hover:bg-gray-50 focus:outline-none focus:bg-gray-100">Clear</button><button onclick="filterTable(this, ${item?.index});" class="flex mt-2 w-full items-center justify-center gap-x-3.5 py-2 px-3 rounded-lg text-xs text-gray-800 bg-gray-100 hover:bg-gray-50 focus:outline-none focus:bg-gray-100" href="#">Apply</button></div>`
+                    }
+                })
+                // createConnectionsTh();
+            }
+        });
+
+        function filterRecord(mode = null) {
+            var _mode = mode == null ? $("#ctlMode").val() : mode;
+            var _fdate = $("#ctlFdate").val();
+            var _tdate = $("#ctlTdate").val();
+
+            postForm("@Url.Action("Index", "Billing")", {
+                m: _mode,
+                fd: _fdate,
+                td: _tdate
+            });
+        }
+
+        function filterTable(btn, colInd) {
+            const values = [];
+            btn.closest(".hs-dropdown").querySelectorAll("input:checked").forEach(chkbox => {
+                values.push(chkbox.value);
+            })
+            HSDropdown.close(btn.closest(".hs-dropdown"));
+            setTimeout(() => {
+                if (values.length) {
+                    datatable.columns(Number(colInd)).search('^(' + values.join("|") + ')$', true, false).draw();
+                } else {
+                    datatable.columns(Number(colInd)).search("", true, false).draw();
+                }
+                updateTotalBilling(datatable);
+            }, 200)
+        }
+
+        function clearFilter(btn, colInd) {
+            btn.closest(".hs-dropdown").querySelectorAll("input:checked").forEach(chkbox => {
+                chkbox.checked = false;
+            })
+            btn.closest(".hs-dropdown").querySelector("input[type='search']").value = "";
+            const _inpEvent = new Event("input");
+            btn.closest(".hs-dropdown").querySelector("input[type='search']").dispatchEvent(_inpEvent);
+            HSDropdown.close(btn.closest(".hs-dropdown"));
+            setTimeout(() => {
+                datatable.columns(Number(colInd)).search("", true, false).draw();
+                updateTotalBilling(datatable);
+            }, 200)
+        }
+
+        function calculateTotalBillingByMonth(dt) {
+            const allTh = document.querySelector("table thead tr:last-child").querySelectorAll("th");
+            const mode = document.querySelector("#ctlMode").value;
+            console.log(allTh);
+            for (let i = 0; i < allTh.length; i += 2) {
+                console.log(i, i + (mode === "employeewise" ? 9 : 8));
+                let totalProvRowBilling = dt.api().column(i + (mode === "employeewise" ? 9 : 8)).data().reduce((a, b) => {
+                    const aEl = document.createElement("div");
+                    const bEl = document.createElement("div");
+                    aEl.innerHTML = a;
+                    bEl.innerHTML = b;
+                    return Number(aEl.innerText.trim()) + Number(bEl.innerText.trim());
+                });
+                let totalActualRowBilling = dt.api().column(i + (mode === "employeewise" ? 10 : 9)).data().reduce((a, b) => {
+                    const aEl = document.createElement("div");
+                    const bEl = document.createElement("div");
+                    aEl.innerHTML = a;
+                    bEl.innerHTML = b;
+                    return Number(aEl.innerText.trim()) + Number(bEl.innerText.trim());
+                });
+                if (isNaN(totalProvRowBilling)) {
+                    totalProvRowBilling = 0;
+                }
+                if (isNaN(totalActualRowBilling)) {
+                    totalActualRowBilling = 0;
+                }
+                allTh[i].innerHTML += `<div class="hs-tooltip block" style="margin-top: .25rem;">
+                                                                                                                                    <span class="hs-tooltip-toggle text-white text-center text-sm" style="display: block; padding-inline: .4rem; border-radius: 1rem; background-color: #EAECFF; color: rgb(75, 85, 99);">${formatCurrency(totalProvRowBilling)}</span>
+                                                                                            <span class="hs-tooltip-content hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible opacity-0 transition-opacity inline-block absolute invisible z-10 py-1 px-2 bg-gray-900 text-xs font-medium text-white rounded shadow-sm" role="tooltip">
+                                                                                              Total Billing
+                                                                                            </span>
+                                                                                        </div>`;
+                allTh[i + 1].innerHTML += `<div class="hs-tooltip block" style="margin-top: .25rem;">
+                                                                                                                            <span class="hs-tooltip-toggle text-white text-center text-sm" style="display: block; padding-inline: .4rem; border-radius: 1rem; background-color: #00cc8320; color: #00cc83;">${formatCurrency(totalActualRowBilling)}</span>
+                                                                                                    <span class="hs-tooltip-content hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible opacity-0 transition-opacity inline-block absolute invisible z-10 py-1 px-2 bg-gray-900 text-xs font-medium text-white rounded shadow-sm" role="tooltip">
+                                                                                                      Total Billing
+                                                                                                    </span>
+                                                                                                </div>`;
+            }
+            dt.api().draw();
+        }
+
+        function updateTotalBilling(dt) {
+            const allTh = document.querySelector("table thead").querySelectorAll("th");
+            console.log(allTh);
+            // console.log();
+            // console.log(dt.rows());
+            const filteredRows = dt.rows({ search: 'applied' }).nodes();
+            for (let i = 9; i < allTh.length; i++) {
+                let totalRowBilling = 0;
+                for (let j = 0; j < filteredRows.length; j++) {
+                    totalRowBilling += Number(filteredRows[j].children[i].innerText);
+                }
+                if (isNaN(totalRowBilling)) {
+                    totalRowBilling = 0;
+                }
+
+                console.log(totalRowBilling);
+                allTh[i].querySelector(".hs-tooltip-toggle").innerText = formatCurrency(totalRowBilling);
+            }
+        }
+
+        function formatCurrency(num) {
+            return num.toLocaleString('en-IN', {
+                maximumFractionDigits: 2,
+                style: 'currency',
+                currency: 'INR'
+            });
+        }
+
+        function handleFilterSearch(input) {
+            const allFilterItems = input.closest(".hs-dropdown-menu").querySelector(".filter-item-list").querySelectorAll("span");
+            allFilterItems.forEach(item => {
+                if (item.innerText.trim().toLowerCase().includes(input.value.trim().toLowerCase())) {
+                    item.closest(".filter-item").style.display = "flex"
+                } else {
+                    item.closest(".filter-item").style.display = "none";
+                }
+            })
+        }
+
+
+
+        const data = @Html.Raw(Json.Serialize(cols)) || [];
+        const data2 = @Html.Raw(Json.Serialize(Model)) || [];
+        console.log("array data here");
+        console.log(data);
+        console.log(data2)
+    </script>
+}

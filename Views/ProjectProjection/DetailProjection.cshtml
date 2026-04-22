@@ -1,0 +1,1191 @@
+﻿@model RMS.Client.Models.Projection.ProjectionViewModel
+@{
+    bool lReadPermit = false;
+    bool lWritePermit = false;
+    bool lDeletePermit = false;
+    string role = Context.Session.GetString("RoleName");
+    if (ViewBag.AuthPages != null)
+    {
+        var pages = (List<RMS.Client.Models.Account.AuthorizePages>)ViewBag.AuthPages;
+        var pageFound = pages.FirstOrDefault(x => x.Controller == "Customer");
+        if (pageFound != null)
+        {
+            lReadPermit = pageFound.Isreadpermit ?? false;
+            lWritePermit = pageFound.Iswritepermit ?? false;
+            lDeletePermit = pageFound.Isdeletepermit ?? false;
+        }
+    }
+}
+
+
+<div class="flex items-center gap-4 mb-5">
+    <button onclick="window.history.back();" class="py-2 px-2 inline-flex justify-center items-center gap-2 rounded-md border border-gray-400 bg-gray-700 text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all text-sm sm:text-base" title="Back">
+        <svg class="w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M11.707 5.293a1 1 0 0 1 0 1.414L7.414 11H19a1 1 0 1 1 0 2H7.414l4.293 4.293a1 1 0 0 1-1.414 1.414l-6-6a1 1 0 0 1 0-1.414l6-6a1 1 0 0 1 1.414 0z" /></svg>
+    </button>
+    <div>
+        <h2 class="font-extrabold text-xl 2xl:text-2xl text-[#4B4E5C]">Projection Info:</h2>
+    </div>
+</div>
+<div class="bg-[#f9f9f9] p-4 rounded-md mb-4">
+
+    <div class="p-2 flex items-center flex-wrap mt-2">
+        <div class="flex items-center gap-x-8 border-r pr-3">
+            <div class="logo w-10 h-10 bg-white rounded-full overflow-hidden flex items-center justify-center">
+                <img class="w-6 h-6 rounded-full object-cover" src="~/assets/images/customer_default.svg" alt="">
+            </div>
+            <div>
+
+                <p class="text-[.625rem]">Projection Name</p>
+                <p class="font-bold">@Model.Projections.ProjectionName</p>
+            </div>
+        </div>
+        <div class="flex pl-3 items-center gap-x-8 gap-y-4">
+            <div>
+                <div>
+                    <span class="text-sm">Projection Description</span>
+                </div>
+                <p class="text-sm">@Model.Projections.ProjectionDescription</p>
+            </div>
+            <div>
+                <div>
+                    <span class="text-sm">Customer Name</span>
+                </div>
+                <p class="text-sm">@Model.Projections.CustomerName</p>
+            </div>
+            <div>
+                <div>
+                    <span class="text-sm">Sub Practice</span>
+                </div>
+                <p class="text-sm">@Model.Projections.SubPracticeName</p>
+            </div>
+            <div>
+                <div>
+                    <span class="text-sm">Project Type</span>
+                </div>
+                <p class="text-sm">@Model.Projections.ProjectType</p>
+            </div>
+            <div>
+            </div>
+        </div>
+    </div>
+    <div class="flex overflow-x-auto gap-x-8 gap-y-4 py-2 mt-4">
+        <div>
+            <p class="text-sm 2xl:text-base">Projection Cost:</p>
+            <p class="text-sm 2xl:text-base font-bold" id="contractnos">@Model.Projections.ProjectionCost</p>
+        </div>
+        <div>
+            <p class="text-sm 2xl:text-base">Status:</p>
+            <p class="text-sm 2xl:text-base font-bold">@Model.Projections.StatusName</p>
+        </div>
+
+        <div>
+            <p class="text-sm 2xl:text-base">Start Date:</p>
+            <p class="text-sm 2xl:text-base font-bold" id="contractstart">@(Model.Projections.StartDate == null ? "" : Convert.ToDateTime(Model.Projections.StartDate).ToString("dd/MM/yyyy"))</p>
+        </div>
+        <div>
+            <p class="text-sm 2xl:text-base">End Date:</p>
+            <p class="text-sm 2xl:text-base font-bold" id="contractend">@(Model.Projections.EndDate == null ? "" : Convert.ToDateTime(Model.Projections.EndDate).ToString("dd/MM/yyyy"))</p>
+        </div>
+
+    </div>
+
+</div>
+@if (Model.Projections.DeployedEmployees != null && Model.Projections.DeployedEmployees.Count <= 0)
+{
+    <div class="px-3 py-2">
+        @* <button type="button" data-hs-overlay="#extend-contract-modal" id="deployResources"
+    class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-emerald-400 bg-[#00cc83] text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm sm:text-base">
+    Deploy Resources
+    </button> *@
+        <button class="flex items-center gap-2 bg-gray-100 text-gray-400 rounded-full px-4 py-1 hover:bg-gray-200" data-hs-overlay="#extend-contract-modal">
+            <svg class="w-4 h-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 48 48"><defs><mask id="ipSAddOne0"><g fill="none" stroke-linejoin="round" stroke-width="4"><path fill="#fff" stroke="#fff" d="M24 44c11.046 0 20-8.954 20-20S35.046 4 24 4S4 12.954 4 24s8.954 20 20 20Z" /><path stroke="#000" stroke-linecap="round" d="M24 16v16m-8-8h16" /></g></mask></defs><path fill="currentColor" d="M0 0h48v48H0z" mask="url(#ipSAddOne0)" /></svg>
+            Deploy Resources
+        </button>
+    </div>
+}
+else
+{
+    <div class="flex flex-col">
+        <div class="-m-1.5 overflow-x-auto">
+            <div class="p-1.5 min-w-full inline-block align-middle">
+                <div class="overflow-hidden">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead>
+                            <tr>
+                                <th scope="col"
+                                    class="px-6 py-3 whitespace-nowrap text-left text-sm 2xl:text-base font-medium text-black uppercase">
+                                    S.No
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 whitespace-nowrap text-left text-sm 2xl:text-base font-medium text-black uppercase">
+                                    Employee Name
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 whitespace-nowrap text-left text-sm 2xl:text-base font-medium text-black uppercase">
+                                    Start Date
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 whitespace-nowrap text-left text-sm 2xl:text-base font-medium text-black uppercase">
+                                    End Date
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 whitespace-nowrap text-left text-sm 2xl:text-base font-medium text-black uppercase">
+                                    Status
+                                </th>
+                                @* <th scope="col"
+                            class="px-6 py-3 whitespace-nowrap text-left text-sm 2xl:text-base font-medium text-black uppercase">
+                            Delivery Anchor Name
+                            </th>
+
+                            <th scope="col"
+                            class="px-6 py-3 whitespace-nowrap text-left text-sm 2xl:text-base font-medium text-black uppercase">
+                            Status
+                            </th>
+                            <th scope="col"
+                            class="px-6 py-3 whitespace-nowrap text-left text-sm 2xl:text-base font-medium text-black uppercase">
+                            Remarks
+                            </th> *@
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200" id="resourceTable">
+                            @{
+
+                                int i = 1;
+                                foreach (var employee in Model.Projections.DeployedEmployees)
+                                {
+                                    var employeeProjects = Model.Projections.ProjectionRequest.Where(a => a.Employeeid == employee.DeployedEmployeeId);
+
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
+                                            <div class="flex items-center gap-2">
+                                                @if (employeeProjects.Count() > 0)
+                                                {
+                                                    <button class="toggleProjectBtn p-2 bg-gray-100 rounded" type='button' onclick="showProjects(this);"><svg class="w-6 h-6 toggleProjectsIcon" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-dasharray="12" stroke-dashoffset="12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12l-7 -7M16 12l-7 7"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.3s" values="12;0" /></path></svg></button>
+
+                                                }
+                                                @i
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                            @employee.DeployedEmployeeName
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                            @(employee.StartDate == null ? "" : Convert.ToDateTime(employee.StartDate).ToString("dd/MM/yyyy"))
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                            @(employee.EndDate == null ? "" : Convert.ToDateTime(employee.EndDate).ToString("dd/MM/yyyy"))
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+
+                                            @if (employeeProjects.Count() > 0)
+                                            {
+                                                @if (employeeProjects.Any(a => a.Status == "Rejected"))
+                                                {
+                                                    <span class="status rejected">Rejected</span>
+                                                }
+                                                else if (employeeProjects.Any(a => a.Status == "Pending"))
+                                                {
+                                                    <span class="status pending">Pending</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="status approved">Approved</span>
+
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span class="status approved">Approved</span>
+                                            }
+                                        </td>
+                                    </tr>
+
+                                    if (employeeProjects != null)
+                                    {
+                                        <tr class="hidden">
+                                            <td colspan="5" class="p-4 bg-gray-100">
+                                                <div style="overflow-x: auto;">
+                                                    <table>
+                                                        <thead>
+                                                            <tr>
+                                                                <th class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                                                    Delivery Anchor
+                                                                </th>
+                                                                <th class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                                                    Remarks
+                                                                </th>
+                                                                <th class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                                                    Status
+                                                                </th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach (var item in employeeProjects)
+                                                            {
+                                                                <tr class="resourceProject">
+                                                                    <td class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm text-black">@item.DeliveryAnchorName</td>
+                                                                    <td class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm text-black">@(item.Remarks == null ? "N/A" : item.Remarks)</td>
+                                                                    <td class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm text-black">
+                                                                        <span class="status @(item.Status == "Active" ? "approved" : item.Status == "Completed" ? "completed" : item.Status == "Approved" ? "approved" : item.Status == "Pending" ? "pending" : item.Status == "Rejected" ? "rejected" : "")">@(!string.IsNullOrEmpty(item.Status) ? item.Status : "Pending")</span>
+                                                                    </td>
+
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </td>
+
+
+                                        </tr>
+
+                                    }
+                                    i++;
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="flex flex-col" style="max-width: 100%;">
+    <div class="-m-1.5 overflow-x-auto">
+        <div class="p-1.5 min-w-full inline-block align-middle" style="max-width: 100%;">
+            <div class="border rounded-lg overflow-x-auto" style="max-width: 100%; max-height: 20rem;">
+                @if (Model.Projections.ProjectionInitialBilling != null)
+                {
+                    <table id="initialsBillingInfo" class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50" style="position: sticky; top: 0; z-index: 10;">
+                            <tr>
+                                <th scope="col" class="px-2 py-2 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase" style="position: sticky; width: 10rem; left: 0; background-color: rgb(249 250 251);">
+                                    Deal Price
+                                </th>
+
+
+                                @foreach (var item in Model.Projections.ProjectionInitialBilling)
+                                {
+
+                                    <th scope="col" class="px-2 py-2 text-center text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                        <span class="month">@item.MonthYear</span>
+                                    </th>
+                                }
+
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+
+
+                            <tr>
+
+                                <td class="px-6 text-left py-4 whitespace-nowrap text-sm text-gray-800">
+
+                                    <p class="block font-medium">@Model.Projections.ProjectionCost</p>
+
+                                </td>
+                                @foreach (var item in Model.Projections.ProjectionInitialBilling)
+                                {
+                                    <td class="px-6 text-center py-4 whitespace-nowrap text-sm text-gray-800">
+                                        <div class="flex flex-col items-center gap-2">
+
+                                            <p class="block font-medium">@item.Amount</p>
+
+                                        </div>
+                                    </td>
+                                }
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<div id="extend-contract-modal" data-hs-overlay-keyboard="false" class="hs-overlay hidden w-full h-full fixed top-0 left-0 z-[60] overflow-x-hidden overflow-y-auto [--overlay-backdrop:static]">
+    <div class="hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all h-[calc(100%-3.5rem)]" style="max-width: 90%; margin-inline: auto;">
+        <div class="max-h-full overflow-hidden flex flex-col bg-white border shadow-sm rounded-xl">
+            <div class="flex justify-between items-center py-3 px-4 border-b">
+                <div>
+                    <h2 class="font-bold text-gray-800 text-xl">Add New Resources</h2>
+                </div>
+                <button type="button" class="hs-dropdown-toggle inline-flex flex-shrink-0 justify-center items-center h-8 w-8 rounded-md text-gray-500 hover:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-white transition-all text-sm" onclick="handleCloseModal('projection');">
+                    <span class="sr-only">Close</span>
+                    <svg class="w-3.5 h-3.5" width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0.258206 1.00652C0.351976 0.912791 0.479126 0.860131 0.611706 0.860131C0.744296 0.860131 0.871447 0.912791 0.965207 1.00652L3.61171 3.65302L6.25822 1.00652C6.30432 0.958771 6.35952 0.920671 6.42052 0.894471C6.48152 0.868271 6.54712 0.854471 6.61352 0.853901C6.67992 0.853321 6.74572 0.865971 6.80722 0.891111C6.86862 0.916251 6.92442 0.953381 6.97142 1.00032C7.01832 1.04727 7.05552 1.1031 7.08062 1.16454C7.10572 1.22599 7.11842 1.29183 7.11782 1.35822C7.11722 1.42461 7.10342 1.49022 7.07722 1.55122C7.05102 1.61222 7.01292 1.6674 6.96522 1.71352L4.31871 4.36002L6.96522 7.00648C7.05632 7.10078 7.10672 7.22708 7.10552 7.35818C7.10442 7.48928 7.05182 7.61468 6.95912 7.70738C6.86642 7.80018 6.74102 7.85268 6.60992 7.85388C6.47882 7.85498 6.35252 7.80458 6.25822 7.71348L3.61171 5.06702L0.965207 7.71348C0.870907 7.80458 0.744606 7.85498 0.613506 7.85388C0.482406 7.85268 0.357007 7.80018 0.264297 7.70738C0.171597 7.61468 0.119017 7.48928 0.117877 7.35818C0.116737 7.22708 0.167126 7.10078 0.258206 7.00648L2.90471 4.36002L0.258206 1.71352C0.164476 1.61976 0.111816 1.4926 0.111816 1.36002C0.111816 1.22744 0.164476 1.10028 0.258206 1.00652Z" fill="currentColor" />
+                    </svg>
+                </button>
+            </div>
+            <div class="p-4 overflow-y-auto">
+                <form class="flex-1 flex flex-col" id="projectionForm">
+                    <div class="multipart-form-wrapper">
+                        <div class="multipart-form active flex-col" id="formPart2">
+                            <div style="min-height: 30rem; overflow-y: auto; max-height: calc(100vh - 20rem);">
+                                <div class="flex items-center gap-4 flex-nowrap mb-4 shadow">
+                                    <div class="flex flex-col mb-4" style="width:100%">
+                                        <div class="-m-1.5 overflow-x-auto">
+                                            <div class="p-1.5 min-w-full inline-block align-middle">
+                                                <div class="border rounded-lg overflow-hidden">
+                                                    <table class="min-w-full divide-y divide-gray-200" id="costSheetTableModal">
+                                                        <thead class="bg-gray-50">
+                                                            <tr>
+                                                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">Costing Sheet</th>
+                                                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">Skills</th>
+                                                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">Experience</th>
+                                                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">X Value</th>
+                                                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">Period Days</th>
+                                                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">Cost Per Skill</th>
+                                                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">Action</th>
+                                                                @*                                                                 <th scope="col" class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">Status</th>
+                                                                *@
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody class="divide-y divide-gray-200">
+                                                            @if (Model.Projections.Costsheetdata != null)
+                                                            {
+                                                                var costSheet = Model.Projections.Costsheetdata;
+                                                                int count = Model.Projections.Costsheetdata.costsheetdetails.Count;
+                                                                var totalResources = 0;
+                                                                decimal totalCost = 0;
+
+                                                                for (int i = 0; i < count; i++)
+                                                                {
+                                                                    totalResources += costSheet.costsheetdetails[i].Requiredresource;
+                                                                    totalCost += costSheet.costsheetdetails[i].Skillcost;
+                                                                }
+
+                                                                for (int i = 0; i < (count < 3 ? 3 : count); i++)
+                                                                {
+                                                                    <tr data-ind="@(i + 1)" data-index="@(i)">
+                                                                        @if (i == 0)
+                                                                        {
+                                                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">Cost Sheet Name: <span class="font-bold">@costSheet.costsheetname</span></td>
+                                                                        }
+                                                                        else if (i == 1)
+                                                                        {
+                                                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
+                                                                                Total Resources Required:
+                                                                                <span class="font-bold">@totalResources</span>
+                                                                            </td>
+                                                                        }
+                                                                        else if (i == 2)
+                                                                        {
+                                                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
+                                                                                Total Skills Required:
+                                                                                <span class="font-bold">@count</span>
+                                                                            </td>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800"></td>
+                                                                        }
+                                                                        @if (i < count)
+                                                                        {
+                                                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@costSheet.costsheetdetails[i].Skillname</td>
+                                                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@costSheet.costsheetdetails[i].skillexperience</td>
+                                                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                                                @(costSheet.costsheetdetails[i].Xvalue?.ToString("F2"))
+                                                                            </td>
+
+                                                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@costSheet.costsheetdetails[i].Perioddays</td>
+                                                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@costSheet.costsheetdetails[i].Skillcost</td>
+                                                                            <input type="hidden" class="costsheetdetailid" Value="@costSheet.costsheetdetails[i].Costsheetdetailid">
+                                                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                                                <div class="assign-dropdown mt-1 mx-1 sm:mt-1 hs-dropdown relative sm:inline-flex [--auto-close:inside]">
+                                                                                    <button id="@("hs-dropdown-auto-close-inside"+i)" type="button" class="hs-dropdown-toggle p-1 inline-flex items-center gap-x-2 text-sm font-medium text-gray-800 underline disabled:opacity-50 disabled:pointer-events-none">
+                                                                                        Deploy
+                                                                                    </button>
+
+                                                                                    <div style="min-width: 10rem; z-index: 40;" class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 mt-2" aria-labelledby="hs-dropdown-auto-close-inside">
+                                                                                        <div class="flex-1 gap-2">
+                                                                                            <input type="hidden" id="skillSelectedId" value="@costSheet.costsheetdetails[i].Skillid" />
+                                                                                            <span class="mb-2 font-medium block">Skills<span class="toggle-mandatory-icon">*</span></span>
+                                                                                            <div class="flex items-center gap-3 flex-wrap" id="skillDropDown">
+                                                                                                <select class="multi-select skillSelect" onchange="getEmployee(this)">
+                                                                                                    <option value="0">Select Skills</option>
+                                                                                                    @foreach (var skills in ViewBag.skilllist)
+                                                                                                    {
+                                                                                                        if (Convert.ToInt32(skills.Value) == costSheet.costsheetdetails[i].Skillid)
+                                                                                                        {
+                                                                                                            <option value="@skills.Value" selected>@skills.Text</option>
+                                                                                                        }
+                                                                                                        else
+                                                                                                        {
+                                                                                                            <option value="@skills.Value">@skills.Text</option>
+                                                                                                        }
+                                                                                                    }
+                                                                                                </select>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div class="flex-1 gap-2">
+                                                                                            <div class="flex items-center justify-between">
+                                                                                                <span class="mb-2 font-medium block">Resource<span class="toggle-mandatory-icon">*</span></span>
+                                                                                                <div>
+                                                                                                    <div class="flex justify-end mt-1 mb-1">
+                                                                                                        <div class="flex items-center">
+                                                                                                            <label for="chkAllEmp" class="text-sm text-gray-500" style="margin-right: .25rem;">Bench Only</label>
+                                                                                                            <input type="checkbox" onchange="handleBenchOnly(this);" id="benchOnlyResources" style="box-shadow: none;" class="relative w-[3.25rem] h-7 p-px bg-black border-transparent text-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 disabled:opacity-50 disabled:pointer-events-none checked:bg-none checked:text-emerald-600 checked:border-emerald-600 focus:checked:border-emerald-600 before:absolute before:top-0 before:bottom-0 before:my-auto before:inline-block before:w-6 before:h-6 before:bg-white checked:before:bg-emerald-200 before:translate-x-0 checked:before:translate-x-full before:rounded-full before:shadow before:transform before:ring-0 before:transition before:ease-in-out before:duration-200">
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                            <div class="flex items-center gap-3 flex-wrap">
+                                                                                                <select class="multi-select resourceSelect">
+                                                                                                    <option value="0" selected>Select Resource</option>
+                                                                                                </select>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div class="flex items-center gap-2">
+
+                                                                                            <div class="flex-1">
+                                                                                                <span class="mb-2 font-medium block">Start Date<span class="toggle-mandatory-icon">*</span></span>
+                                                                                                <div class="flex items-center gap-3 flex-wrap">
+                                                                                                    <input type="date" id="contractstartdate" class="k-input" oninput="setEndDateMin(this.value)" min="@ViewBag.YearGapDate" />
+                                                                                                </div>
+                                                                                            </div>
+                                                                                            <div class="flex-1">
+                                                                                                <span class="mb-2 font-medium block">End Date<span class="toggle-mandatory-icon">*</span></span>
+                                                                                                <div class="flex items-center gap-3 flex-wrap">
+                                                                                                    <input type="date" class="k-input" id="contractenddate" />
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div style="align-self: flex-end; margin-top:2%">
+                                                                                            <button onclick="handleaddResource(this)" type="button" class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-emerald-400 bg-[#00cc83] text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm sm:text-base">
+                                                                                                Add
+                                                                                            </button>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </td>
+                                                                            <td></td>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <td></td>
+                                                                            <td></td>
+                                                                            <td></td>
+                                                                            <td></td>
+                                                                            <td></td>
+                                                                            <td></td>
+                                                                            <td></td>
+                                                                        }
+                                                                    </tr>
+                                                                }
+                                                            }
+                                                        </tbody>
+
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @*  <div class="flex-1">
+                                    <span class="mb-2 font-medium block">Skills<span class="toggle-mandatory-icon">*</span></span>
+                                    <div class="flex items-center gap-3 flex-wrap" id="skillDropDown">
+                                    <select class="multi-select" id="skillSelect" onchange="getEmployee(this)">
+                                    <option value="0">Select Skills</option>
+                                    @foreach (var skills in ViewBag.skilllist)
+                                    {
+                                    <option value="@skills.Value">@skills.Text</option>
+                                    }
+                                    </select>
+                                    </div>
+                                    </div>
+                                    <div class="flex-1">
+                                    <div class="flex items-center justify-between">
+                                    <span class="mb-2 font-medium block">Resource<span class="toggle-mandatory-icon">*</span></span>
+                                    <div>
+                                    <div class="flex justify-end">
+                                    <div class="flex items-center">
+                                    <label for="chkAllEmp" class="text-sm text-gray-500" style="margin-right: .25rem;">Bench Only</label>
+                                    <input type="checkbox" onchange="handleBenchOnly(this);" id="benchOnlyResources" style="box-shadow: none;" class="relative w-[3.25rem] h-7 p-px bg-black border-transparent text-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 disabled:opacity-50 disabled:pointer-events-none checked:bg-none checked:text-emerald-600 checked:border-emerald-600 focus:checked:border-emerald-600 before:absolute before:top-0 before:bottom-0 before:my-auto before:inline-block before:w-6 before:h-6 before:bg-white checked:before:bg-emerald-200 before:translate-x-0 checked:before:translate-x-full before:rounded-full before:shadow before:transform before:ring-0 before:transition before:ease-in-out before:duration-200">
+                                    </div>
+                                    </div>
+                                    </div>
+                                    </div>
+                                    <div class="flex items-center gap-3 flex-wrap">
+                                    <select class="multi-select" id="resourceSelect">
+                                    <option value="0" selected>Select Resource</option>
+                                    </select>
+                                    </div>
+                                    </div>
+                                    <div class="flex-1">
+                                    <span class="mb-2 font-medium block">Start Date<span class="toggle-mandatory-icon">*</span></span>
+                                    <div class="flex items-center gap-3 flex-wrap">
+                                    <input type="date" id="contractstartdate" class="k-input" oninput="setEndDateMin(this.value)" min="@ViewBag.YearGapDate" />
+                                    </div>
+                                    </div>
+                                    <div class="flex-1">
+                                    <span class="mb-2 font-medium block">End Date<span class="toggle-mandatory-icon">*</span></span>
+                                    <div class="flex items-center gap-3 flex-wrap">
+                                    <input type="date" class="k-input" id="contractenddate" />
+                                    </div>
+                                    </div>
+                                    <div style="align-self: flex-end;">
+                                    <button onclick="" type="button" id="addResource" class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-emerald-400 bg-[#00cc83] text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm sm:text-base">
+                                    Add
+                                    </button>
+                                    </div> *@
+                                </div>
+
+                                <div class="flex flex-col mb-4">
+                                    <div class="-m-1.5 overflow-x-auto">
+                                        <div class="p-1.5 min-w-full inline-block align-middle">
+                                            <div class="overflow-hidden">
+                                                <table id="employeeTable" class="min-w-full divide-y divide-gray-200">
+                                                    <thead>
+                                                        <tr>
+                                                            <th scope="col" width="10%"
+                                                                class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                                                S.No
+                                                            </th>
+                                                            @*  <th scope="col" width="10%"
+                                                            class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                                            TMC
+                                                            </th> *@
+                                                            <th scope="col" width="10%"
+                                                                class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                                                Resource Name
+                                                            </th>
+                                                            <th scope="col" width="20%"
+                                                                class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                                                Start Date
+                                                            </th>
+                                                            <th scope="col" width="60%"
+                                                                class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                                                End Date
+                                                            </th>
+                                                            <th scope="col" width="10%"
+                                                                class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                                                Action
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody class="divide-y divide-gray-200">
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @*  <div class="bg-white p-2 shadow" style="position: sticky; bottom:0;">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+                                </div>
+                                </div> *@
+                            </div>
+
+                            <div class="pt-2 pb-4 sticky -bottom-4 bg-white">
+                                <div class="flex items-center gap-4 justify-between flex-wrap">
+                                    <input type="hidden" id="modelcrmid" value="@Model.Projections.CrmId" />
+                                    <input type="hidden" id="modelProjectionId" />
+                                    <div>
+                                        <button type="button" onclick="skipProjection()" id="skipButton"
+                                                class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-emerald-400 bg-[#00cc83] text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm sm:text-base">
+                                            Skip
+                                        </button>
+                                    </div>
+                                    <button type="button" onclick="handleDeployEmployees(this);"
+                                            class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-emerald-400 bg-[#00cc83] text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm sm:text-base">
+                                        Deploy
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+
+    <script type="text/javascript">
+        var skillsData = [];
+        $(function () {
+        @if (ViewData["error"] != null)
+        {
+            <text>
+                        toastr.error("@ViewData["error"]", "Error", {"iconClass": 'new-error' });
+            </text>
+        }
+        @if (ViewData["success"] != null)
+        {
+            <text>
+                        toastr.success("@ViewData["success"]");
+            </text>
+        }
+                })
+
+        function showProjects(btn) {
+            btn.closest("tr").nextElementSibling.classList.toggle("hidden")
+        }
+
+        $(document).ready(function () {
+            $('.addProjectButton').click(function () {
+                // $('#extend-contract-modal').modal('show');
+                HSOverlay.open(document.querySelector("#extend-contract-modal"));
+
+                $.ajax({
+                    url: '@Url.Action("GetListofSkillsWithExp", "ProjectProjection")',
+                    type: 'GET',
+                    success: function (data) {
+                        skillsData = data;
+                        var $skillDropdown = $('#skill');
+                        $skillDropdown.empty();
+                        $skillDropdown.append($('<option>', {
+                            value: '',
+                            text: '---Select Skill---'
+                        }));
+                        console.log(data);
+
+                        $.each(data, function (index, skill) {
+                            $skillDropdown.append($('<option>', {
+                                value: skill.skillId,
+                                text: skill.skill
+                            }));
+                        });
+                    },
+                    error: function () {
+                        alert('Failed to load skills.');
+                    }
+                });
+            });
+        });
+
+        function getEmployee(inp) {
+            const rowIndex = Number(inp.closest("tr").getAttribute("data-index"));
+            const skillId = inp.value;
+            if (skillId == '0') {
+                return;
+            }
+            $.ajax({
+                url: '@Url.Action("GetEmployeeBySkills", "Base")',
+                type: 'GET',
+                data: {
+                    skillId: skillId,
+                },
+                success: function (data) {
+
+                    const dropdowndata = [{ text: "Select Resource", value: '0' }];
+                    if (!data.length) {
+                        toastr.error("No Resource for this Skill");
+                        resourceMultiSelectArray[rowIndex].setData(dropdowndata);
+                        return;
+                    }
+                    data.forEach(item => {
+                        dropdowndata.push({
+                            text: item?.text,
+                            value: item?.value
+                        })
+                    })
+                    resourceMultiSelectArray[rowIndex].setData(dropdowndata);
+                    console.log(data);
+
+
+                },
+                error: function () {
+                    alert('Failed to load skills.');
+                }
+            });
+        }
+
+        function handleBenchOnly(inp) {
+            const rowIndex = Number(inp.closest("tr").getAttribute("data-index"));
+
+            if (inp.checked) {
+                // skillMultiSelect.disable();
+                // skillMultiSelect.setSelected("0");
+                document.querySelector("#loader").style.display = "flex";
+
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("GetBenchResources", "Employee")',
+                    contentType: false,
+                    processData: false,
+                    success: function (res) {
+                        document.querySelector("#loader").style.display = "none";
+                        console.log(res);
+                        resourceMultiSelectArray[rowIndex].setData(res);
+                    },
+                    error: function (err) {
+                        document.querySelector("#loader").style.display = "none";
+                        console.log(err);
+                        toastr.error("Error fetching bench resources");
+                    }
+                });
+            } else {
+                //skillMultiSelect.enable();
+                resourceMultiSelectArray[rowIndex].setData([{ text: "Select Resource", value: "0" }])
+            }
+        }
+
+        function validateResourceForm(index) {
+            let isValid = true;
+            const resource = resourceMultiSelectArray[index].getSelected();
+            const dropdownMenu = resourceMultiSelectArray[index].selectEl.closest(".hs-dropdown-menu");
+            const ExistingResource = document.querySelector(`tr[data-resourceid='${resource[0]}']`)
+            const startDate = dropdownMenu.querySelector("#contractstartdate").value;
+            const endDate = dropdownMenu.querySelector("#contractenddate").value;
+
+            if (!resource.length || resource[0] === '0') {
+                isValid = false;
+                toastr.error("Select a resource first.")
+        @* document.querySelector("#resourceSelect").classList.add("is-invalid") *@
+                                    } else {
+        @* document.querySelector("#resourceSelect").classList.remove("is-invalid") *@
+                                    }
+            if (!startDate) {
+                isValid = false;
+                dropdownMenu.querySelector("#contractstartdate").classList.add("is-invalid")
+            } else {
+                dropdownMenu.querySelector("#contractstartdate").classList.remove("is-invalid")
+            }
+            if (!endDate) {
+                isValid = false;
+                dropdownMenu.querySelector("#contractenddate").classList.add("is-invalid")
+            } else {
+                dropdownMenu.querySelector("#contractenddate").classList.remove("is-invalid")
+            }
+            if (ExistingResource) {
+                isValid = false;
+                toastr.error("Resource already added");
+            }
+
+            return isValid;
+        }
+
+        function recalculateRowCount() {
+            const allTr = document.querySelectorAll("#employeeTable > tbody > tr:not(.employeeProjectData)");
+            allTr.forEach((item, index) => {
+                item.querySelector("td span").innerHTML = (index + 1) < 10 ? "0" + (index + 1) : (index + 1);
+            })
+        }
+        function handleaddResource(btn) {
+            const rowIndex = Number(btn.closest("tr").getAttribute("data-index"));
+            const isResourceFormValid = validateResourceForm(rowIndex);
+            if (!isResourceFormValid) return;
+
+            var startDate = btn.closest(".hs-dropdown-menu").querySelector('#contractstartdate').value;
+            var endDate = btn.closest(".hs-dropdown-menu").querySelector('#contractenddate').value;
+            var resourceid = resourceMultiSelectArray[rowIndex].getSelected()[0];
+            var resourceName = resourceMultiSelectArray[rowIndex].selectEl.querySelector(`option[value='${resourceid}']`).innerText.trim();
+            var $tablebody = $('#employeeTable tbody');
+            // $tablebody.empty();
+
+
+            const fData = new FormData();
+            fData.append("data", JSON.stringify({
+                startdate: startDate,
+                enddate: endDate,
+                employeeid: resourceid
+            }))
+
+            document.querySelector("#loader").style.display = "flex";
+
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("ActiveEmployeeProject", "ProjectProjection")",
+                data: fData,
+                contentType: false,
+                processData: false,
+                success: function (res) {
+                    console.log(res)
+                    $("#loader").hide();
+                    if (res?.success) {
+                        addResourceToTable(resourceid, resourceName, startDate, endDate, res?.data)
+                    } else {
+                        toastr.error("Something went wrong");
+                    }
+                },
+                error: function (err) {
+                    $("#loader").hide();
+                    toastr.error("Something went wrong");
+                }
+            });
+
+            HSDropdown.close(btn.closest(".hs-dropdown"))
+            ResetDropdowns(rowIndex);
+            document.getElementById("skipButton").style.display = "none";
+        }
+
+        // $('#addResource').click(function () {
+        //     const isResourceFormValid = validateResourceForm();
+        //     if (!isResourceFormValid) return;
+
+        //     var startDate = $('#contractstartdate').val();
+        //     var endDate = $('#contractenddate').val();
+        //     var resourceid = resourceMultiSelect.getSelected()[0];
+        //     var resourceName = resourceMultiSelect.selectEl.querySelector(`option[value='${resourceid}']`).innerText.trim();
+        //     var $tablebody = $('#employeeTable tbody');
+        //     // $tablebody.empty();
+
+
+        //     const fData = new FormData();
+        //     fData.append("data", JSON.stringify({
+        //         startdate: startDate,
+        //         enddate: endDate,
+        //         employeeid: resourceid
+        //     }))
+
+        //     document.querySelector("#loader").style.display = "flex";
+
+        //     $.ajax({
+        //         type: "POST",
+        //         url: "@Url.Action("ActiveEmployeeProject", "ProjectProjection")",
+        //         data: fData,
+        //         contentType: false,
+        //         processData: false,
+        //         success: function (res) {
+        //             console.log(res)
+        //             $("#loader").hide();
+        //             if (res?.success) {
+        //                 addResourceToTable(resourceid, resourceName, startDate, endDate, res?.data)
+        //             } else {
+        //                 toastr.error("Something went wrong");
+        //             }
+        //         },
+        //         error: function (err) {
+        //             $("#loader").hide();
+        //             toastr.error("Something went wrong");
+        //         }
+        //     });
+
+        //     ResetDropdowns();
+        //     document.getElementById("skipButton").style.display = "none";
+
+        // });
+
+        function addResourceToTable(resourceid, resourceName, startDate, endDate, employeeProjectData = null) {
+            var tablebody = document.querySelector('#employeeTable tbody');
+            var rowLength = document.querySelectorAll("#employeeTable > tbody > tr:not(.employeeProjectData)").length + 1;
+            if (!employeeProjectData || employeeProjectData?.length == 0) {
+                //Add Employee WIthout Projects
+
+                var row = $(`<tr data-resourceid="${resourceid}" data-resourcename="${resourceName}">`).append(
+                    $('<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800  ">').text(rowLength < 10 ? "0" + rowLength : rowLength),
+        @*  $('<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800  ">').text(resourceid), *@
+                    $('<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800  ">').text(resourceName),
+                    $('<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800  ">').text(startDate),
+                    $('<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800  ">').text(endDate),
+                    $('<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800  ">').html(
+                        '<button type="button" data-employeeid="' + resourceid + '" onclick="RemoveEmployee(this)">'
+                        + '<svg class="w-6 h-6 text-red-500" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 1024 1024"><path fill="currentColor" d="M512 64a448 448 0 1 1 0 896a448 448 0 0 1 0-896M288 512a38.4 38.4 0 0 0 38.4 38.4h371.2a38.4 38.4 0 0 0 0-76.8H326.4A38.4 38.4 0 0 0 288 512"/></svg>'
+                        + '</button>')
+                );
+                $("#employeeTable > tbody").append(row);
+            } else {
+                //Add Employee WIth Projects
+                const row = document.createElement("tr");
+                row.setAttribute("data-resourceid", resourceid);
+                row.setAttribute("data-resourcename", resourceName);
+
+                row.innerHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"><div class="flex items-center gap-2">
+                                                                                            <button class="toggleProjectBtn p-2 bg-gray-100 rounded" type='button' onclick="showProjects(this);"><svg class="w-6 h-6 toggleProjectsIcon" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-dasharray="12" stroke-dashoffset="12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12l-7 -7M16 12l-7 7"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.3s" values="12;0"/></path></svg></button>
+                                                                                            <span>${rowLength < 10 ? "0" + rowLength : rowLength}<span><div>
+                                                                                    </td>`;
+                row.innerHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800  ">${resourceName}</td>`
+                row.innerHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800  ">${startDate}</td>`
+                row.innerHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800  ">${endDate}</td>`
+                row.innerHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800  ">
+                                                                                            <button type="button" data-employeeid="${resourceid}" onclick="RemoveEmployeeWithProjects(this)">
+                                                                                                <svg class="w-6 h-6 text-red-500" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 1024 1024"><path fill="currentColor" d="M512 64a448 448 0 1 1 0 896a448 448 0 0 1 0-896M288 512a38.4 38.4 0 0 0 38.4 38.4h371.2a38.4 38.4 0 0 0 0-76.8H326.4A38.4 38.4 0 0 0 288 512"/></svg>
+                                                                                                </button>
+                                                                                </td>`
+
+                const projectDataRow = document.createElement("tr");
+                projectDataRow.classList.add("employeeProjectData", "hidden");
+                let projectDataRowHtml = ''
+                projectDataRowHtml += '<td colspan="5" class="p-4 bg-gray-100">'
+                projectDataRowHtml += '<div style="overflow-x: auto;">'
+                projectDataRowHtml += '<table>';
+                projectDataRowHtml += '<thead>';
+                projectDataRowHtml += '<tr>';
+                projectDataRowHtml += '<th class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">S.No</th>';
+                projectDataRowHtml += '<th class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">Project Name</th>';
+                projectDataRowHtml += '<th class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">Contract End Date</th>';
+                projectDataRowHtml += '<th class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">Contract End Date</th>';
+                projectDataRowHtml += '<th class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">DA Name</th>';
+                projectDataRowHtml += '<th class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">Action</th>';
+                projectDataRowHtml += '</tr>';
+                projectDataRowHtml += '</thead>';
+                projectDataRowHtml += '<tbody>';
+
+                employeeProjectData.forEach((item, index) => {
+                    projectDataRowHtml += `<tr class="resourceProject" data-daid="${item?.deliveryAnchorId}" data-requestsent="false">`;
+                    projectDataRowHtml += `<td class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm text-black">${index + 1}</td>`;
+                    projectDataRowHtml += `<td class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm text-black">${item.projectName}</td>`;
+                    projectDataRowHtml += `<td class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm text-black">${item.contractStartDate}</td>`;
+                    projectDataRowHtml += `<td class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm text-black">${item.contractEndDate}</td>`;
+                    projectDataRowHtml += `<td class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm text-black">${item.deliveryAnchorName}</td>`;
+                    projectDataRowHtml += `<td class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm text-black">
+                                                                                            <button type="button" onclick="sendReleaseRequest(this);" class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-transparent bg-blue-500 text-white hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm">Send Request</button>
+                                                                                    </td>`;
+                    projectDataRowHtml += '</tr>';
+                });
+                projectDataRowHtml += '</tbody>';
+                projectDataRowHtml += '</table>';
+                projectDataRowHtml += '</div>';
+                projectDataRowHtml += '</td>'
+
+                projectDataRow.innerHTML += projectDataRowHtml;
+
+                tablebody.appendChild(row);
+                tablebody.appendChild(projectDataRow);
+            }
+        }
+
+        function sendReleaseRequest(btn) {
+            const employeeId = btn.closest(".employeeProjectData").previousElementSibling.getAttribute("data-resourceid");
+            const crmId = document.querySelector("#modelcrmid").value;
+            const row = btn.closest("tr");
+
+            const url = new URL(window.location.href);
+
+            // Extract the last part of the URL path as the projection ID
+            const projectionId = url.pathname.split('/').pop();
+
+            // Set the projection ID in the element with the ID 'modelProjectionId'
+            document.querySelector("#modelProjectionId").value = projectionId;
+            //const daId = btn.closest("tr").getAttribute("data-daid");
+            const sentTo = btn.closest("tr").getAttribute("data-daid");
+            const fData = new FormData();
+            fData.append("data", JSON.stringify({
+                employeeId,
+                crmId,
+                sentTo,
+                status: "Pending",
+                projectionId
+        @*  crmId,
+            daId  *@
+                                                    }))
+
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("EmployeeReleaseRequest", "ProjectProjection")",
+            data: fData,
+            contentType: false,
+            processData: false,
+            success: function (res) {
+                console.log(res)
+                row.querySelector("td:last-child").innerHTML = "<span class='status pending'>Request Pending</span>";
+                row.setAttribute("data-requestsent", true);
+                RemoveActionIfRequestSend(row);
+                $("#loader").hide();
+            },
+            error: function (err) {
+                $("#loader").hide();
+
+            }
+        });}
+
+        function RemoveEmployee(button) {
+            var employeeid = $(button).attr('data-employeeid');
+            console.log(employeeid);
+
+            var buttons = $('[data-employeeid=' + employeeid + ']').each(function (index, element) {
+                element.closest('   tr').remove();
+
+            });
+            recalculateRowCount();
+            const removeRow = document.querySelectorAll("#employeeTable tbody > tr");
+            if (removeRow.length == 0) {
+                document.getElementById("skipButton").style.display = "inline-flex";
+
+            }
+        }
+
+        function RemoveEmployeeWithProjects(btn) {
+            const empRow = btn.closest("tr");
+            const projectRow = empRow.nextElementSibling;
+
+            if (projectRow.classList.contains("employeeProjectData")) {
+                projectRow.remove();
+            }
+            empRow.remove();
+            recalculateRowCount();
+            const removeRow = document.querySelectorAll("#employeeTable tbody > tr");
+            if (removeRow.length == 0) {
+                document.getElementById("skipButton").style.display = "inline-flex";
+
+            }
+        }
+
+
+        function handleDeployEmployees() {
+            const allRequestSent = checkAllRequestSent();
+            if (!allRequestSent) {
+                toastr.error("Send Release request all employees");
+                return;
+            }
+            const url = new URL(window.location.href);
+
+            // Extract the last part of the URL path as the projection ID
+            const projectionId = url.pathname.split('/').pop();
+
+            // Set the projection ID in the element with the ID 'modelProjectionId'
+            document.querySelector("#modelProjectionId").value = projectionId;
+            const crmdId = document.querySelector("#modelcrmid").value;
+
+            const allResourceTr = document.querySelectorAll("#employeeTable > tbody > tr:not(.employeeProjectData)");
+            if (allResourceTr.length <= 0) {
+                toastr.error("Select at least a resource");
+                return;
+            }
+            const resourceList = [];
+
+            allResourceTr.forEach(tr => {
+                resourceList.push({
+                    DeployedEmployeeId: tr.getAttribute("data-resourceid"),
+                    DeployedEmployeeName: tr.getAttribute("data-resourcename"),
+                    StartDate: tr.querySelector("td:nth-child(3)").innerText,
+                    EndDate: tr.querySelector("td:nth-child(4)").innerText,
+                    CategorySubStatusId: 4,
+                })
+            })
+
+            const data = {
+                projectionId,
+                CrmId: crmdId,
+                DeployedEmployees: resourceList,
+            }
+            const fData = new FormData();
+            fData.append("data", JSON.stringify(data));
+            document.querySelector("#loader").style.display = "flex";
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("PostProjection", "ProjectProjection")",
+                data: fData,
+                contentType: false,
+                processData: false,
+                success: function (res) {
+                    console.log(res)
+                    $("#loader").hide();
+                    handleCloseModal("projection");
+
+                    if (res.statusCode == 200) {
+                        toastr.success("Projection Created Successfully");
+                        const createdProjectionData = JSON.parse(res.responseContent)
+                        console.log(createdProjectionData);
+                        window.location.reload();
+
+                        document.querySelector("#modelProjectionId").value = createdProjectionData.data.projectionid;
+                    } else {
+                        toastr.error("Error Creating Projection");
+                        $("#loader").hide();
+                        handleCloseModal("projection");
+                        window.location.reload();
+                    }
+                },
+                error: function (err) {
+                    toastr.error("Error Creating Projection");
+                    window.location.reload();
+                }
+            });
+        }
+
+        function handleCloseModal() {
+
+            HSOverlay.close(document.querySelector("#extend-contract-modal"))
+
+        }
+        const resourceMultiSelectArray = [];
+        const skillMultiSelectArray = [];
+        function setEndDateMin(startDate) {
+            const endDateInput = document.getElementById('contractenddate');
+            endDateInput.setAttribute('min', startDate);
+        }
+        const selectedSkills = document.querySelectorAll(".skillSelect");
+        console.log(selectedSkills, "hi");
+        selectedSkills.forEach(item => {
+            const skillMultiSelect = new SlimSelect({
+                select: item
+            })
+            skillMultiSelect.disable();
+            skillMultiSelectArray.push(skillMultiSelect);
+        })
+
+        const resourceSelect = document.querySelectorAll(".resourceSelect");
+        resourceSelect.forEach(item => {
+            const resourceMultiSelect = new SlimSelect({
+                select: item
+            })
+            resourceMultiSelectArray.push(resourceMultiSelect);
+        })
+        function ResetDropdowns() {
+            $('#contractstartdate').val('');
+            $('#contractenddate').val('');
+            resourceMultiSelectArray.forEach(item => {
+                item.setSelected('0');
+            })
+            skillMultiSelectArray.forEach(item => {
+                item.setSelected('0');
+            })
+
+        }
+
+        function RemoveActionIfRequestSend(btn) {
+            console.log(btn);
+            const allRequestTr = btn.closest("tbody").querySelector("tr.resourceProject[data-requestsent='true']");
+            console.log(allRequestTr);
+            if (allRequestTr) {
+                btn.closest("table").closest("tr").previousElementSibling.querySelector("td:last-child").innerHTML = "";
+            }
+        }
+
+        function checkAllRequestSent() {
+            const allRequestTr = document.querySelectorAll("tr.resourceProject[data-requestsent='false']");
+
+            return allRequestTr.length ? false : true;
+        }
+
+        function skipProjection() {
+            const allResourceTr = document.querySelectorAll("#employeeTable > tbody > tr:not(.employeeProjectData)");
+            if (allResourceTr.length <= 0) {
+
+                setTimeout(() => {
+                    window.location.href = "/ProjectProjection/Index"
+                }, 1000);
+            }
+            else {
+                document.getElementById("skipButton").style.display = "none";
+            }
+        }
+
+        function RemoveErrorClass(form) {
+            const allInput = document.querySelectorAll(form + " .is-invalid");
+            allInput.forEach(inp => {
+                inp.classList.remove("is-invalid");
+            })
+        }
+
+        const resourceMultiSelect = new SlimSelect({
+            select: "#resourceSelect"
+        })
+        const skillMultiSelect = new SlimSelect({
+            select: "#skillSelect"
+        })
+
+
+        HSDropdown.on("open", (dropdown) => {
+            console.log(dropdown);
+            const rowIndex = Number(dropdown.closest("tr").getAttribute("data-index"));
+            const skillId = Number(dropdown.closest("tr").querySelector("#skillSelectedId").value);
+            skillMultiSelectArray[rowIndex].setSelected(skillId);
+            skillMultiSelectArray[rowIndex].disable();
+
+        })
+        HSDropdown.on("close", (dropdown) => {
+            dropdown.querySelector("#benchOnlyResources").checked = false;
+            dropdown.querySelector("#contractstartdate").value = '';
+            dropdown.querySelector("#contractenddate").value = '';
+        })
+
+    </script>
+}

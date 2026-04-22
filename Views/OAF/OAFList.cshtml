@@ -1,0 +1,590 @@
+﻿@model IEnumerable<RMS.Client.Models.Oaf.Oaf>
+@{
+    ViewData["Title"] = "OAF List";
+    var totalOAFCount = ViewBag.totalOAFCount;
+    var approvedOAFCount = ViewBag.approvedOAFCount;
+    var pendingOAFCount = ViewBag.pendingOAFCount;
+    var rejectedOAFCount = ViewBag.rejectedOAFCount;
+}
+
+<partial name="~/Views/Shared/Controls/_PageHead.cshtml"
+         model="@(new RMS.Client.Models.Common.PageHead
+   {
+       PageHeading = "List of OAF",
+       Columns = new List<string> { "S.NO","OAFNo", "PO Number", "Created On", "Created By", "Status", "Detail" }
+   })" />
+<nav class="flex items-center overflow-x-auto bg-[#fafafa]" aria-label="Tabs" role="tablist">
+
+    <a data-status="Total" data-hs-tab="#tabs-with-underline-1" onclick="filterRecord('total')"
+       class="hs-tab-active:font-semibold hs-tab-active:border-emerald-600 py-2 px-5 inline-flex items-baseline gap-2 border-b-[3px] border-transparent text-sm sm:whitespace-nowrap text-gray-500 hover:text-emerald-600 @(ViewBag.status == "Total" ? "active" : "")">
+        <img class="h-4 w-auto" src="~/assets/images/total-projects-icon.svg" alt="">
+        <div>
+            <span class="text-base font-semibold block text-left whitespace-nowrap">Total OAF</span>
+            <span class="text-2xl font-extrabold block text-left">@totalOAFCount</span>
+        </div>
+    </a>
+    <a data-status="Approved" data-hs-tab="#tabs-with-underline-2" onclick="filterRecord('approved')"
+       class="hs-tab-active:font-semibold hs-tab-active:border-emerald-600 py-2 px-5 inline-flex items-baseline gap-2 border-b-[3px] border-transparent text-sm sm:whitespace-nowrap text-gray-500 hover:text-emerald-600 @(ViewBag.status == "Approved" ? "active" : "")">
+        <img class="h-4 w-auto" src="./assets/images/total-employees-icon.svg" alt="">
+        <div>
+            <span class="text-base font-semibold block text-left whitespace-nowrap">Approved OAF</span>
+            <span class="text-2xl font-extrabold block text-left">@approvedOAFCount</span>
+        </div>
+    </a>
+    <a data-status="Pending" data-hs-tab="#tabs-with-underline-3" onclick="filterRecord('pending')"
+       class="hs-tab-active:font-semibold hs-tab-active:border-emerald-600 py-2 px-5 inline-flex items-baseline gap-2 border-b-[3px] border-transparent text-sm sm:whitespace-nowrap text-gray-500 hover:text-emerald-600 @(ViewBag.status == "Pending" ? "active" : "")">
+        <img class="h-4 w-auto" src="./assets/images/overrun-employees-icon.svg" alt="">
+        <div>
+            <span class="text-base font-semibold block text-left whitespace-nowrap">Pending OAF</span>
+            <span class="text-2xl font-extrabold block text-left">@pendingOAFCount</span>
+        </div>
+    </a>
+    <a data-status="Rejected" data-hs-tab="#tabs-with-underline-4" onclick="filterRecord('rejected')"
+       class="hs-tab-active:font-semibold hs-tab-active:border-emerald-600 py-2 px-5 inline-flex items-baseline gap-2 border-b-[3px] border-transparent text-sm sm:whitespace-nowrap text-gray-500 hover:text-emerald-600 @(ViewBag.status == "Rejected" ? "active" : "")">
+        <img class="h-4 w-auto" src="~/assets/images/onbench-employees-icon.svg" alt="">
+        <div>
+            <span class="text-base font-semibold block text-left whitespace-nowrap">Rejected OAF</span>
+            <span class="text-2xl font-extrabold block text-left">@rejectedOAFCount</span>
+        </div>
+    </a>
+</nav>
+
+<div class="mt-4 2xl:mt-8">
+    <div id="tabs-with-underline-1" role="tabpanel" aria-labelledby="tabs-with-underline-item-1">
+        <div class="flex flex-col">
+            <div class="-m-1.5 overflow-x-auto">
+                <div class="p-1.5 min-w-full inline-block align-middle">
+                    <div class="overflow-hidden">
+                        <table class="min-w-full divide-y divide-gray-200" id="tblData">
+                            <thead>
+                                <tr>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        S.No
+                                        
+                                            
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        OAF NO.
+                                        <div style="vertical-align: middle;" class="filter-dropdown mx-1 hs-dropdown relative sm:inline-flex z-20 [--auto-close:inside]">
+                                            <button id="hs-dropdown-auto-close-inside" type="button" class="hs-dropdown-toggle p-1 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-gray-100 text-gray-800 shadow-sm disabled:opacity-50 disabled:pointer-events-none">
+                                                <svg class="w-4 h-4 text-gray-800" xmlns="http://www.w3.org/2000/svg"
+                                                     width="512" height="512" viewBox="0 0 512 512">
+                                                    <path fill="currentColor"
+                                                          d="M472 168H40a24 24 0 0 1 0-48h432a24 24 0 0 1 0 48m-80 112H120a24 24 0 0 1 0-48h272a24 24 0 0 1 0 48m-96 112h-80a24 24 0 0 1 0-48h80a24 24 0 0 1 0 48" />
+                                                </svg>
+                                            </button>
+
+                                            <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 mt-2" aria-labelledby="hs-dropdown-auto-close-inside">
+                                                <div class="filter-item-list" style="height: 10rem; overflow-y: auto;"></div>
+
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        Po Number
+                                        <div style="vertical-align: middle;" class="filter-dropdown mx-1 hs-dropdown relative sm:inline-flex z-20 [--auto-close:inside]">
+                                            <button id="hs-dropdown-auto-close-inside" type="button" class="hs-dropdown-toggle p-1 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-gray-100 text-gray-800 shadow-sm disabled:opacity-50 disabled:pointer-events-none">
+                                                <svg class="w-4 h-4 text-gray-800" xmlns="http://www.w3.org/2000/svg"
+                                                     width="512" height="512" viewBox="0 0 512 512">
+                                                    <path fill="currentColor"
+                                                          d="M472 168H40a24 24 0 0 1 0-48h432a24 24 0 0 1 0 48m-80 112H120a24 24 0 0 1 0-48h272a24 24 0 0 1 0 48m-96 112h-80a24 24 0 0 1 0-48h80a24 24 0 0 1 0 48" />
+                                                </svg>
+                                            </button>
+
+                                            <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 mt-2" aria-labelledby="hs-dropdown-auto-close-inside">
+                                                <div class="filter-item-list" style="height: 10rem; overflow-y: auto;"></div>
+
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        Created On
+                                        <div style="vertical-align: middle;" class="filter-dropdown mx-1 hs-dropdown relative sm:inline-flex z-20 [--auto-close:inside]">
+                                            <button id="hs-dropdown-auto-close-inside" type="button" class="hs-dropdown-toggle p-1 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-gray-100 text-gray-800 shadow-sm disabled:opacity-50 disabled:pointer-events-none">
+                                                <svg class="w-4 h-4 text-gray-800" xmlns="http://www.w3.org/2000/svg"
+                                                     width="512" height="512" viewBox="0 0 512 512">
+                                                    <path fill="currentColor"
+                                                          d="M472 168H40a24 24 0 0 1 0-48h432a24 24 0 0 1 0 48m-80 112H120a24 24 0 0 1 0-48h272a24 24 0 0 1 0 48m-96 112h-80a24 24 0 0 1 0-48h80a24 24 0 0 1 0 48" />
+                                                </svg>
+                                            </button>
+
+                                            <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 mt-2" aria-labelledby="hs-dropdown-auto-close-inside">
+                                                <div class="filter-item-list" style="height: 10rem; overflow-y: auto;"></div>
+
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        Created By
+                                        <div style="vertical-align: middle;" class="filter-dropdown mx-1 hs-dropdown relative sm:inline-flex z-20 [--auto-close:inside]">
+                                            <button id="hs-dropdown-auto-close-inside" type="button" class="hs-dropdown-toggle p-1 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-gray-100 text-gray-800 shadow-sm disabled:opacity-50 disabled:pointer-events-none">
+                                                <svg class="w-4 h-4 text-gray-800" xmlns="http://www.w3.org/2000/svg"
+                                                     width="512" height="512" viewBox="0 0 512 512">
+                                                    <path fill="currentColor"
+                                                          d="M472 168H40a24 24 0 0 1 0-48h432a24 24 0 0 1 0 48m-80 112H120a24 24 0 0 1 0-48h272a24 24 0 0 1 0 48m-96 112h-80a24 24 0 0 1 0-48h80a24 24 0 0 1 0 48" />
+                                                </svg>
+                                            </button>
+
+                                            <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 mt-2" aria-labelledby="hs-dropdown-auto-close-inside">
+                                                <div class="filter-item-list" style="height: 10rem; overflow-y: auto;"></div>
+
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        Status
+                                        <div style="vertical-align: middle;" class="filter-dropdown mx-1 hs-dropdown relative sm:inline-flex z-20 [--auto-close:inside]">
+                                            <button id="hs-dropdown-auto-close-inside" type="button" class="hs-dropdown-toggle p-1 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-gray-100 text-gray-800 shadow-sm disabled:opacity-50 disabled:pointer-events-none">
+                                                <svg class="w-4 h-4 text-gray-800" xmlns="http://www.w3.org/2000/svg"
+                                                     width="512" height="512" viewBox="0 0 512 512">
+                                                    <path fill="currentColor"
+                                                          d="M472 168H40a24 24 0 0 1 0-48h432a24 24 0 0 1 0 48m-80 112H120a24 24 0 0 1 0-48h272a24 24 0 0 1 0 48m-96 112h-80a24 24 0 0 1 0-48h80a24 24 0 0 1 0 48" />
+                                                </svg>
+                                            </button>
+
+                                            <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 mt-2" aria-labelledby="hs-dropdown-auto-close-inside">
+                                                <div class="filter-item-list" style="height: 10rem; overflow-y: auto;"></div>
+
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        Detailed View
+                                    </th>
+                                    
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                @if (Model != null)
+                                {
+                                    var serialNumber = 1;
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
+                                                @serialNumber
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                @item.oafNo
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                @item.ponumber
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                @item.createdOn.ToString("yyyy-MM-dd")
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                @item.createdBy
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                <span class="status @(item.status == "Submitted" ? "progress" : item.status == "Completed" ? "completed" : item.status == "Approved" ? "approved" : item.status == "Draft" ? "draft" : item.status == "Rejected" ? "rejected" : "pending")">
+                                                    @(!string.IsNullOrEmpty(item.status) ? item.status : "Pending")
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                <a asp-action="OAFDetail" asp-controller="OAF" asp-route-id="@item.oafid"
+                                                   onclick="showDetailedView(@item.oafid)">
+                                                    View All Details
+                                                </a>
+                                            </td>
+                                            
+                                        </tr>
+                                        serialNumber++;
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td class="px-6 py-4   text-sm font-medium" colspan="7">
+                                            No Data Found
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="tabs-with-underline-2" class="hidden" role="tabpanel" aria-labelledby="tabs-with-underline-item-2">
+        <div class="flex flex-col">
+            <div class="-m-1.5 overflow-x-auto">
+                <div class="p-1.5 min-w-full inline-block align-middle">
+                    <div class="overflow-hidden">
+                        <table class="min-w-full divide-y divide-gray-200" id="approved">
+                            <thead>
+                                <tr>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        S.No
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        OAF NO.
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        Po Number
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        Created On
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        Created By
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        Status
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        Detailed View
+                                    </th>
+                                   
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                @if (Model != null)
+                                {
+                                    var serialNumber = 1;
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
+                                                @serialNumber
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                @item.oafNo
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                @item.ponumber
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                @item.createdOn.ToString("yyyy-MM-dd")
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                @item.createdBy
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                <span class="status @(item.status == "Submitted" ? "progress" : item.status == "Completed" ? "completed" : item.status == "Approved" ? "approved" : item.status == "Draft" ? "draft" : item.status == "Rejected" ? "rejected" : "pending")">
+                                                    @(!string.IsNullOrEmpty(item.status) ? item.status : "Pending")
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                <a asp-action="OAFDetail" asp-controller="OAF" asp-route-id="@item.oafid"
+                                                   onclick="showDetailedView(@item.oafid)">
+                                                    View All Details
+                                                </a>
+                                            </td>
+                                            
+                                        </tr>
+                                        serialNumber++;
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td class="px-6 py-4   text-sm font-medium" colspan="7">
+                                            No Data Found
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="tabs-with-underline-3" class="hidden" role="tabpanel" aria-labelledby="tabs-with-underline-item-3">
+        <div class="flex flex-col">
+            <div class="-m-1.5 overflow-x-auto">
+                <div class="p-1.5 min-w-full inline-block align-middle">
+                    <div class="overflow-hidden">
+                        <table class="min-w-full divide-y divide-gray-200" id="pending">
+                            <thead>
+                                <tr>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        S.No
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        OAF NO.
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        Po Number
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        Created On
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        Created By
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        Status
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        Detailed View
+                                    </th>
+                                   
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                @if (Model != null)
+                                {
+                                    var serialNumber = 1;
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
+                                                @serialNumber
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                @item.oafNo
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                @item.ponumber
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                @item.createdOn.ToString("yyyy-MM-dd")
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                @item.createdBy
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                <span class="status @(item.status == "Submitted" ? "progress" : item.status == "Completed" ? "completed" : item.status == "Approved" ? "approved" : item.status == "Draft" ? "draft" : item.status == "Rejected" ? "rejected" : "pending")">
+                                                    @(!string.IsNullOrEmpty(item.status) ? item.status : "Pending")
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                <a asp-action="OAFDetail" asp-controller="OAF" asp-route-id="@item.oafid"
+                                                   onclick="showDetailedView(@item.oafid)">
+                                                    View All Details
+                                                </a>
+                                            </td>
+                                            
+                                        </tr>
+                                        serialNumber++;
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td class="px-6 py-4   text-sm font-medium" colspan="7">
+                                            No Data Found
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="tabs-with-underline-4" class="hidden" role="tabpanel" aria-labelledby="tabs-with-underline-item-3">
+        <div class="flex flex-col">
+            <div class="-m-1.5 overflow-x-auto">
+                <div class="p-1.5 min-w-full inline-block align-middle">
+                    <div class="overflow-hidden">
+                        <table class="min-w-full divide-y divide-gray-200" id="rejected">
+                            <thead>
+                                <tr>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        S.No
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        OAF NO.
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        Po Number
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        Created On
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        Created By
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        Status
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        Detailed View
+                                    </th>
+                                   
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                @if (Model != null)
+                                {
+                                    var serialNumber = 1;
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
+                                                @serialNumber
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                @item.oafNo
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                @item.ponumber
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                @item.createdOn.ToString("yyyy-MM-dd")
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                @item.createdBy
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                <span class="status @(item.status == "Submitted" ? "progress" : item.status == "Completed" ? "completed" : item.status == "Approved" ? "approved" : item.status == "Draft" ? "draft" : item.status == "Rejected" ? "rejected" : "pending")">
+                                                    @(!string.IsNullOrEmpty(item.status) ? item.status : "Pending")
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                <a asp-action="OAFDetail" asp-controller="OAF" asp-route-id="@item.oafid"
+                                                   onclick="showDetailedView(@item.oafid)">
+                                                    View All Details
+                                                </a>
+                                            </td>
+                                           
+                                        </tr>
+                                        serialNumber++;
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td class="px-6 py-4   text-sm font-medium" colspan="7">
+                                            No Data Found
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+
+        function filterRecord(mode) {
+            let url = "/OAF/Index";
+            var status = mode.toLowerCase();
+            if (status === "total") {
+                window.location.href = url;
+            } else if (status === "approved") {
+                url += '?status=Approved';
+                window.location.href = url;
+            } else if (status === "pending") {
+                url += '?status=Pending';
+                window.location.href = url;
+            } else if (status === "rejected") {
+                url += '?status=Rejected';
+                window.location.href = url;
+            }
+        }
+
+        let datatable = new DataTable("#tblData", {
+            scrollX: true,
+            ordering: false,
+            "fnInitComplete": function (oSettings, json) {
+                const _dt = this.api();
+                console.log("initdone")
+                // $("#loader").hide();
+                document.querySelector("#loader").style.display = "none";
+                // docu
+                const allTh = document.querySelectorAll(".dataTables_scrollHead table thead th");
+                const allThWithFilter = [];
+                Array.from(allTh).forEach((item, index) => {
+                    if (item.querySelector(".hs-dropdown")) {
+                        allThWithFilter.push({ item, index });
+                    }
+                });
+                console.log(allThWithFilter);
+                allThWithFilter.forEach(item => {
+                    // console.log(Number(item.index));
+                    const column = _dt.columns(Number(item.index)).data().unique().sort();
+                    // const column = document.querySelectorAll(`td:nth-child(${item.index + 1})`);
+                    const uniqueColumnContent = new Set();
+
+                    column[0].forEach(colItem => {
+                        if (!colItem.includes("span")) {
+                            uniqueColumnContent.add(colItem.trim());
+                        } else {
+                            const tempElem = document.createElement("div");
+                            tempElem.innerHTML = colItem;
+                            uniqueColumnContent.add(tempElem.innerText.trim());
+                        }
+                    });
+
+                    const dropdownBody = item?.item.querySelector(".hs-dropdown-menu .filter-item-list");
+                    dropdownBody.innerHTML = "";
+                    uniqueColumnContent.forEach(dItem => {
+                        const dropdownItem = document.createElement("div");
+                        dropdownItem.classList.add("relative", "flex", "items-start", "py-2", "px-3", "rounded-lg", "hover:bg-gray-100");
+                        let checkBoxId = `chk-${Math.floor(Math.random() * 9999999)}`;
+                        dropdownItem.innerHTML = `<div class="flex items-center">
+                                                                        <input value="${dItem}" id="${checkBoxId}" type="checkbox" class="shrink-0 border-gray-200 rounded text-emerald-600 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                                                    </div>
+                                                                    <label for="${checkBoxId}" class="flex-1 ms-2">
+                                                                        <span class="block text-xs text-gray-800">${dItem}</span>
+                                                                    </label>`;
+                        dropdownBody.appendChild(dropdownItem);
+                    })
+                    if (!dropdownBody.nextElementSibling) {
+                        dropdownBody.parentElement.innerHTML += `<div class="flex gap-2"><button onclick="clearFilter(this, ${item?.index});" class="flex mt-2 w-full items-center justify-center gap-x-3.5 py-2 px-3 rounded-lg text-xs text-gray-800 bg-gray-100 hover:bg-gray-50 focus:outline-none focus:bg-gray-100">Clear</button><button onclick="filterTable(this, ${item?.index});" class="flex mt-2 w-full items-center justify-center gap-x-3.5 py-2 px-3 rounded-lg text-xs text-gray-800 bg-gray-100 hover:bg-gray-50 focus:outline-none focus:bg-gray-100" href="#">Apply</button></div>`
+                    }
+                })
+            }
+        });
+        function filterTable(btn, colInd) {
+            const values = [];
+            btn.closest(".hs-dropdown").querySelectorAll("input:checked").forEach(chkbox => {
+                values.push(chkbox.value);
+            })
+            HSDropdown.close(btn.closest(".hs-dropdown"));
+            setTimeout(() => {
+                console.log(values.join("|"))
+                datatable.columns(Number(colInd)).search(values.join("|"), true, false).draw();
+            }, 200)
+        }
+
+        function clearFilter(btn, colInd) {
+            btn.closest(".hs-dropdown").querySelectorAll("input:checked").forEach(chkbox => {
+                chkbox.checked = false;
+            })
+            HSDropdown.close(btn.closest(".hs-dropdown"));
+            setTimeout(() => {
+                datatable.columns(Number(colInd)).search("", true, false).draw();
+            }, 200)
+        }
+    </script>
+}

@@ -1,0 +1,576 @@
+﻿@model RMS.Client.Models.Customer.Customers
+<div class="flex items-center gap-4 mb-5">
+    <a asp-action="Index" asp-controller="Customer" class="py-2 px-2 inline-flex justify-center items-center gap-2 rounded-md border border-gray-400 bg-gray-700 text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all text-sm sm:text-base" title="Back">
+        <svg class="w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M11.707 5.293a1 1 0 0 1 0 1.414L7.414 11H19a1 1 0 1 1 0 2H7.414l4.293 4.293a1 1 0 0 1-1.414 1.414l-6-6a1 1 0 0 1 0-1.414l6-6a1 1 0 0 1 1.414 0z" /></svg>
+    </a>
+
+    <div>
+        <h2 class="font-extrabold text-xl 2xl:text-2xl text-[#4B4E5C]">Add/Edit Customers</h2>
+        <p>Add the required details for the new customer</p>
+    </div>
+</div>
+<form action="/Customer/Upsert" method="POST" enctype="multipart/form-data">
+    <div class="mb-4 max-w-2xl">
+        <span class="mb-2 font-medium block text-sm 2xl:text-base">Primary Contact*</span>
+        <div class="flex gap-3 items-center flex-wrap">
+            <input type="text" id="Firstname" name="Firstname" value="@Model.Firstname" oninput="this.value = this.value.replace(/[^a-zA-Z ]/g, '');"
+                   class="py-3 px-4 block flex-1 border-gray-200 rounded-md text-xs 2xl:text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                   placeholder="First Name">
+            <input type="text" id="Lastname" name="Lastname" value="@Model.Lastname" oninput="this.value = this.value.replace(/[^a-zA-Z ]/g, '');"
+                   class="py-3 px-4 block flex-1 border-gray-200 rounded-md text-xs 2xl:text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                   placeholder="Last Name">
+            <input type="hidden" name="CustomerId" value="@Model.Customerid">
+        </div>
+    </div>
+    <div class="mb-4 max-w-2xl">
+        <span class="mb-2 font-medium block text-sm 2xl:text-base">
+            Customer Code*
+        </span>
+        <div class="flex gap-3 items-center flex-wrap">
+            <input id="Customercode"
+                   name="Customercode"
+                   value="@Model.Customercode"
+                   class="py-3 px-4 block flex-1 border-gray-200 rounded-md text-xs 2xl:text-sm
+                   focus:border-emerald-500 focus:ring-emerald-500"
+                   placeholder="Customer Code">
+        </div>
+    </div>
+
+    <div class="mb-4 max-w-2xl">
+        <span class="mb-2 font-medium block text-sm 2xl:text-base">Customer Name*</span>
+        <div class="flex items-center gap-3 flex-wrap">
+            <input type="text" name="Companyname" value="@Model.Companyname"
+                   class="py-3 px-4 block flex-1 border-gray-200 rounded-md text-xs 2xl:text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                   placeholder="Enter Customer Name">
+            <div class="flex gap-2 flex-1 items-center">
+                <label class="block flex-1 border py-3 px-4 pr-8 rounded relative">
+                    <span id="fileName" class="block text-xs 2xl:text-sm text-gray-500 w-full whitespace-nowrap overflow-hidden text-ellipsis max-w-[20rem]">
+                        Choose Customer company logo
+                    </span>
+
+                    <input type="file" accept="image/*" name="logo" class="hidden" onchange="handleFileName(event, this);" />
+                    <svg class="w-4 h-4 absolute right-2 top-0 bottom-0 my-auto text-gray-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M5 21q-.825 0-1.413-.588T3 19V5q0-.825.588-1.413T5 3h14q.825 0 1.413.588T21 5v14q0 .825-.588 1.413T19 21H5Zm0-2h14V5H5v14Zm1-2h12l-3.75-5l-3 4L9 13l-3 4Zm-1 2V5v14Z" /></svg>
+                </label>
+                <div class="hs-tooltip inline-block [--trigger:click]">
+                    <a class="hs-tooltip-toggle block text-center" href="javascript:;">
+                        <span class="w-10 h-10 inline-flex justify-center items-center gap-2 rounded-md bg-gray-50 border border-gray-200 text-gray-600 hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-600">
+                            <svg class="w-4 h-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M11 17h2v-6h-2v6Zm1-8q.425 0 .713-.288T13 8q0-.425-.288-.713T12 7q-.425 0-.713.288T11 8q0 .425.288.713T12 9Zm0 13q-2.075 0-3.9-.788t-3.175-2.137q-1.35-1.35-2.137-3.175T2 12q0-2.075.788-3.9t2.137-3.175q1.35-1.35 3.175-2.137T12 2q2.075 0 3.9.788t3.175 2.137q1.35 1.35 2.138 3.175T22 12q0 2.075-.788 3.9t-2.137 3.175q-1.35 1.35-3.175 2.138T12 22Zm0-2q3.35 0 5.675-2.325T20 12q0-3.35-2.325-5.675T12 4Q8.65 4 6.325 6.325T4 12q0 3.35 2.325 5.675T12 20Zm0-8Z" /></svg>
+                        </span>
+                        <div class="hs-tooltip-content hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible opacity-0 transition-opacity inline-block absolute invisible z-10 py-3 px-4 bg-white border text-sm text-gray-600 rounded-md shadow-md" role="tooltip">
+                            <p>Accept only png jpg</p>
+                        </div>
+                    </a>
+                </div>
+                <div>
+                    <img id="previewImage" src="@Model.Companylogourl" style="width: 3rem; height: 3rem; border-radius: .5rem; object-fit:cover;" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mb-4 max-w-2xl flex flex-col sm:flex-row gap-3">
+        <div class="flex-1">
+            <span class="mb-2 font-medium block text-sm 2xl:text-base">Customer Email*</span>
+            <input type="text" name="Companyemail" value="@Model.Companyemail"
+                   class="w-full py-3 px-4 block flex-1 border-gray-200 rounded-md text-xs 2xl:text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                   placeholder="Enter Customer Email">
+        </div>
+        @* <div class="flex-1">
+        <span class="mb-2 font-medium block text-sm 2xl:text-base">Customer Phone</span>
+        <input type="number" name="Phone1" value="@Model.CustomerPhone1"
+        class="w-full py-3 px-4 block flex-1 border-gray-200 rounded-md text-xs 2xl:text-sm focus:border-emerald-500 focus:ring-emerald-500"
+        placeholder="Work Phone" min='0' pattern="[0-9]{10}" maxlength="10" title="Please enter a 10-digit contact number" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);">
+        </div>
+
+        <div class="flex-1">
+        <span class="mb-2 font-medium block text-sm 2xl:text-base text-transparent">Alternate Phone</span>
+        <input type="number" name="Phone2" value="@Model.CustomerPhone2"
+        class="w-full py-3 px-4 block flex-1 border-gray-200 rounded-md text-xs 2xl:text-sm focus:border-emerald-500 focus:ring-emerald-500"
+        placeholder="Alternate phone" pattern="[0-9]{10}" maxlength="10" min='0'>
+        </div> *@
+        <div class="flex-1">
+            <span class="mb-2 font-medium block text-sm 2xl:text-base">Customer Phone</span>
+            <input type="text" name="Phone1" value="@Model.CustomerPhone2"
+                   class="w-full py-3 px-4 block flex-1 border-gray-200 rounded-md text-xs 2xl:text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                   placeholder="Work Phone" pattern="\d{10}" maxlength="10" title="Please enter a 10-digit contact number"
+                   oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);">
+        </div>
+
+        <div class="flex-1">
+            <span class="mb-2 font-medium block text-sm 2xl:text-base text-transparent">Alternate Phone</span>
+            <input type="text" name="Phone2" value="@Model.CustomerPhone1"
+                   class="w-full py-3 px-4 block flex-1 border-gray-200 rounded-md text-xs 2xl:text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                   placeholder="Alternate phone" pattern="\d{10}" maxlength="10" title="Please enter a 10-digit contact number"
+                   oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);">
+        </div>
+    </div>
+    <div class="multipart-wrapper">
+        <div class="multipart-indicators-wrapper flex items-center border-b">
+            <div class="multipart-indicator py-2 px-4 active">Other Details</div>
+            <div class="multipart-indicator py-2 px-4">Address</div>
+        </div>
+        <div class="multipart-form-wrapper mt-4">
+            <div class="multipart-form active w-full max-w-2xl flex-col">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <span class="mb-2 font-medium block text-sm 2xl:text-base">PAN</span>
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <input type="text" name="Pannumber" value="@Model.Pannumber" oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '');"
+                                   class="py-3 px-4 block flex-1 border-gray-200 rounded-md text-xs 2xl:text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                   placeholder="Enter PAN Number" maxlength="10">
+                        </div>
+                    </div>
+                    <div>
+                        <input type="hidden" value="@Model.Paymenttermid" id="hiddenPaymenttermId" />
+                        <input type="hidden" value="@Model.Currencyid" id="hiddenCurrencyId" />
+
+                        <span class="mb-2 font-medium block text-sm 2xl:text-base">Currency</span>
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <input type="hidden" value="@Model.Currencyid" id="hiddenCurrencyId" />
+
+                            <select id="Currencyid" type="text" name="Currencyid"
+                                    class="multi-select"
+                                    placeholder="Select Currency">
+                                <option value="">Select Currency</option> <!-- Default option -->
+                                @foreach (var item in ViewBag.CurrencyList)
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            </select>
+                        </div>
+
+                    </div>
+                    <div>
+                        <span class="mb-2 font-medium block text-sm 2xl:text-base">GST No.</span>
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <input type="text" name="Gstnumber" value="@Model.Gstnumber"
+                                   class="py-3 px-4 block flex-1 border-gray-200 rounded-md text-xs 2xl:text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                   placeholder="Enter GST Number" onkeypress="limit(this, 15);" oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '');" maxlength="15">
+                        </div>
+                    </div>
+                    <div>
+                        <span class="mb-2 font-medium block text-sm 2xl:text-base">Payment Terms</span>
+                        <input type="hidden" value="@Model.Paymenttermid" id="hiddenPaymenttermId" />
+
+                        <select id="Paymenttermid" type="text" name="Paymenttermid"
+                                class="multi-select"
+                                placeholder="Enter">
+                            <option value="">Select Payment Term</option>
+                            @foreach (var item in ViewBag.PaymentTermList)
+                            {
+                                <option value="@item.Value">@item.Text</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="flex gap-3 items-center mt-3">
+                    <button onclick="validateOtherDetails();" type="button" class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-transparent bg-[#00cc83] text-white hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-xs sm:text-sm 2xl:text-base">
+                        Next
+                    </button>
+                </div>
+            </div>
+            <div class="multipart-form w-full max-w-2xl flex-col">
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                    <div>
+                        <span class="mb-2 font-medium block">Country/Region</span>
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <select id="countryDropdown" type="text"
+                                    class="multi-select"
+                                    placeholder="Select Country">
+
+                                <option value="">Select Country</option>
+                                @foreach (var item in ViewBag.CountryList)
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="mb-2 font-medium block">State</span>
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <select id="stateDropdown" type="text"
+                                    class="multi-select"
+                                    placeholder="Enter state"></select>
+                        </div>
+                    </div>
+                    <div>
+
+                        <input type="hidden" value="@Model.Cityid" id="hiddenCityId" />
+
+                        <span class="mb-2 font-medium block">City</span>
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <select id="cityDropdown" type="text" name="Cityid"
+                                    class="multi-select"
+                                    placeholder="Select City"></select>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="mb-2 font-medium block">Zipcode</span>
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <input type="text" name="Zipcode" value="@Model.Zipcode"
+                                   class="w-full py-3 px-4 block flex-1 border-gray-200 rounded-md text-xs 2xl:text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                   placeholder="Zip Code" maxlength="9">
+                        </div>
+                    </div>
+                    <div class="col-span-1 sm:col-span-2">
+                        <span class="mb-2 font-medium block">Address</span>
+                        <div class="flex items-center gap-3 flex-wrap mb-4">
+                            <input type="text" name="Address1" value="@Model.CustomerAddress1"
+                                   class="w-full py-3 px-4 block flex-1 border-gray-200 rounded-md text-xs 2xl:text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                   placeholder="Address Line 1">
+                        </div>
+                    </div>
+                    <div class="col-span-1 sm:col-span-2">
+
+                        <span class="mb-2 font-medium hidden sm:block text-transparent">Address2</span>
+                        <input type="text" value="@Model.CustomerAddress2" name="Address2"
+                               class="py-3 w-full px-4 block flex-1 border-gray-200 rounded-md text-xs 2xl:text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                               placeholder="Address Line 2">
+                    </div>
+                </div>
+                <div class="flex gap-3 items-center">
+                    <button type="button" class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-gray-400 bg-gray-700 text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all text-sm sm:text-base" onclick="showFormStep(1);">Prev</button>
+                    <button type="submit" class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-transparent bg-[#00cc83] text-white hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-xs sm:text-sm 2xl:text-base" onclick="handleSubmit(event)">
+                        Save
+                    </button>
+                </div>
+                <p class="text-sm text-gray-400 mt-2">After saving the details you can add projects for the new customer</p>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        $(function () {
+        @if (ViewData["error"] != null)
+        {
+            <text>
+                        toastr.error("@ViewData["error"]", "Error", {"iconClass": 'new-error' });
+            </text>
+        }
+        @if (ViewData["success"] != null)
+        {
+            <text>
+                        toastr.success("@ViewData["success"]");
+            </text>
+        }
+
+                        });
+        const multiSelect = new SlimSelect({
+            select: "#Paymenttermid",
+            settings: {
+                allowDeselect: false,
+                closeOnSelect: true,
+                maxValuesShown: 1
+            }
+        })
+        const multiSelect1 = new SlimSelect({
+            select: "#Currencyid",
+            settings: {
+                allowDeselect: false,
+                closeOnSelect: true,
+                maxValuesShown: 1
+            }
+        })
+        const multiSelect4 = new SlimSelect({
+            select: "#countryDropdown",
+            settings: {
+                allowDeselect: false,
+                closeOnSelect: true,
+                maxValuesShown: 1
+            }
+        })
+
+
+        $(document).ready(async () => {
+            const customerId = window.location.search.split("?customerid=").slice(-1)[0];
+
+            if (customerId) {
+
+                const currencyVal = '@Model.Currencyid';
+                if (currencyVal) {
+                    document.querySelector("#Currencyid").value = currencyVal;
+                }
+                const paymentVal = '@Model.Paymenttermid';
+                if (paymentVal) {
+                    document.querySelector("#Paymenttermid").value = paymentVal;
+                }
+                const countryVal = '@Model.Countryid';
+                console.log(countryVal)
+                if (countryVal) {
+                    document.querySelector("#countryDropdown").value = countryVal;
+                    document.querySelector("#countryDropdown").dispatchEvent(new Event("change"));
+                    const stateVal = '@Model.Stateid';
+                    if (stateVal) {
+
+                        setTimeout(() => {
+                            document.querySelector("#stateDropdown").value = stateVal;
+                            document.querySelector("#stateDropdown").dispatchEvent(new Event("change"));
+
+                            const cityVal = '@Model.Cityid';
+                            if (cityVal) {
+                                setTimeout(() => {
+                                    document.querySelector("#cityDropdown").value = cityVal;
+                                }, 1000)
+                            }
+                        }, 1000)
+                    }
+                }
+            } else {
+
+
+            }
+
+            if (document.querySelector("#hiddenCurrencyId").value) {
+                multiSelect1.setSelected(document.querySelector("#hiddenCurrencyId").value)
+            }
+            if (document.querySelector("#hiddenPaymenttermId").value) {
+                multiSelect.setSelected(document.querySelector("#hiddenPaymenttermId").value)
+            }
+
+
+        })
+
+        function showFormStep(step) {
+            const allStepIndicators = document.querySelectorAll(".multipart-indicator")
+            const allStepForm = document.querySelectorAll(".multipart-form")
+
+            const _step = step - 1;
+
+            allStepIndicators.forEach((item, index) => {
+                item.classList.remove("active");
+                allStepForm[index].classList.remove("active");
+            })
+
+            allStepIndicators[_step].classList.add("active")
+            allStepForm[_step].classList.add("active")
+        }
+        // Drop down code start here
+        const countryDropdown = document.getElementById('countryDropdown');
+        const stateDropdown = document.getElementById('stateDropdown');
+
+        countryDropdown.addEventListener('change', async () => {
+            const selectedCountryId = countryDropdown.value;
+            stateDropdown.innerHTML = '<option value="">Select State</option>'; // Clear state options
+
+            if (selectedCountryId) {
+                const response = await fetch(`/Base/GetState?countryId=${selectedCountryId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    // console.log(data);
+                    const stateData = [{ text: "Select State", value: "" }];
+                    data.forEach(country => {
+                        const _countryVal = {
+                            text: country?.text,
+                            value: country?.value
+                        }
+                        stateData.push(_countryVal);
+                    })
+                    console.log(stateDropdown);
+                    stateSelect.setData(stateData);
+
+                    // Clear the stateDropdown and then add options
+                    stateDropdown.innerHTML = '<option value="">Select State</option>';
+
+                    data.forEach(item => {
+                        const option = document.createElement('option');
+                        option.value = item.value;
+                        option.textContent = item.text;
+                        stateDropdown.appendChild(option);
+                    });
+
+                } else {
+                    console.error('Error fetching state data:', response.statusText);
+                }
+            }
+        });
+
+        const cityDropdown = document.getElementById('cityDropdown');
+
+        stateDropdown.addEventListener('change', async () => {
+            const selectedStateId = stateDropdown.value;
+            cityDropdown.innerHTML = '<option value="">Select City</option>'; // Clear city options
+
+            if (selectedStateId) {
+                const response = await fetch(`/Base/GetCity?StateId=${selectedStateId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log(data);
+                    // Clear the cityDropdown and then add options
+                    // cityDropdown.innerHTML = '<option value="">Select City</option>';
+                    const cityData = [{ text: "Select City", value: "" }];
+                    data.forEach(item => {
+                        cityData.push({ text: item?.text, value: item?.value });
+                    });
+
+                    citySelect.setData(cityData);
+
+                    if (document.querySelector("#hiddenCityId").value) {
+                        console.log(document.querySelector("#hiddenCityId").value)
+                        citySelect.setSelected(document.querySelector("#hiddenCityId").value)
+                    }
+
+
+
+                } else {
+                    console.error('Error fetching city data:', response.statusText);
+                }
+            }
+        });
+        // drop down code end here
+
+        function handleFileInput(e) {
+            const [file] = e.target.files
+
+            if (!file) return
+
+            const { size, type } = file
+
+            if (size > 2097152) {
+                throw "too big"
+            } else if (
+                type !== "application/pdf" && type !== "application/wps-office.pdf" &&
+                type !== "image/jpg" && type !== "image/jpeg" && type !== "image/png"
+            ) {
+                throw "not the right type"
+            } else {
+                console.log("file valid")
+            }
+        }
+
+        function handleFileName(e, input) {
+            const [file] = e.target.files;
+            if (!file) {
+                e.preventDefault();
+                return;
+            }
+            const { size, type } = file;
+            if (
+                type !== "application/pdf" && type !== "application/wps-office.pdf" &&
+                type !== "image/jpg" && type !== "image/jpeg" && type !== "image/png"
+            ) {
+                e.preventDefault();
+                throw "not the right type"
+            } else {
+                console.log("file valid")
+            }
+            document.querySelector("#fileName").innerHTML = input.files[0].name;
+            handleImagePreview(input.files[0]);
+        }
+
+        function handleImagePreview(file) {
+            document.querySelector("#previewImage").setAttribute("src", URL.createObjectURL(file))
+        }
+
+
+        // for validation
+
+
+        function validateOtherDetails() {
+            let validFlag = true;
+            if (multiSelect.getSelected()[0].length === 0) {
+                document.querySelector("#Paymenttermid").classList.add("is-invalid");
+                validFlag = false;
+            } else {
+                document.querySelector("#Paymenttermid").classList.remove("is-invalid");
+            }
+
+            if (multiSelect1.getSelected()[0].length === 0) {
+                document.querySelector("#Currencyid").classList.add("is-invalid");
+                validFlag = false;
+            } else {
+                document.querySelector("#Currencyid").classList.remove("is-invalid");
+            }
+
+            if (validFlag) {
+                showFormStep(2);
+            }
+        }
+
+        function validateField(fieldName) {
+            const field = document.querySelector(fieldName);
+            const value = field.value.trim();
+
+            if (fieldName === "[name='Companyemail']") {
+                if (!value || !value.match(/^[a-zA-Z0-9._-]+@@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/)) {
+                    field.classList.add("is-invalid");
+                    return false;
+                } else {
+                    field.classList.remove("is-invalid");
+                    return true;
+                }
+            } else if (fieldName === "[name='Phone1']") {
+                if (value.length !== 10 || !/^\d{10}$/.test(value)) {
+                    field.classList.add("is-invalid");
+                    return false;
+                } else {
+                    field.classList.remove("is-invalid");
+                    return true;
+                }
+            } else if (fieldName === "[name='Phone2']") {
+                if (value !== "" && (value.length !== 10 || !/^\d{10}$/.test(value))) {
+                    field.classList.add("is-invalid");
+                    return false;
+                } else {
+                    field.classList.remove("is-invalid");
+                    return true;
+                }
+            }
+            else {
+                // Handle other fields validation here
+                if (value === "") {
+                    field.classList.add("is-invalid");
+                    return false;
+                } else {
+                    field.classList.remove("is-invalid");
+                    return true;
+                }
+            }
+        }
+
+        function handleSubmit(e) {
+            const isFirstNameValid = validateField("#Firstname"); 
+            const isLastNameValid = validateField("#Lastname");
+            const isCompanyNameValid = validateField("[name='Companyname']");
+            const isCompanyEmailValid = validateField("[name='Companyemail']");
+            const isCountryValid = validateField("#countryDropdown");
+            const isStateValid = validateField("#stateDropdown");
+            const isCityValid = validateField("#cityDropdown");
+            const isPhoneFirst = validateField("[name='Phone1']");
+            const isPhoneSecond = validateField("[name='Phone2']");
+            const isCustomerCodeValid = validateField("[name='Customercode']");
+
+
+            if (!isFirstNameValid || !isLastNameValid || !isCompanyNameValid || !isCompanyEmailValid || !isCityValid || !isCountryValid || !isStateValid || !isPhoneFirst || !isPhoneSecond || !isCustomerCodeValid) {
+                e.preventDefault();
+            }
+            else {
+                document.querySelector("#loader").style.display = "flex";
+            }
+        }
+        const stateSelect = new SlimSelect({
+            select: "#stateDropdown",
+            settings: {
+                allowDeselect: false,
+                closeOnSelect: true,
+                maxValuesShown: 1
+            }
+        })
+
+        const citySelect = new SlimSelect({
+            select: "#cityDropdown",
+            settings: {
+                allowDeselect: false,
+                closeOnSelect: true,
+                maxValuesShown: 1
+            }
+        })
+
+        function limit(element, max_chars) {
+            if (element.value.length > max_chars) {
+                element.value = element.value.substr(0, max_chars);
+            }
+        }
+    </script>
+}

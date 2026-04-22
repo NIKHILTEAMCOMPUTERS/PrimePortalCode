@@ -1,0 +1,725 @@
+﻿@model IEnumerable<RMS.Client.Models.Employee.Employeedashboard>
+@{
+    ViewData["Title"] = "Dashboard - ";
+}
+<div class="flex items-center gap-4 justify-between flex-wrap bg-[#fafafa] rounded p-4 mb-4">
+    <div>
+        <p class="font-extrabold text-2xl text-gray-600">Welcome! @ViewBag.name</p>
+        <p>Get All the Updates of your current & Past projects</p>
+    </div>
+    <div class="overflow-x-auto">
+        <nav class="flex space-x-2" aria-label="Tabs" role="tablist">
+            <div class="py-2 px-5 inline-flex items-baseline gap-2 border-b-[3px] border-transparent text-sm whitespace-nowrap text-gray-500 hover:text-emerald-600 active">
+                <img class="h-4 w-auto" src="./assets/images/total-projects-icon.svg" alt="">
+                <div>
+                    <span class="text-base font-semibold block text-left">Total Projects</span>
+                    <span class="text-2xl font-extrabold block text-left">@Model.Count()</span>
+                </div>
+            </div>
+            <div class="py-2 px-5 inline-flex items-baseline gap-2 border-b-[3px] border-transparent text-sm whitespace-nowrap text-gray-500 hover:text-emerald-600">
+                <img class="h-4 w-auto" src="./assets/images/total-projects-icon.svg" alt="">
+                <div>
+                    <span class="text-base font-semibold block text-left">Active Projects</span>
+                    <span class="text-2xl font-extrabold block text-left">@Model.Where(a => a.CategorySubStatusName == "Deployed" || a.CategorySubStatusName == "Allocation" || a.CategorySubStatusName == "Shadow" || a.CategorySubStatusName == "Projection").Count()</span>
+                </div>
+            </div>
+            <div class="py-2 px-5 inline-flex items-baseline gap-2 border-b-[3px] border-transparent text-sm whitespace-nowrap text-gray-500 hover:text-emerald-600">
+                <img class="h-4 w-auto" src="./assets/images/total-projects-icon.svg" alt="">
+                <div>
+                    <span class="text-base font-semibold block text-left">Past Projects</span>
+                    <span class="text-2xl font-extrabold block text-left">@Model.Where(a => a.CategorySubStatusName == "Bench" || a.CategorySubStatusName == "Released").Count()</span>
+                </div>
+            </div>
+            <div class="py-2 px-5 inline-flex items-baseline gap-2 border-b-[3px] border-transparent text-sm whitespace-nowrap text-gray-500 hover:text-emerald-600">
+                <img class="h-4 w-auto" src="./assets/images/overrun-employees-icon.svg" alt="">
+                <div>
+                    <span class="text-base font-semibold block text-left">Current Status</span>
+                    <span class="status deployed" style="font-weight: bold;">@ViewBag.employeestatus</span>
+                </div>
+            </div>
+        </nav>
+    </div>
+</div>
+
+<label for="projects" class="project-switch-wrapper">
+    <input type="checkbox" name="" id="projects" class="hidden" onchange="handleProjectTypeChange(this);">
+    <div class="project-switch inline-grid grid-cols-2 items-center bg-gray-500 rounded-full relative">
+        <span class="whitespace-nowrap py-2 px-4 text-white text-center">Current Projects</span>
+        <span class="whitespace-nowrap py-2 px-4 text-white text-center">Past Projects</span>
+    </div>
+</label>
+
+<h2 class="font-bold my-4 text-gray-600 text-lg px-4">Project List</h2>
+<div class="currentProjects">
+    <div class="flex flex-col">
+        <div class="-m-1.5 overflow-x-auto">
+            <div class="p-1.5 min-w-full block align-middle">
+                <div class="overflow-hidden">
+                    <table class="min-w-full divide-y divide-gray-200" id="currentProjects">
+                        <thead>
+                            <tr>
+                                <th scope="col"
+                                    class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                    TMC
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                   Name
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                    Reporting Head
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                    Project
+                                    <div style="vertical-align: middle;" class="filter-dropdown mx-1 hs-dropdown relative sm:inline-flex z-20 [--auto-close:inside]">
+                                        <button id="hs-dropdown-auto-close-inside" type="button" class="hs-dropdown-toggle p-1 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-gray-100 text-gray-800 shadow-sm disabled:opacity-50 disabled:pointer-events-none">
+                                            <svg class="w-4 h-4 text-gray-800" xmlns="http://www.w3.org/2000/svg"
+                                                 width="512" height="512" viewBox="0 0 512 512">
+                                                <path fill="currentColor"
+                                                      d="M472 168H40a24 24 0 0 1 0-48h432a24 24 0 0 1 0 48m-80 112H120a24 24 0 0 1 0-48h272a24 24 0 0 1 0 48m-96 112h-80a24 24 0 0 1 0-48h80a24 24 0 0 1 0 48" />
+                                            </svg>
+                                        </button>
+
+                                        <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 mt-2" aria-labelledby="hs-dropdown-auto-close-inside">
+                                            <div class="mb-1">
+                                                <input type="search" oninput="handleFilterSearch(this);" placeholder="Search" class="py-2 px-4 block w-full border-gray-200 rounded-lg text-xs focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                            </div>
+                                            <div class="filter-item-list" style="height: 10rem; overflow-y: auto;"></div>
+
+                                        </div>
+                                    </div>
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                    Project Start Date
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                    Customer
+                                    <div style="vertical-align: middle;" class="filter-dropdown mx-1 hs-dropdown relative sm:inline-flex z-20 [--auto-close:inside]">
+                                        <button id="hs-dropdown-auto-close-inside" type="button" class="hs-dropdown-toggle p-1 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-gray-100 text-gray-800 shadow-sm disabled:opacity-50 disabled:pointer-events-none">
+                                            <svg class="w-4 h-4 text-gray-800" xmlns="http://www.w3.org/2000/svg"
+                                                 width="512" height="512" viewBox="0 0 512 512">
+                                                <path fill="currentColor"
+                                                      d="M472 168H40a24 24 0 0 1 0-48h432a24 24 0 0 1 0 48m-80 112H120a24 24 0 0 1 0-48h272a24 24 0 0 1 0 48m-96 112h-80a24 24 0 0 1 0-48h80a24 24 0 0 1 0 48" />
+                                            </svg>
+                                        </button>
+
+                                        <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 mt-2" aria-labelledby="hs-dropdown-auto-close-inside">
+                                            <div class="mb-1">
+                                                <input type="search" oninput="handleFilterSearch(this);" placeholder="Search" class="py-2 px-4 block w-full border-gray-200 rounded-lg text-xs focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                            </div>
+                                            <div class="filter-item-list" style="height: 10rem; overflow-y: auto;"></div>
+
+                                        </div>
+                                    </div>
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                    Practices
+                                    <div style="vertical-align: middle;" class="filter-dropdown mx-1 hs-dropdown relative sm:inline-flex z-20 [--auto-close:inside]">
+                                        <button id="hs-dropdown-auto-close-inside" type="button" class="hs-dropdown-toggle p-1 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-gray-100 text-gray-800 shadow-sm disabled:opacity-50 disabled:pointer-events-none">
+                                            <svg class="w-4 h-4 text-gray-800" xmlns="http://www.w3.org/2000/svg"
+                                                 width="512" height="512" viewBox="0 0 512 512">
+                                                <path fill="currentColor"
+                                                      d="M472 168H40a24 24 0 0 1 0-48h432a24 24 0 0 1 0 48m-80 112H120a24 24 0 0 1 0-48h272a24 24 0 0 1 0 48m-96 112h-80a24 24 0 0 1 0-48h80a24 24 0 0 1 0 48" />
+                                            </svg>
+                                        </button>
+
+                                        <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 mt-2" aria-labelledby="hs-dropdown-auto-close-inside">
+                                            <div class="mb-1">
+                                                <input type="search" oninput="handleFilterSearch(this);" placeholder="Search" class="py-2 px-4 block w-full border-gray-200 rounded-lg text-xs focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                            </div>
+                                            <div class="filter-item-list" style="height: 10rem; overflow-y: auto;"></div>
+
+                                        </div>
+                                    </div>
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                    Sub-Practices
+                                    <div style="vertical-align: middle;" class="filter-dropdown mx-1 hs-dropdown relative sm:inline-flex z-20 [--auto-close:inside]">
+                                        <button id="hs-dropdown-auto-close-inside" type="button" class="hs-dropdown-toggle p-1 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-gray-100 text-gray-800 shadow-sm disabled:opacity-50 disabled:pointer-events-none">
+                                            <svg class="w-4 h-4 text-gray-800" xmlns="http://www.w3.org/2000/svg"
+                                                 width="512" height="512" viewBox="0 0 512 512">
+                                                <path fill="currentColor"
+                                                      d="M472 168H40a24 24 0 0 1 0-48h432a24 24 0 0 1 0 48m-80 112H120a24 24 0 0 1 0-48h272a24 24 0 0 1 0 48m-96 112h-80a24 24 0 0 1 0-48h80a24 24 0 0 1 0 48" />
+                                            </svg>
+                                        </button>
+
+                                        <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 mt-2" aria-labelledby="hs-dropdown-auto-close-inside">
+                                            <div class="mb-1">
+                                                <input type="search" oninput="handleFilterSearch(this);" placeholder="Search" class="py-2 px-4 block w-full border-gray-200 rounded-lg text-xs focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                            </div>
+                                            <div class="filter-item-list" style="height: 10rem; overflow-y: auto;"></div>
+
+                                        </div>
+                                    </div>
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                    Project Type
+                                    <div style="vertical-align: middle;" class="filter-dropdown mx-1 hs-dropdown relative sm:inline-flex z-20 [--auto-close:inside]">
+                                        <button id="hs-dropdown-auto-close-inside" type="button" class="hs-dropdown-toggle p-1 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-gray-100 text-gray-800 shadow-sm disabled:opacity-50 disabled:pointer-events-none">
+                                            <svg class="w-4 h-4 text-gray-800" xmlns="http://www.w3.org/2000/svg"
+                                                 width="512" height="512" viewBox="0 0 512 512">
+                                                <path fill="currentColor"
+                                                      d="M472 168H40a24 24 0 0 1 0-48h432a24 24 0 0 1 0 48m-80 112H120a24 24 0 0 1 0-48h272a24 24 0 0 1 0 48m-96 112h-80a24 24 0 0 1 0-48h80a24 24 0 0 1 0 48" />
+                                            </svg>
+                                        </button>
+
+                                        <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 mt-2" aria-labelledby="hs-dropdown-auto-close-inside">
+                                            <div class="mb-1">
+                                                <input type="search" oninput="handleFilterSearch(this);" placeholder="Search" class="py-2 px-4 block w-full border-gray-200 rounded-lg text-xs focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                            </div>
+                                            <div class="filter-item-list" style="height: 10rem; overflow-y: auto;"></div>
+
+                                        </div>
+                                    </div>
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                    Delivery Anchor
+                                    <div style="vertical-align: middle;" class="filter-dropdown mx-1 hs-dropdown relative sm:inline-flex z-20 [--auto-close:inside]">
+                                        <button id="hs-dropdown-auto-close-inside" type="button" class="hs-dropdown-toggle p-1 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-gray-100 text-gray-800 shadow-sm disabled:opacity-50 disabled:pointer-events-none">
+                                            <svg class="w-4 h-4 text-gray-800" xmlns="http://www.w3.org/2000/svg"
+                                                 width="512" height="512" viewBox="0 0 512 512">
+                                                <path fill="currentColor"
+                                                      d="M472 168H40a24 24 0 0 1 0-48h432a24 24 0 0 1 0 48m-80 112H120a24 24 0 0 1 0-48h272a24 24 0 0 1 0 48m-96 112h-80a24 24 0 0 1 0-48h80a24 24 0 0 1 0 48" />
+                                            </svg>
+                                        </button>
+
+                                        <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 mt-2" aria-labelledby="hs-dropdown-auto-close-inside">
+                                            <div class="mb-1">
+                                                <input type="search" oninput="handleFilterSearch(this);" placeholder="Search" class="py-2 px-4 block w-full border-gray-200 rounded-lg text-xs focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                            </div>
+                                            <div class="filter-item-list" style="height: 10rem; overflow-y: auto;"></div>
+
+                                        </div>
+                                    </div>
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                    Project Status
+                                    <div style="vertical-align: middle;" class="filter-dropdown mx-1 hs-dropdown relative sm:inline-flex z-20 [--auto-close:inside]">
+                                        <button id="hs-dropdown-auto-close-inside" type="button" class="hs-dropdown-toggle p-1 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-gray-100 text-gray-800 shadow-sm disabled:opacity-50 disabled:pointer-events-none">
+                                            <svg class="w-4 h-4 text-gray-800" xmlns="http://www.w3.org/2000/svg"
+                                                 width="512" height="512" viewBox="0 0 512 512">
+                                                <path fill="currentColor"
+                                                      d="M472 168H40a24 24 0 0 1 0-48h432a24 24 0 0 1 0 48m-80 112H120a24 24 0 0 1 0-48h272a24 24 0 0 1 0 48m-96 112h-80a24 24 0 0 1 0-48h80a24 24 0 0 1 0 48" />
+                                            </svg>
+                                        </button>
+
+                                        <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 mt-2" aria-labelledby="hs-dropdown-auto-close-inside">
+                                            <div class="mb-1">
+                                                <input type="search" oninput="handleFilterSearch(this);" placeholder="Search" class="py-2 px-4 block w-full border-gray-200 rounded-lg text-xs focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                            </div>
+                                            <div class="filter-item-list" style="height: 10rem; overflow-y: auto;"></div>
+
+                                        </div>
+                                    </div>
+                                </th>
+                               @*  <th scope="col"
+                                    class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                    Detailed View
+                                </th> *@
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            @if (Model != null)
+                            {
+                                if (Model.Count() > 0)
+                                {
+                                    @foreach (var item in Model.Where(a=> a.CategorySubStatusName == "Deployed" || a.CategorySubStatusName == "Allocation" || a.CategorySubStatusName == "Shadow" || a.CategorySubStatusName == "Projection"))
+                                    {
+                                        <tr>
+
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 ">
+                                                @item.UserId
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 ">
+                                                @item.EmployeeName
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@((item.ReportingHead != null) ? item.ReportingHead : "")</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 ">
+                                                @item.ProjectName.ToString()
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 ">
+                                                @item.ContractStartDate?.ToString("dd/MM/yy")
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 ">@item.CompanyName</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 ">
+                                                @item.PracticeName
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 ">
+                                                @item.SubPracticeName
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 ">@item.ProjectTypeName</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@((item.DeliveryAnchorName != null) ? item.DeliveryAnchorName : "")</td>
+
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 ">
+                                                <span class="status @(item.CategorySubStatusName == "Deployed" ? "deployed" : item.CategorySubStatusName == "Bench" ? "bench" : "draft")">@item.CategorySubStatusName</span>
+                                            </td>
+                                            @* <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 ">
+                                                <a class="text-gray-800 hover:text-blue-700 underline" href="#">
+                                                    View All Details
+                                                </a>
+                                            </td> *@
+                                        </tr>
+                                    }
+
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="pastProjects hidden">
+    <div class="flex flex-col">
+        <div class="-m-1.5 overflow-x-auto">
+            <div class="p-1.5 min-w-full block align-middle">
+                <div class="overflow-hidden">
+                    <table class="min-w-full divide-y divide-gray-200" id="pastProjects">
+                        <thead>
+                            <tr>
+                                <th scope="col"
+                                    class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                    TMC
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                    Name
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                    Reporting Head
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                    Project
+                                    <div style="vertical-align: middle;" class="filter-dropdown mx-1 hs-dropdown relative sm:inline-flex z-20 [--auto-close:inside]">
+                                        <button id="hs-dropdown-auto-close-inside" type="button" class="hs-dropdown-toggle p-1 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-gray-100 text-gray-800 shadow-sm disabled:opacity-50 disabled:pointer-events-none">
+                                            <svg class="w-4 h-4 text-gray-800" xmlns="http://www.w3.org/2000/svg"
+                                                 width="512" height="512" viewBox="0 0 512 512">
+                                                <path fill="currentColor"
+                                                      d="M472 168H40a24 24 0 0 1 0-48h432a24 24 0 0 1 0 48m-80 112H120a24 24 0 0 1 0-48h272a24 24 0 0 1 0 48m-96 112h-80a24 24 0 0 1 0-48h80a24 24 0 0 1 0 48" />
+                                            </svg>
+                                        </button>
+
+                                        <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 mt-2" aria-labelledby="hs-dropdown-auto-close-inside">
+                                            <div class="mb-1">
+                                                <input type="search" oninput="handleFilterSearch(this);" placeholder="Search" class="py-2 px-4 block w-full border-gray-200 rounded-lg text-xs focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                            </div>
+                                            <div class="filter-item-list" style="height: 10rem; overflow-y: auto;"></div>
+
+                                        </div>
+                                    </div>
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                    Project Start Date
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                    Customer
+                                    <div style="vertical-align: middle;" class="filter-dropdown mx-1 hs-dropdown relative sm:inline-flex z-20 [--auto-close:inside]">
+                                        <button id="hs-dropdown-auto-close-inside" type="button" class="hs-dropdown-toggle p-1 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-gray-100 text-gray-800 shadow-sm disabled:opacity-50 disabled:pointer-events-none">
+                                            <svg class="w-4 h-4 text-gray-800" xmlns="http://www.w3.org/2000/svg"
+                                                 width="512" height="512" viewBox="0 0 512 512">
+                                                <path fill="currentColor"
+                                                      d="M472 168H40a24 24 0 0 1 0-48h432a24 24 0 0 1 0 48m-80 112H120a24 24 0 0 1 0-48h272a24 24 0 0 1 0 48m-96 112h-80a24 24 0 0 1 0-48h80a24 24 0 0 1 0 48" />
+                                            </svg>
+                                        </button>
+
+                                        <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 mt-2" aria-labelledby="hs-dropdown-auto-close-inside">
+                                            <div class="mb-1">
+                                                <input type="search" oninput="handleFilterSearch(this);" placeholder="Search" class="py-2 px-4 block w-full border-gray-200 rounded-lg text-xs focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                            </div>
+                                            <div class="filter-item-list" style="height: 10rem; overflow-y: auto;"></div>
+
+                                        </div>
+                                    </div>
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                    Practices
+                                    <div style="vertical-align: middle;" class="filter-dropdown mx-1 hs-dropdown relative sm:inline-flex z-20 [--auto-close:inside]">
+                                        <button id="hs-dropdown-auto-close-inside" type="button" class="hs-dropdown-toggle p-1 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-gray-100 text-gray-800 shadow-sm disabled:opacity-50 disabled:pointer-events-none">
+                                            <svg class="w-4 h-4 text-gray-800" xmlns="http://www.w3.org/2000/svg"
+                                                 width="512" height="512" viewBox="0 0 512 512">
+                                                <path fill="currentColor"
+                                                      d="M472 168H40a24 24 0 0 1 0-48h432a24 24 0 0 1 0 48m-80 112H120a24 24 0 0 1 0-48h272a24 24 0 0 1 0 48m-96 112h-80a24 24 0 0 1 0-48h80a24 24 0 0 1 0 48" />
+                                            </svg>
+                                        </button>
+
+                                        <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 mt-2" aria-labelledby="hs-dropdown-auto-close-inside">
+                                            <div class="mb-1">
+                                                <input type="search" oninput="handleFilterSearch(this);" placeholder="Search" class="py-2 px-4 block w-full border-gray-200 rounded-lg text-xs focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                            </div>
+                                            <div class="filter-item-list" style="height: 10rem; overflow-y: auto;"></div>
+
+                                        </div>
+                                    </div>
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                    Sub-Practices
+                                    <div style="vertical-align: middle;" class="filter-dropdown mx-1 hs-dropdown relative sm:inline-flex z-20 [--auto-close:inside]">
+                                        <button id="hs-dropdown-auto-close-inside" type="button" class="hs-dropdown-toggle p-1 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-gray-100 text-gray-800 shadow-sm disabled:opacity-50 disabled:pointer-events-none">
+                                            <svg class="w-4 h-4 text-gray-800" xmlns="http://www.w3.org/2000/svg"
+                                                 width="512" height="512" viewBox="0 0 512 512">
+                                                <path fill="currentColor"
+                                                      d="M472 168H40a24 24 0 0 1 0-48h432a24 24 0 0 1 0 48m-80 112H120a24 24 0 0 1 0-48h272a24 24 0 0 1 0 48m-96 112h-80a24 24 0 0 1 0-48h80a24 24 0 0 1 0 48" />
+                                            </svg>
+                                        </button>
+
+                                        <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 mt-2" aria-labelledby="hs-dropdown-auto-close-inside">
+                                            <div class="mb-1">
+                                                <input type="search" oninput="handleFilterSearch(this);" placeholder="Search" class="py-2 px-4 block w-full border-gray-200 rounded-lg text-xs focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                            </div>
+                                            <div class="filter-item-list" style="height: 10rem; overflow-y: auto;"></div>
+
+                                        </div>
+                                    </div>
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                    Project Type
+                                    <div style="vertical-align: middle;" class="filter-dropdown mx-1 hs-dropdown relative sm:inline-flex z-20 [--auto-close:inside]">
+                                        <button id="hs-dropdown-auto-close-inside" type="button" class="hs-dropdown-toggle p-1 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-gray-100 text-gray-800 shadow-sm disabled:opacity-50 disabled:pointer-events-none">
+                                            <svg class="w-4 h-4 text-gray-800" xmlns="http://www.w3.org/2000/svg"
+                                                 width="512" height="512" viewBox="0 0 512 512">
+                                                <path fill="currentColor"
+                                                      d="M472 168H40a24 24 0 0 1 0-48h432a24 24 0 0 1 0 48m-80 112H120a24 24 0 0 1 0-48h272a24 24 0 0 1 0 48m-96 112h-80a24 24 0 0 1 0-48h80a24 24 0 0 1 0 48" />
+                                            </svg>
+                                        </button>
+
+                                        <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 mt-2" aria-labelledby="hs-dropdown-auto-close-inside">
+                                            <div class="mb-1">
+                                                <input type="search" oninput="handleFilterSearch(this);" placeholder="Search" class="py-2 px-4 block w-full border-gray-200 rounded-lg text-xs focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                            </div>
+                                            <div class="filter-item-list" style="height: 10rem; overflow-y: auto;"></div>
+
+                                        </div>
+                                    </div>
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                    Delivery Anchor
+                                    <div style="vertical-align: middle;" class="filter-dropdown mx-1 hs-dropdown relative sm:inline-flex z-20 [--auto-close:inside]">
+                                        <button id="hs-dropdown-auto-close-inside" type="button" class="hs-dropdown-toggle p-1 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-gray-100 text-gray-800 shadow-sm disabled:opacity-50 disabled:pointer-events-none">
+                                            <svg class="w-4 h-4 text-gray-800" xmlns="http://www.w3.org/2000/svg"
+                                                 width="512" height="512" viewBox="0 0 512 512">
+                                                <path fill="currentColor"
+                                                      d="M472 168H40a24 24 0 0 1 0-48h432a24 24 0 0 1 0 48m-80 112H120a24 24 0 0 1 0-48h272a24 24 0 0 1 0 48m-96 112h-80a24 24 0 0 1 0-48h80a24 24 0 0 1 0 48" />
+                                            </svg>
+                                        </button>
+
+                                        <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 mt-2" aria-labelledby="hs-dropdown-auto-close-inside">
+                                            <div class="mb-1">
+                                                <input type="search" oninput="handleFilterSearch(this);" placeholder="Search" class="py-2 px-4 block w-full border-gray-200 rounded-lg text-xs focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                            </div>
+                                            <div class="filter-item-list" style="height: 10rem; overflow-y: auto;"></div>
+
+                                        </div>
+                                    </div>
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                    Project Status
+                                    <div style="vertical-align: middle;" class="filter-dropdown mx-1 hs-dropdown relative sm:inline-flex z-20 [--auto-close:inside]">
+                                        <button id="hs-dropdown-auto-close-inside" type="button" class="hs-dropdown-toggle p-1 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-gray-100 text-gray-800 shadow-sm disabled:opacity-50 disabled:pointer-events-none">
+                                            <svg class="w-4 h-4 text-gray-800" xmlns="http://www.w3.org/2000/svg"
+                                                 width="512" height="512" viewBox="0 0 512 512">
+                                                <path fill="currentColor"
+                                                      d="M472 168H40a24 24 0 0 1 0-48h432a24 24 0 0 1 0 48m-80 112H120a24 24 0 0 1 0-48h272a24 24 0 0 1 0 48m-96 112h-80a24 24 0 0 1 0-48h80a24 24 0 0 1 0 48" />
+                                            </svg>
+                                        </button>
+
+                                        <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 mt-2" aria-labelledby="hs-dropdown-auto-close-inside">
+                                            <div class="mb-1">
+                                                <input type="search" oninput="handleFilterSearch(this);" placeholder="Search" class="py-2 px-4 block w-full border-gray-200 rounded-lg text-xs focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                            </div>
+                                            <div class="filter-item-list" style="height: 10rem; overflow-y: auto;"></div>
+
+                                        </div>
+                                    </div>
+                                </th>
+                                @*  <th scope="col"
+                                class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                Detailed View
+                                </th> *@
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            @if (Model != null)
+
+                            {
+                                var pastProjects = Model.Where(a => a.CategorySubStatusName == "Bench" || a.CategorySubStatusName == "Released").ToList();
+                                @if (pastProjects.Count() > 0)
+                                {
+                                    @foreach (var item in pastProjects)
+                                    {
+                                        <tr>
+
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 ">
+                                                @item.UserId
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 ">
+                                                @item.EmployeeName
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@((item.ReportingHead != null) ? item.ReportingHead : "")</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 ">
+                                                @item.ProjectName.ToString()
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 ">
+                                                @item.ContractStartDate?.ToString("dd/MM/yy")
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 ">@item.CompanyName</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 ">
+                                                @item.PracticeName
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 ">
+                                                @item.SubPracticeName
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 ">@item.ProjectTypeName</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@((item.DeliveryAnchorName != null) ? item.DeliveryAnchorName : "")</td>
+
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 ">
+                                                <span class="status deployed">@item.CategorySubStatusName</span>
+                                            </td>
+                                            @* <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 ">
+                                <a class="text-gray-800 hover:text-blue-700 underline" href="#">
+                                View All Details
+                                </a>
+                                </td> *@
+                                        </tr>
+                                    }}
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+
+    <script>
+        let _dt;
+        const datatable1 = new DataTable("#currentProjects", {
+            ordering: false,
+            scrollX: true,
+            scrollY: "35vh",
+            "fnInitComplete": function (oSettings, json) {
+                // document.querySelector("#loader").style.display = "none";
+                const _dt = this.api();
+                console.log("initdone")
+                // $("#loader").hide();
+                document.querySelector("#loader").style.display = "none";
+                // docu
+                const allTh = document.querySelectorAll(".dataTables_scroll:has(#currentProjects) .dataTables_scrollHead table thead th");
+                console.log("allTh", allTh);
+                const allThWithFilter = [];
+                Array.from(allTh).forEach((item, index) => {
+                    if (item.querySelector(".hs-dropdown")) {
+                        allThWithFilter.push({ item, index });
+                    }
+                });
+                console.log(allThWithFilter, allThWithFilter.length);
+                allThWithFilter.forEach(item => {
+                    // console.log(Number(item.index));
+                    const column = _dt.columns(Number(item.index)).data().unique().sort();
+                    // const column = document.querySelectorAll(`td:nth-child(${item.index + 1})`);
+                    const uniqueColumnContentSet = new Set();
+
+                    column[0].forEach(colItem => {
+                        if (colItem.includes("hs-dropdown")) {
+                            const tempElem = document.createElement("div");
+                            tempElem.innerHTML = colItem;
+                            uniqueColumnContentSet.add(tempElem.querySelector("button span").innerText);
+                        } else if (colItem.includes("span")) {
+                            const tempElem = document.createElement("div");
+                            tempElem.innerHTML = colItem;
+                            uniqueColumnContentSet.add(tempElem.innerText.trim());
+                        } else {
+                            uniqueColumnContentSet.add(colItem.trim());
+                        }
+                    });
+
+                    const uniqueColumnContent = Array.from(uniqueColumnContentSet).sort();
+
+                    const dropdownBody = item?.item.querySelector(".hs-dropdown-menu .filter-item-list");
+                    dropdownBody.innerHTML = "";
+                    uniqueColumnContent.forEach(dItem => {
+                        const dropdownItem = document.createElement("div");
+                        dropdownItem.classList.add("relative", "flex", "items-start", "py-2", "px-3", "rounded-lg", "hover:bg-gray-100", "filter-item");
+                        let checkBoxId = `chk-${Math.floor(Math.random() * 9999999)}`;
+                        dropdownItem.innerHTML = `<div class="flex items-center">
+                                                                                                <input value="${dItem}" id="${checkBoxId}" type="checkbox" class="shrink-0 border-gray-200 rounded text-emerald-600 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                                                                            </div>
+                                                                                            <label for="${checkBoxId}" class="flex-1 ms-2">
+                                                                                                <span class="block text-xs text-gray-800">${dItem}</span>
+                                                                                            </label>`;
+                        dropdownBody.appendChild(dropdownItem);
+                    })
+                    if (!dropdownBody.nextElementSibling) {
+                        dropdownBody.parentElement.innerHTML += `<div class="flex gap-2"><button onclick="clearFilter(this, ${item?.index});" class="flex mt-2 w-full items-center justify-center gap-x-3.5 py-2 px-3 rounded-lg text-xs text-gray-800 bg-gray-100 hover:bg-gray-50 focus:outline-none focus:bg-gray-100">Clear</button><button onclick="filterTable(this, ${item?.index});" class="flex mt-2 w-full items-center justify-center gap-x-3.5 py-2 px-3 rounded-lg text-xs text-gray-800 bg-gray-100 hover:bg-gray-50 focus:outline-none focus:bg-gray-100" href="#">Apply</button></div>`
+                    }
+                })
+            },
+        });
+
+        function filterTable(btn, colInd) {
+            const values = [];
+            btn.closest(".hs-dropdown").querySelectorAll("input:checked").forEach(chkbox => {
+                values.push(chkbox.value);
+            })
+            HSDropdown.close(btn.closest(".hs-dropdown"));
+            setTimeout(() => {
+                if (values.length) {
+                    datatable1.columns(Number(colInd)).search('^(' + values.join("|") + ')$', true, false).draw();
+                } else {
+                    datatable1.columns(Number(colInd)).search("", true, false).draw();
+                }
+            }, 200)
+        }
+
+        function clearFilter(btn, colInd) {
+            btn.closest(".hs-dropdown").querySelectorAll("input:checked").forEach(chkbox => {
+                chkbox.checked = false;
+            })
+            btn.closest(".hs-dropdown").querySelector("input[type='search']").value = "";
+            const _inpEvent = new Event("input");
+            btn.closest(".hs-dropdown").querySelector("input[type='search']").dispatchEvent(_inpEvent);
+            HSDropdown.close(btn.closest(".hs-dropdown"));
+            setTimeout(() => {
+                datatable1.columns(Number(colInd)).search("", true, false).draw();
+            }, 200)
+        }
+        const datatable2 = new DataTable("#pastProjects",{
+            ordering: false,
+            scrollX: true,
+            scrollY: "35vh",
+            "fnInitComplete": function (oSettings, json) {
+                // document.querySelector("#loader").style.display = "none";
+                const _dt = this.api();
+                console.log("initdone")
+                // $("#loader").hide();
+                document.querySelector("#loader").style.display = "none";
+                // docu
+                const allTh = document.querySelectorAll(".dataTables_scroll:has(#pastProjects) .dataTables_scrollHead table thead th");
+                console.log("allTh", allTh);
+                const allThWithFilter = [];
+                Array.from(allTh).forEach((item, index) => {
+                    if (item.querySelector(".hs-dropdown")) {
+                        allThWithFilter.push({ item, index });
+                    }
+                });
+                console.log(allThWithFilter, allThWithFilter.length);
+                allThWithFilter.forEach(item => {
+                    // console.log(Number(item.index));
+                    const column = _dt.columns(Number(item.index)).data().unique().sort();
+                    // const column = document.querySelectorAll(`td:nth-child(${item.index + 1})`);
+                    const uniqueColumnContentSet = new Set();
+
+                    column[0].forEach(colItem => {
+                        if (colItem.includes("hs-dropdown")) {
+                            const tempElem = document.createElement("div");
+                            tempElem.innerHTML = colItem;
+                            uniqueColumnContentSet.add(tempElem.querySelector("button span").innerText);
+                        } else if (colItem.includes("span")) {
+                            const tempElem = document.createElement("div");
+                            tempElem.innerHTML = colItem;
+                            uniqueColumnContentSet.add(tempElem.innerText.trim());
+                        } else {
+                            uniqueColumnContentSet.add(colItem.trim());
+                        }
+                    });
+
+                    const uniqueColumnContent = Array.from(uniqueColumnContentSet).sort();
+
+                    const dropdownBody = item?.item.querySelector(".hs-dropdown-menu .filter-item-list");
+                    dropdownBody.innerHTML = "";
+                    uniqueColumnContent.forEach(dItem => {
+                        const dropdownItem = document.createElement("div");
+                        dropdownItem.classList.add("relative", "flex", "items-start", "py-2", "px-3", "rounded-lg", "hover:bg-gray-100", "filter-item");
+                        let checkBoxId = `chk-${Math.floor(Math.random() * 9999999)}`;
+                        dropdownItem.innerHTML = `<div class="flex items-center">
+                                                                                                        <input value="${dItem}" id="${checkBoxId}" type="checkbox" class="shrink-0 border-gray-200 rounded text-emerald-600 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                                                                                    </div>
+                                                                                                    <label for="${checkBoxId}" class="flex-1 ms-2">
+                                                                                                        <span class="block text-xs text-gray-800">${dItem}</span>
+                                                                                                    </label>`;
+                        dropdownBody.appendChild(dropdownItem);
+                    })
+                    if (!dropdownBody.nextElementSibling) {
+                        dropdownBody.parentElement.innerHTML += `<div class="flex gap-2"><button onclick="clearFilter2(this, ${item?.index});" class="flex mt-2 w-full items-center justify-center gap-x-3.5 py-2 px-3 rounded-lg text-xs text-gray-800 bg-gray-100 hover:bg-gray-50 focus:outline-none focus:bg-gray-100">Clear</button><button onclick="filterTable2(this, ${item?.index});" class="flex mt-2 w-full items-center justify-center gap-x-3.5 py-2 px-3 rounded-lg text-xs text-gray-800 bg-gray-100 hover:bg-gray-50 focus:outline-none focus:bg-gray-100" href="#">Apply</button></div>`
+                    }
+                })
+            },
+        });
+
+        function filterTable2(btn, colInd) {
+            const values = [];
+            btn.closest(".hs-dropdown").querySelectorAll("input:checked").forEach(chkbox => {
+                values.push(chkbox.value);
+            })
+            HSDropdown.close(btn.closest(".hs-dropdown"));
+            setTimeout(() => {
+                if (values.length) {
+                    datatable2.columns(Number(colInd)).search('^(' + values.join("|") + ')$', true, false).draw();
+                } else {
+                    datatable2.columns(Number(colInd)).search("", true, false).draw();
+                }
+            }, 200)
+        }
+
+        function clearFilter2(btn, colInd) {
+            btn.closest(".hs-dropdown").querySelectorAll("input:checked").forEach(chkbox => {
+                chkbox.checked = false;
+            })
+            btn.closest(".hs-dropdown").querySelector("input[type='search']").value = "";
+            const _inpEvent = new Event("input");
+            btn.closest(".hs-dropdown").querySelector("input[type='search']").dispatchEvent(_inpEvent);
+            HSDropdown.close(btn.closest(".hs-dropdown"));
+            setTimeout(() => {
+                datatable2.columns(Number(colInd)).search("", true, false).draw();
+            }, 200)
+        }
+
+        function handleFilterSearch(input) {
+            const allFilterItems = input.closest(".hs-dropdown-menu").querySelector(".filter-item-list").querySelectorAll("span");
+            allFilterItems.forEach(item => {
+                if (item.innerText.trim().toLowerCase().includes(input.value.trim().toLowerCase())) {
+                    item.closest(".filter-item").style.display = "flex"
+                } else {
+                    item.closest(".filter-item").style.display = "none";
+                }
+            })
+        }
+
+        function handleProjectTypeChange(inp) {
+            const currentProjectsDiv = document.querySelector(".currentProjects");
+            const pastProjectsDiv = document.querySelector(".pastProjects");
+
+            if (inp.checked) {
+                currentProjectsDiv.classList.add("hidden");
+                pastProjectsDiv.classList.remove("hidden");
+                datatable2.columns.adjust();
+            } else {
+                currentProjectsDiv.classList.remove("hidden");
+                pastProjectsDiv.classList.add("hidden");
+                datatable1.columns.adjust();
+            }
+        }
+    </script>
+    }

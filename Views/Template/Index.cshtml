@@ -1,0 +1,201 @@
+﻿@model IEnumerable<RMS.Client.Models.Timesheet.Templates>;
+@{
+    Layout = "Timesheet";
+}
+<div class="relative max-w-[85rem] w-full mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center">
+        <div class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 2048 2048"><path fill="#00cc83" d="M768 896h1280v1152H768zm1152 1024v-640H896v640zm0-768v-128H896v128zM128 0v128H0V0zm0 256v128H0V256zm0 256v128H0V512zm0 256v128H0V768zm0 256v128H0v-128zm0 256v128H0v-128zm0 256v128H0v-128zM0 1792h128v128H0zm128 256v-128h128v128zM384 0v128H256V0zm0 2048v-128h128v128zM512 128V0h128v128zM896 0v128H768V0zm256 0v128h-128V0zm256 0v128h-128V0zm128 256h-128V128h128zm0 128v128h-128V384zm-128 384V640h128v128z" /></svg>
+            <p class="font-extrabold text-lg lg:text-xl" style="margin-left: 0.3rem;">Template List</p>
+        </div>
+        <a href="@Url.Action("CreateTemplate","Template")"
+           class="py-3 px-4 inline-flex justify-center items-center gap-2 rounded-md border border-transparent font-semibold bg-[#00CC83] text-white hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-[#00CC83] focus:ring-offset-2 transition-all text-sm">
+            <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                <path fill="currentColor"
+                      d="M16 2A14.172 14.172 0 0 0 2 16a14.172 14.172 0 0 0 14 14a14.172 14.172 0 0 0 14-14A14.172 14.172 0 0 0 16 2Zm8 15h-7v7h-2v-7H8v-2h7V8h2v7h7Z" />
+                <path fill="none" d="M24 17h-7v7h-2v-7H8v-2h7V8h2v7h7v2z" />
+            </svg>
+            Create New
+        </a>
+    </div>
+    <!-- Table Section -->
+    <div class="mt-4 mx-auto">
+        <!-- Card -->
+        <div class="flex flex-col">
+            <div class="-m-1.5 overflow-x-auto">
+                <div class="p-1.5 min-w-full inline-block align-middle">
+                    <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                        <!-- Header -->
+                        <!-- End Header -->
+                        <!-- Table -->
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="pl-6 py-3 text-left whitespace-nowrap">
+                                        <div class="flex items-center gap-x-2">
+                                            <span class="text-xs font-semibold uppercase tracking-wide text-gray-800">
+                                                S No.
+                                            </span>
+                                        </div>
+                                    </th>
+
+                                    <th scope="col" class="px-6 py-3 text-left whitespace-nowrap">
+                                        <div class="flex items-center gap-x-2">
+                                            <span class="text-xs font-semibold uppercase tracking-wide text-gray-800">
+                                                Template Name
+                                            </span>
+                                        </div>
+                                    </th>
+
+                                    <th scope="col" class="px-6 py-3 text-left whitespace-nowrap">
+                                        <div class="flex items-center gap-x-2" id="Date">
+                                            <span class="text-xs font-semibold uppercase tracking-wide text-gray-800">
+                                                Date
+                                            </span>
+                                        </div>
+                                    </th>
+
+                                    <th scope="col" class="px-6 py-3 text-left whitespace-nowrap">
+                                        <div class="flex items-center gap-x-2">
+                                            <span class="text-xs font-semibold uppercase tracking-wide text-gray-800">
+                                                Total Hours
+                                            </span>
+                                        </div>
+                                    </th>
+
+
+
+                                    <th scope="col" class="px-6 py-3 text-left whitespace-nowrap">
+                                        <div class="flex items-center justify-center gap-x-2">
+                                            <span class="text-xs font-semibold uppercase tracking-wide text-gray-800">
+                                                Action
+                                            </span>
+                                        </div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            @if (Model != null)
+                            {
+
+                                int r = 0;
+                                <tbody class="divide-y divide-gray-200">
+                                    @foreach (var temp in Model)
+                                    {
+
+
+                                        <tr>
+                                            <td class="h-px w-px whitespace-nowrap">
+                                                <div class="text-sm px-6 py-3">
+                                                    @(r + 1)
+                                                </div>
+                                            </td>
+                                            <td class="h-px w-px whitespace-nowrap">
+                                                <div class="text-sm text-gray-800 px-6 py-3">
+                                                    @temp.Templatename
+                                                </div>
+                                            </td>
+                                            <td class="h-px w-72 whitespace-nowrap">
+                                                <div class="text-sm text-gray-800 px-6 py-3">
+                                                    @temp.Createddate.ToString("dd/MM/yyyy")
+                                                    @* @(temp.Createddate == null ? "" : Convert.ToDateTime(temp.Createddate).Date)*@
+
+                                                </div>
+                                            </td>
+                                            <td class="h-px w-px whitespace-nowrap">
+                                                <div class="text-sm text-gray-800 px-6 py-3">
+                                                    @temp.Totalhours
+                                                </div>
+                                            </td>
+
+                                            <td class="h-px w-px whitespace-nowrap" style="text-align:center;">
+                                                <div class="px-6 py-3">
+                                                    <div class="hs-dropdown relative inline-flex">
+                                                        <button id="hs-dropdown-default" type="button" class="hs-dropdown-toggle py-3 px-4 inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-white text-gray-700 shadow-sm align-middle hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-[#00CC83] transition-all text-sm">
+                                                            <svg class="hs-dropdown-open:rotate-180 w-2.5 h-2.5 text-gray-600" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                <path d="M2 5L8.16086 10.6869C8.35239 10.8637 8.64761 10.8637 8.83914 10.6869L15 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                                                            </svg>
+                                                        </button>
+
+                                                        <div class="hs-dropdown-menu transition-[opacity,margin] duration-[0.1ms] hs-dropdown-open:opacity-100 opacity-0 w-72 hidden z-10 mt-2 min-w-[15rem] bg-white shadow-md rounded-lg p-2" aria-labelledby="hs-dropdown-default">
+                                                            <a class="flex items-center gap-x-3.5 py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-blue-500" href="@Url.Action("CreateTemplate","Template",new RouteValueDictionary(new { id = temp.Templateid,isSummary = true  }))">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="opacity:0.6"><g fill="none"><path d="M24 0v24H0V0zM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.01-.009-.017-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.01-.02-.02-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.02.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z" /><path fill="currentColor" d="M16 3a3 3 0 0 1 2.995 2.824L19 6v10h.75c.647 0 1.18.492 1.244 1.122l.006.128V19a3 3 0 0 1-2.824 2.995L18 22H8a3 3 0 0 1-2.995-2.824L5 19V9H3.25a1.25 1.25 0 0 1-1.244-1.122L2 7.75V6a3 3 0 0 1 2.824-2.995L5 3zm0 2H7v14a1 1 0 1 0 2 0v-1.75c0-.69.56-1.25 1.25-1.25H17V6a1 1 0 0 0-1-1m3 13h-8v1c0 .35-.06.687-.17 1H18a1 1 0 0 0 1-1zm-7-6a1 1 0 1 1 0 2h-2a1 1 0 1 1 0-2zm2-4a1 1 0 1 1 0 2h-4a1 1 0 0 1 0-2zM5 5a1 1 0 0 0-.993.883L4 6v1h1z" /></g></svg>
+                                                                Summary
+                                                            </a>
+                                                            <a class="flex items-center gap-x-3.5 py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-blue-500" href="@Url.Action("CreateTemplate","Template",new RouteValueDictionary(new { id = temp.Templateid }))">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="opacity:0.6"><path fill="currentColor" d="m7 17.013l4.413-.015l9.632-9.54c.378-.378.586-.88.586-1.414s-.208-1.036-.586-1.414l-1.586-1.586c-.756-.756-2.075-.752-2.825-.003L7 12.583zM18.045 4.458l1.589 1.583l-1.597 1.582l-1.586-1.585zM9 13.417l6.03-5.973l1.586 1.586l-6.029 5.971L9 15.006z" /><path fill="currentColor" d="M5 21h14c1.103 0 2-.897 2-2v-8.668l-2 2V19H8.158c-.026 0-.053.01-.079.01c-.033 0-.066-.009-.1-.01H5V5h6.847l2-2H5c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2" /></svg>
+                                                                Edit
+                                                            </a>
+                                                            <a class="flex items-center gap-x-3.5 py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-blue-500" href="@Url.Action("Delete","Template",new RouteValueDictionary(new { id = temp.Templateid }))" onclick="return confirm('Are you sure you want to delete this Template?');">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="opacity:0.6"><path fill="currentColor" d="M7 21q-.825 0-1.412-.587T5 19V6H4V4h5V3h6v1h5v2h-1v13q0 .825-.587 1.413T17 21zm2-4h2V8H9zm4 0h2V8h-2z" /></svg>
+                                                                Delete
+                                                            </a>
+                                                            @* <a class="flex items-center gap-x-3.5 py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-blue-500" href="#">
+                                                    Submit
+                                                    </a> *@
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            @* <td class="h-px w-px whitespace-nowrap">
+                                    <div class="flex justify-center">
+                                    <a class="py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-blue-500" asp-action="CreateTemplate" asp-controller="Template" asp-route-id="@temp.Templateid">View</a>
+                                    </div>
+                                    </td>
+                                    <td class="h-px w-px whitespace-nowrap">
+                                    <div class="flex justify-center">
+                                    <a class="py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-blue-500" asp-action="Delete" asp-controller="Template" asp-route-id="@temp.Templateid">Delete</a>
+
+                                    </div>
+                                    </td> *@
+                                        </tr>
+                                        r++;
+                                    }
+                                </tbody>
+                            }
+                        </table>
+                    </div>
+                    <p style="padding-left: 20px; padding-top:20px">Note: Create Templates for repetitive task and use them while creating timesheet. <strong>Maximum 5 templates can be created.</strong></p>
+
+                </div>
+            </div>
+        </div>
+        <!-- End Card -->
+    </div>
+    <!-- End Table Section -->
+</div>
+@section Scripts{
+    <script type="text/javascript">
+        $(function () {
+            document.querySelector(".main").classList.add("flex", "flex-col");
+        @if (ViewData["error"] != null)
+        {
+            <text>
+                    toastr.error("@ViewData["error"]", "Error", { "iconClass": 'new-error' });
+            </text>
+        }
+        @if (ViewData["success"] != null)
+        {
+            <text>
+                    toastr.success("@ViewData["success"]");
+            </text>
+        }
+                $(function () {
+                    document.querySelector(".main").classList.add("flex", "flex-col");
+
+        @if (TempData.ContainsKey("error"))
+        {
+            <text>
+                            toastr.error("@TempData["error"]", "Error", { "iconClass": 'new-error' });
+            </text>
+        }
+
+        @if (TempData.ContainsKey("success"))
+        {
+            <text>
+                            toastr.success("@TempData["success"]");
+            </text>
+        }
+                        });
+        });
+    </script>
+}

@@ -1,0 +1,743 @@
+﻿@model IEnumerable<RMS.Client.Models.Timesheet.Timesheets>;
+@{
+    Layout = "Timesheet";
+}
+@section PageStyles {
+    <style>
+        .arrow {
+            transition: transform .25s ease;
+        }
+
+        tr:has(+ .hidden-row) .arrow {
+            transform: rotate(-180deg);
+        }
+
+        .hidden-row td:nth-child(1) {
+            width: 5rem;       
+        }.hidden-row td:nth-child(2) {
+            width: 12rem;       
+        }.hidden-row td:nth-child(3) {
+            width: 8rem;       
+        }.hidden-row td:nth-child(5) {
+            width: 10rem;       
+        }.hidden-row td:nth-child(4) {
+            width: 18rem;       
+        }
+
+        .declineSelectedBtn {
+            display: none;
+            /* visibility: hidden; */
+            /* pointer-events: none; */
+        }
+
+        .activityTable:has(input[type='checkbox']:checked) .declineSelectedBtn {
+            display: flex;
+            /* visibility: visible; */
+            /* pointer-events: all; */
+        }
+
+        .activityTable tr:has(input[type='checkbox']:checked) .declineBtn {
+            visibility: hidden;
+            pointer-events: none;
+        }
+    </style>
+}
+
+<!-- Table Section -->
+<div class="mt-4 mx-auto w-full">
+    <!-- Card -->
+    <div class="flex flex-col">
+        <div class="-m-1.5 overflow-x-auto">
+            <div class="p-1.5 min-w-full block align-middle">
+                <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                    <!-- Header -->
+                    <!-- End Header -->
+                    <!-- Table -->
+
+                    <div class="relative w-full mx-auto p-4">
+                        <div class="flex items-center gap-4 justify-between flex-wrap mb-4">
+                            <div class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 48 48"><path fill="#3b82f6" d="M18 11a6 6 0 1 1 12 0a6 6 0 0 1-12 0m19-4a5 5 0 1 0 0 10a5 5 0 0 0 0-10M11 7a5 5 0 1 0 0 10a5 5 0 0 0 0-10m8.25 12A4.25 4.25 0 0 0 15 23.25V34a9 9 0 1 0 18 0V23.25A4.25 4.25 0 0 0 28.75 19zM13 23.25c0-1.6.602-3.061 1.592-4.167A4.272 4.272 0 0 0 13.75 19h-5.5A4.25 4.25 0 0 0 4 23.25V33a7 7 0 0 0 10.293 6.179A10.951 10.951 0 0 1 13 34zM35 34c0 1.872-.468 3.635-1.293 5.179A7 7 0 0 0 44 33v-9.75A4.25 4.25 0 0 0 39.75 19h-5.5c-.288 0-.57.029-.842.083A6.227 6.227 0 0 1 35 23.25z" /></svg>
+                                <p class="font-extrabold text-lg lg:text-xl" style="margin-left: 0.3rem;">Members Timesheet</p>
+                            </div>
+                            <button id="downloadExcel" onclick="downloadTimesheetExcel()" class="flex items-center gap-2">
+                                <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 32 32"><defs><linearGradient id="vscodeIconsFileTypeExcel0" x1="4.494" x2="13.832" y1="-2092.086" y2="-2075.914" gradientTransform="translate(0 2100)" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#18884f" /><stop offset=".5" stop-color="#117e43" /><stop offset="1" stop-color="#0b6631" /></linearGradient></defs><path fill="#185c37" d="M19.581 15.35L8.512 13.4v14.409A1.19 1.19 0 0 0 9.705 29h19.1A1.19 1.19 0 0 0 30 27.809V22.5Z" /><path fill="#21a366" d="M19.581 3H9.705a1.19 1.19 0 0 0-1.193 1.191V9.5L19.581 16l5.861 1.95L30 16V9.5Z" /><path fill="#107c41" d="M8.512 9.5h11.069V16H8.512Z" /><path d="M16.434 8.2H8.512v16.25h7.922a1.2 1.2 0 0 0 1.194-1.191V9.391A1.2 1.2 0 0 0 16.434 8.2" opacity="0.1" /><path d="M15.783 8.85H8.512V25.1h7.271a1.2 1.2 0 0 0 1.194-1.191V10.041a1.2 1.2 0 0 0-1.194-1.191" opacity="0.2" /><path d="M15.783 8.85H8.512V23.8h7.271a1.2 1.2 0 0 0 1.194-1.191V10.041a1.2 1.2 0 0 0-1.194-1.191" opacity="0.2" /><path d="M15.132 8.85h-6.62V23.8h6.62a1.2 1.2 0 0 0 1.194-1.191V10.041a1.2 1.2 0 0 0-1.194-1.191" opacity="0.2" /><path fill="url(#vscodeIconsFileTypeExcel0)" d="M3.194 8.85h11.938a1.193 1.193 0 0 1 1.194 1.191v11.918a1.193 1.193 0 0 1-1.194 1.191H3.194A1.19 1.19 0 0 1 2 21.959V10.041A1.19 1.19 0 0 1 3.194 8.85" /><path fill="#fff" d="m5.7 19.873l2.511-3.884l-2.3-3.862h1.847L9.013 14.6c.116.234.2.408.238.524h.017q.123-.281.26-.546l1.342-2.447h1.7l-2.359 3.84l2.419 3.905h-1.809l-1.45-2.711A2.4 2.4 0 0 1 9.2 16.8h-.024a1.7 1.7 0 0 1-.168.351l-1.493 2.722Z" /><path fill="#33c481" d="M28.806 3h-9.225v6.5H30V4.191A1.19 1.19 0 0 0 28.806 3" /><path fill="#107c41" d="M19.581 16H30v6.5H19.581Z" /></svg>
+                                @*                                 <span class="underline font-bold text-sm">Export To Excel</span>
+                                *@
+                            </button>
+                            @* <button class="flex items-center gap-2">
+                                <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 32 32"><defs><linearGradient id="vscodeIconsFileTypeExcel0" x1="4.494" x2="13.832" y1="-2092.086" y2="-2075.914" gradientTransform="translate(0 2100)" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#18884f" /><stop offset=".5" stop-color="#117e43" /><stop offset="1" stop-color="#0b6631" /></linearGradient></defs><path fill="#185c37" d="M19.581 15.35L8.512 13.4v14.409A1.19 1.19 0 0 0 9.705 29h19.1A1.19 1.19 0 0 0 30 27.809V22.5Z" /><path fill="#21a366" d="M19.581 3H9.705a1.19 1.19 0 0 0-1.193 1.191V9.5L19.581 16l5.861 1.95L30 16V9.5Z" /><path fill="#107c41" d="M8.512 9.5h11.069V16H8.512Z" /><path d="M16.434 8.2H8.512v16.25h7.922a1.2 1.2 0 0 0 1.194-1.191V9.391A1.2 1.2 0 0 0 16.434 8.2" opacity="0.1" /><path d="M15.783 8.85H8.512V25.1h7.271a1.2 1.2 0 0 0 1.194-1.191V10.041a1.2 1.2 0 0 0-1.194-1.191" opacity="0.2" /><path d="M15.783 8.85H8.512V23.8h7.271a1.2 1.2 0 0 0 1.194-1.191V10.041a1.2 1.2 0 0 0-1.194-1.191" opacity="0.2" /><path d="M15.132 8.85h-6.62V23.8h6.62a1.2 1.2 0 0 0 1.194-1.191V10.041a1.2 1.2 0 0 0-1.194-1.191" opacity="0.2" /><path fill="url(#vscodeIconsFileTypeExcel0)" d="M3.194 8.85h11.938a1.193 1.193 0 0 1 1.194 1.191v11.918a1.193 1.193 0 0 1-1.194 1.191H3.194A1.19 1.19 0 0 1 2 21.959V10.041A1.19 1.19 0 0 1 3.194 8.85" /><path fill="#fff" d="m5.7 19.873l2.511-3.884l-2.3-3.862h1.847L9.013 14.6c.116.234.2.408.238.524h.017q.123-.281.26-.546l1.342-2.447h1.7l-2.359 3.84l2.419 3.905h-1.809l-1.45-2.711A2.4 2.4 0 0 1 9.2 16.8h-.024a1.7 1.7 0 0 1-.168.351l-1.493 2.722Z" /><path fill="#33c481" d="M28.806 3h-9.225v6.5H30V4.191A1.19 1.19 0 0 0 28.806 3" /><path fill="#107c41" d="M19.581 16H30v6.5H19.581Z" /></svg>
+                                <span class="underline font-bold text-sm">Export To Excel</span>
+                            </button> *@
+                        </div>
+                        <div class="flex justify-between items-center gap-4 border p-2 rounded-md" style="background-color: #f2f3f8;">
+                            <label onclick="this.querySelector('input').showPicker();" for="select-month" class="whitespace-nowrap relative flex items-center gap-2 border bg-white text-gray-800 rounded px-6 py-3 hover:shadow-2xl transition-all" style="flex-shrink: 0;">
+                                <input type="month" id="select-month" class="opacity-0 absolute pointer-events-none inset-0" value="@ViewBag.Month" onchange="GetDetails(this,3);">
+                                @* <img src="~/assets/images/select_month_icon.svg" alt="" style="max-width: auto !important"> *@
+                                <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M17 3h4a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h4V1h2v2h6V1h2zM4 9v10h16V9zm2 2h2v2H6zm5 0h2v2h-2zm5 0h2v2h-2z" /></svg>
+                                <span>
+                                    @(!String.IsNullOrEmpty(ViewBag.MonthName) ? ViewBag.MonthName : "Select Name")
+                                </span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 32 32"><path fill="currentColor" d="M8.037 11.166L14.5 22.36c.825 1.43 2.175 1.43 3 0l6.463-11.195c.826-1.43.15-2.598-1.5-2.598H9.537c-1.65 0-2.326 1.17-1.5 2.6z" /></svg>
+                            </label>
+                            <select id="projects" name="projects" asp-items="@ViewBag.Projects"
+                                    class="multi-select" onchange="GetDetails(this,1);">
+                                placeholder="Select Customer" >
+                                <option value="">Select Projects</option>
+                            </select>
+                            <select id="resource" name="resource" asp-items="@ViewBag.Resource"
+                                    class="multi-select" onchange="GetDetails(this,2);">
+                                placeholder="Select Customer">
+                                <option value="">Select Employees</option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <table class="min-w-full divide-y divide-gray-200" id="datatable">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="pl-6 py-3 text-left whitespace-nowrap">
+                                    <div class="flex items-center gap-x-2">
+                                        <span class="text-xs font-semibold uppercase tracking-wide text-gray-800">
+                                            S.No
+                                        </span>
+                                    </div>
+                                </th>
+                                <th scope="col" class="pl-6 py-3 text-left whitespace-nowrap">
+                                    <div class="flex items-center gap-x-2">
+                                        <span class="text-xs font-semibold uppercase tracking-wide text-gray-800">
+                                            Employee
+                                        </span>
+                                    </div>
+                                </th>
+
+                                <th scope="col" class="px-6 py-3 text-left whitespace-nowrap">
+                                    <div class="flex items-center gap-x-2">
+                                        <span class="text-xs font-semibold uppercase tracking-wide text-gray-800">
+                                            Timesheet Date
+                                        </span>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left whitespace-nowrap">
+                                    <div class="flex items-center gap-x-2">
+                                        <span class="text-xs font-semibold uppercase tracking-wide text-gray-800">
+                                            Hours Filled
+                                        </span>
+                                        @* <input class="k-input" type="date" id="ctlenddate" value="@ViewBag.startDate" onchange="filterRecord()" />
+                                        <input class="k-input" type="date" id="ctlstartdate" value="@ViewBag.endDate" onchange="filterRecord()" />
+                                        *@
+                                    </div>
+                                </th>
+
+                                <th scope="col" class="px-6 py-3 text-left whitespace-nowrap">
+                                    <div class="flex items-center gap-x-2">
+                                        <span class="text-xs font-semibold uppercase tracking-wide text-gray-800">
+                                            Total Hours
+                                        </span>
+                                    </div>
+                                </th>
+
+                                <th scope="col" class="px-6 py-3 text-left whitespace-nowrap">
+                                    <div class="flex items-center gap-x-2">
+                                        <span class="text-xs font-semibold uppercase tracking-wide text-gray-800">
+                                            Timesheet
+                                        </span>
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Card -->
+</div>
+<!-- End Table Section -->
+    </div>
+
+<div id="rejectModal" class="hs-overlay hs-overlay-open:opacity-100 hs-overlay-open:duration-500 hidden w-full h-screen fixed top-0 start-0 z-[80] opacity-0 overflow-x-hidden transition-all overflow-y-auto pointer-events-none">
+    <div class="sm:max-w-lg sm:w-full m-3 sm:mx-auto h-screen flex items-center justify-center">
+        <div class="flex flex-col bg-white border shadow-sm rounded-xl pointer-events-auto w-full max-w-xl">
+            <div class="flex justify-between items-center py-3 px-4 border-b">
+                <h3 class="font-bold text-gray-800">
+                    Reject Timesheet
+                </h3>
+                <button type="button" class="flex justify-center items-center w-7 h-7 text-sm font-semibold rounded-full border border-transparent text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none" data-hs-overlay="#rejectModal">
+                    <span class="sr-only">Close</span>
+                    <svg class="flex-shrink-0 w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6 6 18"></path>
+                        <path d="m6 6 12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="p-4 overflow-y-auto">
+                <div>
+                    <label for="reject-reason-modal" class="block text-sm font-medium mb-2">Enter Reason</label>
+                    <textarea id="reject-reason-modal" class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none" rows="3" placeholder="Reason"></textarea>
+                </div>
+            </div>
+            <div class="flex justify-end items-center gap-x-2 py-3 px-4 border-t">
+                <button type="button" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none" data-hs-overlay="#rejectModal">
+                    Cancel
+                </button>
+                <button type="button" id="rejectTimesheetModalBtn" onclick="rejectTimesheetMultiple(this);" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:pointer-events-none">
+                    Reject
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    @* <link href="https://unpkg.com/tabulator-tables@6.2.1/dist/css/tabulator.min.css" rel="stylesheet">
+    <script type="text/javascript" src="https://unpkg.com/tabulator-tables@6.2.1/dist/js/tabulator.min.js"></script> *@
+    <script>
+
+        function todayDate() {
+            const today = Date.now();
+            const month = today.getMonth
+        }
+
+        window.addEventListener("DOMContentLoaded", () => {
+            initdatatable();
+            setMonthSelectLimits();
+
+            document.querySelector("#select-month").value = document.querySelector("#select-month").getAttribute("value");
+
+            GetDetails(document.querySelector("#select-month"), 3)
+        })
+
+        var monthName = "";
+        var projectId = 0;
+        var employeeId = 0;
+
+        let datatable;
+
+        function initdatatable() {
+            datatable = new DataTable("#datatable", {
+                ordering: false,
+                destroy: true,
+                scrollX: true
+            })
+            // datatable = new Tabulator("#datatable")
+        }
+
+        function setMonthSelectLimits() {
+            const monthSelect = document.querySelector("#select-month");
+            const currentDate = new Date();
+            const maxValue = `${currentDate.getFullYear()}-${currentDate.getMonth() + 1 < 10 ? '0' + (currentDate.getMonth() + 1) : currentDate.getMonth() + 1}`;
+            monthSelect.setAttribute("max", maxValue);
+        }
+
+        const multiSelect = new SlimSelect({
+            select: "#projects",
+            settings: {
+                allowDeselect: false,
+                closeOnSelect: true,
+                maxValuesShown: 1
+            }
+        })
+
+        const multiSelect1 = new SlimSelect({
+            select: "#resource",
+            settings: {
+                allowDeselect: false,
+                closeOnSelect: true,
+                maxValuesShown: 1
+            }
+        })
+
+        let months = ["January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"];
+        function downloadTimesheetExcel() {
+            var formData = new FormData();
+            formData.append("date", monthName);
+            //formData.append("projectId", Number(projectId));
+            //formData.append("employeeId", Number(employeeId));
+            // var projectId = Number(projectId);
+            // var employeeId = Number(employeeId);
+
+            var date = monthName;
+            var projectId = $('#projects').val();
+            var employeeId = $('#resource').val();
+            var headerId = 0;
+
+            $.ajax({
+                url: `/Timesheet/TimesheetExcel?date=${date}&projectId=${projectId}&employeeId=${employeeId}&headerId=${headerId}`,
+                type: 'GET',
+                success: function (response) {
+                    if (response.success) {
+                        var downloadUrl = response.fileUrl;
+                        window.location.href = downloadUrl;
+                    } else {
+                        alert('Error: ' + response.msg);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('An error occurred:', error);
+                    alert('Failed to download the file. Please try again.');
+                }
+            });
+        }
+
+        function getData() {
+            // //console.log(input.value);
+            // document.querySelector("#loader").style.display = "flex";
+            // let monthData = input.value.split("-");
+            // monthName = `${months[Number(monthData[1]) - 1]}-${monthData[0]}`;
+            var formData = new FormData();
+            formData.append("date", monthName);
+            formData.append("projectId", Number(projectId));
+            formData.append("employeeId", Number(employeeId));
+
+            $.ajax({
+                url: '/Timesheet/GetManagerTimesheet',
+                type: 'Get',
+                data: {
+                    date: monthName,
+                    projectId: Number(projectId),
+                    employeeId: Number(employeeId)
+                },
+                success: function (res) {
+                    console.log(res);
+                    datatable.destroy();
+                    $("#datatable tbody").html("");
+                    $("#loader").hide();
+                    if (res.success == true) {
+                        var data = aggregateDataByDate(JSON.parse(res.msg));
+                        console.log(data);
+                        if (data.length) {
+                            data.forEach((item, index) => {
+                                const sNo = (index + 1) < 10 ? '0' + (index + 1) : (index + 1);
+                                const tr = document.createElement("tr");
+                                const hiddenTr = document.createElement("tr");
+                                hiddenTr.style.border = "none";
+                                let trHtml = ``;
+                                // trHtml += `<td class="pl-6 py-3"><button data-details='${JSON.stringify(item)}' onclick="toggleDetails(this);">
+                                //                     <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M8 6.82v10.36c0 .79.87 1.27 1.54.84l8.14-5.18a1 1 0 0 0 0-1.69L9.54 5.98A.998.998 0 0 0 8 6.82"/></svg>
+                                //                 </button></td>`;
+                                trHtml += `<td class="pl-6 py-3">${sNo}</td>`
+                                trHtml += `<td class="pl-6 py-3">${item?.employeename}</td>`;
+                                const date = new Date(item?.timesheetdate);
+
+                                // Format the date to dd/MMM/yyyy
+                                const formattedDate = date.toLocaleDateString('en-GB', {
+                                    day: '2-digit',
+                                    month: 'short',
+                                    year: 'numeric'
+                                });
+
+                                // Create the table cell with the formatted date
+                                trHtml += `<td class="pl-6 py-3">${formattedDate}</td>`;
+                                trHtml += `<td class="pl-6 py-3">${item?.totalhours} ${Number(item?.totalhours) > 1 ? 'Hours' : 'Hour'}</td>`;
+                                // trHtml += `<td class="pl-6 py-3">${item?.companyemail}</td>`;
+                                trHtml += `<td class="pl-6 py-3">9 Hours</td>`;
+                                // trHtml += `<td class="pl-6 py-3">${item?.timesheetdetailid}</td>`;
+                                // trHtml += `<td class="pl-6 py-3">${item?.timesheetid}</td>`;
+                                trHtml += `<td class="pl-6 py-3">
+                                                    <button type="button" class="toggleTimesheetDetailBtn py-1 px-4 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent text-gray-800 hover:text-emerald-600 disabled:opacity-50 disabled:pointer-events-none">
+                                                        View Timesheet
+                                                        <svg class="arrow flex-shrink-0 w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                            <path d="m6 9 6 6 6-6"></path>
+                                                        </svg>
+                                                    </button>
+                                                   </td>`;
+
+
+
+                                tr.innerHTML = trHtml;
+
+                                const toggleTimesheetDetailBtn = tr.querySelector(".toggleTimesheetDetailBtn");
+                                if (toggleTimesheetDetailBtn) {
+                                    toggleTimesheetDetailBtn.addEventListener("click", (e) => {
+                                        toggleDetails(e.target, item?.activities);
+                                    })
+                                }
+                                // hiddenTr.innerHTML = `<td colspan="6">
+                                //                             <div id="timesheet_collapse_${sNo}" class="p-2 hs-collapse hidden transition-[height] duration-300 w-full overflow-hidden transition-[height] duration-300" aria-labelledby="Timesheet Detail">
+                                //                             ${getDetailHtml(item?.activities)}
+                                //                         </div>
+                                //                       </td>`
+                                // hiddenTr.innerHTML = getHiddentrHtml(item);
+                                document.querySelector("#datatable tbody").appendChild(tr);
+                                // document.querySelector("#datatable tbody").appendChild(hiddenTr);
+                            })
+                            console.log(data);
+                        }
+                    } else {
+                        toastr.error(res.msg);
+                    }
+                    initdatatable();
+                }
+            });
+        }
+
+        function getDetailHtml(activities) {
+            if (!activities || activities.length === 0) {
+                return `<td colspan="6"><p class="text-center">No Activities found</p></td>`;
+            }
+
+            let activitiesHtml = ``;
+            activitiesHtml += `<td colspan="6" class="p-2">`;
+            activitiesHtml += '<div class="flex flex-col">'
+            activitiesHtml += '<div class="-m-1.5 overflow-x-auto">'
+            activitiesHtml += '<div class="p-1.5 min-w-full inline-block align-middle">'
+            activitiesHtml += '<div class="border rounded-lg overflow-hidden">'
+            activitiesHtml += '<table class="min-w-full divide-y divide-gray-200 activityTable" id="datatable1">'
+            activitiesHtml += '<thead class="bg-[#F2F3F8]">'
+            activitiesHtml += `<tr class="divide-x">`
+
+            activitiesHtml += `<th scope="col" class="px-2 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600" width="10%">`
+            activitiesHtml += `<div class="flex items-center gap-2">`
+            activitiesHtml += `<div class="flex">`
+            activitiesHtml += `<input onchange="checkAll(this);" type="checkbox" class="shrink-0 mt-0.5 border-gray-200 rounded text-emerald-600 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none" id="select-all">`
+            activitiesHtml += `<label for="select-all" class="sr-only">Select</label>`;
+            activitiesHtml += `</div>S.No</div>`
+            activitiesHtml += `</th>`
+
+            activitiesHtml += `<th scope="col" class="px-2 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600">`
+            activitiesHtml += `<div class="flex items-center gap-2"><img class="w-6 h-6" src="@Url.Content("~/assets/images/select_date_icon.svg")" alt="date icon">Project</div>`
+            activitiesHtml += `</th>`
+
+            activitiesHtml += `<th scope="col" class="px-2 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600" width="10%">`
+            activitiesHtml += `<div class="flex items-center gap-2"><img class="w-6 h-6" src="@Url.Content("~/assets/images/select_hours_icon.svg")" alt="hour icon">Hours</div></th>`
+            activitiesHtml += `<th scope="col" class="px-2 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600" width="20%">`
+            activitiesHtml += `<div class="flex items-center gap-2"><img class="w-6 h-6" src="@Url.Content("~/assets/images/activity_icon.svg")" alt="activity icon">Category Of Activity</div>`
+            activitiesHtml += `</th>`
+            activitiesHtml += `<th scope="col" class="px-2 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600"width="40%">`
+            activitiesHtml += `<div class="flex items-center gap-2"><img class="w-6 h-6" src="@Url.Content("~/assets/images/activity_icon.svg")" alt="activity icon">Activity</div>`
+            activitiesHtml += `</th>`
+
+            activitiesHtml += `<th scope="col" class="px-2 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600"width="40%">`
+            activitiesHtml += `<div class="flex items-center gap-2"><img class="w-6 h-6" src="@Url.Content("~/assets/images/activity_icon.svg")" alt="activity icon">Action</div>`
+            // activitiesHtml += `<button class="declineSelectedBtn ml-2 px-6 py-2 border rounded bg-gray-200 font-bold" onclick="declineSelected(this);">Decline Selected</button>`
+            activitiesHtml += `</th>`
+
+            // activitiesHtml += `<th scope="col" class="px-2 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600">`
+            // activitiesHtml += `<div class="flex items-center gap-2"><img class="w-6 h-6" src="@Url.Content("~/assets/images/project_name_icon.svg")" alt="project icon">Project Name</div>`
+            // activitiesHtml += `</th>`
+
+            // activitiesHtml += `<th scope="col" class="px-2 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600">`
+            // activitiesHtml += `<div class="flex items-center gap-2"><img class="w-6 h-6" src="@Url.Content("~/assets/images/status_action_icon.svg")" alt="status icon">Status</div>`
+            // activitiesHtml += `</th>`
+
+            // activitiesHtml += `<th scope="col" class="px-2 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600">`
+            // activitiesHtml += `<div class="flex items-center gap-2"> <img class="w-6 h-6" src="@Url.Content("~/assets/images/status_action_icon.svg")" alt="action icon">Action</div>`
+            // activitiesHtml += `</th>`
+
+            activitiesHtml += `</tr>`
+            activitiesHtml += `</thead>`
+            activitiesHtml += `<tbody class="divide-y divide-gray-200">`;
+
+            activities.forEach((item, index) => {
+                const sNo = (index + 1) < 10 ? '0' + (index + 1) : (index + 1);
+                activitiesHtml += `<tr class="timesheet-row divide-x relative" data-id="${item?.timesheetdetailid}">
+                                                <td width="5%" class="p-2 whitespace-nowrap text-sm font-medium text-gray-800">
+                                                    <div class="flex items-center gap-2">
+                                                        <div class="flex">
+                                                            <input type="checkbox" class="shrink-0 mt-0.5 border-gray-200 rounded text-emerald-600 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none" id="select-all">
+                                                            <label for="select-all" class="sr-only">Select</label>
+                                                        </div>
+                                                        <span class="serial-no">${sNo}</span>
+                                                    </div>
+                                                </td>
+                                                <td class="p-2 whitespace-nowrap text-sm text-gray-800">
+                                                    ${item?.projectname}
+                                                </td>
+                                                <td class="p-2 whitespace-nowrap text-sm text-gray-800">
+                                                    ${item?.dayhours}
+                                                </td>
+                                                        <td class="p-2 whitespace-nowrap text-sm text-gray-800">
+                                               ${item?.Categoryofactivityname}
+                                                        </td>
+                                                <td class="p-2 text-sm text-gray-800">
+                                                 <p style="max-width:10rem">${item?.activity}</p>
+                                                </td>
+                                                <td class="p-2 whitespace-nowrap text-sm text-gray-800">
+                                                    <button class="declineBtn px-6 py-2 border rounded bg-gray-200 font-bold" onclick="handleDecline(this);">Decline</button>
+                                                </td>
+                                            </tr>`;
+
+                // onclick = "rejectTimesheet(this);"
+            })
+
+            activitiesHtml += `</tbody>`;
+            activitiesHtml += `<tfoot>`;
+            activitiesHtml += `<tr>`;
+            activitiesHtml += `<td></td>`;
+            activitiesHtml += `<td></td>`;
+            activitiesHtml += `<td></td>`;
+            activitiesHtml += `<td></td>`;
+            activitiesHtml += `<td class="p-2">`;
+            activitiesHtml += `<button class="declineSelectedBtn ml-2 px-6 py-2 border rounded bg-gray-200 font-bold" onclick="declineSelected(this);">Decline Selected</button>`;
+            activitiesHtml += `</td>`;
+            activitiesHtml += `</tr>`;
+            activitiesHtml += `</tfoot>`;
+            activitiesHtml += `</table>`;
+            activitiesHtml += `</div>`;
+            activitiesHtml += `</div>`;
+            activitiesHtml += `</div>`;
+            activitiesHtml += `</div>`;
+            activitiesHtml += `</td>`;
+
+            return activitiesHtml;
+        }
+
+        function toggleDetails(btn, activities) {
+            const data = btn.getAttribute("data-details");
+            if (btn.closest("tr").nextElementSibling && btn.closest("tr").nextElementSibling.classList.contains("hidden-row")) {
+                btn.closest("tr").nextElementSibling.remove();
+            } else {
+                const hiddenrow = document.createElement("tr");
+                hiddenrow.classList.add("hidden-row");
+                hiddenrow.innerHTML = getDetailHtml(activities);
+                btn.closest("tr").parentElement.insertBefore(hiddenrow, btn.closest("tr").nextElementSibling);
+            }
+        }
+
+        function getHiddentrHtml(data) {
+            let _html = '';
+            _html += `<td colspan="5" class="px-6">`;
+            _html += `<div style="width: 100%; overlflow-x: auto;" class="rounded border">`
+            _html += `<table class="w-full">`
+
+            _html += `<thead class="border-b">`
+            _html += `<tr>`
+            _html += `<th class="pl-6 py-3 text-left">Category Of Activity</th>`
+            _html += `<th class="pl-6 py-3 text-left">Activity</th>`
+            _html += `<th class="pl-6 py-3 text-left">Project</th>`
+            _html += `<th class="pl-6 py-3 text-left">Hours</th>`
+            _html += `<th class="pl-6 py-3 text-left">Action</th>`
+            _html += `</tr>`
+            _html += `</thead>`
+
+            _html += `<tbody>`
+
+            data?.activities.forEach(item => {
+                _html += `<tr data-id="${item?.timesheetdetailid}">`
+                _html += `  <td class="pl-6 py-3 text-left">${item?.Categoryofactivityname}</td>`
+                _html += `  <td class="pl-6 py-3 text-left">${item?.activity}</td>`
+                _html += `  <td class="pl-6 py-3 text-left">${item?.projectname}</td>`
+                _html += `  <td class="pl-6 py-3 text-left">${item?.dayhours}</td>`
+                _html += `  <td class="pl-6 py-3 text-left"><button class="whitespace-nowrap relative flex items-center gap-2 bg-blue-500 text-white rounded-full px-6 py-3 hover:shadow-2xl transition-all" onclick="rejectTimesheet(this);">Decline</button></td>`
+                _html += `</tr>`
+            })
+
+            _html += `</tbody>`
+            _html += `</table>`
+            _html += `</div>`
+            _html += `</td>`;
+
+            return _html;
+        }
+
+        function GetDetails(inp, inpType) {
+            switch (inpType) {
+                case 1:
+                    projectId = $(inp).val();
+                    break;
+                case 2:
+                    employeeId = $(inp).val();
+                    break;
+                case 3: document.querySelector("#loader").style.display = "flex";
+                    setMonthName(inp);
+                    let monthData = inp.value.split("-");
+                    monthName = `${months[Number(monthData[1]) - 1]}-${monthData[0]}`;
+                    break;
+                default: break;
+
+            }
+            getData();
+        }
+
+        function setMonthName(input) {
+            if (!input.value) return;
+            const date = new Date(input.value);
+            const monthName = date.toLocaleString('default', { month: 'long' });
+            input.parentElement.querySelector("span").innerText = monthName;
+        }
+
+        function aggregateDataByDate(data) {
+            const aggregate = {};
+
+            data.forEach(entry => {
+                const key = `${entry.employeename}-${entry.companyemail}-${entry.timesheetdate}`;
+
+                if (!aggregate[key]) {
+                    aggregate[key] = {
+                        employeename: entry.employeename,
+                        companyemail: entry.companyemail,
+                        timesheetdate: entry.timesheetdate,
+                        totalhours: 0,
+                        activities: []
+                    };
+                }
+
+                aggregate[key].totalhours += entry.dayhours;
+                aggregate[key].activities.push({
+                    projectname: entry.projectname,
+                    activity: entry.activity,
+                    Categoryofactivityname: entry.categoryofactivityname,
+                    dayhours: entry.dayhours,
+                    timesheetdetailid: entry.timesheetdetailid
+                });
+            });
+
+            return Object.values(aggregate);
+        }
+
+        function rejectTimesheet(btn) {
+            var id = Number(btn.closest("div").getAttribute("data-id"));
+            const rejectReason = btn.parentElement.querySelector(".reject-reason").value;
+            if (!rejectReason) {
+                btn.parentElement.querySelector(".reject-reason").classList.add("is-invalid");
+                return;
+            } else {
+                btn.parentElement.querySelector(".reject-reason").classList.remove("is-invalid");
+            }
+            const fData = new FormData();
+            fData.append("data", JSON.stringify([{ Timesheetdetailid: id, Remarks: rejectReason }]))
+            // fData.append("id", id)
+            // fData.append("reason", rejectReason);
+            $.ajax({
+                url: '/Timesheet/ManagerAction',
+                type: 'POST',
+                // contentType: 'application/json',
+                // processData: false,
+                processData: false,
+                contentType: false,
+                data: fData,
+                // data: JSON.stringify({ Id: id }),
+                success: function (response) {
+                    if (response.success) {
+                        toastr.success("Timesheet Declined");
+                        window.location.reload();
+                    }
+                    console.log('Success:', response);
+                },
+                error: function (xhr, status, error) {
+                    console.log('Error:', error);
+                }
+            });
+        }
+
+        function rejectTimesheetMultiple(btn) {
+            var ids = btn.getAttribute("data-selected");
+            if(!ids) {
+                toastr.error("There was some problem in declining timesheet. Please try again.");
+                return;
+            }
+            const rejectReason = document.querySelector("#reject-reason-modal").value;
+            if (!rejectReason) {
+                document.querySelector("#reject-reason-modal").classList.add("is-invalid");
+                return;
+            } else {
+                document.querySelector("#reject-reason-modal").classList.remove("is-invalid");
+            }
+
+            const rejectData = [];
+
+            ids.split(",").forEach(item => {
+                rejectData.push({
+                    Timesheetdetailid: item,
+                    Remarks: rejectReason
+                })
+            })
+
+            const fData = new FormData();
+            fData.append("data", JSON.stringify(rejectData));
+            // fData.append("id", id)
+            // fData.append("reason", rejectReason);
+            $.ajax({
+                url: '/Timesheet/ManagerAction',
+                type: 'POST',
+                // contentType: 'application/json',
+                // processData: false,
+                processData: false,
+                contentType: false,
+                data: fData,
+                // data: JSON.stringify({ Id: id }),
+                success: function (response) {
+                    if (response.success) {
+                        toastr.success("Timesheet Declined");
+                        window.location.reload();
+                    }
+                    console.log('Success:', response);
+                },
+                error: function (xhr, status, error) {
+                    console.log('Error:', error);
+                }
+            });
+        }
+
+
+        function handleDecline(btn) {
+            const row = btn.closest("tr");
+            const detailId = row.getAttribute("data-id")
+
+            const declineOverlay = document.createElement("div");
+            declineOverlay.classList.add("absolute", "rejectOverlay", "h-full");
+            declineOverlay.style.backgroundColor = "white";
+            declineOverlay.style.inset = `0`;
+
+            declineOverlay.innerHTML = `<div class="flex items-center gap-4 h-full px-1" data-id="${detailId}">
+                                            <input type="text" placeholder="Enter reject reason" class="reject-reason flex-1 py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none" />
+                                            <button class="flex items-center gap-2 bg-blue-500 text-white rounded-full px-6 py-3 hover:shadow-2xl transition-all" onclick="rejectTimesheet(this);">Save</button>
+                                            <button onclick="handleRejectOverlayCancel(this);" class="flex items-center gap-2 bg-gray-200 rounded-full px-6 py-3 hover:shadow-2xl transition-all">Cancel</button>
+                                        </div>`;
+
+            btn.parentElement.appendChild(declineOverlay);
+
+        }
+
+        function handleRejectOverlayCancel(btn) {
+            btn.closest(".rejectOverlay").remove();
+        }
+
+                // $(document).ready(function () {
+                //     $('#myButton').click(function () {
+
+                //     });
+                // });
+
+        function checkAll(chk) {
+            const allTbodyCheckbox = chk.closest("table").querySelector("tbody").querySelectorAll("input[type='checkbox']");
+            const isToBeChecked = chk.checked;
+
+            allTbodyCheckbox.forEach(item => {
+                item.checked = isToBeChecked;
+            })
+        }
+
+        function declineSelected(btn) {
+            const allSelectedRows = btn.closest("table").querySelector("tbody").querySelectorAll("tr:has(input[type='checkbox']:checked)");
+            
+            const allSelectedIds = [];
+            
+            allSelectedRows.forEach(item => {
+                const _id = item.getAttribute("data-id");
+                allSelectedIds.push(_id);
+            })
+
+            console.log(allSelectedIds);
+            document.querySelector("#rejectTimesheetModalBtn").setAttribute("data-selected", allSelectedIds.join(","));
+            HSOverlay.open(document.querySelector("#rejectModal"));
+        }
+
+        function resetRejectTimesheetModal() {
+            console.log("reject timesheet");
+        }
+
+        HSOverlay.on("close", (modal) => {
+            if (modal.id === "rejectModal") {
+                document.querySelector("#reject-reason-modal").classList.remove("is-invalid");
+                document.querySelector("#reject-reason-modal").value = "";
+                document.querySelector("#rejectTimesheetModalBtn").setAttribute("data-selected") = "";
+            }
+        })
+    </script>
+}

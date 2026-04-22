@@ -1,0 +1,360 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        Prime | Portal for Resource Integration🔗, Management💼, and Efficiency⚙️
+    </title>
+    <link rel="stylesheet" href="~/dist/output.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" integrity="sha512-6S2HWzVFxruDlZxI3sXOZZ4/eJ8AcxkQH1+JjSe/ONCEqR9L4Ysq5JdT5ipqtzU7WHalNwzwBv+iE51gNHJNqQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        .login-btn {
+            box-shadow: 0px 20px 33px 0px #00CC834A;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .5rem;
+        }
+
+        @@keyframes revealImg1 {
+            0% {
+                clip-path: polygon(0% 100%, 100% 100%, 100% 100%, 0% 100%);
+            }
+
+            100% {
+                clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+            }
+        }
+
+        @@keyframes revealImg2 {
+            0% {
+                clip-path: polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%);
+            }
+
+            100% {
+                clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+            }
+        }
+
+        @@keyframes circleAnim {
+            0% {
+                transform: translate(-25%, -25%) scale(0);
+            }
+
+            100% {
+                transform: translate(-25%, -25%) scale(1);
+            }
+        }
+
+        @@keyframes circleAnim2 {
+            0% {
+                transform: scale(0);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @@keyframes pillReveal {
+            0% {
+                clip-path: polygon(100% 0%, 100% 0%, 100% 100%, 100% 100%);
+            }
+
+            100% {
+                clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+            }
+        }
+
+        .decor_img_1 {
+            animation: revealImg1 1s cubic-bezier(0.85, 0, 0.15, 1) backwards;
+            animation-delay: .25s;
+        }
+
+        .decor_img_2 {
+            animation: revealImg2 1s cubic-bezier(0.85, 0, 0.15, 1) backwards;
+            animation-delay: .25s;
+        }
+
+        .decor_circle {
+            animation: circleAnim .5s cubic-bezier(0.85, 0, 0.15, 1) backwards;
+            animation-delay: .75s;
+            transform-origin: top left;
+        }
+
+        .decor_pill {
+            animation: pillReveal 1s cubic-bezier(0.85, 0, 0.15, 1) backwards;
+            animation-delay: 1s;
+        }
+
+        .decor_circle2 {
+            animation: circleAnim2 .5s cubic-bezier(0.85, 0, 0.15, 1) backwards;
+            animation-delay: 1.5s;
+        }
+
+        :has(#password[type='password']) .showPassword {
+            display: none;
+        }
+
+        :has(#password[type='password']) .hidePassword {
+            display: block;
+        }
+
+        :has(#password[type='text']) .showPassword {
+            display: block;
+        }
+
+        :has(#password[type='text']) .hidePassword {
+            display: none;
+        }
+
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus,
+        input:-webkit-autofill:active {
+            /* -webkit-background-clip: text;
+                            -webkit-text-fill-color: #ffffff; */
+            transition: background-color 5000s ease-in-out 0s;
+            box-shadow: inset 0 0 20px 20px #ffffff00;
+        }
+
+        :has(.dark) input:-webkit-autofill,
+        :has(.dark) input:-webkit-autofill:hover,
+        :has(.dark) input:-webkit-autofill:focus,
+        :has(.dark) input:-webkit-autofill:active {
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: #ffffff !important;
+            transition: background-color 5000s ease-in-out 0s !important;
+            box-shadow: inset 0 0 20px 20px #23232329 !important;
+        }
+
+        html.dark input:-webkit-autofill,
+        html.dark input:-webkit-autofill:hover,
+        html.dark input:-webkit-autofill:focus,
+        html.dark input:-webkit-autofill:active {
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: #ffffff !important;
+            transition: background-color 5000s ease-in-out 0s !important;
+            box-shadow: inset 0 0 20px 20px #23232329 !important;
+        }
+
+    </style>
+    <script>
+        const html = document.querySelector('html');
+        const isLightOrAuto = localStorage.getItem('hs_theme') === 'light' || (localStorage.getItem('hs_theme') === 'auto' && !window.matchMedia('(prefers-color-scheme: dark)').matches);
+        const isDarkOrAuto = localStorage.getItem('hs_theme') === 'dark' || (localStorage.getItem('hs_theme') === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+        if (isLightOrAuto && html.classList.contains('dark')) html.classList.remove('dark');
+        else if (isDarkOrAuto && html.classList.contains('light')) html.classList.remove('light');
+        else if (isDarkOrAuto && !html.classList.contains('dark')) html.classList.add('dark');
+        else if (isLightOrAuto && !html.classList.contains('light')) html.classList.add('light');
+
+    </script>
+</head>
+<body>
+    <div class="min-h-screen flex flex-col p-0 sm:p-4 md:p-6 xl:p-8 2xl:p-10 bg-gray-100 dark:bg-[#0e2320]">
+        <div class="bg-white rounded-2xl flex-1 flex flex-col dark:bg-[#071A1C] relative">
+            <div class="login_form_wrapper w-full max-w-2xl flex flex-col items-center mx-auto px-4 my-auto py-6">
+                <div class="flex justify-end mb-4">
+                    <!-- Switch/Toggle -->
+                    <div class="relative inline-block">
+                        <input onchange="handleTheme(this);" data-hs-theme-switch="" type="checkbox" id="hs-default-switch-with-icons" class="peer relative w-[3.25rem] h-7 p-px bg-gray-100 border-transparent text-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 disabled:opacity-50 disabled:pointer-events-none checked:bg-none checked:text-neutral-800 dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-[#172F2B] focus:ring-transparent focus:bg-white hover:bg-white dark:focus:bg-[#172F2B] hover:bg-transparent dark:hover:bg-[#172F2B]
+
+                        before:inline-block before:size-6 before:bg-white before:translate-x-0 checked:before:translate-x-full before:rounded-full before:shadow before:transform before:ring-0 before:transition before:ease-in-out before:duration-200">
+                        <label for="hs-default-switch-with-icons" class="sr-only">Dark/Light Switch</label>
+                        <span class="peer-checked:text-white text-gray-500 size-6 absolute top-0.5 start-0.5 flex justify-center items-center pointer-events-none transition-colors ease-in-out duration-200 dark:text-neutral-500">
+                            <!-- <svg class="flex-shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 6 6 18"></path>
+                                <path d="m6 6 12 12"></path>
+                            </svg> -->
+                            <svg class="flex-shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 36 36"><path fill="#ffac33" d="M16 2s0-2 2-2s2 2 2 2v2s0 2-2 2s-2-2-2-2zm18 14s2 0 2 2s-2 2-2 2h-2s-2 0-2-2s2-2 2-2zM4 16s2 0 2 2s-2 2-2 2H2s-2 0-2-2s2-2 2-2zm5.121-8.707s1.414 1.414 0 2.828s-2.828 0-2.828 0L4.878 8.708s-1.414-1.414 0-2.829c1.415-1.414 2.829 0 2.829 0zm21 21s1.414 1.414 0 2.828s-2.828 0-2.828 0l-1.414-1.414s-1.414-1.414 0-2.828s2.828 0 2.828 0zm-.413-18.172s-1.414 1.414-2.828 0s0-2.828 0-2.828l1.414-1.414s1.414-1.414 2.828 0s0 2.828 0 2.828zm-21 21s-1.414 1.414-2.828 0s0-2.828 0-2.828l1.414-1.414s1.414-1.414 2.828 0s0 2.828 0 2.828zM16 32s0-2 2-2s2 2 2 2v2s0 2-2 2s-2-2-2-2z" /><circle cx="18" cy="18" r="10" fill="#ffac33" /></svg>
+                        </span>
+                        <span class="peer-checked:text-neutral-800 text-gray-500 size-6 absolute top-0.5 end-0.5 flex justify-center items-center pointer-events-none transition-colors ease-in-out duration-200 dark:text-neutral-500">
+                            <!-- <svg class="flex-shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg> -->
+                            <svg class="flex-shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 256 256"><path fill="currentColor" d="M240 96a8 8 0 0 1-8 8h-16v16a8 8 0 0 1-16 0v-16h-16a8 8 0 0 1 0-16h16V72a8 8 0 0 1 16 0v16h16a8 8 0 0 1 8 8m-96-40h8v8a8 8 0 0 0 16 0v-8h8a8 8 0 0 0 0-16h-8v-8a8 8 0 0 0-16 0v8h-8a8 8 0 0 0 0 16m65.14 94.33A88.07 88.07 0 0 1 105.67 46.86a8 8 0 0 0-10.6-9.06A96 96 0 1 0 218.2 160.93a8 8 0 0 0-9.06-10.6" /></svg>
+                        </span>
+                    </div>
+                    <!-- End Switch/Toggle -->
+                </div>
+                <div class="logo flex items-center gap-2 mb-4">
+                    <img src="./assets/images/prime_logo_icon.svg" class="h-16 w-auto" alt="">
+                    <img src="./assets/images/prime_logo_text.svg" class="h-8 w-auto dark:brightness-0 dark:invert"
+                         alt="">
+                </div>
+
+                <h1 class="text-4xl font-extrabold text-center mb-2 text-gray-700 dark:text-white">
+                    Portal for Resource
+                    Integration Management <span class="font-normal text-emerald-400">and Efficiency</span>
+                </h1>
+
+                <p class="text-center text-gray-400 dark:text-white">
+                    Manage your whole workforce through Resource
+                    Management Portal — from direct employees to international workers and everything in between.
+                </p>
+
+                <h2 class="text-3xl text-center font-extrabold mb-4 mt-6 text-gray-700 dark:text-white">Login</h2>
+                <form action="/Login/Index" method="post" onsubmit="handleSubmit(event);" class="w-full">
+
+                    <div class="w-full flex flex-col mb-8">
+                        <label for="tmc" class="font-semibold text-gray-700 mb-2 dark:text-white">TMC ID</label>
+                        <div class="relative">
+                            <div class="input-icon absolute top-0 bottom-0 left-4 h-max my-auto">
+                                <svg class="w-6 h-6 text-gray-400 dark:text-white" xmlns="http://www.w3.org/2000/svg"
+                                     width="1em" height="1em" viewBox="0 0 24 24">
+                                    <g fill="none" fill-rule="evenodd">
+                                        <path d="M24 0v24H0V0zM12.594 23.258l-.012.002l-.071.035l-.02.004l-.014-.004l-.071-.036q-.016-.004-.024.006l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.016-.018m.264-.113l-.014.002l-.184.093l-.01.01l-.003.011l.018.43l.005.012l.008.008l.201.092q.019.005.029-.008l.004-.014l-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.003-.011l.018-.43l-.003-.012l-.01-.01z" />
+                                        <path fill="currentColor"
+                                              d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10s10-4.477 10-10S17.523 2 12 2M8.5 9.5a3.5 3.5 0 1 1 7 0a3.5 3.5 0 0 1-7 0m9.758 7.484A7.99 7.99 0 0 1 12 20a7.99 7.99 0 0 1-6.258-3.016C7.363 15.821 9.575 15 12 15s4.637.821 6.258 1.984" />
+                                    </g>
+                                </svg>
+                            </div>
+                            <input type="text" id="tmC_Id" name="tmC_Id"
+                                   class="w-full border-gray-400 rounded-lg p-4 pl-12 focus:ring-emerald-400 focus:border-emerald-400 bg-transparent dark:text-white"
+                                   placeholder="Please enter your TMC ID">
+                        </div>
+                    </div>
+
+                    <div class="w-full flex flex-col mb-8">
+                        <label for="tmc" class="font-semibold text-gray-700 mb-2 dark:text-white">Password</label>
+                        <div class="relative w-full">
+                            <div class="input-icon absolute top-0 bottom-0 left-4 h-max my-auto">
+                                <!-- <svg class="w-6 h-6 text-gray-400 dark:text-white" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><g fill="none" fill-rule="evenodd"><path d="M24 0v24H0V0zM12.594 23.258l-.012.002l-.071.035l-.02.004l-.014-.004l-.071-.036q-.016-.004-.024.006l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.016-.018m.264-.113l-.014.002l-.184.093l-.01.01l-.003.011l.018.43l.005.012l.008.008l.201.092q.019.005.029-.008l.004-.014l-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.003-.011l.018-.43l-.003-.012l-.01-.01z"/><path fill="currentColor" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10s10-4.477 10-10S17.523 2 12 2M8.5 9.5a3.5 3.5 0 1 1 7 0a3.5 3.5 0 0 1-7 0m9.758 7.484A7.99 7.99 0 0 1 12 20a7.99 7.99 0 0 1-6.258-3.016C7.363 15.821 9.575 15 12 15s4.637.821 6.258 1.984"/></g></svg> -->
+                                <svg class="w-6 h-6 text-gray-400 dark:text-white" xmlns="http://www.w3.org/2000/svg"
+                                     width="1em" height="1em" viewBox="0 0 24 24">
+                                    <path fill="currentColor"
+                                          d="M6 22q-.825 0-1.412-.587T4 20V10q0-.825.588-1.412T6 8h1V6q0-2.075 1.463-3.537T12 1t3.538 1.463T17 6v2h1q.825 0 1.413.588T20 10v10q0 .825-.587 1.413T18 22zm6-5q.825 0 1.413-.587T14 15t-.587-1.412T12 13t-1.412.588T10 15t.588 1.413T12 17M9 8h6V6q0-1.25-.875-2.125T12 3t-2.125.875T9 6z" />
+                                </svg>
+                            </div>
+                            <input type="password" name="password" id="password"
+                                   class="w-full border-gray-400 rounded-lg p-4 pl-12 pr-12 focus:ring-emerald-400 focus:border-emerald-400 bg-transparent dark:text-white"
+                                   placeholder="Please enter your password">
+                            <div class="input-icon absolute top-0 bottom-0 right-4 h-max my-auto"
+                                 onclick="togglePasswordVisibility(this);">
+                                <!-- <svg class="w-6 h-6 text-gray-400 dark:text-white" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M6 22q-.825 0-1.412-.587T4 20V10q0-.825.588-1.412T6 8h1V6q0-2.075 1.463-3.537T12 1t3.538 1.463T17 6v2h1q.825 0 1.413.588T20 10v10q0 .825-.587 1.413T18 22zm6-5q.825 0 1.413-.587T14 15t-.587-1.412T12 13t-1.412.588T10 15t.588 1.413T12 17M9 8h6V6q0-1.25-.875-2.125T12 3t-2.125.875T9 6z"/></svg> -->
+                                <svg class="hidePassword w-6 h-6 text-gray-400 dark:text-white"
+                                     xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                                    <path fill="currentColor"
+                                          d="M12 9a3 3 0 0 0-3 3a3 3 0 0 0 3 3a3 3 0 0 0 3-3a3 3 0 0 0-3-3m0 8a5 5 0 0 1-5-5a5 5 0 0 1 5-5a5 5 0 0 1 5 5a5 5 0 0 1-5 5m0-12.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5" />
+                                </svg>
+                                <svg class="showPassword w-6 h-6 text-gray-400 dark:text-white"
+                                     xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                                    <path fill="currentColor"
+                                          d="M11.83 9L15 12.16V12a3 3 0 0 0-3-3zm-4.3.8l1.55 1.55c-.05.21-.08.42-.08.65a3 3 0 0 0 3 3c.22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53a5 5 0 0 1-5-5c0-.79.2-1.53.53-2.2M2 4.27l2.28 2.28l.45.45C3.08 8.3 1.78 10 1 12c1.73 4.39 6 7.5 11 7.5c1.55 0 3.03-.3 4.38-.84l.43.42L19.73 22L21 20.73L3.27 3M12 7a5 5 0 0 1 5 5c0 .64-.13 1.26-.36 1.82l2.93 2.93c1.5-1.25 2.7-2.89 3.43-4.75c-1.73-4.39-6-7.5-11-7.5c-1.4 0-2.74.25-4 .7l2.17 2.15C10.74 7.13 11.35 7 12 7" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex justify-center">
+                        <button type="submit" value="Login" id="loginBtn" class="login-btn p-4 bg-emerald-400 rounded-lg text-white font-semibold w-full max-w-40 disabled:opacity-70 disabled:cursor-not-allowed">
+                            Login
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <img class="decor_img_1 absolute bottom-0 w-1/5 hidden sm:block" style="left: 1.5rem;" src="~/assets/images/decor_img_1.png"
+                 alt="">
+            <img class="decor_img_2 absolute top-0 w-1/5 hidden sm:block" style="right: 1.5rem;" src="~/assets/images/decor_img_2.png"
+                 alt="">
+            <div class="absolute left-0 top-0 w-1/6 aspect-square overflow-hidden rounded-2xl">
+                <img src="~/assets/images/decor_circle.svg" class="decor_circle w-full h-full"
+                     style="transform: translate(-25%, -25%);" alt="" srcset="">
+            </div>
+            <div class="absolute bottom-0 right-0 overflow-hidden flex items-end rounded-2xl"
+                 style="width: 25%; aspect-ratio: 1;">
+                <div class="flex items-center gap-4 flex-1" style="transform: translate(25%, -25%) rotate(45deg);">
+                    <div class="decor_circle2 rounded-full bg-transparent border-emerald-400"
+                         style="border-width: .5vw; width: 22%; aspect-ratio: 1;"></div>
+                    <img class="decor_pill" src="~/assets/images/pill.svg" alt="" style="width: 78%; height: auto;">
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="~/assets/js/preline.js"></script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        $(function () {
+        @if (ViewData["error"] != null)
+        {
+            <text>
+                    toastr.error("@ViewData["error"]", "Error", { "iconClass": 'new-error' });
+            </text>
+        }
+        @if (ViewData["success"] != null)
+        {
+            <text>
+                    toastr.success("@ViewData["success"]");
+            </text>
+        }
+
+                                                                        });
+
+        function togglePassword(mode) {
+            const passwordInput = document.querySelector("#password");
+            const passwordToggleWrapper = document.querySelector(".password-toggle");
+            if (passwordInput && passwordToggleWrapper) {
+                if (mode === 'show') {
+                    passwordToggleWrapper.classList.add("shown");
+                    passwordInput.type = 'text'
+                } else {
+                    passwordToggleWrapper.classList.remove("shown");
+                    passwordInput.type = 'password'
+                }
+            } else {
+                throw new Error("Elements not found");
+            }
+        }
+
+        function handleTheme(inp) {
+            if (inp.checked) {
+                document.body.classList.add("dark");
+                window.localStorage.setItem("hs_theme", "dark")
+            } else {
+                document.body.classList.remove("dark");
+                document.querySelector("html").classList.remove("dark");
+                window.localStorage.setItem("hs_theme", "light")
+            }
+        }
+
+        function togglePasswordVisibility(el) {
+            const passwordInput = document.querySelector("#password");
+            const modeToSet = passwordInput.type === 'text' ? 'password' : 'text';
+
+            passwordInput.type = modeToSet;
+        }
+
+        if (isDarkOrAuto) {
+            document.querySelector("#hs-default-switch-with-icons").checked = true;
+        }
+
+        function handleSubmit(e) {
+            if (!document.querySelector("#tmC_Id").value) {
+                e.preventDefault();
+                document.querySelector("#tmC_Id").classList.add("is-invalid");
+                return false;
+            } else if (!document.querySelector("#password").value) {
+                e.preventDefault();
+                document.querySelector("#tmC_Id").classList.remove("is-invalid");
+                document.querySelector("#password").classList.add("is-invalid");
+                return false;
+            }
+            document.querySelector("#tmC_Id").classList.remove("is-invalid");
+            document.querySelector("#password").classList.remove("is-invalid");
+            document.querySelector("#loginBtn").disabled = true;
+            document.querySelector("#loginBtn").innerHTML = `
+                                                                                                                        <div class="animate-spin inline-block w-6 h-6 border-[3px] border-current border-t-transparent text-white rounded-full" role="status" aria-label="loading">
+                                                                                                                          <span class="sr-only">Loading...</span>
+                                                                                                                        </div>
+                                                                                                                        Login`;
+        }
+    </script>
+</body>
+
+</html>

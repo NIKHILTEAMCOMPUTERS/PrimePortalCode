@@ -1,0 +1,2223 @@
+﻿@using System.Globalization;
+@model RMS.Client.ViewModels.UpsertOafViewModel;
+@section PageStyles {
+    <link rel="stylesheet" href="~/assets/js/summernote/summernote-lite.min.css" />
+    <style>
+        .note-editable ol,
+        .note-editable ul {
+            list-style: style;
+        }
+
+        .custom-grid {
+            grid-template-columns: 1fr 1fr auto 1fr 1fr auto 1fr 1fr 1fr;
+        }
+
+        @@media screen and (max-width: 1100px) {
+            .custom-grid {
+                grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+            }
+        }
+
+        @@media screen and (max-width: 800px) {
+            .custom-grid {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+        }
+
+        @@media screen and (max-width: 636px) {
+            .custom-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @@media screen and (max-width: 480px) {
+            .custom-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+}
+
+<div class="flex items-center gap-4 mb-5">
+    <a asp-action="Index" asp-controller="OAF" class="py-2 px-2 inline-flex justify-center items-center gap-2 rounded-md border border-gray-400 bg-gray-700 text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all text-sm sm:text-base" title="Back">
+        <svg class="w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M11.707 5.293a1 1 0 0 1 0 1.414L7.414 11H19a1 1 0 1 1 0 2H7.414l4.293 4.293a1 1 0 0 1-1.414 1.414l-6-6a1 1 0 0 1 0-1.414l6-6a1 1 0 0 1 1.414 0z" /></svg>
+    </a>
+    <div>
+        <h2 class="font-extrabold text-xl 2xl:text-2xl text-[#4B4E5C]">Order Acceptance Form</h2>
+        <p>Fill the required details below.</p> 
+    </div>
+</div>
+<form class="flex-1 flex flex-col">
+    <input type="hidden" id="hidOafId" value="@Model.OafData.oafid" />
+    <div class="multipart-wrapper flex-1 flex flex-col">
+        <div class="multipart-indicators-wrapper flex items-center border-b">
+            <div class="multipart-indicator py-2 px-4 active">OAF Form</div>
+            <div class="multipart-indicator py-2 px-4">Lines</div>
+            <div class="multipart-indicator py-2 px-4">Presales Checklist</div>
+            <!-- <div class="multipart-indicator py-2 px-4">Contact Persons</div> -->
+        </div>
+        <div class="multipart-form-wrapper mt-4 flex-1 flex flex-col">
+            <div class="multipart-form active w-full flex-1 flex flex-col">
+                @if (Model.OafData.oafid == 0 || Model.OafData.oafid == null)
+                {
+                    <div class="d-flex items-center gap-4 mb-4">
+                        <div class="inline-flex items-center rounded shadow py-3 px-6 gap-2">
+                            <input type="radio" onchange="Disable(this)" name="po-status" class="shrink-0 mt-0.5 border-gray-200 rounded-full text-emerald-600 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none" id="poAwaitedCheckbox">
+
+                            <label for="poAwaitedCheckbox" class="block font-bold ">PO Awaited</label>
+                        </div>
+                        <div class="inline-flex items-center rounded shadow py-3 px-6 gap-2">
+                            <input type="radio" onchange="removeDisable(this)" name="po-status" class="shrink-0 mt-0.5 border-gray-200 rounded-full text-emerald-600 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none" id="poArrivedCheckbox" checked>
+
+                            <label for="poArrivedCheckbox" class="block font-bold ">PO Available</label>
+                        </div>
+                    </div>
+                }
+                <div class="flex-1 overflow-y-auto">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <span class="mb-2 font-medium block">PO Number*</span>
+                            <div class="flex items-center gap-3 flex-wrap">
+                                <input type="text" id="ponumber" value="@Model.OafData.ponumber"
+                                       class="py-3 px-4 block flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500 disabled:cursor-not-allowed"
+                                       placeholder="Enter PO Number" maxlength="30">
+                            </div>
+                        </div>
+                        <div>
+                            <span class="mb-2 font-medium block">PO Value*</span>
+                            <div class="flex items-center gap-3 flex-wrap">
+                                <input type="number" id="Povalue" value="@Model.OafData.povalue" step="0.01"
+                                       class="py-3 px-4 block flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                       placeholder="Enter PO Value">
+                            </div>
+                        </div>
+                        <div>
+                            <span class="mb-2 font-medium block">Order Description</span>
+                            <div class="flex items-center gap-3 flex-wrap">
+                                <input type="text" id="Orderdescription" value="@Model.OafData.orderdescription"
+                                       class="py-3 px-4 block flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                       placeholder="Enter Order Description">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <span class="mb-2 font-medium block">PO Terms & Conditions</span>
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <textarea id="summernote"
+                                      class="py-3 px-4 block flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500">@Model.OafData.potermscondition</textarea>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="flex items-center gap-4 flex-wrap justify-between mb-2">
+                            <div class="flex items-center gap-2">
+                                <h2 class="font-extrabold text-xl 2xl:text-2xl text-[#4B4E5C]">Attachments</h2>
+                                <div class="hs-tooltip inline-block [--trigger:click]">
+                                    <a class="hs-tooltip-toggle block text-center" href="javascript:;">
+                                        <span class="w-10 h-10 inline-flex justify-center items-center gap-2 rounded-md bg-gray-50 border border-transparent text-gray-600 hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-600">
+                                            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M11 17h2v-6h-2v6Zm1-8q.425 0 .713-.288T13 8q0-.425-.288-.713T12 7q-.425 0-.713.288T11 8q0 .425.288.713T12 9Zm0 13q-2.075 0-3.9-.788t-3.175-2.137q-1.35-1.35-2.137-3.175T2 12q0-2.075.788-3.9t2.137-3.175q1.35-1.35 3.175-2.137T12 2q2.075 0 3.9.788t3.175 2.137q1.35 1.35 2.138 3.175T22 12q0 2.075-.788 3.9t-2.137 3.175q-1.35 1.35-3.175 2.138T12 22Zm0-2q3.35 0 5.675-2.325T20 12q0-3.35-2.325-5.675T12 4Q8.65 4 6.325 6.325T4 12q0 3.35 2.325 5.675T12 20Zm0-8Z" /></svg>
+                                        </span>
+                                        <div class="hs-tooltip-content hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible opacity-0 transition-opacity inline-block absolute invisible z-10 py-3 px-4 bg-white border text-sm text-gray-600 rounded-md shadow-md" role="tooltip">
+                                            *Only accept "image,.pdf"
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div>
+                                    <input class="hidden" type="file" id="emailmessages" accept="image/*" onchange="handleFileChange(this, '1');">
+                                    <label for="emailmessages" class="underline" title="Select only image" style="cursor:pointer;">Attach Snapshot</label>
+                                </div>
+                                <div>
+                                    <input class="hidden" type="file" id="proposal" accept="application/pdf" onchange="handleFileChange(this, '2');">
+                                    <label for="proposal" class="underline" title="Select only pdf" style="cursor:pointer;">Attach Proposal</label>
+                                </div>
+                                <div>
+                                    <input class="hidden" type="file" id="po" accept="application/pdf" onchange="handleFileChange(this, '3');">
+                                    <label for="po" class="underline" title="Select only pdf" style="cursor:pointer;">Attach PO</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="attachments-wrapper flex items-center gap-4 flex-wrap">
+                        @if (Model.OafData.emailattachment != null)
+                        {
+                            @* < div class="relative group">
+                        <p onclick="showPreview('1');" class="text-blue-500 underline cursor-pointer" onclick="showPreview();">Email/Messages</p>`
+                        < button type = "button" onclick = "removeFile(this, '${type}');" class= "p-1 absolute right-0 top-0 rounded-full bg-black hover:bg-red-600 translate-x-[50%] translate-y-[-50%] hidden group-hover:block" >
+                        < svg class= "w-3 h-3 text-white" xmlns = "http://www.w3.org/2000/svg" width = "24" height = "24" viewBox = "0 0 24 24" >< path fill = "currentColor" d = "M6.4 19L5 17.6l5.6-5.6L5 6.4L6.4 5l5.6 5.6L17.6 5L19 6.4L13.4 12l5.6 5.6l-1.4 1.4l-5.6-5.6L6.4 19Z" /></ svg >
+                        </ button >
+                        </ div > *@
+                            <div class="relative group">
+                                <p onclick="showPreview('1', '@Model.OafData.emailattachment');" class="text-blue-500 underline cursor-pointer">Email/Messages</p>
+                                <button onclick="removeFile(this, '1');" class="p-1 absolute right-0 top-0 rounded-full bg-black hover:bg-red-600 translate-x-[50%] translate-y-[-50%] hidden group-hover:block">
+                                    <svg class="w-3 h-3 text-white" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M6.4 19L5 17.6l5.6-5.6L5 6.4L6.4 5l5.6 5.6L17.6 5L19 6.4L13.4 12l5.6 5.6l-1.4 1.4l-5.6-5.6L6.4 19Z" /></svg>
+                                </button>
+                            </div>
+                        }
+                        @if (Model.OafData.proposalattachment != null)
+                        {
+                            @* < div class="relative group">
+                        <p onclick="showPreview('2');" class="text-blue-500 underline cursor-pointer" onclick="showPreview();">Proposal</p>`
+                        < button type = "button" onclick = "removeFile(this, '${type}');" class= "p-1 absolute right-0 top-0 rounded-full bg-black hover:bg-red-600 translate-x-[50%] translate-y-[-50%] hidden group-hover:block" >
+                        < svg class= "w-3 h-3 text-white" xmlns = "http://www.w3.org/2000/svg" width = "24" height = "24" viewBox = "0 0 24 24" >< path fill = "currentColor" d = "M6.4 19L5 17.6l5.6-5.6L5 6.4L6.4 5l5.6 5.6L17.6 5L19 6.4L13.4 12l5.6 5.6l-1.4 1.4l-5.6-5.6L6.4 19Z" /></ svg >
+                        </ button >
+                        </ div > *@
+                            <div class="relative group">
+                                <p onclick="showPreview('2', '@Model.OafData.proposalattachment');" class="text-blue-500 underline cursor-pointer">Proposal</p>
+                                <button onclick="removeFile(this, '2');" class="p-1 absolute right-0 top-0 rounded-full bg-black hover:bg-red-600 translate-x-[50%] translate-y-[-50%] hidden group-hover:block">
+                                    <svg class="w-3 h-3 text-white" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M6.4 19L5 17.6l5.6-5.6L5 6.4L6.4 5l5.6 5.6L17.6 5L19 6.4L13.4 12l5.6 5.6l-1.4 1.4l-5.6-5.6L6.4 19Z" /></svg>
+                                </button>
+                            </div>
+                        }
+                        @if (Model.OafData.poattachment != null)
+                        {
+                            @* < div class="relative group">
+                        <p onclick="showPreview('3');" class="text-blue-500 underline cursor-pointer" onclick="showPreview();">PO</p>`
+                        < button type = "button" onclick = "removeFile(this, '${type}');" class= "p-1 absolute right-0 top-0 rounded-full bg-black hover:bg-red-600 translate-x-[50%] translate-y-[-50%] hidden group-hover:block" >
+                        < svg class= "w-3 h-3 text-white" xmlns = "http://www.w3.org/2000/svg" width = "24" height = "24" viewBox = "0 0 24 24" >< path fill = "currentColor" d = "M6.4 19L5 17.6l5.6-5.6L5 6.4L6.4 5l5.6 5.6L17.6 5L19 6.4L13.4 12l5.6 5.6l-1.4 1.4l-5.6-5.6L6.4 19Z" /></ svg >
+                        </ button >
+                        </ div > *@
+                            <div class="relative group">
+                                <p onclick="showPreview('3', '@Model.OafData.poattachment');" class="text-blue-500 underline cursor-pointer">PO</p>
+                                <button onclick="removeFile(this, '3');" class="p-1 absolute right-0 top-0 rounded-full bg-black hover:bg-red-600 translate-x-[50%] translate-y-[-50%] hidden group-hover:block">
+                                    <svg class="w-3 h-3 text-white" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M6.4 19L5 17.6l5.6-5.6L5 6.4L6.4 5l5.6 5.6L17.6 5L19 6.4L13.4 12l5.6 5.6l-1.4 1.4l-5.6-5.6L6.4 19Z" /></svg>
+                                </button>
+                            </div>
+                        }
+                    </div>
+                    <div class="mb-2">
+                        <h2 class="font-extrabold text-xl 2xl:text-2xl text-[#4B4E5C]">Project Details</h2>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-4">
+                        <div>
+                            <input type="hidden" id="hidCustomerName" value="@(Model.OafData.customerid == null ? "" : Model.OafData.customerid)" />
+
+                            <span class="mb-2 font-medium block">Customer*</span>
+                            <div class="flex items-center gap-3 flex-wrap">
+                                <select id="CustomerDropdown" name="Customerid" asp-items="@Model.Customers"
+                                        class="multi-select" onchange="handleCustomerChange(this);">
+                                    <option value="">Select Customer</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="mb-2 font-medium block">Project Name*</span>
+                            <div class="flex items-center gap-3 flex-wrap">
+                                <input type="text" id="Projectname" value="@Model.OafData.projectname" oninput="this.value = this.value.replace(/[^a-zA-Z ]/g, '');"
+                                       class="py-3 px-4 block flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                       placeholder="Enter Project Name" maxlength="25">
+                            </div>
+                        </div>
+                        <div>
+                            <input type="hidden" id="hidprojectmodel" value="@(Model.OafData.projectmodel == null ? "" : Model.OafData.projectmodel)" />
+                            <span class="mb-2 font-medium block">Project Model*</span>
+                            <div class="flex items-center gap-3 flex-wrap">
+                                <select class="multi-select" id="Projectmodel">
+                                    <option value="">Select Project Model</option>
+                                    <option value="1">ON-Site</option>
+                                    <option value="2">OFF-Site</option>
+                                    <option value="3">Hybrid</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <input type="hidden" id="hidprojecttype" value="@(Model.OafData.projecttypeid == null ? "" : Model.OafData.projecttypeid)" />
+                            <span class="mb-2 font-medium block">Project Type*</span>
+                            <div class="flex items-center gap-3 flex-wrap">
+                                <select id="projectTypeDropdown" name="ProjectTypeId" asp-items="@Model.ProjectTypes" class="multi-select" onchange="handleProjectTypeChange(this);">
+                                    <option value="0" selected>Select Project Type</option>
+                                </select>
+                            </div>
+                        </div>
+
+
+                        <div>
+                            <input type="hidden" id="hidpractice" value="@(Model.OafData.practiceid == null ? "" : Model.OafData.practiceid)" />
+                            <span class="mb-2 font-medium block">Practices*</span>
+                            <div class="flex items-center gap-3 flex-wrap">
+                                <select id="practiceDropdown" name="PracticeId" class="multi-select">
+                                    <option value="0" selected>Select Practice</option>
+                                    @foreach (var practiceList in Model.Practices)
+                                    {
+                                        <option value="@practiceList.Value" data-prac-id="@practiceList.Value" data-prac-n="@practiceList.Text">@practiceList.Text</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <input type="hidden" id="hidsubpractice" name="SubPracticeId" value="@Model.OafData.subpracticeid" />
+                            <span class="mb-2 font-medium block">Sub-Practices*</span>
+                            <div>
+                                <select id="subPracticeDropdown"  class="multi-select">
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <input type="hidden" id="hidaccountmanager" name="accountmanagerid" value="@Model.OafData.accountmanagerid" />
+                            <span class="mb-2 font-medium block">Account Manager*</span>
+                            <div class="flex items-center gap-3 flex-wrap">
+                                <select id="accountmanagerdropdown" name="accountmanagerid" asp-items="@Model.AccountManagers" class="multi-select">
+                                    <option value="" selected>Select Account Manager</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <span class="mb-2 font-medium block">Project Description</span>
+                        <textarea type="text" id="Projectdescription"
+                                  class="w-full py-3 px-4 block flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                  placeholder="Enter Description ">@Model.OafData.projectdescription</textarea>
+                    </div>
+                    <div class="mb-2">
+                        <h2 class="font-extrabold text-xl 2xl:text-2xl text-[#4B4E5C]">Contract Details</h2>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-4">
+                        <div>
+                            <span class="mb-2 font-medium block">Contract Number*</span>
+                            <div class="flex items-center gap-3 flex-wrap">
+                                <input type="text" id="Contractno" value="@Model.OafData.contractno"
+                                       class="py-3 px-4 block flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500 disabled:cursor-not-allowed"
+                                       placeholder="Enter Contract Number" maxlength="20">
+                            </div>
+                        </div>
+                        <div>
+                            <span class="mb-2 font-medium block">Customer Commitments Start*</span>
+                            <div class="flex items-center gap-3 flex-wrap">
+                                <input type="date" asp-for=OafData.contractstartdate id="contractstartdate"
+                                       class="py-3 px-4 block flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                       oninput="setEndDateMin(this.value)">
+                            </div>
+                        </div>
+                        <div>
+                            <span class="mb-2 font-medium block">Customer Commitments End*</span>
+                            <div class="flex items-center gap-3 flex-wrap">
+                                <input type="date" asp-for=OafData.contractenddate id="contractenddate"
+                                       class="py-3 px-4 block flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500" />
+
+                            </div>
+                        </div>
+                        <div>
+                            <span class="mb-2 font-medium block">Client Coordinator</span>
+                            <div class="flex items-center gap-3 flex-wrap">
+                                <input type="text" id="Clientcoordinator" value="@Model.OafData.clientcoordinator" oninput="this.value = this.value.replace(/[^a-zA-Z ]/g, '');"
+                                       class="py-3 px-4 block flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                       placeholder="Enter Client Coordinator" maxlength="25">
+                            </div>
+                        </div>
+                    </div>
+
+                    @{
+                        var oafId = Model.OafData.oafid;
+                        var committedClientBillingDate = Model.OafData.CommittedClientBillingDate;
+                    }
+
+                    <div class="mb-4 tnmshow hidden">
+                        <div class="flex items-end gap-4 flex-wrap">
+                            <div>
+                                <label>Customer Billing Cycle</label>
+                                <select class="k-input" id="customerBillingCycle" onchange="handleCustomerBillingCycleChange(this);">
+                                    <option value="0">Select Billing Cycle Date</option>
+                                    @for (int i = 1; i <= 30; i++)
+                                    {
+                                        bool isSelected = (oafId > 0 && committedClientBillingDate.HasValue && i == committedClientBillingDate.Value);
+                                        if (isSelected)
+                                        {
+                                            <option value="@i" selected="selected">@i</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@i">@i</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <p class="hidden"></p>
+                        </div>
+                    </div>
+
+
+
+                    <div class="mb-4 tnmhide">
+                        <span class="mb-2 font-medium block">Advance</span>
+                        @*  <textarea type="text" id="Milestones"
+                        class="w-full py-3 px-4 block flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                        placeholder="Enter Milestones">@Model.OafData.milestones</textarea> *@
+
+                        <div class="flex gap-4 flex-wrap">
+                            <div class="flex items-stretch rounded border">
+                                <div class="border-r px-2 flex items-center">
+                                    <span>Advance</span>
+                                </div>
+                                <div class="border-r pr-2">
+                                    <input style="width: 5rem;"  onchange="handleAdvancePercentChange(this)" id="Advancepercent"  value="@Model.OafData.Advancepercent"type="number" class="border-none" min="0" max="50">
+                                    <span>%</span>
+                                </div>
+                                <div class="px-2 flex-1 flex items-center">
+                                    <span>Amount</span>
+                                    <input readonly id="Advanceamount" value="@Model.OafData.Advanceamount" style="min-width: 8rem" type="number" class="border-none bg-gray-100 rounded w-full ml-2 h-6">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4 tnmhide">
+                        <span class="mb-2 font-medium block">Milestones</span>
+                        @*  <textarea type="text" id="Milestones"
+                        class="w-full py-3 px-4 block flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                        placeholder="Enter Milestones">@Model.OafData.milestones</textarea> *@
+
+                        <div class="flex gap-4 flex-wrap">
+                            <div class="flex gap-4 flex-wrap" id="milestonesContainer">
+                                <div class="milestone flex items-stretch rounded border">
+                                    <div class="border-r px-2 flex items-center">
+                                        <span class="milestone_count">Milestone <span class="milestone-count">1</span></span>
+                                    </div>
+                                    <div class="border-r pr-2">
+                                        <input style="width: 5rem;" onchange="handleMilestonePercentChange(this);" type="number" class="milestone_precentage_inp border-none" min="0" max="100">
+                                        <span>%</span>
+                                    </div>
+                                    <div class="px-2 flex-1 flex items-center">
+                                        <span>Amount</span>
+                                        <input readonly style="min-width: 8rem" type="number" class="milestone_amount_inp border-none bg-gray-100 rounded w-full ml-2 h-6">
+                                    </div>
+                                    <div class="px-2 flex items-center">
+                                        <span>Days</span>
+                                        <input style="width: 5rem" type="number" class="milestone_days_inp border-none bg-gray-100 rounded w-full ml-2 h-6">
+                                    </div>
+                                </div>
+                                <button type="button" id="addMileStoneBtn" onclick="addMilestone();">
+                                    <svg class="w-6 h-6 text-gray-600" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 32 32"><path fill="currentColor" d="M16 2A14.173 14.173 0 0 0 2 16a14.173 14.173 0 0 0 14 14a14.173 14.173 0 0 0 14-14A14.173 14.173 0 0 0 16 2m8 15h-7v7h-2v-7H8v-2h7V8h2v7h7Z" /><path fill="none" d="M24 17h-7v7h-2v-7H8v-2h7V8h2v7h7z" /></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    @* <div class="mb-4">
+                        <h2 class="font-extrabold text-xl 2xl:text-2xl text-[#4B4E5C]">Create Costing Sheet</h2>
+                        <p>Please create the costing sheet by filling the requires information</p>
+                    </div> *@
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-2">
+                        <div>
+                            <div class="flex items-center justify-between gap-3 flex-wrap">
+                                <span class="mb-2 font-medium block">Costing sheet*</span>
+                                @* <button type="button"
+                                        class="px-5 inline-flex justify-center items-center gap-2 rounded-md border outline-none border-transparent text-emerald-500 text-sm 2xl:text-base"
+                                        data-hs-overlay="#costing-sheet-modal">
+                                    <svg class="w-4 h-4" width="21" height="21" viewBox="0 0 21 21" fill="none"
+                                         xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M10.5 0C7.72562 0.0334721 5.07431 1.15047 3.11239 3.11239C1.15047 5.07431 0.0334721 7.72562 0 10.5C0.0334721 13.2744 1.15047 15.9257 3.11239 17.8876C5.07431 19.8495 7.72562 20.9665 10.5 21C13.2744 20.9665 15.9257 19.8495 17.8876 17.8876C19.8495 15.9257 20.9665 13.2744 21 10.5C20.9665 7.72562 19.8495 5.07431 17.8876 3.11239C15.9257 1.15047 13.2744 0.0334721 10.5 0ZM16.5 11.25H11.25V16.5H9.75V11.25H4.5V9.75H9.75V4.5H11.25V9.75H16.5V11.25Z"
+                                              fill="#00CC83" />
+                                        <path d="M16.5 11.25H11.25V16.5H9.75V11.25H4.5V9.75H9.75V4.5H11.25V9.75H16.5V11.25Z"
+                                              fill="white" />
+                                    </svg>
+                                    Create
+                                </button> *@
+                            </div>
+                            <input type="hidden" id="hidcostsheet" value="@(Model.OafData.costsheetid == null ? "" : Model.OafData.costsheetid)" />
+                            <div class="flex items-center gap-3 flex-wrap">
+                                <select class="multi-select" id="costingsheetdrown" name="costingsheet" onchange="setXvalue(this); setTotalAmount(this);">
+                                    <option value="">Select CostSheet</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex items-center justify-between gap-3 flex-wrap">
+                                <span class="mb-2 font-medium block">X Value</span>
+                            </div>
+                            <div class="flex items-center gap-3 flex-wrap">
+                                <input type="number" class="k-input" placeholder="X Value" id="xvalue" value="@Model.OafData.xvalue" readonly>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex items-center justify-between gap-3 flex-wrap">
+                                <span class="mb-2 font-medium block">CostSheet Amount</span>
+                            </div>
+                            <div class="flex items-center gap-3 flex-wrap">
+                                <input type="number" class="k-input" id="totalamount" value="@Model.OafData.totalamount" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <input class="hidden" type="file" id="costattachment" accept=".xlsx,.xls,.doc,.docx,.pdf" onchange="showFileName(this);">
+                        <label for="costattachment" class="py-[.688rem] px-4 inline-flex justify-center items-center gap-2 rounded-md border-2 border-blue-400 font-semibold text-blue-500 hover:text-white hover:bg-blue-500 hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all text-sm">
+                            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M12 4a5 5 0 0 0-5 5v6a1 1 0 1 1-2 0V9a7 7 0 1 1 14 0v8a5 5 0 0 1-10 0V9a3 3 0 0 1 6 0v8a1 1 0 1 1-2 0V9a1 1 0 1 0-2 0v8a3 3 0 0 0 6 0V9a5 5 0 0 0-5-5Z" clip-rule="evenodd" /></svg>
+                            @if (Model.OafData.costattachment != null)
+                            {
+                                <span>@Model.OafData.costattachment.Split("\\").Last()</span>
+                            }
+                            else
+                            {
+                                <span>Attach CostSheet</span>
+                            }
+                        </label>
+                        <label>*Only accept ".xlsx,.xls,.doc,.docx,.pdf"</label>
+                    </div>
+                </div>
+                <div class="pt-2 pb-4 sticky -bottom-4 bg-white">
+                    <button type="button" onclick="validateFirstPart();"
+                            class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-emerald-400 bg-[#00cc83] text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm sm:text-base">
+                        Next
+                    </button>
+                </div>
+            </div>
+
+
+            <div class="multipart-form w-full flex-1 flex flex-col">
+                <div class="flex items-stretch sm:items-end flex-col sm:flex-row gap-4">
+                    <div class="flex-[2]">
+                        <label for="">Line Description 1*</label>
+                        <input id="ldesc1" type="text" class="k-input w-full">
+                    </div>
+                    <div class="flex-[2]">
+                        <label for="">Line Description 2</label>
+                        <input id="ldesc2" type="text" class="k-input w-full">
+                    </div>
+                    <div class="flex-[1]">
+                        <label for="">Line Amount*</label>
+                        <input id="lamount" type="number" class="k-input w-full">
+                    </div>
+                    <button type="button" onclick="addLineItem();"
+                            class="py-3 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-emerald-400 bg-[#00cc83] text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm">
+                        Add/Edit
+                    </button>
+                </div>
+                <div class="flex flex-col my-4 flex-1 overflow-y-auto">
+                    <div class="-m-1.5 overflow-x-auto">
+                        <div class="p-1.5 min-w-full block align-middle">
+                            <div class="overflow-hidden">
+                                <table class="min-w-full divide-y divide-gray-200" id="lineItemTable">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col"
+                                                class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                                S.No
+                                            </th>
+                                            <th scope="col"
+                                                class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                                Line Description 1
+                                            </th>
+                                            <th scope="col"
+                                                class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                                Line Description 2
+                                            </th>
+                                            <th scope="col"
+                                                class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                                Amount
+                                            </th>
+                                            <th scope="col"
+                                                class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                                Action
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200">
+                                        @{
+                                            if (Model.OafData.oaflines != null && Model.OafData.oaflines.Count > 0)
+                                            {
+                                                int row = 0;
+                                                foreach (var line in Model.OafData.oaflines)
+                                                {
+                                                                                                                                                <tr>
+                                                                                                                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 ">
+                                                                                                                                                        @(row += 1)
+                                                                                                                                                    </td>
+                                                                                                                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 ">
+                                                                                                                                                        @line.linedescription1
+                                                                                                                                                    </td>
+                                                                                                                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 ">@line.linedescription2</td>
+                                                                                                                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 ">@line.lineamount</td>
+                                                                                                                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                                                                                                                        <div class="hs-dropdown relative inline-flex">
+                                                                                                                                                            <button id="hs-dropdown-default" type="button"
+                                                                                                                                                                    class="hs-dropdown-toggle py-1 px-2 inline-flex justify-center items-center gap-2 border border-transparent rounded-md font-medium text-gray-700 shadow-sm align-middle hover:bg-gray-50 hover:border-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-emerald-600 transition-all text-sm">
+                                                                                                                                                                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><g fill="currentColor"><circle cx="10" cy="15" r="2" /><circle cx="10" cy="10" r="2" /><circle cx="10" cy="5" r="2" /></g></svg>
+                                                                                                                                                            </button>
+
+                                                                                                                                                            <div class="hs-dropdown-menu transition-[opacity,margin] duration-[0.1ms] hs-dropdown-open:opacity-100 opacity-0 hidden z-30 mt-2 min-w-[8rem] bg-white shadow-md rounded-lg"
+                                                                                                                                                                 aria-labelledby="hs-dropdown-default">
+                                                                                                                                                                <button onclick="deleteRow(this);" class="w-full flex items-center gap-x-3.5 py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-emerald-500">
+                                                                                                                                                                    Delete
+                                                                                                                                                                </button>
+                                                                                                                                                            </div>
+                                                                                                                                                        </div>
+                                                                                                                                                    </td>
+                                                                                                                                                </tr>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                                                                                                            <tr id="nodata">
+                                                                                                                                                <td id="emptyData" colspan="5" class="px-6 py-4 whitespace-nowrap text-sm text-center font-medium text-gray-800 ">
+                                                                                                                                                    No Data Yet
+                                                                                                                                                </td>
+                                                                                                                                            </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pt-2 pb-4 sticky -bottom-4 bg-white flex items-center gap-4">
+                    <button type="button" onclick="showFormStep(1);"
+                            class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-gray-400 bg-gray-700 text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all text-sm sm:text-base">
+                        Prev
+                    </button>
+                    <button type="button" onclick="validateSecondPart();"
+                            class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-emerald-400 bg-[#00cc83] text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm sm:text-base">
+                        Next
+                    </button>
+                </div>
+            </div>
+
+
+            <div class="multipart-form w-full flex-1 flex flex-col">
+                <div class="flex-1 overflow-y-auto">
+                    <h2 class="font-extrabold text-xl 2xl:text-2xl text-[#4B4E5C] mb-6">Questions</h2>
+                    <div class="presales-questions-wrapper" id="dynamicquestions">
+                        @{
+                            int quesrow = 0;
+                            if (Model.OafData.oafchecklists != null && Model.OafData.oafchecklists.Count > 0)
+                            {
+                                foreach (var ques in Model.OafData.oafchecklists)
+                                {
+                                    if (ques.isextra != null && ques.isextra == true)
+                                    {
+                                                                                                                                    <div class="mb-4 flex items-end gap-4">
+                                                                                                                                        <div class="flex-1">
+                                                                                                                                            <div class="flex items-center gap-1">
+                                                                                                                                                <span class="question_count font-medium">@(quesrow += 1).</span>
+                                                                                                                                                <input type="text" class="k-input w-full mb-2" value="@ques.question" placeholder="Enter question">
+                                                                                                                                            </div>
+                                                                                                                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                                                                                                                <input type="text" value="@ques.clientresponse"
+                                                                                                                                                       class=" py-3 px-4 block flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                                                                                                                                       placeholder="Enter Answer">
+                                                                                                                                                <input type="text" value=""
+                                                                                                                                                       class="ref-response py-3 px-4 block flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                                                                                                                                       placeholder="Reference Answer">
+                                                                                                                                            </div>
+                                                                                                                                        </div>
+                                                                                                                                        <button onclick="deleteQuestion(this);" class="py-3 px-4 inline-flex justify-center items-center gap-2 rounded-md border-2 border-red-200 font-semibold text-red-500 hover:text-white hover:bg-red-500 hover:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-200 focus:ring-offset-2 transition-all text-sm">
+                                                                                                                                            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024"><path fill="currentColor" d="M360 184h-8c4.4 0 8-3.6 8-8v8h304v-8c0 4.4 3.6 8 8 8h-8v72h72v-80c0-35.3-28.7-64-64-64H352c-35.3 0-64 28.7-64 64v80h72v-72zm504 72H160c-17.7 0-32 14.3-32 32v32c0 4.4 3.6 8 8 8h60.4l24.7 523c1.6 34.1 29.8 61 63.9 61h454c34.2 0 62.3-26.8 63.9-61l24.7-523H888c4.4 0 8-3.6 8-8v-32c0-17.7-14.3-32-32-32zM731.3 840H292.7l-24.2-512h487l-24.2 512z" /></svg>
+                                                                                                                                        </button>
+                                                                                                                                    </div>
+                                    }
+                                    else
+                                    {
+                                                                                                                                    <div>
+                                                                                                                                        <div class="mb-4">
+                                                                                                                                            <div class="flex items-center gap-2 mb-2">
+                                                                                                                                                <span class="question_count font-medium">@(quesrow += 1)</span>
+                                                                                                                                                <label class=" font-medium block"> @ques.question</label>
+                                                                                                                                            </div>
+                                                                                                                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                                                                                                                <input type="text" class="k-input w-full" placeholder="Enter Answer" value="@ques.clientresponse" name="Response[]">
+                                                                                                                                                <input type="text" class="k-input w-full ref-response" placeholder="Reference Answer" value="" name="Refresponse[]" />
+                                                                                                                                            </div>
+                                                                                                                                        </div>
+                                                                                                                                    </div>
+                                    }
+                                }
+                            }
+                        }
+                    </div>
+                    <div class="flex items-center justify-between flex-wrap p-2">
+                        <button onclick="addNewQuestion();" type="button" class="py-[.688rem] px-4 inline-flex justify-center items-center gap-2 rounded-md border-2 border-blue-400 font-semibold text-blue-500 hover:text-white hover:bg-blue-500 hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all text-sm">
+                            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M18 13h-5v5c0 .55-.45 1-1 1s-1-.45-1-1v-5H6c-.55 0-1-.45-1-1s.45-1 1-1h5V6c0-.55.45-1 1-1s1 .45 1 1v5h5c.55 0 1 .45 1 1s-.45 1-1 1z" /></svg>
+                            Add Question
+                        </button>
+                    </div>
+                </div>
+                <div class="pt-2 pb-4 sticky -bottom-4 bg-white flex items-center gap-4">
+                    <button type="button" onclick="showFormStep(2);"
+                            class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-gray-400 bg-gray-700 text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all text-sm sm:text-base">
+                        Prev
+                    </button>
+                    <button type="button" onclick="savedata();"
+                            class="py-2 px-5 inline-flex justify-center items-center gap-2 rounded-md border border-emerald-400 bg-[#00cc83] text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm sm:text-base">
+                        Save
+                    </button>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+</form>
+
+
+<div id="costing-sheet-modal" class="hs-overlay hidden w-full h-full fixed top-0 left-0 z-[60] overflow-x-hidden overflow-y-auto">
+    <div class="hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all sm:w-full m-3 sm:mx-auto h-[calc(100%-3.5rem)]" style="max-width: 112rem;">
+        <div class="max-h-full overflow-hidden flex flex-col bg-white border shadow-sm rounded-xl">
+            <div class="flex justify-between items-center py-3 px-4 border-b">
+                <div>
+                    <h2 class="font-bold text-gray-800">Costing sheet</h2>
+                </div>
+                <button type="button" class="hs-dropdown-toggle inline-flex flex-shrink-0 justify-center items-center h-8 w-8 rounded-md text-gray-500 hover:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-white transition-all text-sm" data-hs-overlay="#costing-sheet-modal">
+                    <span class="sr-only">Close</span>
+                    <svg class="w-3.5 h-3.5" width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0.258206 1.00652C0.351976 0.912791 0.479126 0.860131 0.611706 0.860131C0.744296 0.860131 0.871447 0.912791 0.965207 1.00652L3.61171 3.65302L6.25822 1.00652C6.30432 0.958771 6.35952 0.920671 6.42052 0.894471C6.48152 0.868271 6.54712 0.854471 6.61352 0.853901C6.67992 0.853321 6.74572 0.865971 6.80722 0.891111C6.86862 0.916251 6.92442 0.953381 6.97142 1.00032C7.01832 1.04727 7.05552 1.1031 7.08062 1.16454C7.10572 1.22599 7.11842 1.29183 7.11782 1.35822C7.11722 1.42461 7.10342 1.49022 7.07722 1.55122C7.05102 1.61222 7.01292 1.6674 6.96522 1.71352L4.31871 4.36002L6.96522 7.00648C7.05632 7.10078 7.10672 7.22708 7.10552 7.35818C7.10442 7.48928 7.05182 7.61468 6.95912 7.70738C6.86642 7.80018 6.74102 7.85268 6.60992 7.85388C6.47882 7.85498 6.35252 7.80458 6.25822 7.71348L3.61171 5.06702L0.965207 7.71348C0.870907 7.80458 0.744606 7.85498 0.613506 7.85388C0.482406 7.85268 0.357007 7.80018 0.264297 7.70738C0.171597 7.61468 0.119017 7.48928 0.117877 7.35818C0.116737 7.22708 0.167126 7.10078 0.258206 7.00648L2.90471 4.36002L0.258206 1.71352C0.164476 1.61976 0.111816 1.4926 0.111816 1.36002C0.111816 1.22744 0.164476 1.10028 0.258206 1.00652Z" fill="currentColor" />
+                    </svg>
+                </button>
+            </div>
+            <div class="p-4 overflow-y-auto">
+                <div class="flex items-center justify-between mb-5">
+                    <div>
+                        <h2 class="font-extrabold text-xl 2xl:text-2xl text-[#4B4E5C]">Create New</h2>
+                        <p>Please create the costing sheet by filling the requires information</p>
+                    </div>
+
+                </div>
+
+                <form onsubmit="submitCostingSheet(event);">
+                    <div class="mb-4">
+                        <span class="mb-2 font-medium block">Costing Sheet Name*</span>
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <input type="text" id="costingSheetName"
+                                   class="py-3 px-4 block flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                   placeholder="Costing Sheet Name">
+                        </div>
+                    </div>
+                    <div id="costingModalWrapper" class="flex flex-col gap-6">
+                        <div class="grid custom-grid gap-3">
+                            <div>
+                                <span class="mb-2 font-medium block">Skill Name*</span>
+                                <div class="flex items-center gap-3 flex-wrap">
+                                    <select class="k-input skill_name" onchange="getexp(this);" id="cost">
+                                        <option value="">Select Skill</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <span class="mb-2 font-medium block">Skill Experience*</span>
+                                <div class="flex items-center gap-3 flex-wrap">
+                                    <select class="k-input skill_exp" onchange="CalcAmount(this);" id="exp">
+                                        <option value="">Select</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <span class="mb-2 font-medium block">Resources*</span>
+                                <div class="flex items-center gap-3 flex-wrap">
+                                    <input type="text" onchange="CalcAmount(this);" style="width: 5rem"
+                                           class="required_resources py-3 px-4 block flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                           placeholder="Required Resources" value="1" readonly>
+                                </div>
+                            </div>
+
+                            <div>
+                                <span class="font-medium block mb-2">Skill Cost</span>
+                                <div class="flex items-center gap-3">
+                                    <input type="text"
+                                           class="skill_cost py-3 px-4 flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                           placeholder="Skill Cost" readonly>
+                                </div>
+                            </div>
+                            <div>
+                                <span class="font-medium block mb-2">Period(Days)</span>
+                                <div class="flex items-center gap-3">
+                                    <input type="text" onchange="handlePeriodChange(this)";
+                                           class="period_days cs-period py-3 px-4 flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                           placeholder="Enter Days">
+                                </div>
+                            </div>
+                            <div>
+                                <span class="font-medium block mb-2">X Value</span>
+                                <div class="flex items-center gap-3">
+                                    <input type="text" style="width: 5.25rem"
+                                           class="x-value py-3 px-4 flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                           placeholder="X Value" onchange="handleXValueChange(this)">
+                                </div>
+                            </div>
+                            <div>
+                                <span class="font-medium block mb-2">Customer Price</span>
+                                <div class="flex items-center gap-3">
+                                    <input type="text"
+                                           class="cus-price py-3 px-4 flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                           placeholder="0" onchange="handleCPChange(this);">
+                                </div>
+                            </div>
+                            <div>
+                                <span class="font-medium block mb-2">Total Cost</span>
+                                <div class="flex items-center gap-3">
+                                    <input type="text"
+                                           class="total-cost py-3 px-4 flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                           placeholder="0" readonly>
+                                </div>
+                            </div>
+                            <div>
+                                <span class="font-medium block mb-2">Total Price</span>
+                                <div class="flex items-center gap-3">
+                                    <input type="text"
+                                           class="total-price py-3 px-4 flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                           placeholder="0" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="button"
+                                class="mb-4 py-2 px-3 inline-flex justify-center items-center gap-2 rounded-md border border-transparent font-semibold bg-white text-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm"
+                                id="costingModalBtn" onclick="AddMore()">
+
+                            <svg class="w-5 h-5" width="21" height="21" viewBox="0 0 21 21" fill="none"
+                                 xmlns="http://www.w3.org/2000/svg">
+                                <path d="M10.5 0C7.72562 0.0334721 5.07431 1.15047 3.11239 3.11239C1.15047 5.07431 0.0334721 7.72562 0 10.5C0.0334721 13.2744 1.15047 15.9257 3.11239 17.8876C5.07431 19.8495 7.72562 20.9665 10.5 21C13.2744 20.9665 15.9257 19.8495 17.8876 17.8876C19.8495 15.9257 20.9665 13.2744 21 10.5C20.9665 7.72562 19.8495 5.07431 17.8876 3.11239C15.9257 1.15047 13.2744 0.0334721 10.5 0ZM16.5 11.25H11.25V16.5H9.75V11.25H4.5V9.75H9.75V4.5H11.25V9.75H16.5V11.25Z"
+                                      fill="#00CC83" />
+                                <path d="M16.5 11.25H11.25V16.5H9.75V11.25H4.5V9.75H9.75V4.5H11.25V9.75H16.5V11.25Z"
+                                      fill="white" />
+                            </svg>
+                            Add More
+                        </button>
+                    </div>
+                    <div class="flex justify-end items-center gap-x-2 py-3 px-4 border-t -ml-4 -mr-4 -mb-4 sticky -bottom-4 bg-white pt-4">
+                        <button type="button" class="hs-dropdown-toggle py-3 px-4 inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-white text-gray-700 shadow-sm align-middle hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-blue-600 transition-all text-sm" data-hs-overlay="#costing-sheet-modal">
+                            Close
+                        </button>
+                        <button type="submit" class="py-3 px-4 inline-flex justify-center items-center gap-2 rounded-md border border-transparent font-semibold bg-emerald-500 text-white hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm" href="#">
+                            Save changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+
+<div id="filePreviewModal" class="hs-overlay hidden w-full h-full fixed top-0 start-0 z-[60] overflow-x-hidden overflow-y-auto">
+    <div class="hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all sm:max-w-4xl sm:w-full m-3 sm:mx-auto h-[calc(100%-3.5rem)]">
+        <div class="max-h-full overflow-hidden flex flex-col bg-white border shadow-sm rounded-xl pointer-events-auto">
+            <div class="flex justify-between items-center py-3 px-4 border-b">
+                <h3 class="font-bold">
+                    File Preview
+                </h3>
+                <button type="button" class="flex justify-center items-center w-7 h-7 text-sm font-semibold rounded-full border border-transparent hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none" data-hs-overlay="#filePreviewModal">
+                    <span class="sr-only">Close</span>
+                    <svg class="flex-shrink-0 w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+                </button>
+            </div>
+            <div class="p-4 overflow-y-auto">
+                <div class="space-y-4">
+                    <div id="filePreviewWrapper">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+
+    <script src="~/assets/js/summernote/summernote-lite.min.js"></script>
+
+    <script type="text/javascript">
+
+
+        $(function () {
+            limitContractEndDate();
+            setSelectedBillingCycle();
+            const hiddenCustomerId = document.querySelector("#hidCustomerName").value;
+            if (hiddenCustomerId) {
+                // document.querySelector("#CustomerDropdown").value = hiddenCustomerId;
+                setTimeout(() => {
+                    console.log(hiddenCustomerId);
+                    customerselect.setSelected(hiddenCustomerId);
+                }, 300)
+            }
+            const hiddenpmodelId = document.querySelector("#hidprojectmodel").value;
+            if (hiddenpmodelId) {
+                setTimeout(() => {
+                    console.log(hiddenpmodelId);
+                    multiSelect14.setSelected(hiddenpmodelId);
+                }, 300)
+            }
+            const hiddenptypeId = document.querySelector("#hidprojecttype").value;
+            if (hiddenptypeId) {
+                setTimeout(() => {
+                    multiSelect20.setSelected(hiddenptypeId);
+                }, 300)
+            }
+            const hiddenpracticeid = document.querySelector("#hidpractice").value;
+            if (hiddenpracticeid) {
+
+                setTimeout(() => {
+                    multiSelect1.setSelected(hiddenpracticeid, false);
+
+                    const hiddensubpracticeid = document.querySelector("#hidsubpractice").value;
+                    if (hiddensubpracticeid) {
+                        console.log(hiddensubpracticeid);
+                        setTimeout(() => {
+                            multiSelect2.setSelected(hiddensubpracticeid, false);
+                        }, 500)
+                    }
+                }, 300)
+
+            }
+
+            const hiddenAccountManagerId = document.querySelector("#hidaccountmanager").value;
+            if(hiddenAccountManagerId) {
+                setTimeout(() => {
+                    accountmanager.setSelected(hiddenAccountManagerId);
+                }, 300)
+            }
+
+            $("#summernote").summernote({
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'italic', 'underline']],
+                    ['fontsize', ['fontsize']],
+                    ['color', ['color']],
+                    ['para', ['ol', 'ul']],
+                    ['table', ['table']],
+                    ['insert', ['link']],
+                    ['view', ['undo', 'redo']]
+                ]
+            });
+            document.querySelector(".main").classList.add("flex", "flex-col");
+        @if (ViewData["error"] != null)
+        {
+            <text>
+                    toastr.error("@ViewData["error"]", "Error", { "iconClass": 'new-error' });
+            </text>
+        }
+        @if (ViewData["success"] != null)
+        {
+            <text>
+                    toastr.success("@ViewData["success"]");
+            </text>
+        }
+
+        function limitContractEndDate() {
+            console.log("st", document.querySelector("#contractstartdate").value);
+            const changeEvt = new Event("input");
+            document.querySelector("#contractstartdate").dispatchEvent(changeEvt);
+        }
+
+                let _custName = $("#hidCustomerName").val();
+            let _projId = $("#hidProjectId").val();
+
+            var _customerId = 0;
+            if (_custName != "" && _custName != undefined) {
+                $("#CustomerDropdown option").each(function () {
+                    if ($(this).text() == _custName) {
+                        $(this).attr('selected', 'selected');
+                        _customerId = $(this).attr('value');
+                        changeCustomer(_customerId, _projId);
+                        return false;
+                    }
+                });
+            }
+        });
+
+
+        function setEndDateMin(startDate) {
+            const endDateInput = document.getElementById('contractenddate');
+            endDateInput.setAttribute('min', startDate);
+        }
+
+        function AddMore() {
+            const BtnAdd = document.querySelector("#costingModalBtn");
+            const card = document.querySelector("#costingModalWrapper");
+            const row = card.querySelector("div:first-child");
+
+            const newDiv = document.createElement("div");
+            newDiv.classList.add("grid", "custom-grid", "gap-3")
+            let html = `<div>
+                                                                                        <span class="mb-2 font-medium block">Skill Name</span>
+                                                                                        <div class="flex items-center gap-3 flex-wrap">
+                                                                                            <select class="k-input skill_name" onchange="getexp(this);">
+                                                                                                <option value="">Select skill</option>`;
+            skillsData.forEach(skill => {
+                html += `<option value="${skill.skillid}">${skill.skillname}</option>`;
+            })
+
+            html += '</select></div></div>'
+
+            html += `<div>
+                                        <span class="mb-2 font-medium block">Skill Experience*</span>
+                                        <div class="flex items-center gap-3 flex-wrap">
+                                            <select class="k-input skill_exp" onchange="CalcAmount(this);" id="exp">
+                                                <option value="">Select</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <span class="mb-2 font-medium block">Resources*</span>
+                                        <div class="flex items-center gap-3 flex-wrap">
+                                            <input type="text" onchange="CalcAmount(this);" style="width: 5rem"
+                                                   class="required_resources py-3 px-4 block flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                                   placeholder="Required Resources" value="1" readonly>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <span class="font-medium block mb-2">Skill Cost</span>
+                                        <div class="flex items-center gap-3">
+                                            <input type="text"
+                                                   class="skill_cost py-3 px-4 flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                                   placeholder="Skill Cost" readonly>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span class="font-medium block mb-2">Period(Days)</span>
+                                        <div class="flex items-center gap-3">
+                                            <input type="text" onchange="handlePeriodChange(this)";
+                                                   class="period_days cs-period py-3 px-4 flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                                   placeholder="Enter Days">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span class="font-medium block mb-2">X Value</span>
+                                        <div class="flex items-center gap-3">
+                                            <input type="text" style="width: 5.25rem"
+                                                   class="x-value py-3 px-4 flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                                   placeholder="X Value" onchange="handleXValueChange(this)">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span class="font-medium block mb-2">Customer Price</span>
+                                        <div class="flex items-center gap-3">
+                                            <input type="text"
+                                                   class="cus-price py-3 px-4 flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                                   placeholder="0" readonly>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span class="font-medium block mb-2">Total Cost</span>
+                                        <div class="flex items-center gap-3">
+                                            <input type="text"
+                                                   class="total-cost py-3 px-4 flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                                   placeholder="0" readonly>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span class="font-medium block mb-2">Total Price</span>
+                                        <div class="flex items-center gap-3">
+                                            <input type="text"
+                                                   class="total-price py-3 px-4 flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                                   placeholder="0" readonly>
+                                                    <button onclick="this.closest('.grid').remove();" class="p-2 inline-flex justify-center items-center gap-2 rounded-md border-2 border-red-200 font-semibold text-red-500 hover:text-white hover:bg-red-500 hover:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-200 focus:ring-offset-2 transition-all text-sm">
+                                            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024"><path fill="currentColor" d="M360 184h-8c4.4 0 8-3.6 8-8v8h304v-8c0 4.4 3.6 8 8 8h-8v72h72v-80c0-35.3-28.7-64-64-64H352c-35.3 0-64 28.7-64 64v80h72v-72zm504 72H160c-17.7 0-32 14.3-32 32v32c0 4.4 3.6 8 8 8h60.4l24.7 523c1.6 34.1 29.8 61 63.9 61h454c34.2 0 62.3-26.8 63.9-61l24.7-523H888c4.4 0 8-3.6 8-8v-32c0-17.7-14.3-32-32-32zM731.3 840H292.7l-24.2-512h487l-24.2 512z" /></svg>
+                                        </button>
+                                        </div>
+                                    </div>`;
+            newDiv.innerHTML = html;
+            card.append(newDiv);
+        }
+
+        function showFormStep(step) {
+            const allStepIndicators = document.querySelectorAll(".multipart-indicator")
+            const allStepForm = document.querySelectorAll(".multipart-form")
+
+            const _step = step - 1;
+
+            allStepIndicators.forEach((item, index) => {
+                item.classList.remove("active");
+                allStepForm[index].classList.remove("active");
+            })
+
+            allStepIndicators[_step].classList.add("active")
+            allStepForm[_step].classList.add("active")
+        }
+
+        function addLineItem() {
+            const _desc1 = document.querySelector("#ldesc1");
+            const _desc2 = document.querySelector("#ldesc2");
+            const _amount = document.querySelector("#lamount");
+            if (!_desc1.value) {
+                _desc1.classList.add("is-invalid")
+                return;
+            } else {
+                _desc1.classList.remove("is-invalid")
+            }
+
+            if (!_amount.value) {
+                _amount.classList.add("is-invalid")
+                return;
+            } else {
+                _amount.classList.remove("is-invalid")
+            }
+            const table = document.querySelector("#lineItemTable tbody");
+            const isTableEmpty = document.querySelector("#nodata");
+
+
+            if (!isTableEmpty) {
+                const _newTr = `<tr>
+                                                                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 ">
+                                                                                                ${table.children.length + 1}</td>
+                                                                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 ">${_desc1.value}
+                                                                                            </td>
+                                                                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 ">${_desc2.value}</td>
+                                                                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 ">${_amount.value}</td>
+                                                                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                                                                <div class="hs-dropdown relative inline-flex">
+                                                                                                    <button id="hs-dropdown-default" type="button"
+                                                                                                        class="hs-dropdown-toggle py-1 px-2 inline-flex justify-center items-center gap-2 border border-transparent rounded-md font-medium text-gray-700 shadow-sm align-middle hover:bg-gray-50 hover:border-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-emerald-600 transition-all text-sm">
+                                                                                                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><g fill="currentColor"><circle cx="10" cy="15" r="2"/><circle cx="10" cy="10" r="2"/><circle cx="10" cy="5" r="2"/></g></svg>
+                                                                                                    </button>
+
+                                                                                                    <div class="hs-dropdown-menu transition-[opacity,margin] duration-[0.1ms] hs-dropdown-open:opacity-100 opacity-0 hidden z-30 mt-2 min-w-[8rem] bg-white shadow-md rounded-lg"
+                                                                                                        aria-labelledby="hs-dropdown-default">
+                                                                                                        <button onclick="deleteRow(this);" class="w-full flex items-center gap-x-3.5 py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-emerald-500"
+                                                                                                            >
+                                                                                                            Delete
+                                                                                                        </button>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </td>
+                                                                                        </tr>`;
+                table.innerHTML += _newTr;
+
+            } else {
+                const _newTr = `<tr>
+                                                                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 ">
+                                                                                                ${table.children.length}</td>
+                                                                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 ">${_desc1.value}
+                                                                                            </td>
+                                                                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 ">${_desc2.value}</td>
+                                                                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 ">${_amount.value}</td>
+                                                                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                                                                <div class="hs-dropdown relative inline-flex">
+                                                                                                    <button id="hs-dropdown-default" type="button"
+                                                                                                        class="hs-dropdown-toggle py-1 px-2 inline-flex justify-center items-center gap-2 border border-transparent rounded-md font-medium text-gray-700 shadow-sm align-middle hover:bg-gray-50 hover:border-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-emerald-600 transition-all text-sm">
+                                                                                                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><g fill="currentColor"><circle cx="10" cy="15" r="2"/><circle cx="10" cy="10" r="2"/><circle cx="10" cy="5" r="2"/></g></svg>
+                                                                                                    </button>
+
+                                                                                                    <div class="hs-dropdown-menu transition-[opacity,margin] duration-[0.1ms] hs-dropdown-open:opacity-100 opacity-0 hidden z-30 mt-2 min-w-[8rem] bg-white shadow-md rounded-lg"
+                                                                                                        aria-labelledby="hs-dropdown-default">
+                                                                                                        <button onclick="deleteRow(this);" class="w-full flex items-center gap-x-3.5 py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-emerald-500"
+                                                                                                            >
+                                                                                                            Delete
+                                                                                                        </button>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </td>
+                                                                                        </tr>`;
+                table.innerHTML = _newTr;
+            }
+            _desc1.value = "";
+            _desc2.value = "";
+            _amount.value = "";
+        }
+
+        function deleteRow(btn) {
+            btn.closest("tr").remove();
+            const table = document.querySelector("#lineItemTable tbody");
+            const trCount = document.querySelectorAll("#lineItemTable tbody tr").length;
+            if (trCount === 0) {
+                table.innerHTML = `<tr id="nodata">
+                                                                                                        <td id="emptyData" colspan="5" class="px-6 py-4 whitespace-nowrap text-sm text-center font-medium text-gray-800 ">
+                                                                                                            No Data Yet</td>
+                                                                                                    </tr>`;
+            } else {
+                recalculateRowCount();
+            }
+        }
+
+        function recalculateRowCount() {
+            const allTr = document.querySelectorAll("#lineItemTable tbody tr");
+            allTr.forEach((item, index) => {
+                item.querySelector("td").innerHTML = index + 1;
+            })
+        }
+
+        function addNewQuestion() {
+            const questionsWrapper = document.querySelector(".presales-questions-wrapper");
+            const _newQuestionDiv = document.createElement("div");
+            _newQuestionDiv.classList.add("mb-4", "flex", "items-end", "gap-4");
+            _newQuestionDiv.innerHTML = `<div class="flex-1">
+                                                                                                    <div class="flex items-center gap-1">
+                                                                                                        <span class="question_count font-medium">${questionsWrapper.children.length + 1}</span>.
+                                                                                                        <input type="text" class="k-input w-full mb-2" placeholder="Enter question">
+                                                                                                    </div>
+                                                                                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                                                                        <input type="text"
+                                                                                                            class=" py-3 px-4 block flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                                                                                                    placeholder="Enter Answer">
+                                                                                                        <input type="text"
+                                                                                                            class="ref-response py-3 px-4 block flex-1 border-gray-200 rounded-md text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                                                                                                    placeholder="Reference Answer">
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                                <button onclick="deleteQuestion(this);" class="py-3 px-4 inline-flex justify-center items-center gap-2 rounded-md border-2 border-red-200 font-semibold text-red-500 hover:text-white hover:bg-red-500 hover:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-200 focus:ring-offset-2 transition-all text-sm">
+                                                                                                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024"><path fill="currentColor" d="M360 184h-8c4.4 0 8-3.6 8-8v8h304v-8c0 4.4 3.6 8 8 8h-8v72h72v-80c0-35.3-28.7-64-64-64H352c-35.3 0-64 28.7-64 64v80h72v-72zm504 72H160c-17.7 0-32 14.3-32 32v32c0 4.4 3.6 8 8 8h60.4l24.7 523c1.6 34.1 29.8 61 63.9 61h454c34.2 0 62.3-26.8 63.9-61l24.7-523H888c4.4 0 8-3.6 8-8v-32c0-17.7-14.3-32-32-32zM731.3 840H292.7l-24.2-512h487l-24.2 512z"/></svg>
+                                                                                                </button>`;
+            questionsWrapper.appendChild(_newQuestionDiv);
+        }
+
+        function deleteQuestion(btn) {
+            btn.parentElement.remove();
+            recalculateQuestionNumbers();
+        }
+
+        function recalculateQuestionNumbers() {
+            const allQuestionNumber = document.querySelectorAll(".presales-questions-wrapper .question_count");
+            allQuestionNumber.forEach((item, index) => {
+                item.innerHTML = index + 1;
+            })
+        }
+        //    setCostingSheetData();
+        function handleAdvancePercentChange(inp) {
+            const percent = Number(inp.value);
+            const poValue = Number(document.querySelector("#Povalue").value);
+            const advanceValueEl = document.querySelector("#Advanceamount");
+            const _advanceValue = (percent * poValue) / 100;
+            if (_advanceValue > (poValue/2)) {
+                toastr.error("Advance value exceeds PO Value");
+                inp.value = 0;
+                advanceValueEl.value = 0;
+                return;
+            }
+            advanceValueEl.value = _advanceValue;
+        }
+
+        function getTotalMilestonePercent() {
+            const allInputs = document.querySelectorAll(".milestone_precentage_inp");
+            let totalPercentInput = 0;
+            allInputs.forEach(item => {
+                totalPercentInput += Number(item.value);
+            })
+            return totalPercentInput;
+        }
+
+        function handleMilestonePercentChange(inp) {
+            const percent = Number(inp.value);
+
+            let poValue = Number(document.querySelector("#Povalue").value);
+            const advanceValue = Number(document.querySelector("#Advanceamount").value);
+
+            const milestoneAMountInp = inp.closest(".milestone").querySelector(".milestone_amount_inp");
+
+            if(advanceValue) {
+                poValue = poValue;
+                //poValue = poValue - advanceValue;  changes made as per deba sir dont divide po percent 
+            }
+
+            milestoneAMountInp.value = (percent * poValue) / 100;
+
+            if(getTotalMilestonePercent() > 100) {
+                toastr.error("Total amount exceed PO Value");
+                inp.value = 0;
+                const changeEvt = new Event("change");
+                inp.dispatchEvent(changeEvt);
+            }
+        }
+
+
+        function setXvalue(inp) {
+            const xValue = inp.options[inp.selectedIndex].getAttribute("data-xvalue");
+            document.querySelector("#xvalue").value = xValue ? Number(xValue).toFixed(2) : 0;
+        }
+        let totalAmountValue = 0;
+        function setTotalAmount(inp) {
+            const totalAmount = inp.options[inp.selectedIndex].getAttribute("data-totalamount");
+            //document.querySelector("#totalamount").value = totalAmount ? Number(totalAmount).toFixed(2) : 0;
+            totalAmountValue = totalAmount ? Number(totalAmount).toFixed(2) : 0;
+
+            document.querySelector("#totalamount").value = totalAmountValue;
+        }
+        console.log(totalAmountValue, "uwehguw")
+
+
+
+
+        // drop down code
+        const customerDropdown = document.getElementById('CustomerDropdown');
+        const projectDropdown = document.getElementById('projectDropdown');
+        const practiceInput = document.getElementById('practiceInput');
+        const subpracticeDropdown = document.getElementById('subPracticeDropdown');
+
+        practiceDropdown.addEventListener('change', async () => {
+            const selectedPracticeId = practiceDropdown.value;
+            // subpracticeDropdown.innerHTML = '<option value="">Select Sub Practice</option>'; // Clear state options
+            multiSelect2.setData([]);
+            if (selectedPracticeId) {
+                const response = await fetch(`/Base/GetSubPracticeByPracticeId?practiceId=${selectedPracticeId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    // console.log(data);
+                    const stateData = [{ text: "Select Sub Practice", value: "" }];
+                    data.forEach(country => {
+                        const _countryVal = {
+                            text: country?.text,
+                            value: country?.value
+                        }
+                        stateData.push(_countryVal);
+                    })
+                    console.log(stateData);
+                    multiSelect2.setData(stateData);
+
+                    // Clear the subpracticeDropdown and then add options
+                    // subpracticeDropdown.innerHTML = '<option value="">Select SubPractice</option>';
+
+                    // data.forEach(item => {
+                    //     const option = document.createElement('option');
+                    //     option.value = item.value;
+                    //     option.textContent = item.text;
+                    //     subpracticeDropdown.appendChild(option);
+                    // });
+
+                } else {
+                    console.error('Error fetching Subpractice data:', response.statusText);
+                }
+            }
+        });
+        // const stateSelect = new SlimSelect({
+        //     select: "#subPracticeDropdown",
+        //     settings: {
+        //         allowDeselect: false,
+        //         closeOnSelect: true,
+        //         maxValuesShown: 1
+        //     }
+        // })
+
+        $(document).ready(async () => {
+            const oafId = window.location.search.split("?hidOafId=").slice(-1)[0];
+
+            if (oafId) {
+
+                document.querySelector("#practiceDropdown").dispatchEvent(new Event("change"));
+                const stateVal = '@Model.OafData.subpracticeid';
+                if (stateVal) {
+
+                    setTimeout(() => {
+                        document.querySelector("#subPracticeDropdown").value = stateVal;
+                        multiSelect2.setSelected(stateVal);
+                    }, 1000)
+                }
+
+            }
+
+
+        })
+
+     
+            $('#practiceDropdown').on('change', function () {
+                var selectedOption = $('option:selected', this);
+                var selectedPracticeId = selectedOption.val();
+                var selectedPracId = selectedOption.data('prac-id');
+                if (selectedPracticeId !== "" && selectedPracticeId !== undefined) {
+                    getQuestionsByPracticeId(selectedPracId);
+                }
+            });
+        
+        //[Presales checklist]
+        function getQuestionsByPracticeId(practiceId) {
+            $.ajax({
+                type: 'GET',
+                url: `/Contract/GetCheckList?practiceId=${practiceId}`,
+                success: function (response) {
+                    try {
+                        const parsedData = JSON.parse(response);
+                        if ($("#hidOafId").val() == '0') {
+                            displayDynamicQuestions(parsedData);
+                        }
+                    } catch (error) {
+                        console.error("Error parsing JSON:", error);
+                    }
+                }
+            });
+        }
+        //  displayDynamicCheckList
+        function displayDynamicQuestions(data) {
+            const questionsContainer = document.getElementById("dynamicquestions");
+            questionsContainer.innerHTML = "";
+
+            if (data) {
+                const questions = data;
+                questions.forEach((question, index) => {
+                    const questionElement = document.createElement("div");
+
+                    questionElement.innerHTML = `<div class ="mb-4"><div class="flex items-center gap-2 mb-2"><span class="question_count font-medium">${index + 1}</span><label class="font-medium block">${question.question}</label></div>
+                                                                                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                                                                    <input type="text" class="k-input w-full" placeholder="Enter Answer" name="Response[]">
+                                                                                                            <input type="text" class="k-input w-full ref-response" placeholder="Reference Answer" name="Refresponse[]" />
+                                                                                                        </div></div>`;
+
+                    questionsContainer.appendChild(questionElement);
+                });
+            }
+        }
+
+
+
+        // For DATA POSTING
+        function validateFirstPart() {
+            let validFlag = true;
+            if (!$("#contractstartdate").val()) {
+                validFlag = false;
+                $("#contractstartdate").addClass("is-invalid");
+            } else {
+                $("#contractstartdate").removeClass("is-invalid");
+            }
+            if (!$("#contractenddate").val()) {
+                validFlag = false;
+                $("#contractenddate").addClass("is-invalid");
+            } else {
+                $("#contractenddate").removeClass("is-invalid");
+            }
+            if (document.querySelector("#poAwaitedCheckbox")) {
+                if (!document.querySelector("#poAwaitedCheckbox").checked) {
+                    if (!$("#ponumber").val()) {
+                        validFlag = false;
+                        $("#ponumber").addClass("is-invalid");
+                    } else {
+                        $("#ponumber").removeClass("is-invalid");
+                    }
+                } else {
+                    $("#ponumber").removeClass("is-invalid");
+                }
+            } else {
+                if (!$("#ponumber").val()) {
+                    validFlag = false;
+                    $("#ponumber").addClass("is-invalid");
+                } else {
+                    $("#ponumber").removeClass("is-invalid");
+                }
+            }
+            // if (!$("#Povalue").val()) {
+            //     validFlag = false;
+            //     $("#Povalue").addClass("is-invalid");
+            // } else {
+            //     $("#Povalue").removeClass("is-invalid");
+            // }
+            if (!$("#Povalue").val() || parseFloat($("#Povalue").val()) < totalAmountValue) {
+                validFlag = false;
+                $("#Povalue").addClass("is-invalid");
+                if (parseFloat($("#Povalue").val()) < totalAmountValue) {
+                    toastr.error("Error: The PO Value must not be less than the selected Cost Sheet amount. Please review and update accordingly.");
+                    console.log(totalAmountValue, "totalAmountValue");
+                }
+            } else {
+                $("#Povalue").removeClass("is-invalid");
+            }
+            if (!$("#CustomerDropdown").val()) {
+                validFlag = false;
+                $("#CustomerDropdown").addClass("is-invalid");
+            } else {
+                $("#CustomerDropdown").removeClass("is-invalid");
+            }
+
+            if (!$("#Projectname").val()) {
+                validFlag = false;
+                $("#Projectname").addClass("is-invalid");
+            } else {
+                $("#Projectname").removeClass("is-invalid");
+            }
+
+            if (!$("#Projectmodel").val()) {
+                validFlag = false;
+                $("#Projectmodel").addClass("is-invalid");
+            } else {
+                $("#Projectmodel").removeClass("is-invalid");
+            }
+            if (!$("#projectTypeDropdown").val() || $("#projectTypeDropdown").val() == '0') {
+                validFlag = false;
+                $("#projectTypeDropdown").addClass("is-invalid");
+            } else {
+                $("#projectTypeDropdown").removeClass("is-invalid");
+            }
+            if (!$("#practiceDropdown").val() || $("#practiceDropdown").val() == '0') {
+                validFlag = false;
+                $("#practiceDropdown").addClass("is-invalid");
+            } else {
+                $("#practiceDropdown").removeClass("is-invalid");
+            }
+            if (!multiSelect2.getSelected()[0]) {
+                validFlag = false;
+                $("#subPracticeDropdown").addClass("is-invalid");
+            } else {
+                $("#subPracticeDropdown").removeClass("is-invalid");
+            }
+            if (document.querySelector("#poAwaitedCheckbox")) {
+                if (!document.querySelector("#poAwaitedCheckbox").checked) {
+                    if (!$("#Contractno").val()) {
+                        validFlag = false;
+                        $("#Contractno").addClass("is-invalid");
+                    } else {
+                        $("#Contractno").removeClass("is-invalid");
+                    }
+                } else {
+                    $("#Contractno").removeClass("is-invalid");
+                }
+            } else {
+                if (!$("#Contractno").val()) {
+                    validFlag = false;
+                    $("#Contractno").addClass("is-invalid");
+                } else {
+                    $("#Contractno").removeClass("is-invalid");
+                }
+            }
+            if (!$("#accountmanagerdropdown").val()) {
+                validFlag = false;
+                $("#accountmanagerdropdown").addClass("is-invalid");
+            } else {
+                $("#accountmanagerdropdown").removeClass("is-invalid");
+            }
+            if (!$("#costingsheetdrown").val()) {
+                validFlag = false;
+                $("#costingsheetdrown").addClass("is-invalid");
+            } else {
+                $("#costingsheetdrown").removeClass("is-invalid");
+            }
+            if (!$("#contractstartdate").val()) {
+                validFlag = false;
+                $("#contractstartdate").addClass("is-invalid");
+            } else {
+                $("#contractstartdate").removeClass("is-invalid");
+            }
+            if (!$("#contractenddate").val()) {
+                validFlag = false;
+                $("#contractenddate").addClass("is-invalid");
+            } else {
+                $("#contractenddate").removeClass("is-invalid");
+            }
+            if (validFlag) {
+                showFormStep(2);
+            }
+        }
+        function validateSecondPart() {
+            var lineitemcount = document.querySelectorAll("#lineItemTable tbody tr");
+            var validFlag = true;
+            if (lineitemcount < 1 || lineitemcount[0].id == "nodata") {
+                validFlag = false;
+                $("#ldesc1").addClass("is-invalid");
+                $("#ldesc2").addClass("is-invalid");
+                $("#lamount").addClass("is-invalid");
+            }
+            else {
+                validFlag = true;
+                $("#ldesc1").removeClass("is-invalid");
+                $("#ldesc2").removeClass("is-invalid");
+                $("#lamount").removeClass("is-invalid");
+            }
+            if (validFlag) {
+                showFormStep(3);
+            }
+        }
+        function validateThirdPart() {
+    if (!confirm("Do you want to continue?")) {
+        return false; // Stop if the user cancels
+    }
+
+    let validFlag = true;
+    const allquestions = Array.from(document.querySelector(".presales-questions-wrapper").children);
+    allquestions.forEach(ques => {
+        const allinputs = ques.querySelectorAll("input:not(.ref-response)");
+        allinputs.forEach(inp => {
+            if (!inp.value) {
+                inp.classList.add("is-invalid");
+                validFlag = false;
+            } else {
+                inp.classList.remove("is-invalid");
+            }
+        });
+    });
+    return validFlag;
+}
+
+        // function validateThirdPart() {
+        //     let validFlag = true;
+        //     const allquestions = Array.from(document.querySelector(".presales-questions-wrapper").children);
+        //     allquestions.forEach(ques => {
+        //         const allinputs = ques.querySelectorAll("input:not(.ref-response)");
+        //         allinputs.forEach(inp => {
+        //             if (!inp.value) {
+        //                 inp.classList.add("is-invalid");
+        //                 validFlag = false;
+        //             } else {
+        //                 inp.classList.remove("is-invalid");
+        //             }
+        //         });
+        //     });
+        //     return validFlag;
+        // }
+
+        function savedata() {
+            if (validateThirdPart()) {
+                document.querySelector("#loader").style.display = "flex";
+                const bodyData = {
+                    "oafid": $("#hidOafId").val(),
+                    "contractno": $("#contractno").val(),
+                    "Ponumber": $("#ponumber").val(),
+                    "Orderdescription": $("#Orderdescription").val(),
+                    "Potermscondition": $("#summernote").val(),
+                    "Povalue": $("#Povalue").val(),
+                    "Customerid": $("#CustomerDropdown").val(),
+                    "Projectname": $("#Projectname").val(),
+                    "Projectmodel": $("#Projectmodel").val(),
+                    "Projecttypeid": $("#projectTypeDropdown").val(),
+                    "Subpracticeid": multiSelect2.getSelected()[0],
+                    "accountmanagerid": $("#accountmanagerdropdown").val(),
+                    "Projectdescription": $("#Projectdescription").val(),
+                    "Contractno": $("#Contractno").val(),
+                    "Contractstartdate": $("#contractstartdate").val(),
+                    "Contractenddate": $("#contractenddate").val(),
+                    "Milestones": $("#Milestones").val(),
+                    "Costsheetid": $("#costingsheetdrown").val(),
+                    "Xvalue": $("#xvalue").val(),
+                    "amount": $("#amount").val(),
+                    "Clientcoordinator": $("#Clientcoordinator").val(),
+                    "costsheetid": $("#costingsheet").val(),
+                    "contactnumber": $("#contactNo").val(),
+                    "remarks": $("#remarks").val(),
+                    "attachment": $("#attachment").val(),
+                    "contracttypeid": $("#contracttype").val(),
+                    "Advancepercent": $("#Advancepercent").val(),
+                    "Advanceamount": $("#Advanceamount").val(),
+                    "Oaflines": [],
+                    "Oafchecklists": [],
+                    "Milestonlist":[],
+                    "CommittedClientBillingDate": $("#customerBillingCycle").val()
+                };
+
+                const allListTr = document.querySelectorAll("#lineItemTable tbody tr");
+                allListTr.forEach(tr => {
+                    const lineItem = {
+                        Lineno: `${tr.querySelector('td:nth-child(1)').innerText.trim()}`,
+                        Linedescription1: `${tr.querySelector('td:nth-child(2)').innerText.trim()}`,
+                        Linedescription2: `${tr.querySelector('td:nth-child(3)').innerText.trim()}`,
+                        Lineamount: `${tr.querySelector('td:nth-child(4)').innerText.trim()}`
+                    }
+                    bodyData.Oaflines.push(lineItem);
+                });
+
+                const milestoneListItems = getMilestoneItems();
+                bodyData.Milestonlist = [...milestoneListItems];
+
+
+                const allQuestionsDiv = Array.from(document.querySelector(".presales-questions-wrapper").children);
+                allQuestionsDiv.forEach(ques => {
+
+                    const _question = {};
+                    if (ques.querySelector("label")) {
+                        _question.Question = ques.querySelector("label").innerText;
+                        _question.Clientresponse = ques.querySelectorAll("input")[0].value;
+                        _question.Isextra = false;
+                    } else {
+                        _question.Question = ques.querySelectorAll("input")[0].value;
+                        _question.Clientresponse = ques.querySelectorAll("input")[1].value;
+                        _question.Isextra = true;
+                    }
+                    bodyData.Oafchecklists.push(_question);
+                });
+
+
+
+                const formData = new FormData();
+
+                formData.append("contracts", JSON.stringify(bodyData));
+
+                const emailfileInput = $("#emailmessages")[0];
+                if (emailfileInput.files.length > 0) {
+                    formData.append("Emailattachment", emailfileInput.files[0]);
+                }
+
+                const proposalfileInput = $("#proposal")[0];
+                if (proposalfileInput.files.length > 0) {
+                    formData.append("Proposalattachment", proposalfileInput.files[0]);
+                }
+
+                const pofileInput = $("#po")[0];
+                if (pofileInput.files.length > 0) {
+                    formData.append("Poattachment", pofileInput.files[0]);
+                }
+                const costfileInput = $("#costattachment")[0];
+                if (pofileInput.files.length > 0) {
+                    formData.append("Costattachment", pofileInput.files[0]);
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("Upsert","OAF")",
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (res) {
+                        $("#loader").hide();
+                        if (res.success == true) {
+                            toastr.success(res.msg);
+                            setTimeout(() => {
+                                window.location.href = "/OAF/Index"
+                            }, 1000)
+                        } else {
+                            toastr.error(res.msg);
+                            $("#loader").hide();
+                        }
+                    }
+                });
+            }
+        }
+
+        function showFileName(input) {
+            const _selectedFileName = input.files[0]?.name;
+
+            input.nextElementSibling.querySelector("span").innerHTML = _selectedFileName;
+        }
+        // costing sheet
+        async function setCostingSheetData() {
+            const response = await fetch("/Base/GetExistingCostingSheet");
+            if (response.status === 200) {
+                console.log(response);
+                //  const data = await response.text();
+                const select = document.querySelector("#costingsheetdrown");
+
+                const data = await response.json();
+                console.log(data);
+                const optionList = [{ text: "Select Costing Sheet", value: "" }];
+                // data.forEach(item => {
+                //     optionList.push({ text: item?.text, value: item?.value, data: {xvalue: item?.xValue} });
+                // })
+                // multiSelect3.setData(optionList);
+
+                data.forEach(item => {
+                    optionList.push({ text: item?.text, value: item?.value, data: { xvalue: item?.xValue, totalamount: item?.totalAmount } });
+                })
+                multiSelect3.setData(optionList);
+                console.log(data, "heuhi");
+
+
+                // for (i = 0; i < data.length; i++) {
+                //     if (data[i].value.trim() && data[i].text.trim()) {
+                //         select.innerHTML += `<option value="${data[i].value}">${data[i].text}</option>`;
+                //     }
+                // }
+                const hiddencostsheetid = document.querySelector("#hidcostsheet").value;
+                if (hiddencostsheetid) {
+                    setTimeout(() => {
+                        multiSelect3.setSelected(hiddencostsheetid);
+                    }, 300)
+                    document.querySelector("#costingsheetdrown").value = hiddencostsheetid;
+                }
+            }
+        }
+
+        function validateCostingSheet() {
+            let flag = true;
+            if (!document.querySelector("#costingSheetName").value) {
+                document.querySelector("#costingSheetName").classList.add("is-invalid");
+                flag = false;
+            } else {
+                document.querySelector("#costingSheetName").classList.remove("is-invalid");
+            }
+
+            const allCostingSheetValues = document.querySelectorAll("#costingModalWrapper > div.grid");
+
+            allCostingSheetValues.forEach(row => {
+                const rowInputs = row.querySelectorAll("input, select");
+                rowInputs.forEach(input => {
+                    if (!input.value) {
+                        input.classList.add("is-invalid");
+                        flag = false;
+                    } else {
+                        input.classList.remove("is-invalid");
+                    }
+                })
+            })
+
+            return flag;
+        }
+
+        setCostingSheetData();
+        async function submitCostingSheet(e) {
+            if (!validateCostingSheet()) {
+                e.preventDefault();
+                return;
+            }
+            e.preventDefault();
+            const formData = new FormData();
+            const _costingSheetName = document.querySelector("#costingSheetName").value;
+            const _costingSheetValues = [];
+            const allCostingSheetVal = document.querySelectorAll("#costingModalWrapper > div");
+            allCostingSheetVal.forEach(item => {
+                const _skillName = item.querySelector(".skill_name").value;
+                const _skillExp = item.querySelector(".skill_exp").value;
+                const _requiredResources = item.querySelector(".required_resources").value;
+                const _skillCost = item.querySelector(".skill_cost").value;
+                const _skillid = item.querySelector(".skill_name").value;
+                const _perioddays = item.querySelector(".period_days").value;
+                const _xvalue = item.querySelector(".x-value").value;
+                const _customerprice = item.querySelector(".cus-price").value;
+                const _totalcost = item.querySelector(".total-cost").value;
+                const _totalprice = item.querySelector(".total-price").value;
+                const _costingSheetValueItem = {
+
+                    skillexperience: _skillExp,
+                    requiredresource: _requiredResources,
+                    skillcost: _skillCost,
+                    skillid: _skillid,
+                    xvalue:_xvalue,
+                    perioddays:_perioddays,
+                    customerprice:_customerprice,
+                    totalcost:_totalcost,
+                    totalprice:_totalprice
+                };
+                _costingSheetValues.push(_costingSheetValueItem);
+            });
+
+            // Convert _costingSheetValues to JSON string
+            const costingSheetValueJSON = JSON.stringify(_costingSheetValues);
+
+
+            const jsonData = {
+                "costsheetname": _costingSheetName,
+                "costsheetdetails": _costingSheetValues
+            }
+
+            formData.append("jsonObject", JSON.stringify(jsonData));
+
+            try {
+                const response = await fetch("/OAF/CostingSheetPost", {
+                    method: "POST",
+                    body: formData
+                });
+
+                if (response.ok) {
+
+                    const responseData = await response.json();
+                    console.log(responseData);
+                    // multiSelect3
+                    const newOption = { value: `${responseData.response.costsheetid}`, text: responseData.response.costsheetname };
+                    multiSelect3.setData([...multiSelect3.getData(), newOption])
+                    multiSelect3.setSelected(`${responseData.response.costsheetid}`);
+                    //document.querySelector("#costingsheetdrown").innerHTML += `<option value="${responseData.response.costsheetid}">${responseData.response.costsheetname}</option>`;
+                    //document.querySelector("#costingsheetdrown").value = responseData.response.costsheetid;
+                    HSOverlay.close(document.querySelector("#costing-sheet-modal"));
+                    resetcostsheetmodal();
+                }
+                else {
+
+                    alert("Error: " + errorData.message);
+                }
+            } catch (error) {
+
+            }
+        }
+        // for cost sheet
+
+        let skillsData;
+        // Skill
+        async function setSkillData() {
+            const response = await fetch("/Base/GetSkill");
+            if (response.status === 200) {
+                const select = document.querySelector(".skill_name");
+
+                const data = await response.json();
+
+                skillsData = data;
+                data.forEach(skill => {
+                    select.innerHTML += `<option value="${skill.skillid}">${skill.skillname}</option>`;
+                })
+            }
+        }
+
+        setSkillData();
+
+        function getexp(skillinput) {
+            const costSheetRow = skillinput.closest(".grid");
+            const _skillid = skillinput.value;
+            const _skillData = skillsData.filter(item => item.skillid == _skillid);
+            const select = costSheetRow.querySelector(".skill_exp");
+            select.innerHTML = "";
+            select.innerHTML += '<option>Select Experience</option>';
+            _skillData[0]?.skillcostings.forEach(item => {
+                select.innerHTML += `<option value="${item.expname}">${item.expname}</option>`;
+            });
+
+            const changeEvent = new Event("change");
+            select.dispatchEvent(changeEvent);
+            costSheetRow.querySelector(".cus-price").value = 0;
+            costSheetRow.querySelector(".total-cost").value = 0;
+            costSheetRow.querySelector(".total-price").value = 0;
+        }
+
+
+
+        
+
+        function resetcostsheetmodal() {
+            document.querySelectorAll("#costingModalWrapper > div:not(:first-child)").forEach(item => {
+                item.remove();
+            });
+
+            document.querySelector("#costingModalWrapper").closest("form").reset();
+        }
+
+        function handleFileChange(input, type) {
+            let html = `<div class="relative group">`;
+            if (type === '1') {
+                html += `<p onclick="showPreview('1');" class="text-blue-500 underline cursor-pointer">Email/Messages</p>`;
+            } else if (type === '2') {
+                html += `<p onclick="showPreview('2');" class="text-blue-500 underline cursor-pointer">Proposal</p>`;
+            } else if (type === '3') {
+                html += `<p onclick="showPreview('3');" class="text-blue-500 underline cursor-pointer">PO</p>`;
+            }
+            html += `<button type="button" onclick="removeFile(this, '${type}');" class="p-1 absolute right-0 top-0 rounded-full bg-black hover:bg-red-600 translate-x-[50%] translate-y-[-50%] hidden group-hover:block">
+                                                                                <svg class="w-3 h-3 text-white" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M6.4 19L5 17.6l5.6-5.6L5 6.4L6.4 5l5.6 5.6L17.6 5L19 6.4L13.4 12l5.6 5.6l-1.4 1.4l-5.6-5.6L6.4 19Z"/></svg>
+                                                                            </button>
+                                                                        </div>`;
+
+            if (document.querySelector(`[onclick^="showPreview('${type}'"]`)) {
+                document.querySelector(`[onclick^="showPreview('${type}'"]`).parentElement.remove();
+            }
+
+            document.querySelector(".attachments-wrapper").innerHTML += html;
+
+        }
+
+        function removeFile(btn, fileInput) {
+            console.log(fileInput, fileInput === '1');
+            if (fileInput === '1') {
+                const fileInput = document.querySelector("#emailmessages");
+                const parent = fileInput.parentElement;
+                fileInput.remove();
+                parent.innerHTML = `<input type="file" class="hidden" name="" id="emailmessages" onchange="handleFileChange(this, '1');">` + parent.innerHTML;
+            } else if (fileInput === '2') {
+                const fileInput = document.querySelector("#proposal");
+                const parent = fileInput.parentElement;
+                fileInput.remove();
+                parent.innerHTML = `<input type="file" class="hidden" name="" id="proposal" onchange="handleFileChange(this, '2');">` + parent.innerHTML;
+            } else if (fileInput === '3') {
+                const fileInput = document.querySelector("#po");
+                const parent = fileInput.parentElement;
+                fileInput.remove();
+                parent.innerHTML = `<input type="file" class="hidden" name="" id="po" onchange="handleFileChange(this, '3');">` + parent.innerHTML;
+            }
+            btn.parentElement.remove();
+        }
+
+        function showPreview(fileInput, url) {
+            if (!url) {
+                if (fileInput === '1') {
+                    const file = document.querySelector("#emailmessages").files[0];
+                    setFilePreview(file);
+                } else if (fileInput === '2') {
+                    const file = document.querySelector("#proposal").files[0];
+                    setFilePreview(file);
+                } else if (fileInput === '3') {
+                    const file = document.querySelector("#po").files[0];
+                    setFilePreview(file);
+                }
+            } else {
+                setFilePreview(url, 'edit');
+                // if (fileInput === '1') {
+                // } else if (fileInput === '2') {
+                //     setFilePreview(url);
+                // } else if (fileInput === '3') {
+                //     setFilePreview(url);
+                // }
+            }
+            HSOverlay.open(document.querySelector("#filePreviewModal"));
+        }
+
+        function setFilePreview(file, type) {
+            if (!type) {
+                document.querySelector("#filePreviewWrapper").innerHTML = "";
+                let element;
+                if (file?.type.includes("image")) {
+                    element = document.createElement("img");
+                } else if (file?.type.includes("pdf")) {
+                    element = document.createElement("iframe");
+                    element.style.height = "70vh";
+                }
+                element.src = URL.createObjectURL(file);
+                element.style.width = "100%";
+                element.style.maxWidth = "100%";
+                document.querySelector("#filePreviewWrapper").appendChild(element);
+            } else {
+                document.querySelector("#filePreviewWrapper").innerHTML = "";
+                let element;
+                if (file.includes("pdf")) {
+                    element = document.createElement("iframe");
+                    element.style.height = "70vh";
+                } else {
+                    element = document.createElement("img");
+                }
+                element.src = file;
+                element.style.width = "100%";
+                element.style.maxWidth = "100%";
+                document.querySelector("#filePreviewWrapper").appendChild(element);
+            }
+        }
+        function showFileName(input) {
+            const _selectedFileName = input.files[0]?.name;
+
+            input.nextElementSibling.querySelector("span").innerHTML = _selectedFileName;
+        }
+
+        const customerselect = new SlimSelect({
+            select: "#CustomerDropdown",
+            settings: {
+                allowDeselect: false,
+                closeOnSelect: true,
+                maxValuesShown: 1
+            }
+        })
+        const multiSelect14 = new SlimSelect({
+            select: "#Projectmodel",
+            settings: {
+                allowDeselect: false,
+                closeOnSelect: true,
+                maxValuesShown: 1
+            }
+        })
+        const multiSelect1 = new SlimSelect({
+            select: "#practiceDropdown",
+            settings: {
+                allowDeselect: false,
+                closeOnSelect: true,
+                maxValuesShown: 1
+            }
+        })
+        const multiSelect2 = new SlimSelect({
+            select: "#subPracticeDropdown",
+            settings: {
+                allowDeselect: false,
+                closeOnSelect: true,
+                maxValuesShown: 1
+            }
+        })
+
+        const multiSelect3 = new SlimSelect({
+            select: "#costingsheetdrown",
+            settings: {
+                allowDeselect: false,
+                closeOnSelect: true,
+                maxValuesShown: 1
+            }
+        })
+
+        const multiSelect20 = new SlimSelect({
+            select: "#projectTypeDropdown",
+            settings: {
+                allowDeselect: false,
+                closeOnSelect: true,
+                maxValuesShown: 1
+            }
+        })
+        const accountmanager = new SlimSelect({
+            select: "#accountmanagerdropdown",
+            settings: {
+                allowDeselect: false,
+                closeOnSelect: true,
+                maxValuesShown: 1
+            }
+        })
+
+        function addMilestone() {
+            var container = document.getElementById('milestonesContainer');
+            var milestoneCount = container.querySelectorAll('.milestone').length + 1;
+
+            var milestoneDiv = document.createElement('div');
+            milestoneDiv.classList.add('milestone', "flex", "items-stretch", "rounded", "border");
+
+            milestoneDiv.innerHTML += `
+                        <div class="border-r px-2 flex items-center">
+                            <span class="milestone_count">Milestone <span class="milestone-count">${milestoneCount}</span></span>
+                        </div>
+                        <div class="border-r pr-2">
+                                        <input onchange="handleMilestonePercentChange(this);" style="width: 5rem;" type="number" class="milestone_precentage_inp border-none" min="0" max="100">
+                            <span>%</span>
+                        </div>
+                        <div class="px-2 flex-1 flex items-center">
+                            <span>Amount</span>
+                                <input readonly style="min-width: 8rem" type="number" class="milestone_amount_inp border-none bg-gray-100 rounded w-full ml-2 h-6">
+                        </div>
+                                <div class="px-2 flex items-center">
+                                    <span>Days</span>
+                                        <input style="width: 5rem" type="number" class="milestone_days_inp border-none bg-gray-100 rounded w-full ml-2 h-6">
+                                </div>
+                        <button class="mr-2" type="button" onclick="removeMilestone(this);">
+                            <svg class="w-6 h-6 text-gray-600" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M12 21a9 9 0 1 0 0-18a9 9 0 0 0 0 18m-5-8h10v-2H7z" clip-rule="evenodd"/></svg>
+                        </button>
+            `;
+
+            const mileStoneAddBtn = document.createElement("button");
+            mileStoneAddBtn.setAttribute("id", "addMileStoneBtn");
+            mileStoneAddBtn.setAttribute("onclick", "addMilestone();");
+            mileStoneAddBtn.setAttribute("type", "button");
+            mileStoneAddBtn.innerHTML = `<svg class="w-6 h-6 text-gray-600" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 32 32"><path fill="currentColor" d="M16 2A14.173 14.173 0 0 0 2 16a14.173 14.173 0 0 0 14 14a14.173 14.173 0 0 0 14-14A14.173 14.173 0 0 0 16 2m8 15h-7v7h-2v-7H8v-2h7V8h2v7h7Z" /><path fill="none" d="M24 17h-7v7h-2v-7H8v-2h7V8h2v7h7z" /></svg>`;
+            
+            container.querySelector("#addMileStoneBtn")?.remove();
+            container.appendChild(milestoneDiv);
+            container.appendChild(mileStoneAddBtn);
+        }
+
+        function removeMilestone(btn) {
+            btn.closest(".milestone").remove();
+            recalculateMilestoneNumbers();
+        }
+
+        function recalculateMilestoneNumbers() {
+            document.querySelectorAll(".milestone-count").forEach((item, index) => {
+                item.innerText = index + 1;
+            })
+        }
+
+        function getMilestoneItems() {
+            const _milestoneItems = [];
+            let validFlag = true;
+
+            const allMilestoneDiv = document.querySelectorAll(".milestone");
+
+            if (!allMilestoneDiv?.length) return _milestoneItems;
+
+            if (allMilestoneDiv.length > 2) {
+                allMilestoneDiv.forEach(item => {
+                    // if (!item.querySelector(".milestone_precentage_inp").value || ) {
+
+                    // }
+                    _milestoneItems.push({
+                        Milestonedesc: item.querySelector(".milestone_count").innerText,
+                        Percentage: item.querySelector(".milestone_precentage_inp").value,
+                        Amount: item.querySelector(".milestone_amount_inp").value,
+                        Days: item.querySelector(".milestone_days_inp").value,
+                    })
+                })
+            } else {
+                allMilestoneDiv.forEach(item => {
+                    _milestoneItems.push({
+                        Milestonedesc: item.querySelector(".milestone_count").innerText,
+                        Percentage: item.querySelector(".milestone_precentage_inp").value,
+                        Amount: item.querySelector(".milestone_amount_inp").value,
+                        Days: item.querySelector(".milestone_days_inp").value,
+                    })
+                })
+            }
+
+            return _milestoneItems;
+        }
+
+        function CalcAmount(inp) {
+            const costSheetRow = inp.closest(".grid");
+            const skillid = costSheetRow.querySelector(".skill_name").value;
+            const _exp = costSheetRow.querySelector(".skill_exp").value;
+            const no_of_resources = costSheetRow.querySelector(".required_resources");
+            const finalAmountExp = costSheetRow.querySelector(".skill_cost");
+
+            if (skillid) {
+                let exp_amount;
+
+                skillsData.forEach(skill => {
+                    if (skill.skillid == skillid) {
+                        skill.skillcostings.forEach(exp => {
+                            if (exp.expname == _exp) {
+                                exp_amount = exp.amount;
+                            }
+                        })
+                    }
+                })
+
+                if (exp_amount && no_of_resources.value) {
+                    const calculatedAmount = Number(exp_amount) * Number(no_of_resources.value);
+                    finalAmountExp.value = calculatedAmount;
+                } else {
+                    finalAmountExp.value = "";
+                }
+            }
+            const changeEvent = new Event("change");
+            costSheetRow.querySelector(".cs-period").dispatchEvent(changeEvent);
+            costSheetRow.querySelector(".x-value").dispatchEvent(changeEvent);
+        }
+
+        function handleXValueChange(inp) {
+            const skillCost = inp.closest(".custom-grid").querySelector(".skill_cost")?.value;
+            if (!skillCost) return;
+
+            inp.closest(".custom-grid").querySelector(".cus-price").value = Number(skillCost) * Number(inp.value);
+
+            const costSheetPeriod = inp.closest(".custom-grid").querySelector(".cs-period")?.value;
+
+            if (!costSheetPeriod) return;
+
+            inp.closest(".custom-grid").querySelector(".total-price").value = Number((Number(inp.closest(".custom-grid").querySelector(".cus-price")?.value) * Number(costSheetPeriod)) / 22).toFixed(2);
+        }
+
+        function handlePeriodChange(inp) {
+            const skillCost = inp.closest(".custom-grid").querySelector(".skill_cost")?.value;
+            if (!skillCost) return;
+
+            inp.closest(".custom-grid").querySelector(".total-cost").value = Number((Number(skillCost) * Number(inp.value)) / 22).toFixed(2);
+
+            const customerPrice = inp.closest(".custom-grid").querySelector(".cus-price")?.value;
+
+            if (!customerPrice) return;
+
+            inp.closest(".custom-grid").querySelector(".total-price").value = Number((Number(customerPrice) * Number(inp.value)) / 22).toFixed(2);
+        }
+
+        function handleCPChange(inp) {
+            const row = inp.closest(".custom-grid");
+            if (!inp.value || !row.querySelector(".skill_cost").value) return;
+            row.querySelector(".x-value").value = Math.round(Number(inp.value) / Number(row.querySelector(".skill_cost").value));
+        }
+
+        function handleProjectTypeChange(inp) {
+            const projectType = inp.value;
+            const tnmhideDivs = document.querySelectorAll(".tnmhide");
+            const tnmshowDivs = document.querySelectorAll(".tnmshow");
+            if(projectType === "1") {
+                tnmhideDivs.forEach(item => {
+                    item.classList.add("hidden");
+                })
+
+                tnmshowDivs.forEach(item => {
+                    item.classList.remove("hidden");
+                })
+            } else {
+                tnmhideDivs.forEach(item => {
+                    item.classList.remove("hidden");
+                })
+
+                tnmshowDivs.forEach(item => {
+                    item.classList.add("hidden");
+                })
+            }
+        }
+
+        function handleCustomerBillingCycleChange(inp) {
+            if(inp.value) {
+                inp.parentElement.nextElementSibling.innerHTML = `Customer Billing will arrive on ${inp.options[inp.selectedIndex].text}'th of every month.`;
+                inp.parentElement.nextElementSibling.classList.remove("hidden");
+            } else {
+                inp.parentElement.nextElementSibling.innerHTML = "";
+                inp.parentElement.nextElementSibling.classList.add("hidden");
+            }
+        }
+
+        function setSelectedBillingCycle() {
+            const selectedOption = document.querySelector("#customerBillingCycle option[data-selected='true']");
+            if (!selectedOption) return;
+            document.querySelector("#customerBillingCycle").value = selectedOption.innerText.trim();
+            document.querySelector("#customerBillingCycle").dispatchEvent(new Event("change"));
+        }
+
+
+
+        //PO AWAITED
+        function Disable(inp) {
+            if (inp.checked) {
+                document.querySelector('#ponumber').disabled = true;
+                document.querySelector('#Contractno').disabled = true;
+            }
+        }
+        function removeDisable(inp) {
+            if (inp.checked) {
+                document.querySelector('#ponumber').disabled = false;
+                document.querySelector('#Contractno').disabled = false;
+            }
+        }
+    </script>
+}

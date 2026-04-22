@@ -1,0 +1,1679 @@
+﻿@model IEnumerable<RMS.Client.Models.Master.ProvisionViewModal>
+@using System.Globalization;
+@using Microsoft.AspNetCore.Http
+@using RMS.Client.Utility
+@{
+    var roleName = @Context.Session.GetString("RoleName");
+}
+
+
+@section PageStyles {
+    <style>
+        .approve-all-btn2 {
+            opacity: .5;
+            pointer-events: none;
+        }
+
+        .hidden-row:has(.selectAllProjectWise:checked) .approve-all-btn2 {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .hidden-row:has(.selectAllProjectWise:checked) .approve-btn {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .editAllBtn {
+            opacity: .5;
+            pointer-events: none;
+            cursor: not-allowed;
+            display: flex;
+            border: 1px solid #3b82f6;
+            color: #3b82f6;
+            border-radius: 5rem;
+            align-items: center;
+            gap: .5rem;
+        }
+
+        .swapAllBtn {
+            display: flex;
+            border: 1px solid #3b82f6;
+            color: #3b82f6;
+            border-radius: 5rem;
+            align-items: center;
+            gap: .5rem;
+        }
+
+        .hidden-row:has(.selectAllProjectWise:checked) .editAllBtn {
+            opacity: 1;
+            pointer-events: all;
+            cursor: pointer;
+        }
+
+        .editAllPanel.active {
+            background-color: #d0dbeb;
+            padding: 1rem;
+            border-radius: .5rem;
+            margin-bottom: 1rem;
+        }
+
+            .editAllPanel.active .panel-inactive-content {
+                display: none !important;
+            }
+
+        .panel-active-content {
+            display: none !important;
+        }
+
+        .editAllPanel.active .panel-active-content {
+            display: flex !important;
+        }
+
+        .panel-action-btn {
+            background-color: white;
+            color: black;
+            border-radius: .5rem;
+            padding: .5rem 1rem;
+        }
+    </style>
+}
+<div class="border-b border-gray-200 mb-4">
+    <nav class="flex space-x-2 bg-[#fafafa] overflow-x-auto" aria-label="Tabs" role="tablist">
+        <div class="py-2 px-5 inline-flex items-baseline gap-2 border-b-[3px] border-transparent text-sm whitespace-nowrap text-gray-500"
+             id="tabs-with-underline-item-1" data-hs-tab="#tabs-with-underline-1">
+            <!-- <img class="h-4 w-auto" src="./assets/images/total-projects-icon.svg" alt=""> -->
+            <div>
+                <span class="text-2xl font-extrabold block text-left">Requests For Provisions Update</span>
+                <span class="text-sm block text-left">
+                    List of all Provisions which are approved and yet to be
+                    approved
+                </span>
+            </div>
+        </div>
+        <button type="button"
+                class="py-2 px-5 inline-flex items-baseline gap-2 border-b-[3px] border-transparent text-sm whitespace-nowrap text-gray-500"
+                id="tabs-with-underline-item-2" data-hs-tab="#tabs-with-underline-2"
+                aria-controls="tabs-with-underline-2" role="tab">
+            <img class="h-4 w-auto" src="~/assets/images/total-projects-icon.svg" alt="">
+            <div>
+                <span class="text-base font-semibold block text-left">Total Resource Provisions</span>
+                <span class="text-2xl font-extrabold block text-left">@ViewBag.TotalCount</span>
+            </div>
+        </button>
+        <button type="button"
+                class="py-2 px-5 inline-flex items-baseline gap-2 border-b-[3px] border-transparent text-sm whitespace-nowrap text-gray-500"
+                id="tabs-with-underline-item-3" data-hs-tab="#tabs-with-underline-3"
+                aria-controls="tabs-with-underline-3" role="tab">
+            <img class="h-4 w-auto" src="~/assets/images/total-projects-icon.svg" alt="">
+            <div>
+                <span class="text-base font-semibold block text-left">Approved</span>
+                <span class="text-2xl font-extrabold block text-left">@ViewBag.ApprovedCount</span>
+            </div>
+        </button>
+        <button type="button"
+                class="py-2 px-5 inline-flex items-baseline gap-2 border-b-[3px] border-transparent text-sm whitespace-nowrap text-gray-500"
+                id="tabs-with-underline-item-3" data-hs-tab="#tabs-with-underline-3"
+                aria-controls="tabs-with-underline-3" role="tab">
+            <img class="h-4 w-auto" src="~/assets/images/total-projects-icon.svg" alt="">
+            <div>
+                <span class="text-base font-semibold block text-left">Pending for Approval</span>
+                <span class="text-2xl font-extrabold block text-left">@ViewBag.PendingCount</span>
+            </div>
+        </button>
+        <button type="button"
+                class="py-2 px-5 inline-flex items-baseline gap-2 border-b-[3px] border-transparent text-sm whitespace-nowrap text-gray-500"
+                id="tabs-with-underline-item-3" data-hs-tab="#tabs-with-underline-3"
+                aria-controls="tabs-with-underline-3" role="tab">
+            <img class="h-4 w-auto" src="~/assets/images/total-projects-icon.svg" alt="">
+            <div>
+                <span class="text-base font-semibold block text-left">Rejected</span>
+                <span class="text-2xl font-extrabold block text-left">@ViewBag.RejectedCount</span>
+            </div>
+        </button>
+    </nav>
+</div>
+<div class="border-b border-gray-200 overflow-x-auto">
+    <nav class="flex space-x-2 bg-[#fafafa]" aria-label="Tabs" role="tablist">
+        <button type="button"
+                class="hs-tab-active:font-semibold hs-tab-active:border-emerald-600 py-2 px-5 inline-flex items-baseline gap-2 border-b-[3px] border-transparent text-sm whitespace-nowrap text-gray-500 hover:text-emerald-600 active"
+                id="projectWiseTab" data-hs-tab="#project-wise-content"
+                aria-controls="project-wise-content" role="tab">
+            <img class="h-4 w-auto" src="~/assets/images/total-projects-icon.svg" alt="">
+            <div>
+                <span class="text-base font-semibold block text-left">Project Wise</span>
+            </div>
+        </button>
+        <button type="button"
+                class="hs-tab-active:font-semibold hs-tab-active:border-emerald-600 py-2 px-5 inline-flex items-baseline gap-2 border-b-[3px] border-transparent text-sm whitespace-nowrap text-gray-500 hover:text-emerald-600"
+                id="employeeWiseTab" data-hs-tab="#employee-wise-content"
+                aria-controls="employee-wise-content" role="tab">
+            <img class="h-4 w-auto" src="~/assets/images/total-employees-icon.svg" alt="">
+            <div>
+                <span class="text-base font-semibold block text-left">Employee Wise</span>
+            </div>
+        </button>
+    </nav>
+</div>
+<div class="mt-3">
+    <div id="employee-wise-content" class="hidden" role="tabpanel" aria-labelledby="employee-wise-content">
+        <div class="flex justify-end gap-4 items-center">
+            <button type="button" id="send-all-button"
+                    class="mb-4 approve-all-btn py-1 px-4 inline-flex justify-center items-center gap-2 rounded-md border border-emerald-400 bg-[#00cc83] text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm">
+                Send For Approval
+            </button>
+            <form action="@Url.Action("ContractBillingProvisionReport", "Report")" method="POST">
+                <div class="flex items-center gap-4">
+                    <label class="text-sm">Month</label>
+                    <input name="date" onchange="handleDateChange(this);" class="k-input" type="month" id="ctlFdate" value="@ViewBag.fDate" />
+                </div>
+            </form>
+        </div>
+        <div class="flex flex-col">
+            <div class="-m-1.5 overflow-x-auto">
+                <div class="p-1.5 min-w-full block align-middle">
+                    <div class="overflow-hidden">
+                        <table class="min-w-full divide-y divide-gray-200" id="provBilling">
+                            <thead>
+                                <tr>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        <div class="flex items-center gap-2">
+
+                                            @if (roleName != "BillingExecutive" && Model.Count() > 0)
+                                            {
+                                                <div class="flex">
+                                                    <input type="checkbox"
+                                                           class="shrink-0 mt-0.5 border-black rounded text-black focus:ring-black disabled:opacity-50 disabled:pointer-events-none"
+                                                           id="select-all" onchange="handleSelectAll(this);">
+                                                </div>
+                                            }
+
+                                            Resource
+                                        </div>
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        Project
+                                        <div style="vertical-align: middle; z-index: 10;" class="filter-dropdown mx-1 hs-dropdown relative sm:inline-flex [--auto-close:inside]">
+                                            <button id="hs-dropdown-auto-close-inside" type="button" class="hs-dropdown-toggle p-1 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-gray-100 text-gray-800 shadow-sm disabled:opacity-50 disabled:pointer-events-none">
+                                                <svg class="w-4 h-4 text-gray-800" xmlns="http://www.w3.org/2000/svg"
+                                                     width="512" height="512" viewBox="0 0 512 512">
+                                                    <path fill="currentColor"
+                                                          d="M472 168H40a24 24 0 0 1 0-48h432a24 24 0 0 1 0 48m-80 112H120a24 24 0 0 1 0-48h272a24 24 0 0 1 0 48m-96 112h-80a24 24 0 0 1 0-48h80a24 24 0 0 1 0 48" />
+                                                </svg>
+                                            </button>
+
+                                            <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 mt-2" aria-labelledby="hs-dropdown-auto-close-inside">
+                                                <div class="mb-1">
+                                                    <input type="search" oninput="handleFilterSearch(this);" placeholder="Search" class="py-2 px-4 block w-full border-gray-200 rounded-lg text-xs focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                                </div>
+                                                <div class="filter-item-list" style="height: 10rem; overflow-y: auto;"></div>
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        Month
+                                        <div style="vertical-align: middle; z-index: 10;" class="filter-dropdown mx-1 hs-dropdown relative sm:inline-flex [--auto-close:inside]">
+                                            <button id="hs-dropdown-auto-close-inside" type="button" class="hs-dropdown-toggle p-1 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-gray-100 text-gray-800 shadow-sm disabled:opacity-50 disabled:pointer-events-none">
+                                                <svg class="w-4 h-4 text-gray-800" xmlns="http://www.w3.org/2000/svg"
+                                                     width="512" height="512" viewBox="0 0 512 512">
+                                                    <path fill="currentColor"
+                                                          d="M472 168H40a24 24 0 0 1 0-48h432a24 24 0 0 1 0 48m-80 112H120a24 24 0 0 1 0-48h272a24 24 0 0 1 0 48m-96 112h-80a24 24 0 0 1 0-48h80a24 24 0 0 1 0 48" />
+                                                </svg>
+                                            </button>
+
+                                            <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 mt-2" aria-labelledby="hs-dropdown-auto-close-inside">
+                                                <div class="mb-1">
+                                                    <input type="search" oninput="handleFilterSearch(this);" placeholder="Search" class="py-2 px-4 block w-full border-gray-200 rounded-lg text-xs focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                                </div>
+                                                <div class="filter-item-list" style="height: 10rem; overflow-y: auto;"></div>
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        Provision Amount
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        Estimated Date
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-center text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        Status
+                                        <div style="vertical-align: middle; z-index: 10;" class="filter-dropdown mx-1 hs-dropdown relative sm:inline-flex [--auto-close:inside]">
+                                            <button id="hs-dropdown-auto-close-inside" type="button" class="hs-dropdown-toggle p-1 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-gray-100 text-gray-800 shadow-sm disabled:opacity-50 disabled:pointer-events-none">
+                                                <svg class="w-4 h-4 text-gray-800" xmlns="http://www.w3.org/2000/svg"
+                                                     width="512" height="512" viewBox="0 0 512 512">
+                                                    <path fill="currentColor"
+                                                          d="M472 168H40a24 24 0 0 1 0-48h432a24 24 0 0 1 0 48m-80 112H120a24 24 0 0 1 0-48h272a24 24 0 0 1 0 48m-96 112h-80a24 24 0 0 1 0-48h80a24 24 0 0 1 0 48" />
+                                                </svg>
+                                            </button>
+
+                                            <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 mt-2" aria-labelledby="hs-dropdown-auto-close-inside">
+                                                <div class="mb-1">
+                                                    <input type="search" oninput="handleFilterSearch(this);" placeholder="Search" class="py-2 px-4 block w-full border-gray-200 rounded-lg text-xs focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                                </div>
+                                                <div class="filter-item-list" style="height: 10rem; overflow-y: auto;"></div>
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        Remarks (DH)
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        <div class="flex items-center gap-2">
+                                            Action
+
+                                        </div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                @if (Model != null)
+                                {
+                                    var currentMonth = DateTime.Now.ToString("MMM-yy", CultureInfo.InvariantCulture);
+
+                                    // Replace "Sept" with "Sep" to match the "MMM-yy" format
+                                    if (currentMonth.Contains("Sept"))
+                                    {
+                                        currentMonth = currentMonth.Replace("Sept", "Sep");
+                                    }
+                                    foreach (var items in Model)
+                                    {
+                                        foreach (var item in items.Empwiseprovisiondata)
+                                        {
+                                            <tr data-billingid="@item.contractbillingprovesionid" data-contractemployeeid="@item.ContractEmployeeId">
+
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
+
+                                                    <div class="flex items-center gap-2">
+                                                        @if (roleName != "BillingExecutive")
+                                                        {
+                                                            <div class="flex">
+                                                                <input onchange="handleMultipleSubmit(this)" @(currentMonth == item.MonthYear ? "" : "disabled") @(item.Status == "Pending" ? "disabled" : item.Status == "Approved" ? "disabled" : "") type="checkbox"
+                                                                       class="emp-select shrink-0 mt-0.5 border-black rounded text-black focus:ring-black disabled:opacity-50 disabled:pointer-events-none disabled:opacity-50">
+                                                            </div>
+                                                        }
+                                                        @item.ResourceName (@item.TmcId)
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-4 text-sm font-medium text-gray-800 ">@item.ProjectName</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">@item.MonthYear</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 ProvisionAmount">
+                                                    <span class="normal-mode-content amount-val">₹ @item.ProvisionAmount.ToString("#,##0.00")</span>
+                                                    <input type="number" value="@item.ProvisionAmount" class="edit-mode-content amount-inp k-input" />
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 estimatedBilligDate">
+                                                    <span class="normal-mode-content estimated-date-val">
+                                                        @(item.estimatedBilligDate.HasValue ? item.estimatedBilligDate.Value.ToString("dd/MM/yyyy") : "-")
+                                                    </span>
+                                                    <input type="date" value="@item.estimatedBilligDate" class="edit-mode-content estimated-date-inp k-input" min="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                                                </td>
+
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 text-center">
+                                                    <span class="status @(item.Status == "Active" ? "approved" : item.Status == "Completed" ? "completed" : item.Status == "Approved" ? "approved" : item.Status == "Draft" ? "draft" : item.Status == "Rejected" ? "rejected" : item.Status == "Pending" ? "pending" : "")">@(!string.IsNullOrEmpty(item.Status) ? item.Status : "Pending")</span>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                                    @item.RemarkByDH
+                                                </td>
+                                  
+
+                                                @{
+                                                    // Get the current date formatted as "MMM-yy"
+                                                    var currentMonthYear = DateHelper.FormatMonthYear(DateTime.Now);
+
+                                                    // Ensure item.MonthYear is transformed correctly
+                                                    var itemMonthYear = item.MonthYear;
+                                                    DateTime currentDateTime;
+                                                    DateTime itemDateTime;
+
+                                                    // Use DateHelper to parse the month-year strings
+                                                    bool currentParsed = DateHelper.TryParseMonthYear(currentMonthYear, out currentDateTime);
+                                                    bool itemParsed = DateHelper.TryParseMonthYear(itemMonthYear, out itemDateTime);
+
+                                                    // Determine whether to show elements
+                                                    bool showElements = currentParsed && itemParsed && itemDateTime == currentDateTime && itemDateTime.Day < 30;
+                                                }
+
+
+
+
+
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                    @if (roleName == "BillingExecutive")
+                                                    {
+                                                        <div class="flex items-center gap-2">
+
+
+                                                            <button style="min-width: max-content; white-space: nowrap;" onclick="setEditModeData(this);" class="edit-mode-content save-btn flex items-center gap-2 border rounded-full py-1 px-2 border-[#4B4E5C] hover:opacity-70">
+                                                                <svg class="w-4 h-4 hover:text-emerald-500"
+                                                                     xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                                     viewBox="0 0 24 24">
+                                                                    <path fill="currentColor"
+                                                                          d="M5 21h14a2 2 0 0 0 2-2V8a1 1 0 0 0-.29-.71l-4-4A1 1 0 0 0 16 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2m10-2H9v-5h6zM13 7h-2V5h2zM5 5h2v4h8V5h.59L19 8.41V19h-2v-5a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v5H5z" />
+                                                                </svg>
+                                                                Save
+                                                            </button>
+                                                            <button style="min-width: max-content; white-space: nowrap;" onclick="setEditMode(this, false);" class="edit-mode-content flex items-center gap-2 border rounded-full py-1 px-2 border-[#4B4E5C] hover:opacity-70">
+                                                                <svg class="w-4 h-4 hover:text-emerald-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10s10-4.486 10-10S17.514 2 12 2M4 12c0-1.846.634-3.542 1.688-4.897l11.209 11.209A7.946 7.946 0 0 1 12 20c-4.411 0-8-3.589-8-8m14.312 4.897L7.103 5.688A7.948 7.948 0 0 1 12 4c4.411 0 8 3.589 8 8a7.954 7.954 0 0 1-1.688 4.897" /></svg>
+                                                                Cancel
+                                                            </button>
+                                                            @*   @if (!showElements && (item.Status == "Draft" || item.Status == "Pending" || item.Status == "Rejected"))
+                                            {
+                                            <a style="min-width: max-content;" class="normal-mode-content flex items-center gap-2 border rounded-full py-1 px-2 border-[#4B4E5C] hover:opacity-70" href="@Url.Action("DeleteProBilling", "Billing", new { id = item.contractbillingprovesionid })">
+                                            <img class="w-4 h-4" src="~/assets/images/btn_close_icon.svg" alt="">
+                                            Delete
+                                            </a>
+                                            } *@
+
+                                                            @if (item.Status == "Approved")
+                                                            {
+                                                                <button onclick="setEditMode(this, true, true);" style="min-width: max-content;" class="normal-mode-content flex items-center gap-2 border rounded-full py-1 px-2 border-blue-400 text-blue-500 hover:opacity-70">
+                                                                    <img class="w-4 h-4" src="~/assets/images/btn_tick_btn.svg" alt="">
+                                                                    Create Revision
+                                                                </button>
+                                                            }
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="flex items-center gap-2">
+                                                            @if (itemDateTime <= currentDateTime && showElements && (item.Status == "Rejected" || item.Status != "Approved" && item.Status != "Pending"))
+                                                            {
+                                                                <button onclick="sendForApprovalSingle(this);" style="min-width: max-content;" class="normal-mode-content approve-btn flex items-center gap-2 border rounded-full py-1 px-2 border-[#40BD5E] text-[#40BD5E] hover:opacity-70">
+                                                                    <img class="w-4 h-4" src="~/assets/images/btn_tick_btn.svg" alt="">
+                                                                    Send for approval
+                                                                </button>
+                                                            }
+
+                                                            @if (itemDateTime > currentDateTime)
+                                                            {
+                                                                <button style="min-width: max-content;" onclick="setEditMode(this, true);" class="normal-mode-content flex items-center gap-2 border rounded-full py-1 px-2 border-[#4B4E5C] hover:opacity-70">
+                                                                    <svg class="w-4 h-4 hover:text-emerald-500 focus:text-emerald-500"
+                                                                         xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                                         viewBox="0 0 24 24">
+                                                                        <g fill="none">
+                                                                            <path d="M24 0v24H0V0zM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035c-.01-.004-.019-.001-.024.005l-.004.010l-.017.428l.005.020l.010.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.010-.009-.017-.017-.018m.265-.113l-.013.002l-.185.093l-.010.010l-.003.011l.018.43l.005.012l.008.007l.201.093c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.010-.020-.020-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.020.017.024l.015-.002l.201-.093l.010-.008l.004-.011l.017-.43l-.003-.012l-.010-.010z" />
+                                                                            <path fill="currentColor"
+                                                                                  d="M13 3a1 1 0 0 1 .117 1.993L13 5H5v14h14v-8a1 1 0 0 1 1.993-.117L21 11v8a2 2 0 0 1-1.85 1.995L19 21H5a2 2 0 0 1-1.995-1.85L3 19V5a2 2 0 0 1 1.85-1.995L5 3zm6.243.343a1 1 0 0 1 1.497 1.32l-.083.095l-9.9 9.899a1 1 0 0 1-1.497-1.32l.083-.094z" />
+                                                                        </g>
+                                                                    </svg>
+                                                                    Edit
+                                                                </button>
+                                                            }
+                                                            else if (showElements && (item.Status == "Rejected" || item.Status == "Draft"))
+                                                            {
+                                                                <button style="min-width: max-content;" onclick="setEditMode(this, true);" class="normal-mode-content flex items-center gap-2 border rounded-full py-1 px-2 border-[#4B4E5C] hover:opacity-70">
+                                                                    <svg class="w-4 h-4 hover:text-emerald-500 focus:text-emerald-500"
+                                                                         xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                                         viewBox="0 0 24 24">
+                                                                        <g fill="none">
+                                                                            <path d="M24 0v24H0V0zM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035c-.01-.004-.019-.001-.024.005l-.004.010l-.017.428l.005.020l.010.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.010-.009-.017-.017-.018m.265-.113l-.013.002l-.185.093l-.010.010l-.003.011l.018.43l.005.012l.008.007l.201.093c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.010-.020-.020-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.020.017.024l.015-.002l.201-.093l.010-.008l.004-.011l.017-.43l-.003-.012l-.010-.010z" />
+                                                                            <path fill="currentColor"
+                                                                                  d="M13 3a1 1 0 0 1 .117 1.993L13 5H5v14h14v-8a1 1 0 0 1 1.993-.117L21 11v8a2 2 0 0 1-1.85 1.995L19 21H5a2 2 0 0 1-1.995-1.85L3 19V5a2 2 0 0 1 1.85-1.995L5 3zm6.243.343a1 1 0 0 1 1.497 1.32l-.083.095l-9.9 9.899a1 1 0 0 1-1.497-1.32l.083-.094z" />
+                                                                        </g>
+                                                                    </svg>
+                                                                    Edit
+                                                                </button>
+                                                            }
+                                                            <button style="min-width: max-content; white-space: nowrap;" onclick="setEditModeData(this);" class="edit-mode-content save-btn flex items-center gap-2 border rounded-full py-1 px-2 border-[#4B4E5C] hover:opacity-70">
+                                                                <svg class="w-4 h-4 hover:text-emerald-500"
+                                                                     xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                                     viewBox="0 0 24 24">
+                                                                    <path fill="currentColor"
+                                                                          d="M5 21h14a2 2 0 0 0 2-2V8a1 1 0 0 0-.29-.71l-4-4A1 1 0 0 0 16 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2m10-2H9v-5h6zM13 7h-2V5h2zM5 5h2v4h8V5h.59L19 8.41V19h-2v-5a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v5H5z" />
+                                                                </svg>
+                                                                Save
+                                                            </button>
+                                                            <button style="min-width: max-content; white-space: nowrap;" onclick="setEditMode(this, false);" class="edit-mode-content flex items-center gap-2 border rounded-full py-1 px-2 border-[#4B4E5C] hover:opacity-70">
+                                                                <svg class="w-4 h-4 hover:text-emerald-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10s10-4.486 10-10S17.514 2 12 2M4 12c0-1.846.634-3.542 1.688-4.897l11.209 11.209A7.946 7.946 0 0 1 12 20c-4.411 0-8-3.589-8-8m14.312 4.897L7.103 5.688A7.948 7.948 0 0 1 12 4c4.411 0 8 3.589 8 8a7.954 7.954 0 0 1-1.688 4.897" /></svg>
+                                                                Cancel
+                                                            </button>
+                                                            @if (item.Status == "Draft")
+                                                            {
+                                                                <a style="min-width: max-content;" class="normal-mode-content flex items-center gap-2 border rounded-full py-1 px-2 border-[#4B4E5C] hover:opacity-70" href="@Url.Action("DeleteProBilling", "Billing", new { id = item.contractbillingprovesionid })">
+                                                                    <img class="w-4 h-4" src="~/assets/images/btn_close_icon.svg" alt="">
+                                                                    Delete
+                                                                </a>
+                                                            }
+
+                                                            @if (item.Status == "Approved" && showElements)
+                                                            {
+                                                                <button onclick="setEditMode(this, true, true);" style="min-width: max-content;" class="normal-mode-content flex items-center gap-2 border rounded-full py-1 px-2 border-blue-400 text-blue-500 hover:opacity-70">
+                                                                    <img class="w-4 h-4" src="~/assets/images/btn_tick_btn.svg" alt="">
+                                                                    Create Revision
+                                                                </button>
+                                                            }
+                                                        </div>
+                                                    }
+                                                </td>
+
+
+                                            </tr>
+                                        }
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="project-wise-content" role="tabpanel" aria-labelledby="project-wise-content">
+        <div class="flex justify-end mb-4">
+            <form action="@Url.Action("ContractBillingProvisionReport", "Report")" method="POST">
+                <div class="flex items-center gap-4">
+                    <label class="text-sm">Month</label>
+                    <input name="date" onchange="handleDateChange(this);" class="k-input" type="month" id="ctlFdate" value="@ViewBag.fDate" />
+                </div>
+            </form>
+        </div>
+        <div class="flex flex-col" style="height: calc(100vh - 7rem - 15rem); overflow-y: auto;">
+            <div class="-m-1.5 overflow-x-auto">
+                <div class="p-1.5 min-w-full inline-block align-middle">
+                    <div class="overflow-hidden">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        Projects
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        PO Number
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        Contract No
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-left text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        Delivery Anchor
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 whitespace-nowrap text-center text-xs 2xl:text-sm font-medium text-black uppercase">
+                                        View & Act
+                                    </th>
+
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                @if (Model != null)
+                                {
+                                    var currentMonth = DateTime.Now.ToString("MMM-yy", CultureInfo.InvariantCulture);
+
+                                    // Replace "Sept" with "Sep" to match the "MMM-yy" format
+                                    if (currentMonth.Contains("Sept"))
+                                    {
+                                        currentMonth = currentMonth.Replace("Sept", "Sep");
+                                    }
+                                    int count = 0;
+                                    foreach (var items in Model)
+                                    {
+                                        foreach (var item in items.Projectwiseprovisiondata.Where(a => a.Value.Count > 0))
+                                        {
+
+                                            <tr>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 ">
+                                                    @item.Key.projectName
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 ">
+                                                    @item.Key.PoNumber
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 ">@item.Key.ContractNumber</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 ">@item.Key.DeliveryAnchor</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 text-center">
+                                                    <a class="text-gray-800 hover:text-blue-700 underline flex items-center gap-2 justify-center cursor-pointer" onclick="toggleHiddenRow(this);">
+                                                        Act
+                                                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M22 12a10 10 0 0 1-10 10A10 10 0 0 1 2 12A10 10 0 0 1 12 2a10 10 0 0 1 10 10M6 10l6 6l6-6l-1.4-1.4l-4.6 4.6l-4.6-4.6z" /></svg>
+                                                    </a>
+                                                </td>
+                                            </tr>
+
+                                            <tr class="hidden-row show">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800" colspan="8">
+                                                    <div class="flex items-center justify-between editAllPanel">
+                                                        <div class="flex items-center gap-2 mb-4 panel-inactive-content">
+                                                            <img class="w-6 h-auto" src="~/assets/images/business-report (3).svg" alt="">
+                                                            <span class="text-xl font-extrabold text-gray-800 project_name">@item.Key.projectName</span>
+                                                        </div>
+                                                        <div class="panel-active-content selectedCountContainer"></div>
+                                                        <div class="flex items-center gap-4">
+                                                            <div class="panel-active-content items-center gap-4">
+                                                                <label>Provision Amount</label>
+                                                                <input type="number" class="k-input panel-amount" placeholder="Enter amount" />
+                                                            </div>
+                                                            <div class="panel-active-content items-center gap-4">
+                                                                <label>Date</label>
+                                                                <input type="date" class="k-input  panel-date" />
+                                                            </div>
+                                                            <button onclick="handleSaveAll(this);" class="panel-active-content panel-action-btn save-btn">Save All</button>
+                                                            <button class="panel-active-content panel-action-btn cancel-btn" onclick="handlePanelCancel(this);">Cancel</button>
+                                                            <button onclick="handleSwapBilling(this);" class="swapAllBtn panel-inactive-content py-1 px-2 hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed">
+                                                                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M4 9h13l-1.6 1.2a1 1 0 0 0-.2 1.4a1 1 0 0 0 .8.4a1 1 0 0 0 .6-.2l4-3a1 1 0 0 0 0-1.59l-3.86-3a1 1 0 0 0-1.23 1.58L17.08 7H4a1 1 0 0 0 0 2m16 7H7l1.6-1.2a1 1 0 0 0-1.2-1.6l-4 3a1 1 0 0 0 0 1.59l3.86 3a1 1 0 0 0 .61.21a1 1 0 0 0 .79-.39a1 1 0 0 0-.17-1.4L6.92 18H20a1 1 0 0 0 0-2" /></svg>
+                                                                Swap Billing
+                                                            </button>
+                                                            <button class="editAllBtn panel-inactive-content py-1 px-2 hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed" onclick="handleEditAll(this);">
+                                                                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><g fill="none"><path d="M24 0v24H0V0zM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.01-.009-.017-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.01-.02-.02-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.02.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z" /><path fill="currentColor" d="M13 3a1 1 0 0 1 .117 1.993L13 5H5v14h14v-8a1 1 0 0 1 1.993-.117L21 11v8a2 2 0 0 1-1.85 1.995L19 21H5a2 2 0 0 1-1.995-1.85L3 19V5a2 2 0 0 1 1.85-1.995L5 3zm6.243.343a1 1 0 0 1 1.497 1.32l-.083.095l-9.9 9.899a1 1 0 0 1-1.497-1.32l.083-.094z" /></g></svg>
+                                                                Edit All
+                                                            </button>
+                                                            <button disabled class="approve-all-btn2 panel-active-content flex items-center gap-2 border rounded-full py-1 px-2 border-[#40BD5E] text-[#40BD5E] hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed">
+                                                                <img class="w-4 h-4" src="~/assets/images/btn_tick_btn.svg" alt="">
+                                                                Send All For Approval
+                                                            </button>
+                                                            <button onclick="handleSendAll(this);" class="approve-all-btn2 panel-inactive-content flex items-center gap-2 border rounded-full py-1 px-2 border-[#40BD5E] text-[#40BD5E] hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed">
+                                                                <img class="w-4 h-4" src="~/assets/images/btn_tick_btn.svg" alt="">
+                                                                Send All For Approval
+                                                            </button>
+                                                            @* <button disabled id="reject-btn-@count" onclick="handleRejectAllModal(this);" class="reject-all-btn2 flex items-center gap-2 border rounded-full py-1 px-2 border-[#4B4E5C] hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed">
+                                                <img class="w-4 h-4" src="~/assets/images/btn_close_icon.svg" alt="">
+                                                Reject Selected
+                                                </button> *@
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex flex-col">
+                                                        <div class="-m-1.5 w-full">
+                                                            <div class="p-1.5 min-w-full block align-middle">
+                                                                <div class="border rounded-lg overflow-x-auto">
+                                                                    <table class="min-w-full divide-y divide-gray-200">
+                                                                        <thead class="bg-gray-50">
+
+                                                                            <tr>
+                                                                                <th class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                                                                    @if (ViewBag.Role != "BillingExecutive" && @Model.Count() > 0)
+                                                                                    {
+                                                                                        <div class="flex">
+                                                                                            <input type="checkbox"
+                                                                                                   class="shrink-0 mt-0.5 border-black rounded text-black focus:ring-black disabled:opacity-50 disabled:pointer-events-none disabled:opacity-50 selectAllProjectWise"
+                                                                                                   onchange="handleSelectAll(this, 'projectwise');">
+                                                                                        </div>
+                                                                                    }
+                                                                                    @* <div class="flex">
+                                                                        <input type="checkbox"
+                                                                        class="selectAllProjectWise shrink-0 mt-0.5 border-black rounded text-black focus:ring-black disabled:opacity-50 disabled:pointer-events-none disabled:opacity-50"
+                                                                        onchange="handleSelectAll(this, 'projectwise');">
+                                                                        </div> *@
+                                                                                </th>
+                                                                                <th class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">Employee</th>
+                                                                                <th class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">Provision Amount</th>
+                                                                                <th class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">Month Year</th>
+                                                                                <th class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">Estimated Date</th>
+                                                                                <th class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">Action</th>
+                                                                                <th class="px-6 py-3 text-center text-sm font-bold whitespace-nowrap text-gray-600 uppercase">Status</th>
+                                                                            </tr>
+
+                                                                        </thead>
+                                                                        <tbody class="divide-y divide-gray-200">
+                                                                            @foreach (var data in item.Value)
+                                                                            {
+                                                                                <tr data-billingid="@data.Contractbillingprovesionid" data-contractemployeeid="@data.Contractemployeeid">
+                                                                                    <td class="hidden contract-billing-id">@data.Contractbillingprovesionid</td>
+                                                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
+                                                                                        @if (roleName != "BillingExecutive")
+                                                                                        {
+                                                                                            <div class="flex">
+                                                                                                <input onchange="handleMultipleSubmit(this)" @(currentMonth == data.MonthYear ? "" : "disabled") @(data.Status == "Pending" ? "disabled" : data.Status == "Approved" ? "disabled" : "") type="checkbox"
+                                                                                                       class="emp-select shrink-0 mt-0.5 border-black rounded text-black focus:ring-black disabled:opacity-50 disabled:pointer-events-none disabled:opacity-50">
+                                                                                            </div>
+                                                                                        }
+                                                                                    </td>
+                                                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">@data.ResourceName (@data.TmcId)</td>
+                                                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 ProvisionAmount">
+                                                                                        <span class="normal-mode-content amount-val">@data.ProvisionAmount</span>
+                                                                                        <input type="number" value="@data.ProvisionAmount" class="edit-mode-content amount-inp k-input" />
+                                                                                    </td>
+                                                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">@data.MonthYear</td>
+                                                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 estimatedBilligDate">
+                                                                                        <span class="normal-mode-content estimated-date-val">
+                                                                                            @(data.EstimatedBilligDate.HasValue ? data.EstimatedBilligDate.Value.ToString("dd/MM/yyyy") : "-")
+                                                                                        </span>
+                                                                                        <input type="date" value="@data.EstimatedBilligDate" class="edit-mode-content estimated-date-inp k-input" min="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                                                                                    </td>
+
+
+                                                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
+                                                                                        <div class="flex items-center gap-4">
+                                                                          
+                                                                                            @{
+                                                                                                // Get the current date formatted as "MMM-yy" using DateHelper
+                                                                                                var currentMonthYear = DateHelper.FormatMonthYear(DateTime.Now);
+
+                                                                                                // Ensure item.MonthYear is transformed correctly
+                                                                                                var itemMonthYear = data.MonthYear;
+
+                                                                                                // Parse the formatted month-year strings into DateTime objects using DateHelper
+                                                                                                bool currentParsed = DateHelper.TryParseMonthYear(currentMonthYear, out var currentDateTime);
+                                                                                                bool itemParsed = DateHelper.TryParseMonthYear(itemMonthYear, out var itemDateTime);
+
+                                                                                                // Determine whether to show elements based on the date comparison
+                                                                                                bool showElements = currentParsed && itemParsed && itemDateTime == currentDateTime && itemDateTime.Day < 30;
+                                                                                            }
+
+                                                                                            @if (roleName == "BillingExecutive")
+                                                                                            {
+                                                                                                <div class="flex items-center gap-2">
+
+
+                                                                                                    <button style="min-width: max-content; white-space: nowrap;" onclick="setEditModeData(this, 'projectwise');" class="edit-mode-content save-btn flex items-center gap-2 border rounded-full py-1 px-2 border-[#4B4E5C] hover:opacity-70">
+                                                                                                        <svg class="w-4 h-4 hover:text-emerald-500"
+                                                                                                             xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                                                                             viewBox="0 0 24 24">
+                                                                                                            <path fill="currentColor"
+                                                                                                                  d="M5 21h14a2 2 0 0 0 2-2V8a1 1 0 0 0-.29-.71l-4-4A1 1 0 0 0 16 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2m10-2H9v-5h6zM13 7h-2V5h2zM5 5h2v4h8V5h.59L19 8.41V19h-2v-5a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v5H5z" />
+                                                                                                        </svg>
+                                                                                                        Save
+                                                                                                    </button>
+                                                                                                    <button style="min-width: max-content; white-space: nowrap;" onclick="setEditMode(this, false);" class="edit-mode-content flex items-center gap-2 border rounded-full py-1 px-2 border-[#4B4E5C] hover:opacity-70">
+                                                                                                        <svg class="w-4 h-4 hover:text-emerald-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10s10-4.486 10-10S17.514 2 12 2M4 12c0-1.846.634-3.542 1.688-4.897l11.209 11.209A7.946 7.946 0 0 1 12 20c-4.411 0-8-3.589-8-8m14.312 4.897L7.103 5.688A7.948 7.948 0 0 1 12 4c4.411 0 8 3.589 8 8a7.954 7.954 0 0 1-1.688 4.897" /></svg>
+                                                                                                        Cancel
+                                                                                                    </button>
+                                                                                                    @*   @if (!showElements && (item.Status == "Draft" || item.Status == "Pending" || item.Status == "Rejected"))
+                                                                                {
+                                                                                <a style="min-width: max-content;" class="normal-mode-content flex items-center gap-2 border rounded-full py-1 px-2 border-[#4B4E5C] hover:opacity-70" href="@Url.Action("DeleteProBilling", "Billing", new { id = item.contractbillingprovesionid })">
+                                                                                <img class="w-4 h-4" src="~/assets/images/btn_close_icon.svg" alt="">
+                                                                                Delete
+                                                                                </a>
+                                                                                } *@
+
+                                                                                                    @if (data.Status == "Approved")
+                                                                                                    {
+                                                                                                        <button onclick="setEditMode(this, true, true);" style="min-width: max-content;" class="normal-mode-content flex items-center gap-2 border rounded-full py-1 px-2 border-blue-400 text-blue-500 hover:opacity-70">
+                                                                                                            <img class="w-4 h-4" src="~/assets/images/btn_tick_btn.svg" alt="">
+                                                                                                            Create Revision
+                                                                                                        </button>
+                                                                                                    }
+                                                                                                </div>
+                                                                                            }
+                                                                                            else
+                                                                                            {
+                                                                                                <div class="flex items-center gap-2">
+                                                                                                    @if (itemDateTime <= currentDateTime && showElements && (data.Status == "Rejected" || data.Status != "Approved" && data.Status != "Pending"))
+                                                                                                    {
+                                                                                                        <button onclick="sendForApprovalSingle(this, 'projectwise');" style="min-width: max-content;" class="normal-mode-content approve-btn flex items-center gap-2 border rounded-full py-1 px-2 border-[#40BD5E] text-[#40BD5E] hover:opacity-70">
+                                                                                                            <img class="w-4 h-4" src="~/assets/images/btn_tick_btn.svg" alt="">
+                                                                                                            Send for approval
+                                                                                                        </button>
+                                                                                                    }
+
+                                                                                                    @if (itemDateTime > currentDateTime)
+                                                                                                    {
+                                                                                                        <button style="min-width: max-content;" onclick="setEditMode(this, true);" class="normal-mode-content flex items-center gap-2 border rounded-full py-1 px-2 border-[#4B4E5C] hover:opacity-70">
+                                                                                                            <svg class="w-4 h-4 hover:text-emerald-500 focus:text-emerald-500"
+                                                                                                                 xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                                                                                 viewBox="0 0 24 24">
+                                                                                                                <g fill="none">
+                                                                                                                    <path d="M24 0v24H0V0zM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035c-.01-.004-.019-.001-.024.005l-.004.010l-.017.428l.005.020l.010.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.010-.009-.017-.017-.018m.265-.113l-.013.002l-.185.093l-.010.010l-.003.011l.018.43l.005.012l.008.007l.201.093c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.010-.020-.020-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.020.017.024l.015-.002l.201-.093l.010-.008l.004-.011l.017-.43l-.003-.012l-.010-.010z" />
+                                                                                                                    <path fill="currentColor"
+                                                                                                                          d="M13 3a1 1 0 0 1 .117 1.993L13 5H5v14h14v-8a1 1 0 0 1 1.993-.117L21 11v8a2 2 0 0 1-1.85 1.995L19 21H5a2 2 0 0 1-1.995-1.85L3 19V5a2 2 0 0 1 1.85-1.995L5 3zm6.243.343a1 1 0 0 1 1.497 1.32l-.083.095l-9.9 9.899a1 1 0 0 1-1.497-1.32l.083-.094z" />
+                                                                                                                </g>
+                                                                                                            </svg>
+                                                                                                            Edit
+                                                                                                        </button>
+                                                                                                    }
+                                                                                                    else if (showElements && (data.Status == "Rejected" || data.Status == "Draft"))
+                                                                                                    {
+                                                                                                        <button style="min-width: max-content;" onclick="setEditMode(this, true);" class="normal-mode-content flex items-center gap-2 border rounded-full py-1 px-2 border-[#4B4E5C] hover:opacity-70">
+                                                                                                            <svg class="w-4 h-4 hover:text-emerald-500 focus:text-emerald-500"
+                                                                                                                 xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                                                                                 viewBox="0 0 24 24">
+                                                                                                                <g fill="none">
+                                                                                                                    <path d="M24 0v24H0V0zM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035c-.01-.004-.019-.001-.024.005l-.004.010l-.017.428l.005.020l.010.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.010-.009-.017-.017-.018m.265-.113l-.013.002l-.185.093l-.010.010l-.003.011l.018.43l.005.012l.008.007l.201.093c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.010-.020-.020-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.020.017.024l.015-.002l.201-.093l.010-.008l.004-.011l.017-.43l-.003-.012l-.010-.010z" />
+                                                                                                                    <path fill="currentColor"
+                                                                                                                          d="M13 3a1 1 0 0 1 .117 1.993L13 5H5v14h14v-8a1 1 0 0 1 1.993-.117L21 11v8a2 2 0 0 1-1.85 1.995L19 21H5a2 2 0 0 1-1.995-1.85L3 19V5a2 2 0 0 1 1.85-1.995L5 3zm6.243.343a1 1 0 0 1 1.497 1.32l-.083.095l-9.9 9.899a1 1 0 0 1-1.497-1.32l.083-.094z" />
+                                                                                                                </g>
+                                                                                                            </svg>
+                                                                                                            Edit
+                                                                                                        </button>
+                                                                                                    }
+                                                                                                    <button style="min-width: max-content; white-space: nowrap;" onclick="setEditModeData(this, 'projectwise');" class="edit-mode-content save-btn flex items-center gap-2 border rounded-full py-1 px-2 border-[#4B4E5C] hover:opacity-70">
+                                                                                                        <svg class="w-4 h-4 hover:text-emerald-500"
+                                                                                                             xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                                                                             viewBox="0 0 24 24">
+                                                                                                            <path fill="currentColor"
+                                                                                                                  d="M5 21h14a2 2 0 0 0 2-2V8a1 1 0 0 0-.29-.71l-4-4A1 1 0 0 0 16 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2m10-2H9v-5h6zM13 7h-2V5h2zM5 5h2v4h8V5h.59L19 8.41V19h-2v-5a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v5H5z" />
+                                                                                                        </svg>
+                                                                                                        Save
+                                                                                                    </button>
+                                                                                                    <button style="min-width: max-content; white-space: nowrap;" onclick="setEditMode(this, false);" class="edit-mode-content flex items-center gap-2 border rounded-full py-1 px-2 border-[#4B4E5C] hover:opacity-70">
+                                                                                                        <svg class="w-4 h-4 hover:text-emerald-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10s10-4.486 10-10S17.514 2 12 2M4 12c0-1.846.634-3.542 1.688-4.897l11.209 11.209A7.946 7.946 0 0 1 12 20c-4.411 0-8-3.589-8-8m14.312 4.897L7.103 5.688A7.948 7.948 0 0 1 12 4c4.411 0 8 3.589 8 8a7.954 7.954 0 0 1-1.688 4.897" /></svg>
+                                                                                                        Cancel
+                                                                                                    </button>
+                                                                                                    @if (data.Status == "Draft")
+                                                                                                    {
+                                                                                                        <a style="min-width: max-content;" class="normal-mode-content flex items-center gap-2 border rounded-full py-1 px-2 border-[#4B4E5C] hover:opacity-70" href="@Url.Action("DeleteProBilling", "Billing", new { id = data.Contractbillingprovesionid })">
+                                                                                                            <img class="w-4 h-4" src="~/assets/images/btn_close_icon.svg" alt="">
+                                                                                                            Delete
+                                                                                                        </a>
+                                                                                                    }
+
+                                                                                                    @if (data.Status == "Approved" && showElements)
+                                                                                                    {
+                                                                                                        <button onclick="setEditMode(this, true, true);" style="min-width: max-content;" class="normal-mode-content flex items-center gap-2 border rounded-full py-1 px-2 border-blue-400 text-blue-500 hover:opacity-70">
+                                                                                                            <img class="w-4 h-4" src="~/assets/images/btn_tick_btn.svg" alt="">
+                                                                                                            Create Revision
+                                                                                                        </button>
+                                                                                                    }
+                                                                                                </div>
+                                                                                            }
+                                                                                        </div>
+                                                                                    </td>
+                                                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 text-center">
+                                                                                        <span class="status @(data.Status == "Active" ? "approved" : data.Status == "Completed" ? "completed" : data.Status == "Approved" ? "approved" : data.Status == "Draft" ? "draft" : data.Status == "Rejected" ? "rejected" : data.Status == "Pending" ? "pending" : "")">@(!string.IsNullOrEmpty(data.Status) ? data.Status : "Pending")</span>
+                                                                                    </td>
+                                                                                </tr>
+                                                                            }
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            count++;
+                                        }
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="swap-billing-overlay"
+     class="hs-overlay hs-overlay-open:translate-x-0 hidden translate-x-full fixed top-0 right-0 transition-all duration-300 transform h-full z-[60] bg-white border-l hidden flex flex-col" style="width: 100%; max-width: 720px;"
+     tabindex="-1">
+    <div class="flex justify-between items-center py-3 px-4 border-b ">
+        <h3 class="font-bold text-gray-800 flex items-center gap-2">
+            <img src="~/assets/images/swap_icon.svg" class="w-6 h-auto" />
+            Swap Billing
+        </h3>
+        <button type="button"
+                class="inline-flex flex-shrink-0 justify-center items-center h-8 w-8 rounded-md text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-white text-sm "
+                data-hs-overlay="#swap-billing-overlay">
+            <span class="sr-only">Close modal</span>
+            <svg class="w-3.5 h-3.5" width="8" height="8" viewBox="0 0 8 8" fill="none"
+                 xmlns="http://www.w3.org/2000/svg">
+                <path d="M0.258206 1.00652C0.351976 0.912791 0.479126 0.860131 0.611706 0.860131C0.744296 0.860131 0.871447 0.912791 0.965207 1.00652L3.61171 3.65302L6.25822 1.00652C6.30432 0.958771 6.35952 0.920671 6.42052 0.894471C6.48152 0.868271 6.54712 0.854471 6.61352 0.853901C6.67992 0.853321 6.74572 0.865971 6.80722 0.891111C6.86862 0.916251 6.92442 0.953381 6.97142 1.00032C7.01832 1.04727 7.05552 1.1031 7.08062 1.16454C7.10572 1.22599 7.11842 1.29183 7.11782 1.35822C7.11722 1.42461 7.10342 1.49022 7.07722 1.55122C7.05102 1.61222 7.01292 1.6674 6.96522 1.71352L4.31871 4.36002L6.96522 7.00648C7.05632 7.10078 7.10672 7.22708 7.10552 7.35818C7.10442 7.48928 7.05182 7.61468 6.95912 7.70738C6.86642 7.80018 6.74102 7.85268 6.60992 7.85388C6.47882 7.85498 6.35252 7.80458 6.25822 7.71348L3.61171 5.06702L0.965207 7.71348C0.870907 7.80458 0.744606 7.85498 0.613506 7.85388C0.482406 7.85268 0.357007 7.80018 0.264297 7.70738C0.171597 7.61468 0.119017 7.48928 0.117877 7.35818C0.116737 7.22708 0.167126 7.10078 0.258206 7.00648L2.90471 4.36002L0.258206 1.71352C0.164476 1.61976 0.111816 1.4926 0.111816 1.36002C0.111816 1.22744 0.164476 1.10028 0.258206 1.00652Z"
+                      fill="currentColor" />
+            </svg>
+        </button>
+    </div>
+    <div class="p-4 flex-1 overflow-y-auto">
+        <div>
+            <h2 id="swapProjectName" class="font-bold mb-2"></h2>
+            <div class="py-2 px-4 rounded flex items-center flex-wrap gap-2 mb-2" style="background-color: #FF5E2C1A;">
+                <div style="flex: 1; border-inline-end: 1px solid gray; padding-right: .5rem;" class="flex items-center gap-2">
+                    <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M11 17h2v-6h-2zm1-8q.425 0 .713-.288T13 8t-.288-.712T12 7t-.712.288T11 8t.288.713T12 9m0 13q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22m0-2q3.35 0 5.675-2.325T20 12t-2.325-5.675T12 4T6.325 6.325T4 12t2.325 5.675T12 20m0-8" /></svg>
+                    Below Provision Billing will be swapped to actiual billing.
+                </div>
+                <span class="text-red-500">Action is irreversible</span>
+            </div>
+            <div class="mb-2 flex items-center justify-between">
+                <label for="billingEstimatedDate" class="mb-2">Billing Date:</label>
+                <input type="date" id="swapEstimatedDateAll" onchange="setAllDates2(this, 'swapBillingTbl');" class="k-input" style="flex: unset;" />
+            </div>
+            <div class="flex flex-col" style="max-width: 100%;">
+                <div class="-m-1.5 overflow-x-auto">
+                    <div class="p-1.5 min-w-full inline-block align-middle" style="max-width: 100%;">
+                        <div class="border rounded-lg overflow-x-auto" style="max-width: 100%;">
+                            <table id="swapBillingTbl" class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                            <div class="flex">
+                                                <input type="checkbox" class="shrink-0 mt-0.5 border-black rounded text-black focus:ring-black disabled:opacity-50 disabled:pointer-events-none disabled:opacity-50 selectAllProjectWise" onchange="handleSelectAll2(this);">
+                                            </div>
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                            Emoloyee Name
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                            Amount
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                            Month
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600 uppercase">
+                                            Estimated Date
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="p-2 flex justify-end">
+        <button onclick="swapBilling();" type="button" class="py-2 px-6 inline-flex justify-center items-center gap-2 rounded-md border border-transparent bg-[#00cc83] text-white hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm sm:text-base">
+            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M4 9h13l-1.6 1.2a1 1 0 0 0-.2 1.4a1 1 0 0 0 .8.4a1 1 0 0 0 .6-.2l4-3a1 1 0 0 0 0-1.59l-3.86-3a1 1 0 0 0-1.23 1.58L17.08 7H4a1 1 0 0 0 0 2m16 7H7l1.6-1.2a1 1 0 0 0-1.2-1.6l-4 3a1 1 0 0 0 0 1.59l3.86 3a1 1 0 0 0 .61.21a1 1 0 0 0 .79-.39a1 1 0 0 0-.17-1.4L6.92 18H20a1 1 0 0 0 0-2" /></svg>
+            Swap Billing
+        </button>
+    </div>
+</div>
+
+@section Scripts {
+
+    <script>
+        $(function () {
+            document.querySelector(".main").classList.add("flex", "flex-col");
+        @if (ViewData["error"] != null)
+        {
+            <text>
+                    toastr.error("@ViewData["error"]", "Error", { "iconClass": 'new-error' });
+            </text>
+        }
+        @if (ViewData["success"] != null)
+        {
+            <text>
+                    toastr.success("@ViewData["success"]");
+            </text>
+        }
+                $(function () {
+                    document.querySelector(".main").classList.add("flex", "flex-col");
+
+        @if (TempData.ContainsKey("error"))
+        {
+            <text>
+                            toastr.error("@TempData["error"]", "Error", { "iconClass": 'new-error' });
+            </text>
+        }
+
+        @if (TempData.ContainsKey("success"))
+        {
+            <text>
+                            toastr.success("@TempData["success"]");
+            </text>
+        }
+                                                                    });
+        });
+
+        function initTabsOnLoad() {
+            const tabToInit = window.location.search.split("?tab=")[1];
+            if (tabToInit) {
+                if (tabToInit === "project") {
+                    document.querySelector("#projectWiseTab").click();
+                } else if (tabToInit === "employee") {
+                    document.querySelector("#employeeWiseTab").click();
+                }
+            }
+        }
+
+        window.addEventListener("DOMContentLoaded", () => {
+            initTabsOnLoad();
+
+            (() => {
+                const dateLimits = getMinMaxDateCurrentMonth();
+                document.querySelector("#swapEstimatedDateAll").setAttribute("min", dateLimits?.minDate)
+                document.querySelector("#swapEstimatedDateAll").setAttribute("max", dateLimits?.maxDate)
+            })()
+        })
+
+
+
+        $(document).ready(function () {
+
+            $('#send-all-button').on('click', function () {
+                document.querySelector("#loader").style.display = "flex";
+                var selectedItems = [];
+                const allChkBox = document.querySelectorAll(`tbody input[type="checkbox"]:checked`);
+                let allDatesValid = true;
+                allChkBox.forEach(chkBox => {
+                    const row = chkBox.closest("tr");
+                    var billingId = row.getAttribute('data-billingid');
+                    var costing = parseFloat(row.querySelector('.ProvisionAmount').innerText.replace('₹', '').replace(',', ''));
+                    var estimatedBillingDate = row.querySelector('.estimatedBilligDate').innerText.trim();
+                    if (!estimatedBillingDate || estimatedBillingDate == '-') {
+                        allDatesValid = false;
+                        toastr.error("Every Resource Provision must include Estimated Billing Date!!.")
+                        document.querySelector("#loader").style.display = "none";
+                        return;
+                    }
+                    selectedItems.push({
+                        "contractbillingid": billingId,
+                        "costing": costing,
+                        "exptectedbillingdate": estimatedBillingDate
+                    });
+                })
+
+                if (!allDatesValid) {
+                    return;
+                }
+
+
+                console.log(selectedItems);
+
+                // Convert the array to a JSON string
+                var selectedItemsJSON = JSON.stringify(selectedItems);
+
+                $.ajax({
+                    url: '/Billing/BillingApproval',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: selectedItemsJSON, // Send the JSON string as data
+                    success: function (response) {
+                        console.log(response);
+                        toastr.success("Provisions sent for approval to DH!!");
+                        window.location.reload();
+
+                    },
+                    error: function (error) {
+                        console.error(error);
+                        window.location.reload();
+                    }
+                });
+            });
+        });
+
+        function handleSendAll(btn, mode = "projectwise") {
+            document.querySelector("#loader").style.display = "flex";
+            var selectedItems = [];
+            const allChkBox = btn.closest(".hidden-row").querySelector("tbody").querySelectorAll(`input[type="checkbox"]:checked`);
+            let allDatesValid = true;
+            allChkBox.forEach(chkBox => {
+                const row = chkBox.closest("tr");
+                var billingId = row.getAttribute('data-billingid');
+                var costing = parseFloat(row.querySelector('.ProvisionAmount').innerText.replace('₹', '').replace(',', ''));
+                var estimatedBillingDate = row.querySelector('.estimatedBilligDate').innerText.trim();
+                if (!estimatedBillingDate || estimatedBillingDate == '-') {
+                    allDatesValid = false;
+                    toastr.error("Every Resource Provision must include Estimated Billing Date!!.")
+                    document.querySelector("#loader").style.display = "none";
+                    return;
+                }
+                selectedItems.push({
+                    "contractbillingid": billingId,
+                    "costing": costing,
+                    "exptectedbillingdate": estimatedBillingDate
+                });
+            })
+
+            if (!allDatesValid) {
+                return;
+            }
+
+
+            console.log(selectedItems);
+
+            // Convert the array to a JSON string
+            var selectedItemsJSON = JSON.stringify(selectedItems);
+
+            $.ajax({
+                url: '/Billing/BillingApproval',
+                type: 'POST',
+                contentType: 'application/json',
+                data: selectedItemsJSON, // Send the JSON string as data
+                success: function (response) {
+                    console.log(response);
+                    toastr.success("Provisions sent for approval to DH!!");
+                    window.location.href = window.location.href + `?tab=${mode === 'employeewise' ? "employee" : "project"}`;
+
+                },
+                error: function (error) {
+                    console.error(error);
+                    window.location.href = window.location.href + `?tab=${mode === 'employeewise' ? "employee" : "project"}`;
+                }
+            });
+        }
+
+        const provDt = new DataTable("#provBilling", {
+            scrollX: true,
+            scrollY: '35vh',
+            ordering: false,
+            destroy: true,
+            dom: "lBfrtip",
+            pageLength: 50,
+            buttons: [{
+                extend: 'excelHtml5',
+                exportOptions: {
+                    trim: false,
+                    stripHtml: false,
+                    format: {
+                        header: function (html, index, node) {
+                            return node.innerText;
+                        },
+                        body: function (data, row, column, node) {
+                            return node.innerText;
+                        }
+                    }
+                }
+            }],
+            "fnInitComplete": function (oSettings, json) {
+                const _dt = this.api();
+                console.log("initdone")
+                // $("#loader").hide();
+                document.querySelector("#loader").style.display = "none";
+                // docu
+                const allTh = document.querySelectorAll(".dataTables_scrollHead table thead th");
+                const allThWithFilter = [];
+                Array.from(allTh).forEach((item, index) => {
+                    if (item.querySelector(".hs-dropdown")) {
+                        allThWithFilter.push({ item, index });
+                    }
+                });
+                console.log(allThWithFilter);
+                allThWithFilter.forEach(item => {
+                    // console.log(Number(item.index));
+                    const column = _dt.columns(Number(item.index)).data().unique().sort();
+                    // const column = document.querySelectorAll(`td:nth-child(${item.index + 1})`);
+                    const uniqueColumnContentSet = new Set();
+
+                    column[0].forEach(colItem => {
+                        if (!colItem.includes("span")) {
+                            uniqueColumnContentSet.add(colItem);
+                        } else {
+                            const tempElem = document.createElement("div");
+                            tempElem.innerHTML = colItem;
+                            uniqueColumnContentSet.add(tempElem.innerText.trim());
+                        }
+                    });
+                    const uniqueColumnContent = Array.from(uniqueColumnContentSet).sort();
+                    const dropdownBody = item?.item.querySelector(".hs-dropdown-menu .filter-item-list");
+                    dropdownBody.innerHTML = "";
+                    uniqueColumnContent.forEach(dItem => {
+                        const dropdownItem = document.createElement("div");
+                        dropdownItem.classList.add("relative", "flex", "items-start", "py-2", "px-3", "rounded-lg", "hover:bg-gray-100", "filter-item");
+                        let checkBoxId = `chk-${Math.floor(Math.random() * 9999999)}`;
+                        dropdownItem.innerHTML = `<div class="flex items-center">
+                                                                                                                                                                        <input value="${dItem}" id="${checkBoxId}" type="checkbox" class="shrink-0 border-gray-200 rounded text-emerald-600 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                                                                                                                                                    </div>
+                                                                                                                                                                    <label for="${checkBoxId}" class="flex-1 ms-2">
+                                                                                                                                                                        <span class="block text-xs text-gray-800 text-left">${dItem}</span>
+                                                                                                                                                                    </label>`;
+                        dropdownBody.appendChild(dropdownItem);
+                    })
+                    if (!dropdownBody.nextElementSibling) {
+                        dropdownBody.parentElement.innerHTML += `<div class="flex gap-2"><button onclick="clearFilter(this, ${item?.index});" class="flex mt-2 w-full items-center justify-center gap-x-3.5 py-2 px-3 rounded-lg text-xs text-gray-800 bg-gray-100 hover:bg-gray-50 focus:outline-none focus:bg-gray-100">Clear</button><button onclick="filterTable(this, ${item?.index});" class="flex mt-2 w-full items-center justify-center gap-x-3.5 py-2 px-3 rounded-lg text-xs text-gray-800 bg-gray-100 hover:bg-gray-50 focus:outline-none focus:bg-gray-100" href="#">Apply</button></div>`
+                    }
+                })
+            }
+        });
+
+        provDt.on("page", () => {
+            if (document.querySelector("#select-all")) {
+                document.querySelector("#select-all").checked = false;
+            }
+            provDt.columns(0).nodes()[0].forEach(item => {
+                if (item.querySelector("input")) {
+                    item.querySelector("input").checked = false;
+                }
+            })
+        })
+
+        function filterTable(btn, colInd) {
+            const values = [];
+            btn.closest(".hs-dropdown").querySelectorAll("input:checked").forEach(chkbox => {
+                values.push(chkbox.value);
+            })
+            HSDropdown.close(btn.closest(".hs-dropdown"));
+            setTimeout(() => {
+                if (values.length) {
+                    console.log(values);
+                    provDt.columns(Number(colInd)).search('^(' + values.join("|") + ')$', true, false).draw();
+                } else {
+                    provDt.columns(Number(colInd)).search("", true, false).draw();
+                }
+            }, 200)
+        }
+
+        function clearFilter(btn, colInd) {
+            btn.closest(".hs-dropdown").querySelectorAll("input:checked").forEach(chkbox => {
+                chkbox.checked = false;
+            })
+            btn.closest(".hs-dropdown").querySelector("input[type='search']").value = "";
+            const _inpEvent = new Event("input");
+            btn.closest(".hs-dropdown").querySelector("input[type='search']").dispatchEvent(_inpEvent);
+            HSDropdown.close(btn.closest(".hs-dropdown"));
+            setTimeout(() => {
+                provDt.columns(Number(colInd)).search("", true, false).draw();
+                // updateTotalBilling(datatable);
+            }, 200)
+        }
+
+        function sendForApprovalSingle(btn, mode = "employeewise") {
+            document.querySelector("#loader").style.display = "flex";
+            var selectedItems = [];
+            if (mode === "employeewise") {
+                const row = btn.closest("tr");
+                let billingId = row.getAttribute('data-billingid');
+                let costing = parseFloat(row.querySelector('.ProvisionAmount').innerText.replace('₹', '').replace(',', ''));
+                let estimatedBillingDate = row.querySelector('.estimatedBilligDate').innerText.trim();
+                if (!estimatedBillingDate || estimatedBillingDate == '-') {
+                    toastr.error("Every Resource Provision must include Estimated Billing Date!!.")
+                    document.querySelector("#loader").style.display = "none";
+                    return;
+                }
+                selectedItems.push({
+                    "contractbillingid": billingId,
+                    "costing": costing,
+                    "exptectedbillingdate": estimatedBillingDate
+                });
+            }
+            if (mode === "projectwise") {
+                const row = btn.closest("tr");
+                let billingId = row.getAttribute('data-billingid');
+                let costing = parseFloat(row.querySelector('.ProvisionAmount').innerText.replace('₹', '').replace(',', ''));
+                let estimatedBillingDate = row.querySelector('.estimatedBilligDate').innerText.trim();
+                if (!estimatedBillingDate || estimatedBillingDate == '-') {
+                    toastr.error("Every Resource Provision must include Estimated Billing Date!!.")
+                    document.querySelector("#loader").style.display = "none";
+                    return;
+                }
+                selectedItems.push({
+                    "contractbillingid": billingId,
+                    "costing": costing,
+                    "exptectedbillingdate": estimatedBillingDate
+                });
+            }
+
+
+            console.log(selectedItems);
+
+            // Convert the array to a JSON string
+            var selectedItemsJSON = JSON.stringify(selectedItems);
+
+            $.ajax({
+                url: '/Billing/BillingApproval',
+                type: 'POST',
+                contentType: 'application/json',
+                data: selectedItemsJSON, // Send the JSON string as data
+                success: function (response) {
+                    console.log(response);
+                    toastr.success("Provisions sent for approval to DH!!");
+                    window.location.href = window.location.href + `?tab=${mode === 'employeewise' ? "employee" : "project"}`;
+                },
+                error: function (error) {
+                    console.error(error);
+                    window.location.href = window.location.href + `?tab=${mode === 'employeewise' ? "employee" : "project"}`;
+                }
+            });
+        }
+
+
+        function getCurrentMonthStr() {
+            const currentDate = new Date();
+            const month = currentDate.toLocaleString('en-us', { month: 'short' });
+            const year = currentDate.getFullYear().toString().substr(-2);
+            return `${month}-${year}`;
+        }
+
+        function handleSelectAll(inp, mode = "employeewise") {
+            let allTr = [];
+            console.log(mode);
+            if (mode === "employeewise") {
+                allTr = document.querySelectorAll("#provBilling tbody tr");
+            }
+            if (mode === 'projectwise') {
+                allTr = inp.closest("table").querySelector("tbody").querySelectorAll("tr");
+            }
+            console.log(allTr);
+            if (inp.checked) {
+                allTr.forEach(tr => {
+                    const trMonth = mode === 'employeewise' ? tr.querySelector("td:nth-child(3)").innerText.trim() : tr.querySelector("td:nth-child(5)").innerText.trim();
+                    console.log(trMonth);
+                    if (getCurrentMonthStr().toLowerCase() === trMonth.toLowerCase()) {
+                        if (!tr.querySelector("input[type='checkbox']").disabled) {
+                            tr.querySelector("input[type='checkbox']").checked = true;
+                        }
+                    }
+                })
+            } else {
+                allTr.forEach(tr => {
+                    const trMonth = mode === 'employeewise' ? tr.querySelector("td:nth-child(3)").innerText.trim() : tr.querySelector("td:nth-child(5)").innerText.trim();
+                    console.log(trMonth);
+                    if (getCurrentMonthStr().toLowerCase() === trMonth.toLowerCase()) {
+                        tr.querySelector("input[type='checkbox']").checked = false;
+                    }
+                })
+            }
+        }
+
+        function setEditMode(btn, isEditMode, isRevision = false) {
+            const _tr = btn.closest("tr");
+            if (isRevision) {
+                _tr.querySelector(".save-btn")?.setAttribute("data-isrevision", 'true');
+            }
+            if (isEditMode) {
+                _tr && _tr.classList.add("edit-mode");
+            } else {
+                _tr && _tr.classList.remove("edit-mode");
+                _tr.querySelector(".save-btn").removeAttribute("data-isrevision");
+            }
+        }
+
+        function getFormattedDate(dateVal) {
+            const date = new Date(dateVal);
+            const yyyy = date.getFullYear();
+            let mm = date.getMonth() + 1; // Months start at 0!
+            let dd = date.getDate();
+
+            if (dd < 10) dd = '0' + dd;
+            if (mm < 10) mm = '0' + mm;
+
+            return dd + '/' + mm + '/' + yyyy;
+        }
+
+        function isDataValid(row) {
+            let validFlag = true;
+
+            if (!row.querySelector(".amount-inp").value.trim()) {
+                row.querySelector(".amount-inp").classList.add("is-invalid");
+                validFlag = false;
+            } else {
+                row.querySelector(".amount-inp").classList.remove("is-invalid");
+            }
+
+            if (!row.querySelector(".estimated-date-inp").value) {
+                row.querySelector(".estimated-date-inp").classList.add("is-invalid");
+                validFlag = false;
+            } else {
+                row.querySelector(".estimated-date-inp").classList.remove("is-invalid");
+            }
+
+            return validFlag;
+        }
+
+        function setEditModeData(btn, mode = "employeewise") {
+            const _tr = btn.closest("tr");
+
+            if (!isDataValid(_tr)) {
+                return;
+            }
+            document.querySelector("#loader").style.display = "flex";
+            const _amount = _tr.querySelector(".amount-inp").value;
+            const _estimatedDate = getFormattedDate(_tr.querySelector(".estimated-date-inp").value);
+
+
+            let _objRes = [{
+                ContractEmployeeId: _tr.getAttribute("data-contractemployeeid"),
+                BillingMonthYear: mode === 'employeewise' ? _tr.querySelector("td:nth-child(3)").innerText.trim() : _tr.querySelector("td:nth-child(5)").innerText.trim(),
+                Costing: _tr.querySelector(".amount-inp").value,
+                estimatedDate: _tr.querySelector(".estimated-date-inp").value,
+                isRevised: btn.getAttribute("data-isrevision")
+            }];
+
+            var fdata = new FormData();
+            fdata.append("jsonObject", JSON.stringify(_objRes));
+            fdata.append("isProvision", "true")
+            $.ajax({
+                url: "@Url.Action("Billing", "Contract")",
+                type: "POST",
+                cache: false,
+                data: fdata,
+                contentType: false,
+                processData: false,
+                success: function (res) {
+                    console.log(res);
+                    if (res.success == true) {
+                        toastr.success(res.msg);
+                        window.location.href = window.location.href + `?tab=${mode === 'employeewise' ? "employee" : "project"}`;
+                        if (_amount) {
+                            _tr.querySelector(".amount-val").innerText = _amount;
+                        }
+
+                        if (_estimatedDate) {
+                            _tr.querySelector(".estimated-date-val").innerText = _estimatedDate;
+                        }
+
+                        setEditMode(btn, false);
+                    } else {
+                        toastr.error(res.msg);
+                        window.location.href = window.location.href + `?tab=${mode === 'employeewise' ? "employee" : "project"}`;
+                    }
+                },
+                error: function (err) {
+                    toastr.error(err);
+                }
+            });
+        }
+
+        function handleDateChange(inp) {
+            inp.closest("form").submit();
+            return;
+            const dateVal = inp.value;
+            const fData = new FormData();
+            fData.append("date", dateVal);
+            if (dateVal) {
+                $.ajax({
+                    async: false,
+                    url: "@Url.Action("ContractBillingProvisionReport", "Report")",
+                    type: "POST",
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    data: fData,
+                    success: function (res) {
+                        console.log(res)
+                    },
+                    error: function (res) { },
+                });
+            }
+        }
+
+        function handleFilterSearch(input) {
+            const allFilterItems = input.closest(".hs-dropdown-menu").querySelector(".filter-item-list").querySelectorAll("span");
+            allFilterItems.forEach(item => {
+                if (item.innerText.trim().toLowerCase().includes(input.value.trim().toLowerCase())) {
+                    item.closest(".filter-item").style.display = "flex"
+                } else {
+                    item.closest(".filter-item").style.display = "none";
+                }
+            })
+        }
+        function toggleHiddenRow(btn) {
+            const _hidRow = btn.closest("tr").nextElementSibling;
+            if (_hidRow && _hidRow.classList.contains("hidden-row")) {
+                _hidRow.classList.toggle("show");
+            }
+        }
+
+        function handleEditAll(btn) {
+            btn.closest(".editAllPanel").classList.add("active");
+            const selectedCount = btn.closest(".hidden-row").querySelector("tbody").querySelectorAll("tr:has(input[type='checkbox']:not(:disabled))").length;
+            console.log(selectedCount)
+            if (selectedCount) {
+                btn.closest(".hidden-row").querySelector(".selectedCountContainer").innerHTML = `<span>Total Selected : <span class="font-bold">${selectedCount}<span>`;
+            }
+        }
+
+        function handleSaveAll(btn) {
+
+            const dateValInp = btn.closest(".hidden-row").querySelector(".panel-date")
+            const amountValInp = btn.closest(".hidden-row").querySelector(".panel-amount");
+
+            let validFlag = true;
+            if (!dateValInp.value) {
+                dateValInp.classList.add("is-invalid");
+                validFlag = false;
+            } else {
+                dateValInp.classList.remove("is-invalid");
+            }
+            if (!amountValInp.value) {
+                amountValInp.classList.add("is-invalid");
+                validFlag = false;
+            } else {
+                amountValInp.classList.remove("is-invalid");
+            }
+
+            if (!validFlag) return;
+            const _objRes = [];
+            console.log(btn.closest(".hidden-row"))
+            const allTr = btn.closest(".hidden-row").querySelector("tbody").querySelectorAll("tr:has(input[type='checkbox']:checked)");
+            console.log(allTr);
+            if (!allTr.length) return;
+            allTr.forEach(_tr => {
+                _objRes.push({
+                    ContractEmployeeId: _tr.getAttribute("data-contractemployeeid"),
+                    BillingMonthYear: _tr.querySelector("td:nth-child(5)").innerText.trim(),
+                    Costing: amountValInp.value,
+                    estimatedDate: dateValInp.value,
+                    isRevised: btn.getAttribute("data-isrevision")
+                })
+            })
+            var fdata = new FormData();
+            fdata.append("jsonObject", JSON.stringify(_objRes));
+            fdata.append("isProvision", "true")
+            document.querySelector("#loader").style.display = "flex";
+
+            $.ajax({
+                url: "@Url.Action("Billing", "Contract")",
+                type: "POST",
+                cache: false,
+                data: fdata,
+                contentType: false,
+                processData: false,
+                success: function (res) {
+                    console.log(res);
+                    if (res.success == true) {
+                        toastr.success(res.msg);
+                        // if (_amount) {
+                        //     _tr.querySelector(".amount-val").innerText = _amount;
+                        // }
+
+                        // if (_estimatedDate) {
+                        //     _tr.querySelector(".estimated-date-val").innerText = _estimatedDate;
+                        // }
+
+                        setEditMode(btn, false);
+                        window.location.href = window.location.href + '?tab=project';
+                    } else {
+                        toastr.error(res.msg);
+                        window.location.href = window.location.href + '?tab=project';
+                    }
+                },
+                error: function (err) {
+                    toastr.error(err);
+                }
+            });
+        }
+
+        function handlePanelCancel(btn) {
+            const panel = btn.closest(".editAllPanel");
+            const amountInp = panel.querySelector(".panel-amount");
+            const dateInp = panel.querySelector(".panel-date");
+
+            dateInp.classList.remove("is-invalid");
+            amountInp.classList.remove("is-invalid");
+
+            dateInp.value = "";
+            amountInp.value = "";
+
+            panel.classList.remove("active");
+            panel.querySelector(".selectedCountContainer").innerHTML = "";
+        }
+
+        function handleSwapBilling(btn) {
+            const projectData = btn.closest(".hidden-row").querySelector("tbody").querySelectorAll("tr");
+            const dateLimits = getMinMaxDateCurrentMonth();
+            let swapTableHTML = '';
+
+            projectData.forEach(item => {
+                swapTableHTML += `<tr>`;
+                swapTableHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">`;
+                swapTableHTML += `<div class="flex">`;
+                swapTableHTML += `<input onchange="checkactualexist(this);" data-contractemployeeid="${item.getAttribute('data-contractemployeeid')}" value="${item.querySelector("td:nth-child(1)")?.innerHTML.trim()}" type="checkbox" class="shrink-0 mt-0.5 border-black rounded text-black focus:ring-black disabled:opacity-50 disabled:pointer-events-none disabled:opacity-50"/>`;
+                swapTableHTML += `</div>`;
+                swapTableHTML += `</td>`;
+
+                swapTableHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">${item.querySelector("td:nth-child(3)")?.innerHTML.trim()}</td>`;
+
+                swapTableHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800"><span class="rounded-full p-2 bg-gray-500 text-white">${item.querySelector("td:nth-child(4)")?.innerHTML.trim()}</span></td>`;
+
+                swapTableHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">${item.querySelector("td:nth-child(5)")?.innerHTML.trim()}</td>`;
+
+                swapTableHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800"><input type="date" min='${dateLimits?.minDate}' max='${dateLimits?.maxDate}' class="k-input"></td>`;
+
+                swapTableHTML += `</tr>`;
+            })
+
+            document.querySelector("#swapBillingTbl tbody").innerHTML = swapTableHTML;
+
+            const _projectHeading = btn.closest(".hidden-row").querySelector(".project_name").innerText.trim();
+
+            document.querySelector("#swapProjectName").innerHTML = _projectHeading;
+
+            HSOverlay.open(document.querySelector("#swap-billing-overlay"));
+        }
+
+        function resetSwapBlling() {
+            document.querySelector("#swapBillingTbl tbody").innerHTML = "";
+            document.querySelector("#swapProjectName").innerHTML = "";
+            document.querySelector("#swapEstimatedDateAll").value = "";
+        }
+
+        function validateSwapTableDate() {
+            let validFlag = true;
+            const allTblDateInput = document.querySelector("#swapBillingTbl tbody").querySelectorAll("tr:has(input[type='checkbox']:checked) input[type='date']");
+            allTblDateInput.forEach(inp => {
+                if (!inp.value) {
+                    inp.classList.add("is-invalid");
+                    validFlag = false;
+                } else {
+                    inp.classList.remove("is-invalid");
+                }
+            })
+            return validFlag;
+        }
+
+        function swapBilling() {
+            const allSelectedRows = document.querySelector("#swapBillingTbl tbody").querySelectorAll("tr:has(input[type='checkbox']:checked)");
+
+            if (!allSelectedRows.length) {
+                toastr.error("No items selected for swapping");
+                return;
+            }
+
+            const isTblDataValid = validateSwapTableDate();
+
+            if (!isTblDataValid) {
+                toastr.error("Please enter dates");
+                return;
+            }
+
+            const resObj = [];
+
+            allSelectedRows.forEach(item => {
+                resObj.push({
+                    contrtactbillingprovesionid: item.querySelector("td:nth-child(1)").querySelector("input").value,
+                    costing: item.querySelector("td:nth-child(3)").innerText.trim(),
+                    BillingMonthyear: item.querySelector("td:nth-child(4)").innerText.trim(),
+                    billingdate: item.querySelector("td:nth-child(5)").querySelector("input").value,
+                });
+            })
+
+            if (!resObj.length) {
+                toastr.error("There was some error");
+                return;
+            }
+
+            const fdata = new FormData();
+            fdata.append("swapItem", JSON.stringify(resObj));
+
+            $.ajax({
+                url: "@Url.Action("SwapBilling", "Billing")",
+                type: "POST",
+                cache: false,
+                data: fdata,
+                contentType: false,
+                processData: false,
+                success: function (res) {
+                    console.log(res);
+                    if (res.success == true) {
+                        toastr.success(res.msg);
+
+                        window.location.href = window.location.href + '?tab=project';
+                    } else {
+                        toastr.error(res.msg);
+                        window.location.href = window.location.href + '?tab=project';
+                    }
+                },
+                error: function (err) {
+                    toastr.error(err);
+                }
+            });
+        }
+
+        function setAllDates2(inp, tblId) {
+            const dateToSet = inp.value;
+            const allInputs = document.querySelector(`#${tblId} tbody`).querySelectorAll("tr:has(input[type='checkbox']:checked) input[type='date']");
+
+            if (!allInputs.length) {
+                toastr.error("No items selected");
+                inp.value = "";
+                return;
+            }
+
+            allInputs.forEach(dateInp => {
+                dateInp.value = dateToSet;
+            })
+        }
+
+        function handleSelectAll2(inp) {
+            if (!inp) return;
+            const valueToSet = inp.checked;
+
+            const allChkBox = inp.closest("table").querySelector("tbody").querySelectorAll("input[type='checkbox']");
+
+            allChkBox.forEach(item => {
+                item.checked = valueToSet;
+                if (valueToSet) {
+                    const event = new Event("change");
+                    item.dispatchEvent(event);
+                }
+            })
+        }
+
+        HSOverlay.on("close", (modal) => {
+            if (modal.id === "swap-billing-overlay") {
+                resetSwapBlling();
+            }
+        })
+
+
+        function checkactualexist(inp) {
+            if (!inp.checked) return;
+            const fdata = new FormData();
+            const contractEmployeeId = inp.getAttribute("data-contractemployeeid");
+            const monthYear = inp.closest("tr").querySelector("td:nth-child(4)").innerText.trim();
+            const employeeName = inp.closest("tr").querySelector("td:nth-child(2)").innerText.trim();
+
+            if (!contractEmployeeId || !monthYear) return;
+
+            fdata.append("data", JSON.stringify({ contractEmployeeId: contractEmployeeId, monthyear: monthYear }));
+            $.ajax({
+                url: "@Url.Action("Actualbillingcheck", "Billing")",
+                type: "POST",
+                cache: false,
+                data: fdata,
+                contentType: false,
+                processData: false,
+                success: function (res) {
+                    console.log(res);
+                    if (res.success == true) {
+                        if (res.msg !== 'allowed') {
+                            toastr.error(`Unable to swap billing: The billing amount of ${res.msg} already exists for the current month for employee ${employeeName}.`);
+                            inp.checked = false;
+                        }
+
+
+                    } else {
+
+                    }
+                },
+                error: function (err) {
+                    toastr.error(err);
+                }
+            });
+        }
+
+        function getMinMaxDateCurrentMonth() {
+            const date = new Date();
+            const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+            const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+
+            console.log(firstDay, lastDay);
+
+            const minDate = `${firstDay.getFullYear()}-${(firstDay.getMonth() + 1) < 10 ? '0' + (firstDay.getMonth() + 1) : (firstDay.getMonth() + 1)}-${(firstDay.getDate() < 10) ? '0' + firstDay.getDate() : firstDay.getDate()}`;
+            const maxDate = `${lastDay.getFullYear()}-${(lastDay.getMonth() + 1) < 10 ? '0' + (lastDay.getMonth() + 1) : (lastDay.getMonth() + 1)}-${(lastDay.getDate() < 10) ? '0' + lastDay.getDate() : lastDay.getDate()}`;
+
+            return { minDate, maxDate };
+        }
+
+
+    </script>
+
+}

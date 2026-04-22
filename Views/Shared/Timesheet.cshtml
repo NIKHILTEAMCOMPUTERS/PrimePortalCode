@@ -1,0 +1,268 @@
+﻿<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] Timesheet Portal</title>
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" integrity="sha512-6S2HWzVFxruDlZxI3sXOZZ4/eJ8AcxkQH1+JjSe/ONCEqR9L4Ysq5JdT5ipqtzU7WHalNwzwBv+iE51gNHJNqQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/RMS.Client.styles.css" asp-append-version="true" />
+
+    <!-- SlimSelect CSS - Keep only ONE -->
+    <link href="https://cdn.jsdelivr.net/npm/slim-select@2.9.2/dist/slimselect.min.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="~/dist/Timesheet.css">
+    <link rel="shortcut icon" type="image/x-icon" href="~/Vector.ico">
+
+    @RenderSection("PageStyles", required: false)
+    <style>
+        li.mobileOnly {
+            display: none;
+        }
+
+        @@media screen and (max-width: 1000px) {
+            .sidebar {
+                display: flex;
+                z-index: 999;
+                transform: translateX(-100%);
+                transition: transform .5s ease;
+            }
+
+                .sidebar.show {
+                    transform: translateX(0);
+                }
+
+            li.mobileOnly {
+                display: block;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-[#fafafa] flex flex-col h-screen overflow-y-auto">
+    <div class="sidebar fixed left-0 top-0 h-screen w-52 xl:w-64 bg-white px-4 flex flex-col z-30">
+        <a asp-controller="Timesheet" asp-action="Index" class="logo mb-4 lg:mb-6 xl-mb-8 2xl:mb-10 flex items-center gap-2 h-14 xl:h-16 2xl:h-20">
+            <img src="@Url.Content("~/assets/images/timesheet_icon_new.svg")" class="logo_icon h-8 xl:h-10 2xl:h-12 w-auto" alt="Timesheet">
+            <p class="logo_text font-bold text-2xl" aria-label="Brand">
+                Time<span class="text-blue-500">sheet</span>
+            </p>
+        </a>
+        <ul class="menu flex-1 overflow-y-auto flex flex-col gap-3 xl:gap-4 2xl:gap-5">
+            @{
+                var controllerName = ViewContext.RouteData.Values["controller"].ToString();
+                var actionName = ViewContext.RouteData.Values["action"].ToString();
+            }
+
+            <li>
+                <a asp-controller="Timesheet" asp-action="Index"
+                   class="menu-item @(controllerName == "Timesheet" && (actionName == "Index" || actionName == "Add") ? "active" : "") text-xs sm:text-sm 2xl:text-base px-2 py-2 xl:px-3 2xl:px-5 2xl:py-3 rounded-lg flex items-center gap-2">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5 2xl:w-6 2xl:h-6" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                         viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M13 9V3h8v6h-8ZM3 13V3h8v10H3Zm10 8V11h8v10h-8ZM3 21v-6h8v6H3Z" />
+                    </svg>
+                    <span class="menu-item-text flex-1 overflow-hidden text-ellipsis whitespace-nowrap">Dashboard</span>
+                </a>
+            </li>
+            @if (Context.Session.GetInt32("canseemembertimesheet") != null && Context.Session.GetInt32("canseemembertimesheet") == 1)
+            {
+                <li>
+                    <a asp-controller="Timesheet" asp-action="GetMemberTimesheet"
+                       class="menu-item text-xs sm:text-sm 2xl:text-base px-2 py-2 xl:px-3 2xl:px-5 2xl:py-3 rounded-lg flex items-center gap-2 @(controllerName == "Timesheet" && actionName == "GetMemberTimesheet" ? "active" : "")">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 2xl:w-6 2xl:h-6" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16"><path fill="currentColor" d="M8 2.002a1.998 1.998 0 1 0 0 3.996a1.998 1.998 0 0 0 0-3.996M12.5 3a1.5 1.5 0 1 0 0 3a1.5 1.5 0 0 0 0-3m-9 0a1.5 1.5 0 1 0 0 3a1.5 1.5 0 0 0 0-3M5 7.993A1 1 0 0 1 6 7h4a1 1 0 0 1 1 1v3a3 3 0 0 1-.146.927A3.001 3.001 0 0 1 5 11zM4 8c0-.365.097-.706.268-1H2a1 1 0 0 0-1 1v2.5a2.5 2.5 0 0 0 3.436 2.319A4 4 0 0 1 4 10.999zm8 0v3c0 .655-.157 1.273-.436 1.819A2.5 2.5 0 0 0 15 10.5V8a1 1 0 0 0-1-1h-2.268c.17.294.268.635.268 1" /></svg>
+                        <span class="menu-item-text flex-1 overflow-hidden text-ellipsis whitespace-nowrap">Team Timesheet</span>
+                    </a>
+                </li>
+            }
+            @if (Context.Session.GetString("RoleName") != null && (Context.Session.GetString("RoleName") == "HR" || Context.Session.GetString("RoleName") == "DA"))
+            {
+                <li>
+                    <a asp-controller="Timesheet" asp-action="TeamTimesheet"
+                       class="menu-item text-xs sm:text-sm 2xl:text-base px-2 py-2 xl:px-3 2xl:px-5 2xl:py-3 rounded-lg flex items-center gap-2 @(controllerName == "Timesheet" && actionName == "TeamTimesheet" ? "active" : "")">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 2xl:w-6 2xl:h-6" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16"><path fill="currentColor" d="M8 2.002a1.998 1.998 0 1 0 0 3.996a1.998 1.998 0 0 0 0-3.996M12.5 3a1.5 1.5 0 1 0 0 3a1.5 1.5 0 0 0 0-3m-9 0a1.5 1.5 0 1 0 0 3a1.5 1.5 0 0 0 0-3M5 7.993A1 1 0 0 1 6 7h4a1 1 0 0 1 1 1v3a3 3 0 0 1-.146.927A3.001 3.001 0 0 1 5 11zM4 8c0-.365.097-.706.268-1H2a1 1 0 0 0-1 1v2.5a2.5 2.5 0 0 0 3.436 2.319A4 4 0 0 1 4 10.999zm8 0v3c0 .655-.157 1.273-.436 1.819A2.5 2.5 0 0 0 15 10.5V8a1 1 0 0 0-1-1h-2.268c.17.294.268.635.268 1" /></svg>
+                        <span class="menu-item-text flex-1 overflow-hidden text-ellipsis whitespace-nowrap">TDE Timesheet</span>
+                    </a>
+                </li>
+            }
+            <li class="mobileOnly" style="margin-top: auto; margin-bottom: 1rem;" onclick="closeSidebar();">
+                <a href="#"
+                   class="menu-item text-xs sm:text-sm 2xl:text-base px-2 py-2 xl:px-3 2xl:px-5 2xl:py-3 rounded-lg flex items-center gap-2 active">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5 2xl:w-6 2xl:h-6" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16"><path fill="#fff" fill-rule="evenodd" d="M14 8a.75.75 0 0 1-.75.75H4.56l3.22 3.22a.75.75 0 1 1-1.06 1.06l-4.5-4.5a.75.75 0 0 1 0-1.06l4.5-4.5a.75.75 0 0 1 1.06 1.06L4.56 7.25h8.69A.75.75 0 0 1 14 8" clip-rule="evenodd" /></svg>
+                    <span class="menu-item-text flex-1 overflow-hidden text-ellipsis whitespace-nowrap">Close</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <div class="header bg-white border-b h-14 xl:h-16 2xl:h-20 px-4 xl:px-6 2xl:px-8 flex items-center w-[calc(100vw-13rem)] xl:w-[calc(100vw-16rem)] fixed top-0 right-0 gap-3 xl:gap-4 2xl:gap-5 z-30">
+        <button type="button" onclick="toggleSidebarSize();"
+                class="sidebar-toggle inline-flex flex-shrink-0 justify-center items-center gap-2 w-8 h-8 xl:w-10 xl:h-10 2xl:h-12 2xl:w-12 rounded-md border border-transparent font-semibold bg-[#f9f9f9] text-black hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm">
+            <svg class="w-4 h-4 xl:w-5 xl:h-5 2xl:h-6 2xl:w-6" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                 viewBox="0 0 20 20">
+                <path fill="currentColor" fill-rule="evenodd"
+                      d="M3 5a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1Zm0 5a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1Zm0 5a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1Z"
+                      clip-rule="evenodd" />
+            </svg>
+        </button>
+        <button type="button" onclick="toggleSidebarMobile();"
+                class="open-mobile-sidebar flex-shrink-0 justify-center items-center gap-2 w-8 h-8 xl:w-10 xl:h-10 2xl:h-12 2xl:w-12 rounded-md border border-transparent font-semibold bg-[#f9f9f9] text-black hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm">
+            <svg class="w-4 h-4 xl:w-5 xl:h-5 2xl:h-6 2xl:w-6" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                 viewBox="0 0 20 20">
+                <path fill="currentColor" fill-rule="evenodd"
+                      d="M3 5a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1Zm0 5a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1Zm0 5a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1Z"
+                      clip-rule="evenodd" />
+            </svg>
+        </button>
+        <div></div>
+
+        <div class="hs-dropdown ml-auto relative inline-flex">
+            <button id="hs-dropdown-with-header" type="button"
+                    class="hs-dropdown-toggle overflow-hidden inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-white text-gray-700 shadow-sm align-middle hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-emerald-500 transition-all text-sm">
+                <img class="w-8 h-8 xl:w-10 xl:h-10 2xl:w-12 2xl:h-12"
+                     src="~/assets/images/default_user_icon.png" alt="avatar">
+            </button>
+
+            <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden min-w-[15rem] bg-white shadow-md rounded-lg p-2 mt-2"
+                 aria-labelledby="hs-dropdown-with-header">
+                <div class="mt-2 py-2 first:pt-0 last:pb-0">
+                    <a class="flex items-center gap-x-3.5 py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-blue-500"
+                       href="/Employee/Profile">
+                        <svg class="flex-none text-gray-800" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linejoin="round" d="M4 18a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z" /><circle cx="12" cy="7" r="3" /></g></svg>
+                        Profile
+                    </a>
+                    <a class="flex items-center gap-x-3.5 py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-blue-500"
+                       href="/Login/Logout">
+                        <svg class="flex-none text-gray-800" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                            <g fill="currentColor"><path d="M12 3.25a.75.75 0 0 1 0 1.5a7.25 7.25 0 0 0 0 14.5a.75.75 0 0 1 0 1.5a8.75 8.75 0 1 1 0-17.5Z" /><path d="M16.47 9.53a.75.75 0 0 1 1.06-1.06l3 3a.75.75 0 0 1 0 1.06l-3 3a.75.75 0 1 1-1.06-1.06l1.72-1.72H10a.75.75 0 0 1 0-1.5h8.19l-1.72-1.72Z" /></g>
+                        </svg>
+                        Log Out
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main role="main" class="main mt-4 flex-1 flex flex-col">
+        @RenderBody()
+    </main>
+
+    <div style="display: none;" id="loader" class="loader_wrapper fixed h-screen w-screen bg-black/30 z-[9999] left-0 top-0">
+        <div class="loader_container bg-white/50 rounded-xl flex items-center justify-center w-20 h-20 backdrop-blur-sm absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+            <div class="animate-spin inline-block w-8 h-8 border-[4px] border-current border-t-transparent text-emerald-400 rounded-full"
+                 role="status" aria-label="loading">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- CRITICAL: SCRIPT LOADING ORDER IS IMPORTANT -->
+    <!-- ============================================ -->
+    <!-- 1. jQuery FIRST (required by everything else) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+    <!-- 2. jQuery UI (for datepicker) -->
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
+    <!-- 3. SlimSelect BEFORE page scripts (CRITICAL - Your code needs this!) -->
+    <script src="https://cdn.jsdelivr.net/npm/slim-select@2.9.2/dist/slimselect.min.js"></script>
+
+    <!-- 4. Other libraries -->
+    <script src="~/assets/js/preline.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
+
+    <!-- 5. Your global functions -->
+    <script>
+        function toggleSidebarSize() {
+            const sidebar = document.querySelector(".sidebar");
+            if (!sidebar.classList.contains("shrinked")) {
+                console.log("...");
+                const animation = anime({
+                    targets: '.sidebar',
+                    clipPath: [
+                        'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)',
+                        'polygon(0% 0%, 38.46% 0%, 38.46% 100%, 0% 100%)'
+                    ],
+                    easing: 'linear',
+                    duration: 250,
+                })
+
+                animation.finished.then(() => {
+                    document.querySelector(".sidebar").classList.add("shrinked");
+                    document.querySelector(".sidebar").setAttribute("style", "");
+                })
+            } else {
+                document.querySelector(".sidebar").classList.remove("shrinked");
+                const animation = anime({
+                    targets: '.sidebar',
+                    clipPath: [
+                        'polygon(0% 0%, 38.46% 0%, 38.46% 100%, 0% 100%)',
+                        'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)'
+                    ],
+                    easing: 'linear',
+                    duration: 250,
+                })
+            }
+        }
+
+        function monthNameToNumber(monthName) {
+            var months = {
+                "January": "01",
+                "February": "02",
+                "March": "03",
+                "April": "04",
+                "May": "05",
+                "June": "06",
+                "July": "07",
+                "August": "08",
+                "September": "09",
+                "October": "10",
+                "November": "11",
+                "December": "12"
+            };
+            return months[monthName];
+        }
+
+        function toggleSidebarMobile() {
+            const sidebar = document.querySelector(".sidebar");
+            if (sidebar) {
+                sidebar.classList.add("show");
+            }
+        }
+
+        function closeSidebar() {
+            const sidebar = document.querySelector(".sidebar");
+            if (sidebar) {
+                sidebar.classList.remove("show");
+            }
+        }
+
+        // Session timeout
+        let idleTime = 0;
+
+        function resetIdleTime() {
+            idleTime = 0;
+        }
+
+        window.onload = resetIdleTime;
+        window.onmousemove = resetIdleTime;
+        window.onkeypress = resetIdleTime;
+
+        setInterval(function () {
+            idleTime++;
+            if (idleTime >= 10) {
+                window.location.href = '/Login/Logout';
+            }
+        }, 60000);
+    </script>
+
+    <!-- 6. FINALLY - Your page-specific scripts (AFTER SlimSelect is loaded) -->
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

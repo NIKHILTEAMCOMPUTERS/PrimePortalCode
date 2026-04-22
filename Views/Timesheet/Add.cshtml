@@ -1,0 +1,1571 @@
+﻿@model IEnumerable<RMS.Client.Models.Timesheet.TimesheetsDetailDTO>;
+@{
+    Layout = "Timesheet";
+}
+@section PageStyles {
+    <style>
+        .error-inp::before {
+            z-index: 99;
+        }
+
+        .ss-main {
+            padding-left: 1rem;
+            z-index: 1000 !important; /* Ensure SlimSelect dropdowns are above other elements */
+        }
+
+        .ss-content {
+            max-height: 200px !important; /* Ensure dropdown has enough space */
+            overflow-y: auto !important;
+        }
+
+        .ss-search {
+            display: block !important; /* Ensure search bar is visible */
+        }
+
+        .ss-values {
+            flex-grow: 1;
+        }
+
+        .ss-single {
+            max-width: 10rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .activity-detail-container {
+            position: absolute;
+            background-color: white;
+            left: 0;
+            right: 0;
+            top: 0;
+            border-radius: 1rem;
+            height: 5rem;
+            padding: .5rem;
+            overflow-y: auto;
+            border: 1px solid;
+        }
+
+        .showActivityDetailBtn {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            right: .5rem;
+            margin-block: auto;
+            width: 1.25rem;
+            height: 1.25rem;
+            padding: 0;
+            background: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .showActivityDetailBtn svg {
+                width: 1.25rem;
+                height: 1.25rem;
+            }
+
+            .showActivityDetailBtn path {
+                fill: rgb(59 130 246);
+            }
+
+        .detailModal {
+            max-width: 32rem;
+            border-radius: 1rem;
+        }
+
+            .detailModal::backdrop {
+                background: rgba(17, 24, 39, .5);
+            }
+
+            .detailModal .modalHeader {
+                padding: 1rem;
+                display: flex;
+                justify-content: flex-end;
+            }
+
+                .detailModal .modalHeader button {
+                    width: 1.5rem;
+                    height: 1.5rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                    .detailModal .modalHeader button path {
+                        fill: #222
+                    }
+
+                    .detailModal .modalHeader button:hover path {
+                        fill: #dc2626;
+                    }
+
+            .detailModal .modalBody {
+                padding-inline: 1rem;
+                padding-bottom: 1rem;
+            }
+
+        .greetings-cards-wrapper {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+        }
+    </style>
+}
+
+<div class="greetings-cards-wrapper flex items-center justify-center gap-4 gap-4 relative" style="margin-bottom: 1rem;">
+    <div class="greeting-card bg-white rounded shadow p-4 flex items-center gap-4">
+        <img style="width: 4rem; height: auto;" src="~/assets/images/card_total_month.svg" alt="">
+        <div class="text-left">
+            <p>Total Working Day</p>
+            <p class="text-2xl font-bold" id="workingDays">04</p>
+        </div>
+    </div>
+    <input type="hidden" id="timesheetsid" value="@Model.Select(a => a.Timesheetid).FirstOrDefault()" />
+    <div class="greeting-card bg-white rounded shadow p-4 flex items-center gap-4">
+        <img style="width: 4rem; height: auto;" src="~/assets/images/total_tiesheet_pending.svg" alt="">
+        <div class="text-left">
+            <p>Total Timesheet Entries</p>
+            <p class="text-2xl font-bold" id="totalEntries">@Model.GroupBy(a => a.Timesheetdate).Count()</p>
+        </div>
+    </div>
+    <div class="greeting-card bg-white rounded shadow p-4 flex items-center gap-4">
+        <img style="width: 4rem; height: auto;" src="~/assets/images/total_leaves.svg" alt="">
+        <div class="text-left">
+            <p>Total Leaves</p>
+            <p class="text-2xl font-bold" id="totalLeave">@ViewBag.LeaveCount</p>
+        </div>
+    </div>
+    <div class="greeting-card bg-white rounded shadow p-4 flex items-center gap-4">
+        <img style="width: 4rem; height: auto;" src="~/assets/images/total_tiesheet_pending.svg" alt="">
+        <div class="text-left">
+            <p>Total Timesheet Pending</p>
+            <p class="text-2xl font-bold" id="totalPending">00</p>
+        </div>
+    </div>
+</div>
+
+<div class="relative w-full flex-1 flex flex-col bg-white p-4 rounded-md">
+    <div class="border-b p-2 mb-4 flex items-center" style="margin-top: -1rem; margin-left: -1rem; margin-right: -1rem;">
+        <a asp-action="Index" asp-controller="Timesheet" class="flex items-center gap-1 rounded-full px-2 py-1 text-gray-800 hover:bg-gray-800 hover:text-white text-sm">
+            <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 512 512"><path fill="currentColor" d="M48 256c0 114.87 93.13 208 208 208s208-93.13 208-208S370.87 48 256 48S48 141.13 48 256m212.65-91.36a16 16 0 0 1 .09 22.63L208.42 240H342a16 16 0 0 1 0 32H208.42l52.32 52.73A16 16 0 1 1 238 347.27l-79.39-80a16 16 0 0 1 0-22.54l79.39-80a16 16 0 0 1 22.65-.09" /></svg>
+            Back
+        </a>
+        <span class="text-white flex items-center gap-1 ml-2 text-sm" style="border: 1px solid #89d3ca; background-color: #d7faf6; color: #059080; border-radius: 5rem; padding: .25rem .5rem;">
+            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M8 14q-.425 0-.712-.288T7 13t.288-.712T8 12t.713.288T9 13t-.288.713T8 14m4 0q-.425 0-.712-.288T11 13t.288-.712T12 12t.713.288T13 13t-.288.713T12 14m4 0q-.425 0-.712-.288T15 13t.288-.712T16 12t.713.288T17 13t-.288.713T16 14M5 22q-.825 0-1.412-.587T3 20V6q0-.825.588-1.412T5 4h1V2h2v2h8V2h2v2h1q.825 0 1.413.588T21 6v14q0 .825-.587 1.413T19 22zm0-2h14V10H5z" /></svg>
+            @ViewBag.month
+        </span>
+        <button id="downloadExcel" onclick="downloadTimesheetExcel()" class="flex items-center gap-2 ml-auto">
+            <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 32 32"><defs><linearGradient id="vscodeIconsFileTypeExcel0" x1="4.494" x2="13.832" y1="-2092.086" y2="-2075.914" gradientTransform="translate(0 2100)" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#18884f" /><stop offset=".5" stop-color="#117e43" /><stop offset="1" stop-color="#0b6631" /></linearGradient></defs><path fill="#185c37" d="M19.581 15.35L8.512 13.4v14.409A1.19 1.19 0 0 0 9.705 29h19.1A1.19 1.19 0 0 0 30 27.809V22.5Z" /><path fill="#21a366" d="M19.581 3H9.705a1.19 1.19 0 0 0-1.193 1.191V9.5L19.581 16l5.861 1.95L30 16V9.5Z" /><path fill="#107c41" d="M8.512 9.5h11.069V16H8.512Z" /><path d="M16.434 8.2H8.512v16.25h7.922a1.2 1.2 0 0 0 1.194-1.191V9.391A1.2 1.2 0 0 0 16.434 8.2" opacity="0.1" /><path d="M15.783 8.85H8.512V25.1h7.271a1.2 1.2 0 0 0 1.194-1.191V10.041a1.2 1.2 0 0 0-1.194-1.191" opacity="0.2" /><path d="M15.783 8.85H8.512V23.8h7.271a1.2 1.2 0 0 0 1.194-1.191V10.041a1.2 1.2 0 0 0-1.194-1.191" opacity="0.2" /><path d="M15.132 8.85h-6.62V23.8h6.62a1.2 1.2 0 0 0 1.194-1.191V10.041a1.2 1.2 0 0 0-1.194-1.191" opacity="0.2" /><path fill="url(#vscodeIconsFileTypeExcel0)" d="M3.194 8.85h11.938a1.193 1.193 0 0 1 1.194 1.191v11.918a1.193 1.193 0 0 1-1.194 1.191H3.194A1.19 1.19 0 0 1 2 21.959V10.041A1.19 1.19 0 0 1 3.194 8.85" /><path fill="#fff" d="m5.7 19.873l2.511-3.884l-2.3-3.862h1.847L9.013 14.6c.116.234.2.408.238.524h.017q.123-.281.26-.546l1.342-2.447h1.7l-2.359 3.84l2.419 3.905h-1.809l-1.45-2.711A2.4 2.4 0 0 1 9.2 16.8h-.024a1.7 1.7 0 0 1-.168.351l-1.493 2.722Z" /><path fill="#33c481" d="M28.806 3h-9.225v6.5H30V4.191A1.19 1.19 0 0 0 28.806 3" /><path fill="#107c41" d="M19.581 16H30v6.5H19.581Z" /></svg>
+            <span class="text-sm text-gray-600">Export to Excel</span>
+        </button>
+    </div>
+
+    <div class="flex justify-between items-center mb-4">
+        <div class="flex items-center gap-2">
+            <img class="w-8 h-8" src="@Url.Content("~/assets/images/fill_timesheet_icon.svg")" alt="timesheet icon">
+            <div>
+                <p class="font-bold text-xl">Fill Timesheet</p>
+                <p class="text-sm">Fill In the given details below</p>
+            </div>
+        </div>
+
+        <button onclick="addNewRow()"
+                class="flex items-center gap-2 bg-blue-500 text-white rounded-full px-6 py-3 hover:shadow-2xl transition-all">
+            <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 32 32"><path fill="currentColor" d="M16 2A14.173 14.173 0 0 0 2 16a14.173 14.173 0 0 0 14 14a14.173 14.173 0 0 0 14-14A14.173 14.173 0 0 0 16 2m8 15h-7v7h-2v-7H8v-2h7V8h2v7h7Z" /><path fill="none" d="M24 17h-7v7h-2v-7H8v-2h7V8h2v7h7z" /></svg>
+            Add Row
+        </button>
+    </div>
+
+    <div class="table-wrapper flex-1 overflow-y-auto">
+        <div class="flex flex-col">
+            <div class="-m-1.5 overflow-x-auto">
+                <div class="p-1.5 min-w-full inline-block align-middle">
+                    <div class="border rounded-lg overflow-hidden">
+                        <table class="min-w-full divide-y divide-gray-200" id="datatable">
+                            <thead class="bg-[#F2F3F8]">
+                                <tr class="divide-x">
+                                    <th scope="col"
+                                        class="px-2 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600">
+                                        <div class="flex items-center gap-2">
+                                            <div class="flex">
+                                                <input onchange="checkAll(this);" type="checkbox" class="shrink-0 mt-0.5 border-gray-200 rounded text-emerald-600 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none" id="select-all">
+                                                <label for="select-all" class="sr-only">Select</label>
+                                            </div>
+                                            S.No
+                                        </div>
+                                    </th>
+                                    <th scope="col"
+                                        class="px-2 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600">
+                                        <div class="flex items-center gap-2">
+                                            <img class="w-6 h-6" src="@Url.Content("~/assets/images/select_date_icon.svg")" alt="date icon">
+                                            Date
+                                        </div>
+                                    </th>
+                                    <th scope="col"
+                                        class="px-2 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600">
+                                        <div class="flex items-center gap-2">
+                                            <img class="w-6 h-6" src="@Url.Content("~/assets/images/select_hours_icon.svg")" alt="hour icon">
+                                            Hours
+                                        </div>
+                                    </th>
+                                    <th scope="col"
+                                        class="px-2 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600">
+                                        <div class="flex items-center gap-2">
+                                            <img class="w-6 h-6" src="@Url.Content("~/assets/images/activity_icon.svg")" alt="activity icon">
+                                            Category Of Activity
+                                        </div>
+                                    </th>
+                                    <th scope="col"
+                                        class="px-2 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600">
+                                        <div class="flex items-center gap-2">
+                                            <img class="w-6 h-6" src="@Url.Content("~/assets/images/activity_icon.svg")" alt="activity icon">
+                                            Activity
+                                        </div>
+                                    </th>
+                                    <th scope="col"
+                                        class="px-2 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600">
+                                        <div class="flex items-center gap-2">
+                                            <img class="w-6 h-6" src="@Url.Content("~/assets/images/activity_icon.svg")" alt="activity icon">
+                                            Customer
+                                        </div>
+                                    </th>
+                                    <th scope="col"
+                                        class="px-2 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600">
+                                        <div class="flex items-center gap-2">
+                                            <img class="w-6 h-6" src="@Url.Content("~/assets/images/project_name_icon.svg")" alt="project icon">
+                                            Project Name
+                                        </div>
+                                    </th>
+                                    <th scope="col"
+                                        class="px-2 py-3 text-left text-sm font-bold whitespace-nowrap text-gray-600">
+                                        <div class="flex items-center gap-2">
+                                            <img class="w-6 h-6" src="@Url.Content("~/assets/images/status_action_icon.svg")" alt="status icon">
+                                            Status
+                                        </div>
+                                    </th>
+                                    <th scope="col"
+                                        class="px-2 py-3 text-sm font-bold whitespace-nowrap text-gray-600 text-center">
+                                        <div class="flex items-center gap-2">
+                                            <img class="w-6 h-6" src="@Url.Content("~/assets/images/status_action_icon.svg")" alt="action icon">
+                                        </div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                @if (Model != null)
+                                {
+                                    int count = 1;
+                                    @foreach (var detail in Model)
+                                    {
+                                        <tr class="timesheet-row divide-x" data-rowindex="@count">
+                                            <td width="5%" class="p-2 whitespace-nowrap text-sm font-medium text-gray-800">
+                                                <div class="flex items-center gap-2">
+                                                    <div class="flex">
+                                                        <input timesheetId="@detail.Timesheetdetailid" type="checkbox" @(detail.Isdrafted ? "" : "disabled checked ") class="timesheetcheckbox shrink-0 mt-0.5 border-gray-200 rounded text-emerald-600 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                                        <label for="select-01" class="sr-only">Select</label>
+                                                    </div>
+                                                    <span class="serial-no">@count </span>
+                                                </div>
+                                            </td>
+                                            <td class="p-2 whitespace-nowrap text-sm text-gray-800" width="14%">
+                                                <div class="relative">
+                                                    <input type="text" @(detail.Isdrafted ? "" : "disabled ") onchange="@(detail.Isdrafted == false ? "" : "checkRow(event);")" timesheetdetailId="@detail.Timesheetdetailid" value="@detail.Timesheetdate.ToString("dd MMMM yyyy")"
+                                                           class="timesheet_date py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none"
+                                                           placeholder="Select Date" readonly>
+                                                </div>
+                                            </td>
+                                            <td class="p-2 whitespace-nowrap text-sm text-gray-800" width="12%">
+                                                <div class="relative">
+                                                    <input type="number" @(detail.Isdrafted ? "" : "disabled ") onchange="@(detail.Isdrafted == false ? "" : "checkRow(event);")" step="0.5" value="@detail.Dayhours" min="0" max="15" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 49 && event.charCode <= 57))"
+                                                           class="hours py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none"
+                                                           placeholder="Hours">
+                                                </div>
+                                            </td>
+                                            <td class="p-2 whitespace-nowrap text-sm text-gray-800">
+                                                <div class="relative">
+                                                    <select name="categoryofactivityId" onchange="forLeave(this); checkRow(event);" @(!detail.Isdrafted ? "disabled" : "") class="categoryofactivity py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none"
+                                                            style="min-width: 12rem;">
+                                                        <option value="0">Select Category Of Activity</option>
+                                                        @foreach (var Category in ViewBag.GetCategoryOfActivity)
+                                                        {
+                                                            var isSelected = Category.Value == detail.categoryofactivityid.ToString() ? "selected" : "";
+                                                            if (isSelected == "selected")
+                                                            {
+                                                                <option value="@Category.Value" selected>@Category.Text</option>
+                                                            }
+                                                            else
+                                                            {
+                                                                <option value="@Category.Value">@Category.Text</option>
+                                                            }
+                                                        }
+                                                    </select>
+                                                </div>
+                                            </td>
+                                            <td class="p-2 whitespace-nowrap text-sm text-gray-800" width="46%">
+                                                <div class="relative">
+                                                    <input type="text" @(detail.Isdrafted ? "" : "disabled ") onchange="@(detail.Isdrafted == false ? "" : "checkRow(event); handleActivityError(this);")" value="@detail.Activity"
+                                                           class="activity py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none"
+                                                           placeholder="Activity (At least 50 characters required)">
+                                                    @if (!detail.Isdrafted)
+                                                    {
+                                                        <button onclick="showDetail(this);" class="showActivityDetailBtn" title="Show Detail">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="#ff5252" d="M12 9a3 3 0 0 0-3 3a3 3 0 0 0 3 3a3 3 0 0 0 3-3a3 3 0 0 0-3-3m0 8a5 5 0 0 1-5-5a5 5 0 0 1 5-5a5 5 0 0 1 5 5a5 5 0 0 1-5 5m0-12.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5" /></svg>
+                                                        </button>
+                                                    }
+                                                </div>
+                                            </td>
+                                            <td class="p-2 whitespace-nowrap text-sm text-gray-800">
+                                                <div class="relative">
+                                                    <select name="Customerid" @(!detail.Isdrafted ? "disabled" : "") onchange="handleCustomerChange(event, this);" class="customer activity py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none"
+                                                            style="min-width: 12rem;">
+                                                        <option value="0">Select Customer</option>
+                                                        @foreach (var customer in ViewBag.activeCustomer)
+                                                        {
+                                                            var isSelected = customer.Value == detail.CustomerId.ToString() ? "selected" : "";
+                                                            if (isSelected == "selected")
+                                                            {
+                                                                <option value="@customer.Value" selected>@customer.Text</option>
+                                                            }
+                                                            else
+                                                            {
+                                                                <option value="@customer.Value">@customer.Text</option>
+                                                            }
+                                                        }
+                                                    </select>
+                                                </div>
+                                            </td>
+                                            <td class="p-2 whitespace-nowrap text-sm text-gray-800" width="12%">
+                                                <div class="relative">
+                                                    <select @(!detail.Isdrafted ? "disabled" : "") class="project_name py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                                        <option>Select Project</option>
+                                                        <option selected value="@detail.ProjectId">@detail.Projectname</option>
+                                                    </select>
+                                                </div>
+                                            </td>
+                                            <td class="p-2 whitespace-nowrap text-sm text-gray-800" width="7%">
+                                                <span class="text-xs font-bold @(detail.Isdrafted ? "text-orange-500" : "text-emerald-400")">@(detail.Isdrafted ? "Draft" : "Submitted")</span>
+                                            </td>
+                                            <td class="p-2 whitespace-nowrap text-sm text-gray-800 text-center" width="4%">
+                                                <div class="hs-dropdown ml-auto relative inline-flex">
+                                                    <button id="hs-dropdown-with-header" type="button"
+                                                            class="hs-dropdown-toggle overflow-hidden inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-white text-gray-700 shadow-sm align-middle hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-emerald-500 transition-all text-sm">
+                                                        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 20 20"><g fill="currentColor"><circle cx="10" cy="15" r="2" /><circle cx="10" cy="10" r="2" /><circle cx="10" cy="5" r="2" /></g></svg>
+                                                    </button>
+
+                                                    <div style="z-index:99;" class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden bg-white shadow-md rounded-lg p-2 mt-2"
+                                                         aria-labelledby="hs-dropdown-with-header">
+                                                        <div class="mt-2 py-2 first:pt-0 last:pb-0">
+                                                            <div class="flex items-center gap-1">
+                                                                @if (detail.Isdrafted)
+                                                                {
+                                                                    <button title="Submit" type="button" onclick="singleSubmit(this);"
+                                                                            class="w-8 h-8 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-full border border-transparent text-gray-400 bg-gray-200 hover:bg-emerald-400 hover:text-white disabled:opacity-50 disabled:pointer-events-none">
+                                                                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg"
+                                                                             width="24" height="24" viewBox="0 0 24 24">
+                                                                            <path fill="currentColor"
+                                                                                  d="M5 21h14a2 2 0 0 0 2-2V8a1 1 0 0 0-.29-.71l-4-4A1 1 0 0 0 16 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2m10-2H9v-5h6zM13 7h-2V5h2zM5 5h2v4h8V5h.59L19 8.41V19h-2v-5a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v5H5z" />
+                                                                        </svg>
+                                                                    </button>
+                                                                }
+                                                                <button title="Copy" onclick="copyRow(this);" type="button"
+                                                                        class="w-8 h-8 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-full border border-transparent text-gray-400 bg-gray-200 hover:bg-yellow-400 hover:text-white disabled:opacity-50 disabled:pointer-events-none">
+                                                                    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg"
+                                                                         width="24" height="24" viewBox="0 0 24 24">
+                                                                        <path fill="currentColor"
+                                                                              d="M20 2H10c-1.103 0-2 .897-2 2v4H4c-1.103 0-2 .897-2 2v10c0 1.103.897 2 2 2h10c1.103 0 2-.897 2-2v-4h4c1.103 0 2-.897 2-2V4c0-1.103-.897-2-2-2M4 20V10h10l.002 10zm16-6h-4v-4c0-1.103-.897-2-2-2h-4V4h10z" />
+                                                                        <path fill="currentColor" d="M6 12h6v2H6zm0 4h6v2H6z" />
+                                                                    </svg>
+                                                                </button>
+                                                                @if (detail.Isdrafted)
+                                                                {
+                                                                    <button onclick="deleteRow(this);" type="button" title="Discard"
+                                                                            class="w-8 h-8 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-full border border-transparent text-gray-400 bg-gray-200 hover:bg-gray-800 hover:text-white disabled:opacity-50 disabled:pointer-events-none">
+                                                                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg"
+                                                                             width="24" height="24" viewBox="0 0 24 24">
+                                                                            <path fill="currentColor"
+                                                                                  d="M5 20a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8h2V6h-4V4a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v2H3v2h2zM9 4h6v2H9zM8 8h9v12H7V8z" />
+                                                                            <path fill="currentColor" d="M9 10h2v8H9zm4 0h2v8h-2z" />
+                                                                        </svg>
+                                                                    </button>
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        count++;
+                                    }
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="9" class="p-2 whitespace-nowrap text-sm text-gray-800">
+                                        <div class="flex justify-between">
+                                            <div class="ml-auto px-2 py-2">
+                                                <p class="text-yellow-300 font-bold hidden"></p>
+                                            </div>
+                                            <button id="submitAll" onclick="SubmitAll();" class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent text-emerald-500 hover:text-white hover:bg-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                                Submit Selected
+                                                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg"
+                                                     width="24" height="24" viewBox="0 0 24 24">
+                                                    <path fill="currentColor" fill-rule="evenodd"
+                                                          d="M3.402 6.673c-.26-2.334 2.143-4.048 4.266-3.042l11.944 5.658c2.288 1.083 2.288 4.339 0 5.422L7.668 20.37c-2.123 1.006-4.525-.708-4.266-3.042L3.882 13H12a1 1 0 1 0 0-2H3.883z"
+                                                          clip-rule="evenodd" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<dialog id="showActivityDetail" class="customModal detailModal">
+    <div class="modalHeader">
+        <button onclick="closeActivityModal();">
+            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12m7.707-3.707a1 1 0 0 0-1.414 1.414L10.586 12l-2.293 2.293a1 1 0 1 0 1.414 1.414L12 13.414l2.293 2.293a1 1 0 0 0 1.414-1.414L13.414 12l2.293-2.293a1 1 0 0 0-1.414-1.414L12 10.586z" clip-rule="evenodd" /></svg>
+        </button>
+    </div>
+    <div class="modalBody"></div>
+</dialog>
+
+@section Scripts {
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+
+    <script>
+        var customers = @(ViewBag.activeCustomer != null ? Html.Raw(Json.Serialize(ViewBag.activeCustomer)) : "[]");
+        var category = @(ViewBag.GetCategoryOfActivity != null ? Html.Raw(Json.Serialize(ViewBag.GetCategoryOfActivity)) : "[]");
+        const rowData = [];
+
+        var projectData;
+        $(function () {
+            setProject();
+            const allCustomerSelects = document.querySelectorAll("select.customer");
+            allCustomerSelects.forEach(item => {
+                const rowInd = Number(item.closest("tr").getAttribute("data-rowindex"));
+                const slimselect = initSlimSelect(item);
+                if (rowData[rowInd]) {
+                    rowData[rowInd] = {
+                        ...rowData[rowInd],
+                        customerSelect: slimselect
+                    }
+                } else {
+                    rowData[rowInd] = {
+                        customerSelect: slimselect
+                    }
+                }
+            });
+
+            const allProjects = document.querySelectorAll("select.project_name");
+            allProjects.forEach(item => {
+                const rowInd = Number(item.closest("tr").getAttribute("data-rowindex"));
+                const slimselect = initSlimSelect(item);
+                if (rowData[rowInd]) {
+                    rowData[rowInd] = {
+                        ...rowData[rowInd],
+                        projectSelect: slimselect
+                    }
+                } else {
+                    rowData[rowInd] = {
+                        projectSelect: slimselect
+                    }
+                }
+            });
+
+            const allCategories = document.querySelectorAll("select.categoryofactivity");
+            allCategories.forEach(item => {
+                const rowInd = Number(item.closest("tr").getAttribute("data-rowindex"));
+                const slimselect = initSlimSelect(item);
+                if (rowData[rowInd]) {
+                    rowData[rowInd] = {
+                        ...rowData[rowInd],
+                        categorySelect: slimselect
+                    }
+                } else {
+                    rowData[rowInd] = {
+                        categorySelect: slimselect
+                    }
+                }
+            });
+
+            addNewRow();
+        @if (ViewData["error"] != null)
+        {
+                <text>
+                            toastr.error("@ViewData["error"]", "Error", {"iconClass": 'new-error' });
+                </text>
+        }
+        @if (ViewData["success"] != null)
+        {
+                <text>
+                            toastr.success("@ViewData["success"]");
+                </text>
+        }
+                });
+
+        $(function () {
+            $(".timesheet_date").datepicker({ maxDate: 0, dateFormat: 'dd MM yy', beforeShowDay: unavailable });
+        });
+
+        function initSlimSelect(select) {
+            if (!select || select.hasAttribute('data-ssid')) {
+                console.log("SlimSelect already initialized or invalid select:", select);
+                return select?.slim || null;
+            }
+            console.log("Initializing SlimSelect for:", select, "Options:", select.options.length);
+            const slimSelect = new SlimSelect({
+                select: select,
+                searchPlaceholder: 'Search...',
+                searchText: 'No results found',
+                allowDeselect: true
+            });
+            return slimSelect;
+        }
+
+        function unavailable(date) {
+            const _d = date.getDate() < 10 ? `0${date.getDate()}` : date.getDate();
+            const _m = (date.getMonth() + 1) < 10 ? `0${(date.getMonth() + 1)}` : (date.getMonth() + 1);
+            const _y = date.getFullYear();
+            dmy = _d + "-" + _m + "-" + _y;
+            if ($.inArray(dmy, getDates) == -1) {
+                return [true, ""];
+            } else {
+                return [false, "", "Unavailable"];
+            }
+        }
+
+        function initDatepicker() {
+            const _allDateInputs = document.querySelectorAll(".timesheet_date");
+            var allowedDate = new Date((new URLSearchParams(window.location.search).get('month')).replace('-', ' '));
+            var year = "20" + (new URLSearchParams(window.location.search).get('month')).split('-')[1];
+            var month = (new URLSearchParams(window.location.search).get('month')).split('-')[0];
+            var today = new Date();
+            var minDate = new Date();
+            minDate.setDate(today.getDate() - 3);
+
+            _allDateInputs.forEach(inp => {
+                $(inp).datepicker({
+                    maxDate: 0,
+                    dateFormat: 'dd MM yy',
+                    defaultDate: new Date(year, getMonthIndex(month), 1),
+                    beforeShowDay: function (date) {
+                        return [date >= minDate && date <= today];
+                    }
+                });
+            });
+        }
+
+        async function handleCustomerChange(e, select) {
+            const rowInd = Number(select.closest("tr").getAttribute("data-rowindex"));
+            const selectedCustomerId = select.value;
+            if (!selectedCustomerId) return;
+            const response = await fetch(`/Base/GetProjectAndPracticeByCustomerId?Customerid=${selectedCustomerId}`);
+
+            if (response && response?.status === 200) {
+                const customerProjects = await response.json();
+                const _copyProject = select.closest("tr").querySelector(".project_name").getAttribute("data-copyproject");
+                const selectProjectData = customerProjects.map(item => {
+                    return {
+                        text: item.projectName,
+                        value: item.projectId,
+                        selected: item.projectId == _copyProject
+                    }
+                });
+                selectProjectData.unshift({ text: "Select Project", value: "0" });
+                setTimeout(() => {
+                    rowData[rowInd]?.projectSelect.setData(selectProjectData);
+                }, 100);
+            }
+            checkRow(e);
+        }
+
+        function createRowsFromTemplate(n) {
+            for (let i = 0; i < n; i++) {
+                addNewRow();
+            }
+        }
+
+        function removeAllTimesheetRowsExceptFirst() {
+            const allRows = Array.from(document.querySelectorAll(".timesheet-row"));
+            for (let i = 1; i < allRows.length; i++) {
+                allRows[i].remove();
+            }
+        }
+
+        function resetFirstRowData() {
+            const allInputs = document.querySelectorAll(".timesheet-row select, .timesheet-row input, .timesheet-row textarea");
+            allInputs.forEach(item => {
+                item.value = "";
+                item.classList.remove("is-invalid")
+            });
+        }
+
+        async function selectTemplate(select) {
+            var tempId = select.value;
+            let response = await fetch(`/Template/GetTemplateById?id=${tempId}`);
+            if (response != null) {
+                let data = await response.json();
+                const parseData = JSON.parse(data);
+                const templateDetails = parseData.templatedetails;
+
+                removeAllTimesheetRowsExceptFirst();
+                resetFirstRowData();
+                createRowsFromTemplate(templateDetails.length - 1);
+
+                const allRows = document.querySelectorAll(".timesheet-row");
+                allRows.forEach((row, index) => {
+                    let currentRowData = templateDetails[index];
+                    row.querySelector('#Hours').value = currentRowData.hours;
+                    row.querySelector('#Remarks').value = currentRowData.remarks;
+                    row.querySelector('#Activity').value = currentRowData.activity;
+                    row.querySelector('#DepartmentName').value = currentRowData.departmentid;
+                    row.querySelector('#ProjectName').value = currentRowData.projectid;
+                });
+                const event = new Event('change');
+                document.querySelector('#Hours').dispatchEvent(event);
+            }
+        }
+
+        function getDateFromPicker() {
+            const date = $('#TsDate').datepicker('getDate');
+            if (!date) {
+                return;
+            }
+            const _d = date.getDate() < 10 ? `0${date.getDate()}` : date.getDate();
+            const _m = (date.getMonth() + 1) < 10 ? `0${(date.getMonth() + 1)}` : (date.getMonth() + 1);
+            const _y = date.getFullYear();
+            return `${_y}-${_m}-${_d}`;
+        }
+
+        function handleSubmit(e) {
+            e.preventDefault();
+
+            if (isRowValid(e.target.closest("tr"))) {
+                document.querySelector("#loader").style.display = "flex";
+                const allinput = document.querySelectorAll(".timesheet-row");
+
+                allinput.forEach(item => {
+                    var timesheetDetail = {
+                        Departmentid: 22,
+                        Projectid: Number(item.querySelector("#ProjectName").getAttribute("data-projidinp")),
+                        Activity: item.querySelector("#Activity").value,
+                        Hours: item.querySelector("#Hours").value
+                    }
+                    timesheetDetails.push(timesheetDetail);
+                });
+
+                const timesheetData = {
+                    Timesheetdate: getDateFromPicker(),
+                    TimesheetDetails: timesheetDetails
+                };
+
+                $.ajax({
+                    url: '/Timesheet/Add',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(timesheetData),
+                    success: function (response) {
+                        if (response.success == true) {
+                            $("#loader").hide();
+                            toastr.success(response.msg);
+                            setTimeout(() => {
+                                window.location.href = "/Timesheet/Add"
+                            }, 1500)
+                        } else {
+                            $("#loader").hide();
+                            toastr.error(response.msg);
+                            console.log("Failure");
+                        }
+                    }
+                });
+            }
+        }
+
+        var Timesheets = [];
+
+        function handleSingleSubmit(row) {
+            var dateString = $(row).find('.timesheet_date').val();
+
+            const totalHoursUnderLimit = CalculateHours(dateString);
+
+            if (!totalHoursUnderLimit) {
+                document.querySelector("#loader").style.display = "none";
+                toastr.error("Total hours for this date exceeds 14 Hours Limit");
+                return;
+            }
+
+            var parts = dateString.split(' ');
+            var month = monthNameToNumber(parts[1]);
+            var day = parts[0];
+            var year = parts[2];
+
+            var formattedDate = year + '-' + month + '-' + day;
+            var timesheetDetail = {
+                timesheetdetailid: $(row).find('.timesheet_date').attr('timesheetdetailId') != undefined ? $(row).find('.timesheet_date').attr('timesheetdetailId') : 0,
+                timesheetid: new URLSearchParams(window.location.search).get('id'),
+                Departmentid: 22,
+                timesheetdate: formattedDate,
+                dayhours: $(row).find('.hours').val(),
+                activity: $(row).find('.activity').val(),
+                projectId: $(row).find('.project_name').val(),
+                categoryofactivityid: $(row).find('.categoryofactivity').val(),
+            };
+
+            var fData = new FormData();
+            fData.append("timesheetData", JSON.stringify(timesheetDetail));
+            $(".ml-auto p").text("Saving...").show();
+
+            $.ajax({
+                url: '/Timesheet/Add',
+                type: 'POST',
+                contentType: false,
+                data: fData,
+                processData: false,
+                success: function (response) {
+                    $("#loader").hide();
+                    if (response.success == true) {
+                        $(row).find('.timesheet_date').attr('timesheetdetailId', response.msg);
+                        $(row).find('.timesheetcheckbox').attr('timesheetId', response.msg);
+                        $(".ml-auto p").text("Saved").show();
+                        setTimeout(function () {
+                            $(".ml-auto p").hide();
+                        }, 2000);
+                    } else {
+                        $("#loader").hide();
+                        toastr.error(response.msg);
+                        console.log("Failure");
+                    }
+                }
+            });
+        }
+
+        function checkAll(input) {
+            const checkedAction = input.checked ? true : false;
+            const allCheckBox = document.querySelectorAll("#datatable tbody input[type='checkbox'][timesheetid]:not(:disabled)");
+            allCheckBox.forEach(item => {
+                item.checked = checkedAction;
+            });
+        }
+
+        function singleSubmit(btn) {
+            var timesheetid = $(btn).closest('tr').find('.timesheetcheckbox').attr('timesheetId');
+            if (!timesheetid) {
+                toastr.error("Timesheet should be saved in draft first before submitting.");
+                return;
+            }
+            var data = [];
+            data.push(timesheetid);
+            submitTimeSheet(data);
+        }
+
+        function SubmitAll() {
+            const allCheckedRows = document.querySelectorAll("#datatable tbody input[type='checkbox'][timesheetid]:checked:not(:disabled)");
+            if (!allCheckedRows.length) {
+                toastr.error("No rows selected");
+                return;
+            }
+            var data = [];
+            for (var i = 0; i < allCheckedRows.length; i++) {
+                data.push(parseInt(allCheckedRows[i].getAttribute('timesheetid')));
+            }
+
+            submitTimeSheet(data);
+        }
+
+        function submitTimeSheet(data) {
+            document.querySelector("#loader").style.display = "flex";
+            $.ajax({
+                url: '/Timesheet/SubmitTimeSheetDetails',
+                type: 'POST',
+                dataType: 'json',
+                data: { ids: data },
+                traditional: true,
+                success: function (res) {
+                    if (res.success == true) {
+                        $("#loader").hide();
+                        toastr.success(res.msg);
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500)
+                    } else {
+                        toastr.error(res.msg);
+                        $("#loader").hide();
+
+                    }
+                }
+            });
+        }
+
+        function Validation() {
+            RemoveValidation();
+            var isAllowed = true;
+            // console.log($("#TsDate").val())
+            if (!$("#TsDate").val()) {
+                isAllowed = false;
+                $("#TsDate").addClass('is-invalid');
+            }
+            var tsDivs = $(".timesheet-row");
+            for (i = 0; i < tsDivs.length; i++) {
+                if (!validinput(tsDivs[i])) {
+                    isAllowed = false;
+                    break;
+                }
+
+            }
+        }
+
+
+        function validinput(inputDiv) {
+            var status = true;
+
+
+            if ($(inputDiv).find("#Activity").val() === '' && $(inputDiv).find("#Activity").val().trim().length < 50) {
+                status = false;
+                $(inputDiv).find("#Activity").addClass('is-invalid');
+            }
+
+            var hoursInt = parseInt($(inputDiv).find("#Hours").val());
+            //  console.log(hoursInt);
+            if ($(inputDiv).find("#Hours").val() === '' || $(inputDiv).find("#Hours").val() === '0' || hoursInt < 0) {
+                status = false;
+                $(inputDiv).find("#Hours").addClass('is-invalid');
+            }
+
+            if ($(inputDiv).find("#DepartmentName").val() === '' || $(inputDiv).find("#DepartmentName").val() === '1') {
+                status = false;
+                $(inputDiv).find("#DepartmentName").addClass('is-invalid');
+            }
+
+            if ($(inputDiv).find("#ProjectName").val() === '' || $(inputDiv).find("#ProjectName").val() === '0') {
+                status = false;
+                $(inputDiv).find("#ProjectName").addClass('is-invalid');
+            }
+            return status;
+        };
+
+        function RemoveValidation() {
+            $("#TsDate").removeClass('is-invalid');
+            var inputDiv = $(".timesheet-row");
+            for (i = 0; i < inputDiv.length; i++) {
+                // $(inputDiv[i]).find("#Remarks").removeClass('is-invalid');
+                $(inputDiv[i]).find("#Activity").removeClass('is-invalid');
+                $(inputDiv[i]).find("#Hours").removeClass('is-invalid');
+                $(inputDiv[i]).find("#DepartmentName").removeClass('is-invalid');
+                $(inputDiv[i]).find("#ProjectName").removeClass('is-invalid');
+            }
+
+        }
+
+        const timesheetDetails = [];
+
+        function addNewRow(isEmpty = false) {
+            var timestamp = Date.now();
+            var dynamicId = "select_" + timestamp;
+
+            document.querySelector("#datatable tbody tr.no-row")?.remove();
+            let serialNo = document.querySelectorAll("#datatable tbody tr").length + 1;
+            const _newRow = document.createElement("tr");
+            _newRow.classList.add("divide-x")
+            if (isEmpty) {
+                _newRow.classList.add("empty-row")
+            }
+            let newRowHtml = getRowHtml();
+
+            _newRow.innerHTML = newRowHtml;
+
+            const tBody = document.querySelector("#datatable tbody");
+            if (tBody) {
+                tBody && tBody.appendChild(_newRow);
+                initDatepicker();
+            }
+
+            const _customerSelect = _newRow.querySelector("select");
+            const _projectSelect = _newRow.querySelector(".project_name");
+
+            const _customerSlimSelect = initSlimSelect(_customerSelect);
+            const _projectSlimSelect = initSlimSelect(_projectSelect);
+            rowData[serialNo] = {
+                customerSelect: _customerSlimSelect,
+                projectSelect: _projectSlimSelect
+            }
+            setProject(dynamicId);
+            reCalculateSerial();
+        }
+        function getMonthIndex(monthName) {
+            return ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].indexOf(monthName);
+        }
+        // no limit
+        // no limit
+        // function initDatepicker() {
+        //     //   console.log("Limit off")
+        //     const _allDateInputs = document.querySelectorAll(".timesheet_date");
+        //     // console.log(_allDateInputs)
+        //     var allowedDate = new Date((new URLSearchParams(window.location.search).get('month')).replace('-', ' '));
+        //     var year = "20" + (new URLSearchParams(window.location.search).get('month')).split('-')[1];
+        //     var month = (new URLSearchParams(window.location.search).get('month')).split('-')[0];
+
+        //     _allDateInputs.forEach(inp => {
+        //         $(inp).datepicker({
+        //             maxDate: 0,
+        //             dateFormat: 'dd MM yy',
+        //             defaultDate: new Date(year, getMonthIndex(month), 1),
+        //             beforeShowDay: function (date) {
+        //                 return [(date.getMonth() === getMonthIndex(month) && date.getFullYear() === parseInt(year))];
+        //             }
+        //         });
+        //     });
+        // }
+
+
+
+        function deleteRow(btn) {
+            const tbody = btn.closest("tbody");
+            var timesheetid = $(btn).closest('tr').find('.timesheetcheckbox').attr('timesheetId');
+            const rowInd = Number(btn.closest("tr").getAttribute("data-rowindex"));
+            if (timesheetid != undefined) {
+                $.ajax({
+                    url: '/Timesheet/Delete',
+                    type: 'POST',
+                    data: { id: timesheetid },
+                    success: function (res) {
+                        $("#loader").hide();
+                        if (res.success == true) {
+                            toastr.success(res.msg);
+                            btn.closest("tr").remove();
+                            reCalculateSerial();
+                            if (!tbody.querySelectorAll("tr").length) {
+                                const emptyTr = document.createElement("tr");
+                                emptyTr.classList.add("no-row");
+                                emptyTr.innerHTML = '<td colspan="7" class="p-2 text-center">No Timesheet found <button class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent text-white bg-emerald-500 disabled:opacity-50 disabled:pointer-events-none" onclick="addNewRow();">Add New</button></td>';
+                                tbody.appendChild(emptyTr);
+                            }
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1500)
+
+                        } else {
+                            toastr.error(res.msg);
+                        }
+                    }
+                });
+            } else {
+                btn.closest("tr").remove();
+                reCalculateSerial();
+                rowData.splice(rowInd, 1);
+                if (!tbody.querySelectorAll("tr").length) {
+                    const emptyTr = document.createElement("tr");
+                    emptyTr.classList.add("no-row");
+                    emptyTr.innerHTML = '<td colspan="7" class="p-2 text-center">No Timesheet found <button class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent text-white bg-emerald-500 disabled:opacity-50 disabled:pointer-events-none" onclick="addNewRow();">Add New</button></td>';
+                    tbody.appendChild(emptyTr);
+                }
+            }
+        }
+
+
+        function copyRow(btn) {
+            const _currentRow = btn.closest("tr");
+            const _rowInd = Number(_currentRow.getAttribute("data-rowindex"));
+            let serialNo = document.querySelectorAll("#datatable tbody tr").length + 1;
+            const _tbody = btn.closest("tbody");
+            if (!isRowValid(_currentRow)) {
+                return;
+            }
+            const _copyActivity = _currentRow.querySelector(".activity").value;
+            const _copyHours = _currentRow.querySelector(".hours").value;
+            //changes by GAUTAM (project and customer set empty string)
+
+            //const _copyProject = _currentRow.querySelector(".project_name").value;
+            const _copyProject = "";
+            const _copyDate = "";
+            const _copyCustomer = "";
+            //const _copyCustomer = _currentRow.querySelector("select").value;
+            // const _copyDept = _currentRow.querySelector(".department").value;
+
+            const _newRow = document.createElement("tr");
+            _newRow.classList.add("divide-x");
+            let newRowHtml = getRowHtml(_copyDate, _copyHours, null, _copyActivity, _copyCustomer, _copyProject);
+
+            _newRow.innerHTML = newRowHtml;
+
+            // if (_currentRow.nextElementSibling) {
+            //     _tbody.insertBefore(_newRow, _currentRow.nextElementSibling);
+            // } else {
+            //     _tbody.appendChild(_newRow);
+            // }
+
+            _tbody.appendChild(_newRow);
+            reCalculateSerial();
+            initDatepicker();
+
+            const _customerSelect = _newRow.querySelector("select");
+            const _projectSelect = _newRow.querySelector(".project_name");
+
+            const _customerSlimSelect = initSlimSelect(_customerSelect);
+            const _projectSlimSelect = initSlimSelect(_projectSelect);
+            rowData[serialNo] = {
+                customerSelect: _customerSlimSelect,
+                projectSelect: _projectSlimSelect
+            }
+            _customerSelect.dispatchEvent(new Event("change"));
+        }
+
+
+        function getRowHtml(_copyDate = null, _copyHours = null, _copyCategoryactivity = null, _copyActivity = null, _copyCustomer = null, _copyProject = "") {
+            let newRowHtml = "";
+            newRowHtml += `<td width="5%" class="p-2 whitespace-nowrap text-sm font-medium text-gray-800">
+                                                                                                <div class="flex items-center gap-2">
+                                                                                                                    <div class="flex">
+                                                                                                                        <input type="checkbox" class="timesheetcheckbox shrink-0 mt-0.5 border-gray-200 rounded text-emerald-600 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none" id="select-00">
+                                                                                                                            <label for="select-00" class="sr-only">Select</label>
+                                                                                                                    </div>
+                                                                                                                    <span class="serial-no">00</span>
+                                                                                                                </div>
+                                                                                                </td>`;
+            newRowHtml += `<td class="p-2 whitespace-nowrap text-sm text-gray-800" width="10%">
+                                                                                                                                       <div class="relative"> <input type="text" onchange="checkRow(event);"
+                                                                                                                            class="timesheet_date
+                                                                                                                    py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none"
+                                                                                                                    placeholder="Select Date" value="${_copyDate ? _copyDate : ""}" readonly></div>
+                                                                                                            </td>`;
+            newRowHtml += `<td class="p-2 whitespace-nowrap text-sm text-gray-800" width="12%">
+                                                                                                                                              <div class="relative">  <input type="number" onchange="checkRow(event);" step="0.5" min="0" max="14" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 49 && event.charCode <= 57))"
+                                                                                                                    class="hours py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none"
+                                                                                                                                    placeholder="Hours" value="${_copyHours ? _copyHours : ""}"></div>
+                                                                                                            </td>`;
+            newRowHtml += `<td class="p-2 whitespace-nowrap text-sm text-gray-800">
+                                                                                            <div class="relative">
+                                                                                                                                                                        <select onchange="forLeave(this); checkRow(event);" class="categoryofactivity py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none" style="min-width: 12rem;">
+                                                                                                                                    <option value="0">Select Category Of Activity</option>
+                                                                                                                                    ${getCategoryOptionsHtml(_copyCategoryactivity)}
+                                                                                                                        </select>
+                                                                                                                        </div>
+                                                                                                                    </td>`;
+            newRowHtml += `<td class="p-2 whitespace-nowrap text-sm text-gray-800" width="46%">
+                                                                                                                                               <div class="relative"> <input type="text" onchange="checkRow(event);  handleActivityError(this);"
+                                                                                                                    class="activity py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none"
+                                                                                                                                            placeholder="Activity (At least 50 characters required)" value="${_copyActivity ? _copyActivity : ""}" ></div>
+                                                                                                            </td>`;
+            newRowHtml += `<td class="p-2 whitespace-nowrap text-sm text-gray-800">
+                                                                                    <div class="relative">
+                                                                                                                                        <select onchange="handleCustomerChange(event, this)" class="customer activity py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none" style="min-width: 12rem;">
+                                                                                                                    <option value="0">Select Customer</option>
+                                                                                                                    ${getCustomerOptionsHtml(_copyCustomer)}
+                                                                                                                </select>
+                                                                                                                </div>
+                                                                                                            </td>`;
+            // newRowHtml += `<td class="p-2 whitespace-nowrap text-sm text-gray-800" width="12%">
+            //                                                                            <div class="relative"> <input type="text" onchange="checkRow(event);" oninput="showProjectSuggestion(this);"
+            //                                                         class="project_name py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none"
+            //                                                                         placeholder="Project Name" value="${_copyProject ? _copyProject : ""}" data-projidinp="${_copyProjectId ? _copyProjectId : ""}"></div>
+            //                                                 </td>`;
+            newRowHtml += `<td class="p-2 whitespace-nowrap text-sm text-gray-800" width="12%">
+                                                                                                                                               <div class="relative"> <select data-copyproject="${_copyProject}" onchange="checkRow(event);" class="project_name py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-emerald-500 focus:ring-emerald-500 disabled:opacity-50 disabled:pointer-events-none">
+                                                                                                                <option value="0">Select Project</option>
+                                                                                                            </select></div>
+                                                                                                            </td>`;
+            newRowHtml += `<td class="p-2 whitespace-nowrap text-sm text-gray-800" width="7%">
+                                                                                                                <span class="text-xs font-bold text-orange-500">Draft</span>
+                                                                                                            </td>`;
+            newRowHtml += `<td class="p-2 whitespace-nowrap text-sm text-gray-800 text-center" width="4%">
+                                    <div class="hs-dropdown ml-auto relative inline-flex">
+                                                                            <button id="hs-dropdown-with-header" type="button"
+                                                                                    class="hs-dropdown-toggle overflow-hidden inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-white text-gray-700 shadow-sm align-middle hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-emerald-500 transition-all text-sm">
+                                                                                <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 20 20"><g fill="currentColor"><circle cx="10" cy="15" r="2" /><circle cx="10" cy="10" r="2" /><circle cx="10" cy="5" r="2" /></g></svg>
+                                                                            </button>
+
+                                                                                    <div style="z-index:99;" class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden bg-white shadow-md rounded-lg p-2 mt-2"
+                                                                                 aria-labelledby="hs-dropdown-with-header">
+
+                                                                                <div class="mt-2 py-2 first:pt-0 last:pb-0">
+                                                                                            <div class="flex items-center gap-1">
+                                                                                                                                    <button title="Submit" type="button" onclick="singleSubmit(this);"
+                                                                                                                                class="w-8 h-8 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-full border border-transparent text-gray-400 bg-gray-200 hover:bg-emerald-400 hover:text-white disabled:opacity-50 disabled:pointer-events-none">
+                                                                                                                                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg"
+                                                                                                                                    width="24" height="24" viewBox="0 0 24 24">
+                                                                                                                                    <path fill="currentColor"
+                                                                                                                                        d="M5 21h14a2 2 0 0 0 2-2V8a1 1 0 0 0-.29-.71l-4-4A1 1 0 0 0 16 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2m10-2H9v-5h6zM13 7h-2V5h2zM5 5h2v4h8V5h.59L19 8.41V19h-2v-5a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v5H5z" />
+                                                                                                                                </svg>
+                                                                                                                            </button>
+                                                                                                                            <button title="Copy" onclick="copyRow(this);" type="button"
+                                                                                                                                class="w-8 h-8 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-full border border-transparent text-gray-400 bg-gray-200 hover:bg-yellow-400 hover:text-white disabled:opacity-50 disabled:pointer-events-none">
+                                                                                                                                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg"
+                                                                                                                                    width="24" height="24" viewBox="0 0 24 24">
+                                                                                                                                    <path fill="currentColor"
+                                                                                                                                        d="M20 2H10c-1.103 0-2 .897-2 2v4H4c-1.103 0-2 .897-2 2v10c0 1.103.897 2 2 2h10c1.103 0 2-.897 2-2v-4h4c1.103 0 2-.897 2-2V4c0-1.103-.897-2-2-2M4 20V10h10l.002 10zm16-6h-4v-4c0-1.103-.897-2-2-2h-4V4h10z" />
+                                                                                                                                    <path fill="currentColor" d="M6 12h6v2H6zm0 4h6v2H6z" />
+                                                                                                                                </svg>
+                                                                                                                            </button>
+                                                                                                                            <button onclick="deleteRow(this);" type="button"
+                                                                                                                                class="w-8 h-8 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-full border border-transparent text-gray-400 bg-gray-200 hover:bg-gray-800 hover:text-white disabled:opacity-50 disabled:pointer-events-none">
+                                                                                                                                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg"
+                                                                                                                                    width="24" height="24" viewBox="0 0 24 24">
+                                                                                                                                    <path fill="currentColor"
+                                                                                                                                        d="M5 20a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8h2V6h-4V4a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v2H3v2h2zM9 4h6v2H9zM8 8h9v12H7V8z" />
+                                                                                                                                    <path fill="currentColor" d="M9 10h2v8H9zm4 0h2v8h-2z" />
+                                                                                                                                </svg>
+                                                                                                                            </button>
+                                                                                                                        </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                                                            </td>`;
+            return newRowHtml;
+        }
+
+        function getCustomerOptionsHtml(customerId) {
+            //   console.log(customerId);
+            let customersHtml = '';
+            if (customers) {
+                customers.forEach(item => {
+                    if (customerId) {
+                        customersHtml += `<option value="${item?.value}" ${customerId === item?.value ? "selected" : ""}>${item?.text}</option>`
+                    } else {
+                        customersHtml += `<option value="${item?.value}">${item?.text}</option>`
+                    }
+                })
+            }
+            return customersHtml;
+        }
+        function getCategoryOptionsHtml(categoryofactivityId) {
+            let categoryHtml = '';
+            if (category) {
+                category.forEach(item => {
+                    if (categoryofactivityId) {
+                        categoryHtml += `<option value="${item?.value}" ${categoryofactivityId === item?.value ? "selected" : ""}>${item?.text}</option>`
+                    } else {
+                        categoryHtml += `<option value="${item?.value}">${item?.text}</option>`
+                    }
+                })
+            }
+            return categoryHtml;
+        }
+        function handleActivityError(input) {
+            if (!(input.value)) {
+                validFlag = false;
+                toastr.error("Activity (At least 50 characters required)");
+
+            }
+        }
+
+        function forLeave(input) {
+            const rowItems = input.closest("tr").querySelectorAll("td");
+            let categorySelect = rowItems[3].querySelector("select");
+
+            let activityInput = rowItems[4].querySelector("input");
+            const categoryValue = parseInt(categorySelect.value);
+
+            if (categoryValue === 19) {
+                activityInput.value = "On Leave";
+                activityInput.disabled = true;
+            }
+            else {
+                activityInput.value = rowItems[4].querySelector("input").value;
+                activityInput.disabled = false;
+            }
+        }
+
+
+
+        function checkRow(e) {
+            const rowItems = e.target.closest("tr").querySelectorAll("td");
+            let validFlag = true;
+
+            // Validate input 1 (index 1)
+            if (!(rowItems[1].querySelector("input").value)) {
+                validFlag = false;
+                rowItems[1].querySelector("input").parentElement.classList.add("error-inp");
+            } else {
+                rowItems[1].querySelector("input").parentElement.classList.remove("error-inp");
+            }
+
+            // Validate input 2 (index 2)
+            if (!(rowItems[2].querySelector("input").value && Number(rowItems[2].querySelector("input").value) <= 15)) {
+                validFlag = false;
+                rowItems[2].querySelector("input").parentElement.classList.add("error-inp");
+            } else {
+                rowItems[2].querySelector("input").parentElement.classList.remove("error-inp");
+            }
+
+            // Validate select 3 (index 3)
+            if (!(rowItems[3].querySelector("select").value) || rowItems[3].querySelector("select").value === '0') {
+                validFlag = false;
+                rowItems[3].querySelector("select").parentElement.classList.add("error-inp");
+            } else {
+                rowItems[3].querySelector("select").parentElement.classList.remove("error-inp");
+            }
+
+            // Validate input 4 (index 4)
+            if (!(rowItems[4].querySelector("input").value)) {
+                validFlag = false;
+                rowItems[4].querySelector("input").parentElement.classList.add("error-inp");
+                //toastr.error("Activity must be atleast 50 characters");
+
+            } else {
+                rowItems[4].querySelector("input").parentElement.classList.remove("error-inp");
+            }
+
+            // Validate select 5 (index 5)
+            if (!(rowItems[5].querySelector("select").value) || rowItems[5].querySelector("select").value === '0') {
+                validFlag = false;
+                rowItems[5].querySelector("select").parentElement.classList.add("error-inp");
+            } else {
+                rowItems[5].querySelector("select").parentElement.classList.remove("error-inp");
+            }
+
+            // Validate select 6 (index 6)
+            if (!(rowItems[6].querySelector("select").value) || rowItems[6].querySelector("select").value === '0') {
+                validFlag = false;
+                rowItems[6].querySelector("select").parentElement.classList.add("error-inp");
+            } else {
+                rowItems[6].querySelector("select").parentElement.classList.remove("error-inp");
+            }
+
+            // If valid, submit the row and add a new row if necessary
+            if (validFlag) {
+                handleSingleSubmit(e.target.closest("tr"));
+                for (let i = 1; i < rowItems.length - 2; i++) {
+                    if (!rowItems[i].querySelector("input")) continue;
+                    rowItems[i].querySelector("input").parentElement.classList.remove("error-inp");
+                }
+                e.target.closest("tr").classList.remove("empty-row");
+
+                // Check if an empty row already exists, if not, add a new one
+                if (!e.target.closest("tbody").querySelector(".empty-row")) {
+                    addNewRow(true);
+                }
+            }
+        }
+        function isRowValid(row) {
+            console.log("NIKHIL SHARMA TEST");
+            let validFlag = true;
+            const rowItems = row.querySelectorAll("td");
+
+            // Validate input 1 (index 1)
+            if (!(rowItems[1].querySelector("input").value)) {
+                validFlag = false;
+                rowItems[1].querySelector("input").parentElement.classList.add("error-inp");
+            } else {
+                rowItems[1].querySelector("input").parentElement.classList.remove("error-inp");
+            }
+
+            // Validate input 2 (index 2)
+            if (!(rowItems[2].querySelector("input").value && Number(rowItems[2].querySelector("input").value) <= 14)) {
+                validFlag = false;
+                rowItems[2].querySelector("input").parentElement.classList.add("error-inp");
+            } else {
+                rowItems[2].querySelector("input").parentElement.classList.remove("error-inp");
+            }
+
+            // Validate select 3 (index 3)
+            if (!(rowItems[3].querySelector("select").value)) {
+                validFlag = false;
+                rowItems[3].querySelector("select").parentElement.classList.add("error-inp");
+            } else {
+                rowItems[3].querySelector("select").parentElement.classList.remove("error-inp");
+            }
+
+            // Validate input 4 (index 4)
+            if (!(rowItems[4].querySelector("input").value)) {
+                validFlag = false;
+                rowItems[4].querySelector("input").parentElement.classList.add("error-inp");
+            } else {
+                rowItems[4].querySelector("input").parentElement.classList.remove("error-inp");
+            }
+
+            // Validate select 5 (index 5)
+            if (!(rowItems[5].querySelector("select").value)) {
+                validFlag = false;
+                rowItems[5].querySelector("select").parentElement.classList.add("error-inp");
+            } else {
+                rowItems[5].querySelector("select").parentElement.classList.remove("error-inp");
+            }
+
+            // Validate select 6 (index 6)
+            if (!(rowItems[6].querySelector("select").value)) {
+                validFlag = false;
+                rowItems[6].querySelector("select").parentElement.classList.add("error-inp");
+            } else {
+                rowItems[6].querySelector("select").parentElement.classList.remove("error-inp");
+            }
+
+            return validFlag;
+        }
+
+
+        function showProjectSuggestion(inp) {
+            // const deptList = ["TDE", "IMS", "CLOUD", "Kockpit"];
+            // const projectList = ["TDE", "IMS", "CLOUD", "Kockpit"];
+            const row = inp.closest("tr");
+            const rowInd = Number(row?.getAttribute("data-rowindex"));
+            const inpPos = inp.getBoundingClientRect();
+
+            if (projectData && projectData.length) {
+                if (inp.value.trim().length < 1) {
+                    if (document.querySelector(".project-suggestion-dropdown")) {
+                        document.querySelector(".project-suggestion-dropdown").remove();
+                    }
+                    return;
+                }
+                // const filteredProjectList = projectData.filter(proj => proj?.text.toLowerCase().includes(inp.value.toLowerCase()));
+                const filteredProjectList = rowData[rowInd]?.customerProjects.filter(proj => proj?.projectName?.toLowerCase().includes(inp.value.toLowerCase()));
+                //   console.log(filteredProjectList);
+                if (filteredProjectList.length) {
+                    const projSuggestionDropdown = document.createElement("div");
+                    projSuggestionDropdown.classList.add("project-suggestion-dropdown", "border", "bg-white", "flex", "gap-2", "flex-wrap", "p-2", "rounded", "max-h-40", "overflow-y-auto");
+                    projSuggestionDropdown.style.width = "12rem";
+                    projSuggestionDropdown.style.position = "fixed";
+                    projSuggestionDropdown.style.left = `${inpPos.left}px`;
+                    projSuggestionDropdown.style.top = `${inpPos.top + inpPos.height + 5}px`;
+                    filteredProjectList.forEach(item => {
+                        const _optionEl = document.createElement("span");
+                        _optionEl.classList.add("bg-blue-500", "px-2", "py-1", "rounded-full", "text-white", "cursor-pointer", "text-xs");
+                        _optionEl.innerText = item?.projectName;
+                        _optionEl.setAttribute("data-projectid", item?.projectId)
+                        _optionEl.addEventListener("mousedown", (e) => {
+                            setValFromSuggestion(e.target, inp);
+                            e.stopPropagation();
+                        })
+                        projSuggestionDropdown.appendChild(_optionEl);
+                    })
+                    if (!document.querySelector(".project-suggestion-dropdown")) {
+                        document.body.appendChild(projSuggestionDropdown);
+                    }
+                }
+            }
+        }
+
+        function showDeptSuggestion(inp) {
+            // const projectList = ["Prime Portal", "Timesheet Portal", "Kockpit Website", "Kockpit Community", "Kockpit Portal"];
+            const projectList = ["TDE", "IMS", "CLOUD", "Kockpit"];
+
+            const inpPos = inp.getBoundingClientRect();
+
+            if (projectList && projectList.length) {
+                if (inp.value.trim().length < 1) {
+                    if (document.querySelector(".project-suggestion-dropdown")) {
+                        document.querySelector(".project-suggestion-dropdown").remove();
+                    }
+                    return;
+                }
+                const filteredProjectList = projectList.filter(proj => proj.toLowerCase().includes(inp.value.toLowerCase()));
+                //   console.log(filteredProjectList);
+                if (filteredProjectList.length) {
+                    const projSuggestionDropdown = document.createElement("div");
+                    projSuggestionDropdown.classList.add("project-suggestion-dropdown", "border", "bg-white", "flex", "gap-2", "flex-wrap", "p-2", "rounded", "max-h-40", "overflow-y-auto");
+                    projSuggestionDropdown.style.width = "12rem";
+                    projSuggestionDropdown.style.position = "fixed";
+                    projSuggestionDropdown.style.left = `${inpPos.left}px`;
+                    projSuggestionDropdown.style.top = `${inpPos.top + inpPos.height + 5}px`;
+                    filteredProjectList.forEach(item => {
+                        const _optionEl = document.createElement("span");
+                        _optionEl.classList.add("bg-blue-500", "px-2", "py-1", "rounded-full", "text-white", "cursor-pointer", "text-xs");
+                        _optionEl.innerText = item;
+                        _optionEl.addEventListener("mousedown", (e) => {
+                            setValFromSuggestion(e.target, inp);
+                            e.stopPropagation();
+                        })
+                        projSuggestionDropdown.appendChild(_optionEl);
+                    })
+                    if (!document.querySelector(".project-suggestion-dropdown")) {
+                        document.body.appendChild(projSuggestionDropdown);
+                    }
+                }
+            }
+        }
+
+        function setValFromSuggestion(el, target) {
+            const _val = el.innerText.trim();
+            target.value = _val;
+            target.setAttribute("data-projIdInp", el.getAttribute("data-projectid"));
+            el.closest(".project-suggestion-dropdown").remove();
+        }
+
+        function removeProjectSuggestionDropdown() {
+            if (document.querySelector(".project-suggestion-dropdown")) {
+                document.querySelector(".project-suggestion-dropdown").remove();
+            }
+        }
+
+        window.addEventListener("scroll", () => {
+            removeProjectSuggestionDropdown();
+        })
+        window.addEventListener("click", () => {
+            removeProjectSuggestionDropdown();
+        })
+
+        function handleInputState(inp) {
+            if (inp && inp.value.trim().length) {
+                setInpSuccess(inp);
+            } else {
+                setInpErr(inp);
+            }
+        }
+        function reCalculateSerial() {
+            const alltr = document.querySelectorAll("#datatable tbody tr");
+            alltr.forEach((item, index) => {
+                const serial = (index + 1) /* < 10 ?  + (index + 1) : (index + 1) */;
+                item.querySelector(".serial-no").innerHTML = serial;
+                item.querySelector("td").querySelector("input").id = `select-${serial}`;
+                item.querySelector("td").querySelector("label").setAttribute("for", `select-${serial}`);
+                item.setAttribute("data-rowindex", serial);
+            })
+        }
+        function setInpErr(inp) {
+            inp
+                &&
+                inp.parentElement.classList.add("error-inp");
+            inp.parentElement.classList.remove("success-inp");
+        }
+        function setInpSuccess(inp) {
+            inp
+                &&
+                inp.parentElement.classList.add("success-inp");
+            inp.parentElement.classList.remove("error-inp");
+        }
+
+        function setProject() {
+            if (!projectData) {
+                $.ajax({
+                    url: '/Timesheet/GetProjectAgainstUser',
+                    type: 'Get',
+                    contentType: 'application/json',
+                    success: function (response) {
+                        $("#loader").hide();
+                        if (response.item1 == true) {
+                            var htmlData = "";
+                            projectData = response.item2;
+                        } else {
+                            toastr.error(response.item2);
+                        }
+                    }
+                });
+            }
+
+
+        }
+
+        function allowedMonth() {
+            var allowedDate = new Date((new URLSearchParams(window.location.search).get('month')).replace('-', ' '));
+            $('#datepicker').datepicker({
+                beforeShowDay: function (date) {
+                    return [date.getMonth() === allowedDate.getMonth() && date.getDate() === allowedDate.getDate()];
+                }
+            });
+        }
+
+        function CalculateHours(targetDate) {
+            var rows = getRowsWithSameDate(targetDate);
+            var sum = 0;
+            for (var i = 0; i < rows.length; i++) {
+                sum += $(rows[i]).find('td:eq(2)').find('.hours').val() != '' ? Number($(rows[i]).find('td:eq(2)').find('.hours').val()) : 0;
+            }
+            return sum <= 14 ? true : false;
+        }
+
+        function getRowsWithSameDate(targetDate) {
+            var rows = [];
+            $('table tbody tr').each(function () {
+                var cellValue = $(this).find('td:eq(1)').find('.timesheet_date').val(); // Change the index (e.g., 'td:eq(1)') to the index of the target cell
+                if (cellValue === targetDate) {
+                    rows.push($(this));
+                }
+            });
+            return rows;
+        }
+
+        function calculateWorkingDays(monthYear) {
+            // Convert "Oct-24" to a Date object
+            const [monthStr, yearStr] = monthYear.split('-');
+            const month = new Date(Date.parse(monthStr + " 1, 2024")).getMonth(); // Get month index (0-11)
+            const year = parseInt('20' + yearStr, 10); // Convert "24" to "2024"
+
+            let totalDays = new Date(year, month + 1, 0).getDate(); // Get total days in the month
+            let workingDays = 0;
+
+            for (let day = 1; day <= totalDays; day++) {
+                let currentDate = new Date(year, month, day); // month is 0-based in JavaScript
+                let dayOfWeek = currentDate.getDay(); // 0: Sunday, 6: Saturday
+
+                if (dayOfWeek !== 0 && dayOfWeek !== 6) { // Exclude Sunday (0) and Saturday (6)
+                    workingDays++;
+                }
+            }
+
+            return workingDays;
+        }
+
+        // console.log("working days", calculateCurrentMonthWorkingDays());
+
+        function setTotalWorkingDays() {
+            const searchParams = new URLSearchParams(window.location.search);
+            const monthYear = searchParams.get("month");
+            // console.log(monthYear);
+            if (monthYear) {
+                const workingDays = calculateWorkingDays(monthYear);
+                document.querySelector("#workingDays").innerHTML = workingDays;
+            }
+        }
+
+        function setPendingTimesheet() {
+            const totalDays = Number(document.querySelector("#workingDays").innerText.trim());
+            const totalFilled = Number(document.querySelector("#totalEntries").innerText.trim());
+
+            if (totalDays && totalFilled) {
+                const totalPending = document.querySelector("#totalPending").innerHTML = totalDays - totalFilled;
+            } else {
+                const totalPending = document.querySelector("#totalPending").innerHTML = 00;
+            }
+        }
+
+        setTotalWorkingDays();
+        setPendingTimesheet();
+
+
+        function showDetail(btn) {
+            const fullActivity = btn.parentElement.querySelector("input").value;
+            const detailModal = document.querySelector("#showActivityDetail");
+            detailModal.querySelector(".modalBody").innerHTML = `<p>${fullActivity}</p>`;
+            detailModal.showModal();
+        }
+
+        function closeActivityModal() {
+            const detailModal = document.querySelector("#showActivityDetail");
+            detailModal.querySelector(".modalBody").innerHTML = "";
+            detailModal.close();
+        }
+
+        var headerid = @((Model.Select(a => a.Timesheetid).FirstOrDefault() ?? 0));
+
+        function downloadTimesheetExcel() {
+            var date = "";
+            var projectId = 0;
+            var employeeId = 0;
+            var headerId = headerid;
+            $.ajax({
+                url: `/Timesheet/TimesheetExcel?date=${date}&projectId=${projectId}&employeeId=${employeeId}&headerId=${headerId}`,
+                type: 'GET',
+                success: function (response) {
+                    if (response.success) {
+                        var downloadUrl = response.fileUrl;
+                        window.location.href = downloadUrl;
+                    } else {
+                        alert('Error: ' + response.msg);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('An error occurred:', error);
+                    alert('Failed to download the file. Please try again.');
+                }
+            });
+        }
+
+    </script>
+}
+

@@ -1,0 +1,383 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]Prime</title>
+    <link href="~/css/jquery-ui.min.css" rel="stylesheet" />
+    
+    <!-- SlimSelect CSS - Use stable version -->
+    <link href="https://cdn.jsdelivr.net/npm/slim-select@2.9.2/dist/slimselect.min.css" rel="stylesheet" />
+    
+    <link href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css" rel="stylesheet" />
+    <link rel="shortcut icon" type="image/x-icon" href="~/favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" integrity="sha512-6S2HWzVFxruDlZxI3sXOZZ4/eJ8AcxkQH1+JjSe/ONCEqR9L4Ysq5JdT5ipqtzU7WHalNwzwBv+iE51gNHJNqQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="~/dist/output.css" />
+    @RenderSection("PageStyles", required: false)
+    <style>
+        .card-view thead {
+            display: none !important;
+        }
+
+            .card-view thead tr {
+                display: none !important;
+            }
+
+                .card-view thead tr th {
+                    display: none !important;
+                }
+
+        .card-view tbody {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+            gap: 1rem;
+            padding: 1rem;
+        }
+
+            .card-view tbody tr {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: .5rem;
+                padding: 1rem;
+                border: 1px solid !important;
+                border-radius: .5rem;
+                position: relative;
+            }
+
+                .card-view tbody tr td {
+                    padding: 0 !important;
+                }
+
+                    .card-view tbody tr td:last-child:not(.dataTables_empty) {
+                        position: absolute;
+                        top: .5rem;
+                        right: .5rem;
+                    }
+
+                .card-view tbody tr td {
+                    white-space: unset !important;
+                }
+
+        .dt-buttons {
+            padding-left: .75rem;
+            padding-top: .75rem;
+        }
+
+            .dt-buttons button {
+                background-color: rgb(0 204 131) !important;
+                color: white !important;
+            }
+
+        .sidebar .sidebar-dropdown-menu {
+            padding-left: 1.5rem;
+        }
+
+        .sidebar.shrinked .sidebar-dropdown-menu {
+            padding-left: 0;
+            padding-top: .5rem;
+        }
+
+        .menu-item-inner {
+            position: relative;
+        }
+
+            .menu-item-inner:hover {
+                color: #00cc83;
+            }
+
+            .menu-item-inner.active {
+                color: #00cc83;
+            }
+
+            .menu-item-inner::before, .menu-item-inner::after {
+                position: absolute;
+                content: "";
+            }
+
+            .menu-item-inner::before {
+                top: 0;
+                left: -.5rem;
+                width: 2px;
+                background-color: #DEE8EF;
+            }
+
+            .menu-item-inner img {
+                filter: invert(58%) sepia(11%) saturate(476%) hue-rotate(199deg) brightness(98%) contrast(89%);
+            }
+
+        .sidebar-dropdown-menu li:not(:last-child) .menu-item-inner::before {
+            height: calc(100% + .5rem);
+        }
+
+        .sidebar-dropdown-menu li:last-child .menu-item-inner::before {
+            height: calc(50% - .5rem);
+        }
+
+        .menu-item-inner::after {
+            height: 50%;
+            top: 0;
+            width: 1rem;
+            left: -.5rem;
+            border-left: 2px solid #DEE8EF;
+            border-bottom: 2px solid #DEE8EF;
+            border-bottom-left-radius: .5rem;
+        }
+
+        .sidebar.shrinked .menu-item-inner::after,
+        .sidebar.shrinked .menu-item-inner::before {
+            display: none;
+        }
+
+        .sidebar.shrinked .menu-item-inner .menu-item-text {
+            display: none;
+        }
+
+        .sidebar.shrinked .menu-item-inner {
+            padding: 0;
+            justify-content: center;
+        }
+
+        .sidebar.shrinked .sidebar-dropdown-icon {
+            display: none;
+        }
+
+        .dataTables_info {
+            opacity: 0;
+        }
+
+        .logo_circle_top {
+            --circle-parameter: 20rem;
+            --direction: -1;
+            stroke-dasharray: var(--circle-parameter);
+            stroke-dashoffset: calc(var(--direction) * var(--circle-parameter));
+            animation: circleStroke 1s ease forwards;
+        }
+
+        .logo_circle_bottom {
+            --circle-parameter: 22rem;
+            --direction: 1;
+            stroke-dasharray: var(--circle-parameter);
+            stroke-dashoffset: calc(var(--direction) * var(--circle-parameter));
+            animation: circleStroke 1s ease forwards;
+            animation-delay: .5s;
+        }
+
+        @@keyframes circleStroke {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        .sidebar.shrinked .logo_desc,
+        .sidebar.shrinked .logo-wrapper svg,
+        .sidebar.shrinked .line {
+            display: none;
+        }
+
+        .logo-wrapper .line {
+            position: relative;
+            height: 1px;
+            background-color: #DEE8EF;
+        }
+
+            .logo-wrapper .line::before,
+            .logo-wrapper .line::after {
+                content: "";
+                position: absolute;
+                width: .25rem;
+                height: .25rem;
+                border-radius: 50%;
+                background-color: #DEE8EF;
+                left: 0;
+                top: 50%;
+                transform: translateY(-50%);
+            }
+
+            .logo-wrapper .line::after {
+                left: unset;
+                right: 0;
+            }
+
+        .logo-wrapper {
+            transition: all .25s ease;
+        }
+
+        .sidebar.shrinked .logo-wrapper {
+            margin-top: 0;
+            background-color: transparent;
+            box-shadow: unset;
+        }
+
+        .sidebar_new {
+            width: var(--sidebar-width);
+            transition: all .5s ease;
+        }
+
+            .sidebar_new .expanded_icon {
+                display: block;
+            }
+
+            .sidebar_new .shrinked_icon {
+                display: none;
+            }
+
+            .sidebar_new.shrinked .expanded_icon {
+                display: none;
+            }
+
+            .sidebar_new.shrinked .shrinked_icon {
+                display: block;
+            }
+
+        .sidebar_content_wrapper {
+            box-shadow: 0px 4px 62.3px 0px #D7E3EF80;
+        }
+
+        .sidebar_toggle_wrapper {
+            justify-content: flex-end;
+        }
+
+        .sidebar_toggle_button {
+            box-shadow: 0px 4px 40.7px 0px #0000000D;
+        }
+
+        .shadow-custom {
+            box-shadow: 0px 4px 62.3px 0px #D7E3EF80;
+        }
+
+        .sidebar_new.shrinked .logo_text {
+            display: none;
+        }
+
+        .sidebar_new.shrinked .menu-item-text {
+            display: none;
+        }
+
+        .sidebar_new.shrinked .sidebar-dropdown-icon {
+            display: none;
+        }
+
+        .sidebar_new.shrinked {
+            width: var(--sidebar-width-shrinked);
+            padding-right: .5rem;
+        }
+
+        .sideber_new.shrinked .sidebar_toggle_wrapper {
+            justify-content: center;
+        }
+
+        .sidebar_new.shrinked .menu-item {
+            justify-content: center;
+        }
+
+        .sidebar_new.shrinked .logo {
+            justify-content: center;
+        }
+
+        .sidebar_new.shrinked li a {
+            padding-inline: 0;
+        }
+
+        [data-hs-overlay-backdrop-template] {
+            z-index: 50;
+        }
+    </style>
+
+</head>
+<body>
+    <partial name="~/Views/Shared/Common/_SideMenu.cshtml" model="@ViewBag.AuthPages" />
+    <partial name="~/Views/Shared/Common/_Header.cshtml" />
+    <div class="main overflow-y-auto relative">
+        @RenderBody()
+    </div>
+    
+    <!-- Loader Start-->
+    <div style="display: none;" id="loader" class="loader_wrapper fixed h-screen w-screen bg-black/30 z-[9999] left-0 top-0">
+        <div class="loader_container bg-white/50 rounded-xl flex items-center justify-center w-20 h-20 backdrop-blur-sm absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+            <div class="animate-spin inline-block w-8 h-8 border-[4px] border-current border-t-transparent text-emerald-400 rounded-full"
+                 role="status" aria-label="loading">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+    </div>
+    <!-- Loader End -->
+    
+    <!-- ============================================ -->
+    <!-- CRITICAL: CORRECT SCRIPT LOADING ORDER -->
+    <!-- ============================================ -->
+    
+    <!-- 1. jQuery FIRST (base library - required by everything) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    
+    <!-- 2. jQuery UI (for datepicker and other UI components) -->
+    <script src="~/lib/jquery/dist/jquery-ui.min.js"></script>
+    
+    <!-- 3. jQuery Validation (depends on jQuery) -->
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    
+    <!-- 4. SlimSelect BEFORE page scripts (CRITICAL - Your @@section Scripts need this!) -->
+    <script src="https://cdn.jsdelivr.net/npm/slim-select@2.9.2/dist/slimselect.min.js"></script>
+    
+    <!-- 5. DataTables and related plugins -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+    
+    <!-- 6. Other UI libraries -->
+    <script src="~/assets/js/preline.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    
+    <!-- 7. Your custom layout scripts -->
+    <script src="~/js/common/layout.js"></script>
+    
+    <!-- 8. Global functions and initialization -->
+    <script>
+        (() => {
+            const activeSubPage = document.querySelector(".menu-item-inner.active");
+            if (activeSubPage) {
+                const collapseDiv = activeSubPage.closest(".hs-collapse");
+                if (collapseDiv) {
+                    collapseDiv.classList.remove("hidden");
+                    collapseDiv.classList.add("open");
+                    collapseDiv.previousElementSibling.classList.add("open");
+                }
+            }
+        })()
+        
+        function toggleSidebarSize() {
+            const sidebar = document.querySelector(".sidebar_new");
+            sidebar.classList.toggle("shrinked")
+            const event = document.createEvent("Event");
+            event.initEvent("dtResize", true, true);
+            window.dispatchEvent(event);
+        }
+
+        // Session timeout management
+        let idleTime = 0;
+
+        function resetIdleTime() {
+            idleTime = 0;
+        }
+
+        // Reset idle time on any user activity
+        window.onload = resetIdleTime;
+        window.onmousemove = resetIdleTime;
+        window.onkeypress = resetIdleTime;
+
+        // Increment the idle time counter every minute
+        setInterval(function () {
+            idleTime++;
+            if (idleTime >= 25) {  // 25 minutes of inactivity
+                window.location.href = '/Login/Logout';  // Redirect to login page
+            }
+        }, 60000); // 1 minute
+    </script>
+    
+    <!-- 9. FINALLY - Your page-specific scripts (AFTER SlimSelect is loaded) -->
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

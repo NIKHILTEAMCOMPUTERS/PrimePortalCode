@@ -1,0 +1,450 @@
+﻿@model RMS.Client.Models.Timesheet.Templates
+@{
+    Layout = "Timesheet";
+}
+<div class="relative max-w-[85rem] w-full mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center">
+        <div class="flex item-center">
+            <a asp-action="Index" asp-controller="Template" class="py-2 px-2 inline-flex justify-center items-center gap-2 rounded-md border border-gray-400 bg-gray-700 text-white hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all text-sm sm:text-base" title="Timesheet">
+                <svg class="w-4 h-4 text-black" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M11.707 5.293a1 1 0 0 1 0 1.414L7.414 11H19a1 1 0 1 1 0 2H7.414l4.293 4.293a1 1 0 0 1-1.414 1.414l-6-6a1 1 0 0 1 0-1.414l6-6a1 1 0 0 1 1.414 0z" /></svg>
+            </a>
+            @if (Model != null && Model.Templateid != 0)
+            {
+                if (ViewBag.IsSummaryTemplate != null && ViewBag.IsSummaryTemplate)
+                {
+                    <p class="font-extrabold text-lg lg:text-xl mt-1" style="margin-left: 1rem;">Summary</p>
+                }
+                else
+
+                {
+                    <p class="font-extrabold text-lg lg:text-xl mt-1" style="margin-left: 1rem;">Update template</p>
+
+                }
+            }
+            else
+            {
+                <p class="font-extrabold text-lg lg:text-xl mt-1" style="margin-left: 1rem;">Add template</p>
+            }
+        </div>
+    </div>
+    <!-- Table Section -->
+    <div class="mt-4 mx-auto bg-white rounded p-3">
+        <form id="templateForm" method="post" enctype="multipart/form-data" onsubmit="handleSubmit(event);">
+            <div class="grid grid-cols-1 sm:grid-cols-2 mb-4 gap-4">
+                <input type="text" id="Templateid" asp-for="Templateid" hidden>
+                <div class="mb-4">
+                    <label for="TemplateName" class="block text-sm font-medium mb-2">Template Name</label>
+                    <input type="text" id="TemplateName" asp-for="Templatename"
+                           class="py-3 px-4 block w-full border-gray-200 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500" />
+                </div>
+
+                <div class="mb-4">
+                    <label for="TotalHours" class="block text-sm font-medium mb-2">Total Hours</label>
+                    <input type="text" id="TotalHours" asp-for="Totalhours" disabled
+                           class="py-3 px-4 block w-full border-gray-200 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500" />
+                </div>
+            </div>
+            <div class="timesheet-row-wrapper flex flex-col gap-4 mb-4">
+                <input type="hidden" id="jsonData" name="jsonData" />
+                @if (Model != null)
+                {
+                    @foreach (var item in Model.templatedetails)
+                    {
+
+                        <div class="timesheet-row">
+                            <div class=" mb-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                                <div>
+                                    <label for="DepartmentName" class="block text-sm font-medium mb-2">Department</label>
+                                    <select id="DepartmentName" asp-items="@ViewBag.department" asp-for="@item.Departmentid"
+                                            class="selectDepartment py-3 px-4 block w-full border-gray-200 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500">
+                                        <option value="">Select Department</option>
+                                        @foreach (var department in ViewBag.Department)
+                                        {
+                                            if (item.Departmentid.ToString() == @department.Value && item.Departmentid != 0)
+                                            {
+                                                <option value="@department.Value" selected>
+                                                    @department.Text
+                                                </option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@department.Value">@department.Text</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="ProjectName" class="block text-sm font-medium mb-2">Project Name</label>
+
+
+                                    <select id="ProjectName" asp-items="@ViewBag.project" asp-for="@item.Projectid"
+                                            class=" selectProject py-3 px-4 block w-full border-gray-200 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500">
+                                        <option value="">Select Project</option>
+                                        @foreach (var project in ViewBag.project)
+                                        {
+                                            if (item.Projectid.ToString() == project.Value && item.Projectid != 0)
+                                            {
+                                                <option value="@project.Value" selected>
+                                                    @project.Text
+                                                </option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@project.Value">@project.Text</option>
+                                            }
+                                        }
+
+                                    </select>
+
+
+                                </div>
+                                <div>
+                                    <label for="Hours" class="block text-sm font-medium mb-2">Hours</label>
+                                    <input type="number" step="0.01" id="Hours" asp-for="@item.Hours" onchange="myFunction(this)"
+                                           class="py-3 px-4 block w-full border-gray-200 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500" />
+                                </div>
+
+                                <div>
+                                    <label for="Remarks" class="block text-sm font-medium mb-2">Remarks</label>
+                                    <input type="text" id="Remarks" asp-for="@item.Remarks"
+                                           class="py-3 px-4 block w-full border-gray-200 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500" />
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label for="Activity" class="block text-sm font-medium mb-2">Activity</label>
+                                <textarea id="Activity" asp-for="@item.Activity"
+                                          class="py-3 px-4 block w-full border-gray-200 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                            </div>
+
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="timesheet-row">
+                        <div class=" mb-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                            <div>
+                                <label for="DepartmentName" class="block text-sm font-medium mb-2">Department</label>
+                                <select id="DepartmentName" asp-items="@ViewBag.department"
+                                        class="selectDepartment py-3 px-4 block w-full border-gray-200 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500">
+                                    <option value="">Select Department</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="ProjectName" class="block text-sm font-medium mb-2">Project Name</label>
+
+
+                                <select id="ProjectName" asp-items="@ViewBag.project"
+                                        class=" selectProject py-3 px-4 block w-full border-gray-200 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500">
+                                    <option value="">Select Project</option>
+
+
+                                </select>
+
+
+                            </div>
+                            <div>
+                                <label for="Hours" class="block text-sm font-medium mb-2">Hours</label>
+                                <input type="number" step="0.01" id="Hours" onchange="myFunction(this)"
+                                       class="py-3 px-4 block w-full border-gray-200 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500" />
+                            </div>
+
+                            <div>
+                                <label for="Remarks" class="block text-sm font-medium mb-2">Remarks</label>
+                                <input type="text" id="Remarks"
+                                       class="py-3 px-4 block w-full border-gray-200 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500" />
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label for="Activity" class="block text-sm font-medium mb-2">Activity</label>
+                            <textarea id="Activity"
+                                      class="py-3 px-4 block w-full border-gray-200 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                        </div>
+
+                    </div>
+                }
+
+            </div>
+
+
+
+            @if ((int)ViewBag.templateCount >= 5 || (Model != null && Model.Templateid == 0))
+            {
+                <!-- Hide the submit button and show a <p> tag -->
+                <p style="color:red">You already created 5 templates.</p>
+
+            }
+
+            else
+            {
+                @if (ViewBag.IsSummaryTemplate != null && !ViewBag.IsSummaryTemplate)
+                {
+                    <div class="flex">
+                        <button onclick="addnewRow();" type="button"
+                                class="py-3 px-4 inline-flex justify-center items-center gap-2 rounded-md border border-transparent font-semibold text-emerald-800 hover:bg-emerald-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm">
+                            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                                <path fill="currentColor"
+                                      d="M16 2A14.172 14.172 0 0 0 2 16a14.172 14.172 0 0 0 14 14a14.172 14.172 0 0 0 14-14A14.172 14.172 0 0 0 16 2Zm8 15h-7v7h-2v-7H8v-2h7V8h2v7h7Z" />
+                                <path fill="none" d="M24 17h-7v7h-2v-7H8v-2h7V8h2v7h7v2z" />
+                            </svg>
+                            Add New Row
+                        </button>
+                    </div>
+                    <button type="submit" id="submitBtn"
+                            class="py-3 px-4 inline-flex justify-center items-center gap-2 rounded-md border border-transparent font-semibold bg-[#00CC83] text-white hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-[#00CC83] focus:ring-offset-2 transition-all text-sm mt-2">
+                        <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                            <path fill="currentColor"
+                                  d="M16 2A14.172 14.172 0 0 0 2 16a14.172 14.172 0 0 0 14 14a14.172 14.172 0 0 0 14-14A14.172 14.172 0 0 0 16 2Zm8 15h-7v7h-2v-7H8v-2h7V8h2v7h7Z" />
+                            <path fill="none" d="M24 17h-7v7h-2v-7H8v-2h7V8h2v7h7v2z" />
+                        </svg>                            Submit
+                    </button>
+                }
+
+            }
+
+        </form>
+    </div>
+</div>
+
+
+
+
+@section Scripts{
+
+    <script>
+        $(function () {
+        @if (ViewData["error"] != null)
+        {
+            <text>
+                    toastr.error("@ViewData["error"]", "Error", { "iconClass": 'new-error' });
+            </text>
+        }
+        @if (ViewData["success"] != null)
+        {
+            <text>
+                    toastr.success("@ViewData["success"]");
+            </text>
+        }
+
+                });
+        var isSummary = '@ViewBag.IsSummaryTemplate';
+        console.log(isSummary);
+        if (isSummary === 'True') {
+            $("input").attr("disabled", true);
+            $("select").attr("disabled", true);
+            $("textarea").attr("disabled", true);
+        }
+        function handleSubmit(e) {
+            e.preventDefault();    // prevent submit of form
+
+            if (Validation()) {
+
+                document.querySelector("#loader").style.display = "flex";
+
+                const allinput = document.querySelectorAll(".timesheet-row");
+
+                allinput.forEach(item => {
+                    var templateDetail = {
+                        Departmentid: item.querySelector("#DepartmentName").value,
+                        Projectid: item.querySelector("#ProjectName").value,
+                        Activity: item.querySelector("#Activity").value,
+                        Remarks: item.querySelector("#Remarks").value,
+                        Hours: item.querySelector("#Hours").value
+                    }
+                    templateDetails.push(templateDetail);
+
+                });
+                var Templateid = document.getElementById('Templateid').value;
+                const templateData = {
+                    Templateid: Templateid === null || Templateid === '' ? 0 : Templateid,
+                    TemplateName: document.getElementById('TemplateName').value,
+                    TotalHours: document.getElementById('TotalHours').value,
+                    TemplateDetails: templateDetails
+                };
+
+                $.ajax({
+                    url: '/Template/CreateTemplate',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(templateData),
+                    success: function (response) {
+
+                        if (response.success == true) {
+                            toastr.success(response.msg);
+                            console.log(response);
+                            setTimeout(() => {
+                                $("#loader").hide();
+                                window.location.href = "/Template/Index"
+                            }, 1500)
+                        } else {
+                            $("#loader").hide();
+                            toastr.error(response.msg);
+                            console.log();
+                        }
+                    }
+                });
+
+            }
+        }
+
+        function Validation() {
+            RemoveValidation();
+            var isAllowed = true;
+            if ($("#TemplateName").val() === '') {
+                isAllowed = false
+                $("#TemplateName").addClass('is-invalid');
+
+            }
+            var temDiv = $(".timesheet-row");
+            for (i = 0; i < temDiv.length; i++) {
+                isAllowed = validinput(temDiv[i]);
+                if (!isAllowed)
+                    break;
+            }
+
+            return isAllowed;
+        }
+
+        function validinput(inputDiv) {
+            var status = true;
+
+            if ($(inputDiv).find("#DepartmentName").val() === '' || $(inputDiv).find("#DepartmentName").val() === '1') {
+                status = false;
+                $(inputDiv).find("#DepartmentName").addClass('is-invalid');
+            }
+
+            if ($(inputDiv).find("#ProjectName").val() === '' || $(inputDiv).find("#ProjectName").val() === '0') {
+                status = false;
+                $(inputDiv).find("#ProjectName").addClass('is-invalid');
+            }
+
+            if ($(inputDiv).find("#Activity").val() === '') {
+                status = false;
+                $(inputDiv).find("#Activity").addClass('is-invalid');
+            }
+
+            // if ($(inputDiv).find("#Remarks").val() === '') {
+            //     status = false;
+            //     $(inputDiv).find("#Remarks").addClass('is-invalid');
+            // }
+
+            if ($(inputDiv).find("#Hours").val() === '' || $(inputDiv).find("#Hours").val() === '0' || $(inputDiv).find("#Hours").val() <= '0') {
+                status = false;
+                $(inputDiv).find("#Hours").addClass('is-invalid');
+            }
+
+            return status;
+        }
+
+        function RemoveValidation() {
+            $("#TemplateName").removeClass('is-invalid');
+            var inputDiv = $(".timesheet-row");             // timesheet-row me kitni rows add hue hai
+            for (i = 0; i < inputDiv.length; i++) {
+                $(inputDiv[i]).find("#DepartmentName").removeClass('is-invalid');
+                $(inputDiv[i]).find("#ProjectName").removeClass('is-invalid');
+                $(inputDiv[i]).find("#Activity").removeClass('is-invalid');
+                // $(inputDiv[i]).find("#Remarks").removeClass('is-invalid');
+                $(inputDiv[i]).find("#Hours").removeClass('is-invalid');
+            }
+
+        }
+
+
+        const templateDetails = [];
+        function myFunction(input) {
+            const hours = document.querySelectorAll("#Hours");
+            let totalHours = 0;
+            let flag = true;
+            hours.forEach(item => {
+                if (Number(item.value) > 0) {
+                    if (totalHours + Number(item.value) <= 8) {
+                        totalHours = totalHours + Number(item.value);
+                    } else {
+                        flag = false;
+                    }
+                }
+            });
+            const tHours = document.getElementById("TotalHours");
+            tHours.value = totalHours;
+            if (!flag) {
+                alert("Total Hours Exceed Limit");
+                input.value = 0;
+            }
+
+        }
+
+        const hours = document.querySelectorAll("#Hours");
+        hours.forEach(item => {
+            item.addEventListener('change', myFunction);
+        });
+
+
+
+        function addnewRow() {
+            const timesheetRowWrapper = document.querySelector(".timesheet-row-wrapper");
+            const newRow = document.createElement("div");
+            newRow.classList.add("timesheet-row");
+            let rowHTML = "";
+            rowHTML += `<div class="mb-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                                <div>
+                                          <label for="DepartmentName" class="block text-sm font-medium mb-2">Department</label>
+                                          <select id="DepartmentName"
+                                    class="py-3 px-4 block w-full border-gray-200 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500">`
+            let departmentOptions = document.querySelector(".timesheet-row .selectDepartment");
+            if (departmentOptions) {
+                rowHTML += departmentOptions.innerHTML
+            }
+
+            rowHTML += `</select>
+                                </div>
+
+                                <div>
+                                          <label for="ProjectName" class="block text-sm font-medium mb-2">Project Name</label>
+                                          <select id="ProjectName"
+                                    class="py-3 px-4 block w-full border-gray-200 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500">`
+            let projectOptions = document.querySelector(".timesheet-row .selectProject");
+            if (projectOptions) {
+                rowHTML += projectOptions.innerHTML
+            }
+
+            rowHTML +=
+
+                `</select>
+                                </div>
+                                        <div>
+                                                  <label for="Hours" class="block text-sm font-medium mb-2">Hours</label>
+                                                  <input type="number"  step="0.01" id="Hours" onchange ="myFunction(this)"
+                                            class="py-3 px-4 block w-full border-gray-200 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500" />
+                                        </div>
+                                <div>
+                                          <label for="Remarks" class="block text-sm font-medium mb-2">Remarks</label>
+                                          <input type="text" id="Remarks"
+                                    class="py-3 px-4 block w-full border-gray-200 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500" />
+                                </div>
+                              </div>
+                              <div class="mb-4">
+                                <label for="Activity" class="block text-sm font-medium mb-2">Activity</label>
+                                <textarea type="number" id="Activity"
+                                  class="py-3 px-4 block w-full border-gray-200 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                              </div>
+                              <div class="flex justify-end">
+                                <button onclick="deleteRow(this);" type="button"
+                                  class="py-3 px-4 inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-white text-gray-700 shadow-sm align-middle hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-blue-600 transition-all text-sm">
+                                  <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                    <path fill="currentColor"
+                                      d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z" />
+                                  </svg>
+                                  Delete Row
+                                </button>
+                              </div>`;
+            newRow.innerHTML += rowHTML;
+            timesheetRowWrapper.appendChild(newRow);
+        }
+
+        function deleteRow(btn) {
+            btn.closest(".timesheet-row").remove();
+            myFunction();
+        }
+
+    </script>
+}

@@ -1,0 +1,72 @@
+﻿@model RMS.Client.Models.Common.PageHead
+
+<div class="flex items-center justify-between">
+    <h2 class="font-extrabold text-xl 2xl:text-2xl text-[#4B4E5C]">@Model.PageHeading</h2>
+    <div class="flex items-center gap-3 p-2">
+        <div class="flex justify-end items-center">
+            <nav class="flex items-center border rounded">
+                <button onclick="switchView('list')" type="button"
+                        class="switch-view hs-tab-active:font-semibold p-2 inline-flex items-center gap-2 border-b-[3px] border-transparent text-sm whitespace-nowrap text-gray-500 hover:text-emerald-600 active"
+                        id="customers-list-view-btn">
+                    <svg class="w-4 h-4 2xl:w-5 2xl:h-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                         viewBox="0 0 24 24">
+                        <path fill="currentColor"
+                              d="M4 13c.55 0 1-.45 1-1s-.45-1-1-1s-1 .45-1 1s.45 1 1 1zm0 4c.55 0 1-.45 1-1s-.45-1-1-1s-1 .45-1 1s.45 1 1 1zm0-8c.55 0 1-.45 1-1s-.45-1-1-1s-1 .45-1 1s.45 1 1 1zm4 4h12c.55 0 1-.45 1-1s-.45-1-1-1H8c-.55 0-1 .45-1 1s.45 1 1 1zm0 4h12c.55 0 1-.45 1-1s-.45-1-1-1H8c-.55 0-1 .45-1 1s.45 1 1 1zM7 8c0 .55.45 1 1 1h12c.55 0 1-.45 1-1s-.45-1-1-1H8c-.55 0-1 .45-1 1zm-3 5c.55 0 1-.45 1-1s-.45-1-1-1s-1 .45-1 1s.45 1 1 1zm0 4c.55 0 1-.45 1-1s-.45-1-1-1s-1 .45-1 1s.45 1 1 1zm0-8c.55 0 1-.45 1-1s-.45-1-1-1s-1 .45-1 1s.45 1 1 1zm4 4h12c.55 0 1-.45 1-1s-.45-1-1-1H8c-.55 0-1 .45-1 1s.45 1 1 1zm0 4h12c.55 0 1-.45 1-1s-.45-1-1-1H8c-.55 0-1 .45-1 1s.45 1 1 1zM7 8c0 .55.45 1 1 1h12c.55 0 1-.45 1-1s-.45-1-1-1H8c-.55 0-1 .45-1 1z" />
+                    </svg>
+                </button>
+                <button onclick="switchView('grid')" type="button"
+                        class="switch-view hs-tab-active:font-semibold p-2 inline-flex items-center gap-2 border-b-[3px] border-transparent text-sm whitespace-nowrap text-gray-500 hover:text-emerald-600"
+                        id="customers-grid-view-btn">
+                    <svg class="w-4 h-4 2xl:w-5 2xl:h-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                         viewBox="0 0 24 24">
+                        <g fill="none" fill-rule="evenodd">
+                            <path d="M24 0v24H0V0h24ZM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.01-.009-.017-.017-.018Zm.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.01-.02-.02-.022Zm-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.02.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01l-.184-.092Z" />
+                            <path fill="currentColor"
+                                  d="M9 13a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h4Zm10 0a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h4ZM9 3a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4Zm10 0a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4Z" />
+                        </g>
+                    </svg>
+                </button>
+            </nav>
+
+            @{
+                if (Model.Columns != null && Model.Columns.Count > 0)
+                {
+                    <div class="mt-1 mx-1 sm:mt-1 hs-dropdown relative sm:inline-flex z-20 [--auto-close:inside]">
+                        <button type="button" id="filterTableColDropdown"
+                                class="hs-dropdown-toggle group py-3 px-4 inline-flex justify-center items-center gap-2 rounded-md border border-transparent font-semibold text-gray-800 hover:bg-emerald-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all text-sm">
+                            <svg class="w-5 h-5 text-emerald-400 group-hover:text-white" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M14 12v7.88c.04.3-.06.62-.29.83a.996.996 0 0 1-1.41 0l-2.01-2.01a.989.989 0 0 1-.29-.83V12h-.03L4.21 4.62a1 1 0 0 1 .17-1.4c.19-.14.4-.22.62-.22h14c.22 0 .43.08.62.22a1 1 0 0 1 .17 1.4L14.03 12H14Z" /></svg>
+                            Filter Columns
+                        </button>
+
+                        <div class="hs-dropdown-menu z-10 transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden mt-2 bg-white shadow-md rounded-lg p-2 z-30" aria-labelledby="hs-dropdown-auto-close-inside">
+
+                            @for(int i =0; i<Model.Columns.Count; i++)
+                            {
+                                <div class="relative flex items-start py-2 px-3 rounded-md hover:bg-gray-100">
+                                    <div class="flex">
+
+                                        <input onchange="toggleColVisibility(@(Model.extracolumn ? i+1 : i), this);" type="checkbox" class="shrink-0 mt-0.5 border-gray-200 rounded text-emerald-600 focus:ring-emerald-500" id="col1" checked>
+
+                                        <label for="col1" class="text-sm text-gray-500 ml-3 dark:text-gray-400">@Model.Columns[i]</label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+
+        @{
+            if (ViewBag.AuthPages != null)
+            {
+                var pages = (List<RMS.Client.Models.Account.AuthorizePages>)ViewBag.AuthPages;
+                var pageFound = pages.FirstOrDefault(x => x.Controller == Model.LinkController);
+                if (pageFound != null && pageFound.Iswritepermit == true && Model.ShowCreateButton)
+                {
+                    <p-link text="@Model.LinkText" action="@Model.LinkAction" controller="@Model.LinkController"></p-link>
+                }
+            }
+        }
+    </div>
+</div>
