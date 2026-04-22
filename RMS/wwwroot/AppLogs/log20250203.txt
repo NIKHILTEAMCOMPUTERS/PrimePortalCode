@@ -1,0 +1,14 @@
+2025-02-03 10:07:24.165 +05:30 [INF] User profile is available. Using 'C:\Users\17492\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-02-03 10:07:25.244 +05:30 [INF] Now listening on: https://localhost:7148
+2025-02-03 10:07:25.256 +05:30 [INF] Now listening on: http://localhost:5254
+2025-02-03 10:07:25.444 +05:30 [INF] Application started. Press Ctrl+C to shut down.
+2025-02-03 10:07:25.446 +05:30 [INF] Hosting environment: Development
+2025-02-03 10:07:25.447 +05:30 [INF] Content root path: D:\PRIME (RESOURCE MANAGMENT PORTAL)\Prime API Project 0512\resource-portal\RMS\
+2025-02-03 10:07:27.500 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/swagger/index.html - -
+2025-02-03 10:07:28.075 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/swagger/index.html - - - 200 - text/html;charset=utf-8 575.9236ms
+2025-02-03 10:07:28.123 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/_framework/aspnetcore-browser-refresh.js - -
+2025-02-03 10:07:28.130 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/_framework/aspnetcore-browser-refresh.js - - - 200 13742 application/javascript;+charset=utf-8 6.4622ms
+2025-02-03 10:07:28.137 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/_vs/browserLink - -
+2025-02-03 10:07:28.291 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/_vs/browserLink - - - 200 - text/javascript;+charset=UTF-8 153.6547ms
+2025-02-03 10:07:28.420 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/swagger/v1/swagger.json - -
+2025-02-03 10:07:28.683 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/swagger/v1/swagger.json - - - 200 - application/json;charset=utf-8 263.0595ms

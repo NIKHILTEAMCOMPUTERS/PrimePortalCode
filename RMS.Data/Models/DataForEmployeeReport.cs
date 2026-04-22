@@ -1,0 +1,57 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace RMS.Data.Models;
+
+public partial class DataForEmployeeReport
+{
+    public string? Tmc { get; set; }
+
+    public string? Practice { get; set; }
+
+    public string? Subpractice { get; set; }
+
+    public string? Region { get; set; }
+
+    public string? Function { get; set; }
+
+    public string? Resourcename { get; set; }
+
+    public int? Employeeid { get; set; }
+
+    public string? Flag { get; set; }
+
+    public string? Billablenonbillable { get; set; }
+
+    public DateTime? Contractstartdate { get; set; }
+
+    public DateTime? Contractenddate { get; set; }
+
+    public string? Projectnames { get; set; }
+
+    public string? Projecttypes { get; set; }
+
+    public string? Customernames { get; set; }
+
+    public string? Da { get; set; }
+
+    public string? Userid { get; set; }
+
+    public decimal? Currentmonthbilling { get; set; }
+
+    public bool? Ade { get; set; }
+
+    public string? Dateofjoining { get; set; }
+
+    public int? Workexedays { get; set; }
+
+    public string? Billingmonthyear { get; set; }
+
+    public string? Exe { get; set; }
+
+    public string? Reportinghead { get; set; }
+
+    public int? Categorysubstatusid { get; set; }
+
+    public int? Contractstatusid { get; set; }
+}

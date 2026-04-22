@@ -1,0 +1,54 @@
+2025-09-14 19:07:29.924 +05:30 [INF] User profile is available. Using 'C:\Users\17492\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-09-14 19:07:31.824 +05:30 [INF] Now listening on: https://localhost:7148
+2025-09-14 19:07:31.837 +05:30 [INF] Now listening on: http://localhost:5254
+2025-09-14 19:07:32.311 +05:30 [INF] Application started. Press Ctrl+C to shut down.
+2025-09-14 19:07:32.316 +05:30 [INF] Hosting environment: Development
+2025-09-14 19:07:32.321 +05:30 [INF] Content root path: D:\PRIME (RESOURCE MANAGMENT PORTAL)\Prime API Project 0512\resource-portal\RMS\
+2025-09-14 19:07:34.514 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/swagger - -
+2025-09-14 19:07:35.331 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/swagger - - - 301 0 - 828.7112ms
+2025-09-14 19:07:35.333 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/swagger/index.html - -
+2025-09-14 19:07:35.622 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/swagger/index.html - - - 200 - text/html;charset=utf-8 289.7234ms
+2025-09-14 19:07:35.636 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/swagger/swagger-ui.css - -
+2025-09-14 19:07:35.650 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/_framework/aspnetcore-browser-refresh.js - -
+2025-09-14 19:07:35.644 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/_vs/browserLink - -
+2025-09-14 19:07:35.637 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/swagger/swagger-ui-bundle.js - -
+2025-09-14 19:07:35.643 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/swagger/swagger-ui-standalone-preset.js - -
+2025-09-14 19:07:35.678 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/_framework/aspnetcore-browser-refresh.js - - - 200 16491 application/javascript;+charset=utf-8 34.2038ms
+2025-09-14 19:07:35.850 +05:30 [INF] Sending file. Request path: '/swagger-ui.css'. Physical path: 'N/A'
+2025-09-14 19:07:35.850 +05:30 [INF] Sending file. Request path: '/swagger-ui-standalone-preset.js'. Physical path: 'N/A'
+2025-09-14 19:07:35.861 +05:30 [INF] Sending file. Request path: '/swagger-ui-bundle.js'. Physical path: 'N/A'
+2025-09-14 19:07:35.871 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/swagger/swagger-ui.css - - - 200 143632 text/css 234.2256ms
+2025-09-14 19:07:35.871 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/swagger/swagger-ui-standalone-preset.js - - - 200 337162 application/javascript 234.0204ms
+2025-09-14 19:07:35.880 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/swagger/swagger-ui-bundle.js - - - 200 1092889 application/javascript 243.0165ms
+2025-09-14 19:07:35.999 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/_vs/browserLink - - - 200 - text/javascript;+charset=UTF-8 354.8809ms
+2025-09-14 19:07:36.527 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/swagger/v1/swagger.json - -
+2025-09-14 19:07:36.624 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/swagger/favicon-32x32.png - -
+2025-09-14 19:07:36.627 +05:30 [INF] Sending file. Request path: '/favicon-32x32.png'. Physical path: 'N/A'
+2025-09-14 19:07:36.632 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/swagger/favicon-32x32.png - - - 200 628 image/png 8.5686ms
+2025-09-14 19:07:36.941 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/swagger/v1/swagger.json - - - 200 - application/json;charset=utf-8 413.2747ms
+2025-09-14 19:08:15.274 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/api/Debug/triggerEmployeeUpdate - -
+2025-09-14 19:08:15.632 +05:30 [INF] Executing endpoint 'RMS.Controllers.DebugController.TriggerEmployeeUpdate (RMS)'
+2025-09-14 19:08:15.728 +05:30 [INF] Route matched with {action = "TriggerEmployeeUpdate", controller = "Debug"}. Executing controller action with signature Microsoft.AspNetCore.Mvc.IActionResult TriggerEmployeeUpdate() on controller RMS.Controllers.DebugController (RMS).
+2025-09-14 19:08:16.562 +05:30 [INF] Executing OkObjectResult, writing value of type 'System.String'.
+2025-09-14 19:08:16.616 +05:30 [INF] Executed action RMS.Controllers.DebugController.TriggerEmployeeUpdate (RMS) in 847.3682ms
+2025-09-14 19:08:16.638 +05:30 [INF] Executed endpoint 'RMS.Controllers.DebugController.TriggerEmployeeUpdate (RMS)'
+2025-09-14 19:08:16.644 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/api/Debug/triggerEmployeeUpdate - - - 200 - text/plain;+charset=utf-8 1369.8983ms
+2025-09-14 19:08:24.847 +05:30 [INF] --------------------------------------14-Sep-25 1:38:24 PM--------------------------------------------------
+2025-09-14 19:08:24.850 +05:30 [INF] --------------------------------------14-Sep-25 1:38:24 PM--------------------------------------------------
+2025-09-14 19:08:24.852 +05:30 [INF] UpsertEmployeesBulkData started at "2025-09-14T13:38:24.8370717Z"
+2025-09-14 19:08:26.305 +05:30 [INF] Serialized 1376 employees to JSON.
+2025-09-14 19:08:26.311 +05:30 [INF] Calling stored procedure 'upsertemployees' with 1376 employees.
+2025-09-14 19:08:27.636 +05:30 [INF] Executed DbCommand (1,218ms) [Parameters=[data='?' (DbType = Object)], CommandType='"Text"', CommandTimeout='30']
+CALL upsertemployees(@data)
+2025-09-14 19:08:27.672 +05:30 [INF] Stored procedure 'upsertemployees' completed with result -1
+2025-09-14 19:08:27.678 +05:30 [INF] Calling stored procedure 'updaterole'...
+2025-09-14 19:08:27.772 +05:30 [INF] Executed DbCommand (84ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CALL updaterole()
+2025-09-14 19:08:27.804 +05:30 [INF] Stored procedure 'updaterole' completed with result -1
+2025-09-14 19:08:27.818 +05:30 [INF] Calling stored procedure 'deleting_resigned_employees_billing'...
+2025-09-14 19:08:28.383 +05:30 [INF] Executed DbCommand (557ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CALL deleting_resigned_employees_billing()
+2025-09-14 19:08:28.393 +05:30 [INF] Stored procedure 'deleting_resigned_employees_billing' completed with result -1
+2025-09-14 19:08:28.569 +05:30 [INF] UpsertEmployeesBulkData executed successfully in 3732 ms
+2025-09-14 19:08:28.578 +05:30 [INF] --------------------------------------14-Sep-25 1:38:24 PM--------------------------------------------------
+2025-09-14 19:08:28.580 +05:30 [INF] --------------------------------------14-Sep-25 1:38:24 PM--------------------------------------------------

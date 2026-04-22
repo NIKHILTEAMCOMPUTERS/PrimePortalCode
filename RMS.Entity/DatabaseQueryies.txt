@@ -1,0 +1,1446 @@
+Scaffold-DbContext “Host=kockpitpg.postgres.database.azure.com;Port=5432;Username=RMS;
+                    Password=kockpit@#`$12346;Database=RMS-Dev” -StartupProject RMS.Data
+                    -Provider Npgsql.EntityFrameworkCore.PostgreSQL -OutputDir Models  -Force
+
+
+CREATE TABLE Country (
+    CountryId SERIAL PRIMARY KEY,
+    CountryName TEXT NOT NULL UNIQUE,
+    CountryCode TEXT NOT NULL UNIQUE,
+    IsActive BOOLEAN NOT NULL DEFAULT true,
+    IsDeleted BOOLEAN NOT NULL DEFAULT false,
+    CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+     CreatedBy INT NOT NULL DEFAULT 0 ,
+    LastUpdateBy INT NOT NULL DEFAULT 0   
+);
+
+CREATE TABLE State (
+    StateId SERIAL PRIMARY KEY,
+    CountryId INT NOT NULL REFERENCES Country(CountryId),
+    StateName TEXT NOT NULL,
+    IsActive BOOLEAN NOT NULL DEFAULT true,
+    IsDeleted BOOLEAN NOT NULL DEFAULT false,
+    CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+     CreatedBy INT NOT NULL DEFAULT 0 ,
+    LastUpdateBy INT NOT NULL DEFAULT 0   
+);
+CREATE TABLE City (
+    CityId SERIAL PRIMARY KEY,
+    StateId INT NOT NULL REFERENCES State(StateId),
+    CityName TEXT NOT NULL,
+    IsActive BOOLEAN NOT NULL DEFAULT true,
+    IsDeleted BOOLEAN NOT NULL DEFAULT false,
+    CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+     CreatedBy INT NOT NULL DEFAULT 0 ,
+    LastUpdateBy INT NOT NULL DEFAULT 0   
+);
+
+    CREATE TABLE Department (
+        DepartmentId SERIAL PRIMARY KEY,
+        DepartmentName TEXT NOT NULL UNIQUE,
+        Description TEXT,
+        IsActive BOOLEAN NOT NULL DEFAULT true,
+        IsDeleted BOOLEAN NOT NULL DEFAULT false,
+        CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+        LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+         CreatedBy INT NOT NULL DEFAULT 0 ,
+        LastUpdateBy INT NOT NULL DEFAULT 0   
+    );
+
+CREATE TABLE Designation (
+    DesignationId SERIAL PRIMARY KEY,
+    DesignationName TEXT NOT NULL UNIQUE,
+    IsActive BOOLEAN NOT NULL DEFAULT true,
+    IsDeleted BOOLEAN NOT NULL DEFAULT false,
+    CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+     CreatedBy INT NOT NULL DEFAULT 0 ,
+    LastUpdateBy INT NOT NULL DEFAULT 0   
+);
+CREATE TABLE Practice (
+    PracticeId SERIAL PRIMARY KEY,
+    PracticeName TEXT NOT NULL UNIQUE,
+    Icon TEXT,
+    IsActive BOOLEAN NOT NULL DEFAULT true,
+    IsDeleted BOOLEAN NOT NULL DEFAULT false,
+    CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+     CreatedBy INT NOT NULL DEFAULT 0 ,
+    LastUpdateBy INT NOT NULL DEFAULT 0   
+);
+CREATE TABLE SubPractice (
+    SubPracticeId SERIAL PRIMARY KEY,
+    PracticeId INT NOT NULL REFERENCES Practice(PracticeId),
+    SubPracticeName TEXT NOT NULL UNIQUE,
+    Icon TEXT,
+    IsActive BOOLEAN NOT NULL DEFAULT true,
+    IsDeleted BOOLEAN NOT NULL DEFAULT false,
+    CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+     CreatedBy INT NOT NULL DEFAULT 0 ,
+    LastUpdateBy INT NOT NULL DEFAULT 0   
+);
+CREATE TABLE Role (
+    RoleId SERIAL PRIMARY KEY,
+    RoleName TEXT NOT NULL UNIQUE,
+    IsActive BOOLEAN NOT NULL DEFAULT true,
+    IsDeleted BOOLEAN NOT NULL DEFAULT false,
+    CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+     CreatedBy INT NOT NULL DEFAULT 0 ,
+    LastUpdateBy INT NOT NULL DEFAULT 0   
+);
+        CREATE TABLE Flag (
+            FlagId SERIAL PRIMARY KEY,
+            FlagName TEXT NOT NULL UNIQUE,
+            IsActive BOOLEAN NOT NULL DEFAULT true,
+            IsDeleted BOOLEAN NOT NULL DEFAULT false,
+            CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+            LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+             CreatedBy INT NOT NULL DEFAULT 0 ,
+            LastUpdateBy INT NOT NULL DEFAULT 0   
+        );
+        CREATE TABLE ProjectType (
+            ProjectTypeId SERIAL PRIMARY KEY,
+            ProjectTypeName TEXT NOT NULL UNIQUE,
+            IsActive BOOLEAN NOT NULL DEFAULT true,
+            IsDeleted BOOLEAN NOT NULL DEFAULT false,
+            CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+            LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+             CreatedBy INT NOT NULL DEFAULT 0 ,
+            LastUpdateBy INT NOT NULL DEFAULT 0   
+        );
+        CREATE TABLE Skill (
+            SkillId SERIAL PRIMARY KEY,
+            DesignationId INT NOT NULL REFERENCES Designation(DesignationId),
+            SkillName TEXT NOT NULL UNIQUE,
+            IsActive BOOLEAN NOT NULL DEFAULT true,
+            IsDeleted BOOLEAN NOT NULL DEFAULT false,
+            CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+            LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+             CreatedBy INT NOT NULL DEFAULT 0 ,
+            LastUpdateBy INT NOT NULL DEFAULT 0   
+        );
+        CREATE TABLE SkillTag (
+            TagId SERIAL PRIMARY KEY,
+            TagName TEXT NOT NULL UNIQUE,
+            IsActive BOOLEAN NOT NULL DEFAULT true,
+            IsDeleted BOOLEAN NOT NULL DEFAULT false,
+            CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+            LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+             CreatedBy INT NOT NULL DEFAULT 0 ,
+            LastUpdateBy INT NOT NULL DEFAULT 0   
+        );
+        CREATE TABLE CustomerType (
+            CustomerTypeId SERIAL PRIMARY KEY,
+            CustomerTypeName TEXT NOT NULL UNIQUE,
+            IsActive BOOLEAN NOT NULL DEFAULT true,
+            IsDeleted BOOLEAN NOT NULL DEFAULT false,
+            CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+            LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+             CreatedBy INT NOT NULL DEFAULT 0 ,
+            LastUpdateBy INT NOT NULL DEFAULT 0   
+        );
+        CREATE TABLE Currency (
+            CurrencyId SERIAL PRIMARY KEY,
+            CurrencyName TEXT NOT NULL UNIQUE,
+            Abbreviation TEXT NOT NULL UNIQUE,
+            IsActive BOOLEAN NOT NULL DEFAULT true,
+            IsDeleted BOOLEAN NOT NULL DEFAULT false,
+            CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+            LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+             CreatedBy INT NOT NULL DEFAULT 0 ,
+            LastUpdateBy INT NOT NULL DEFAULT 0   
+        );
+        CREATE TABLE PaymentTerm (
+            PaymentTermId SERIAL PRIMARY KEY,
+            PaymentTermName TEXT NOT NULL UNIQUE,
+            Description TEXT,
+            IsActive BOOLEAN NOT NULL DEFAULT true,
+            IsDeleted BOOLEAN NOT NULL DEFAULT false,
+            CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+            LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+             CreatedBy INT NOT NULL DEFAULT 0 ,
+            LastUpdateBy INT NOT NULL DEFAULT 0   
+        );
+        CREATE TABLE ContractType (
+            ContractTypeId SERIAL PRIMARY KEY,
+            ContractTypeName TEXT NOT NULL UNIQUE,
+            Description TEXT,
+            IsActive BOOLEAN NOT NULL DEFAULT true,
+            IsDeleted BOOLEAN NOT NULL DEFAULT false,
+            CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+            LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+             CreatedBy INT NOT NULL DEFAULT 0 ,
+            LastUpdateBy INT NOT NULL DEFAULT 0   
+        );
+CREATE TABLE Customer (
+    CustomerId SERIAL PRIMARY KEY,
+    CustomerTypeId INT NOT NULL REFERENCES CustomerType(CustomerTypeId),
+    FirstName TEXT NOT NULL,
+    LastName TEXT NOT NULL,
+    CompanyName TEXT,
+    CompanyLogoURL TEXT,
+    CompanyEmail TEXT,
+    Phone1 TEXT,
+    Phone2 TEXT,
+    PANNumber TEXT,
+    CurrencyId INT REFERENCES Currency(CurrencyId),
+    GSTNumber TEXT,
+    PaymentTermId INT REFERENCES PaymentTerm(PaymentTermId),
+    CountryId INT REFERENCES Country(CountryId),
+    CityId INT REFERENCES City(CityId),
+    StateId INT REFERENCES State(StateId),
+    ZipCode TEXT,
+    Address TEXT,
+    IsActive BOOLEAN NOT NULL DEFAULT true,
+    IsDeleted BOOLEAN NOT NULL DEFAULT false,
+    CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+     CreatedBy INT NOT NULL DEFAULT 0 ,
+    LastUpdateBy INT NOT NULL DEFAULT 0   
+);
+CREATE TABLE CustomerContactDetail (
+    CustomerContactDetailId SERIAL PRIMARY KEY,
+    CustomerId INT NOT NULL REFERENCES Customer(CustomerId),
+    FirstName TEXT NOT NULL,
+    LastName TEXT NOT NULL,
+    Mobile TEXT,
+    EmailId TEXT
+);
+CREATE TABLE UserLoginLogs (
+    UserLoginLogId SERIAL PRIMARY KEY,     
+    UserId INT NOT NULL,                   
+    IpAddress VARCHAR(45) ,       
+    LoginDateTime TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    JWTtoken TEXT,                         
+    LoginStatus VARCHAR(100) ,     
+    BrowserClient TEXT                    
+);
+
+  CREATE TABLE SBU (
+        SBUId SERIAL PRIMARY KEY,
+        SBUCode TEXT NOT NULL UNIQUE,
+        SBUDesc TEXT,
+        IsActive BOOLEAN NOT NULL DEFAULT true,
+        IsDeleted BOOLEAN NOT NULL DEFAULT false,
+        CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+        LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+         CreatedBy INT NOT NULL DEFAULT 0 ,
+        LastUpdateBy INT NOT NULL DEFAULT 0   
+    );
+      CREATE TABLE Branch (
+        BranchId SERIAL PRIMARY KEY,
+        BrabchCode TEXT NOT NULL UNIQUE,
+        BranchName TEXT,
+        IsActive BOOLEAN NOT NULL DEFAULT true,
+        IsDeleted BOOLEAN NOT NULL DEFAULT false,
+        CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+        LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+         CreatedBy INT NOT NULL DEFAULT 0 ,
+        LastUpdateBy INT NOT NULL DEFAULT 0   
+    );
+    CREATE TABLE Project (
+    ProjectId SERIAL PRIMARY KEY,
+    ProjectName VARCHAR(255),
+    ProjectDescription TEXT,
+    CustomerId INTEGER REFERENCES Customer(CustomerId),  -- Assuming there's a table named Customer
+    PONumber VARCHAR(255),
+    ProjectModelId INTEGER REFERENCES Customer(CustomerId),
+    ProjectHeadId ,
+    ProjectTypeId INTEGER REFERENCES Customer(CustomerId),   
+    SubPractiseId INTEGER REFERENCES Customer(CustomerId),
+    ContractNo VARCHAR(255),
+    ContractStartDate DATE,
+    ContractEndDate DATE,
+    ContactPerson VARCHAR(255),
+    ContactPersonName VARCHAR(255),
+    StatusId INTEGER REFERENCES status(statusId),
+	IsActive BOOLEAN NOT NULL DEFAULT true,
+    IsDeleted BOOLEAN NOT NULL DEFAULT false,
+    CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    CreatedBy INT NOT NULL DEFAULT 0 ,
+    LastUpdateBy INT NOT NULL DEFAULT 0     
+);
+CREATE TABLE ProjectModel (
+    ProjectModelId SERIAL PRIMARY KEY,
+    ModelName VARCHAR(255) NOT NULL,
+    StatusId INTEGER REFERENCES status(statusId),
+	IsActive BOOLEAN NOT NULL DEFAULT true,
+    IsDeleted BOOLEAN NOT NULL DEFAULT false,
+    CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    CreatedBy INT NOT NULL DEFAULT 0 ,
+    LastUpdateBy INT NOT NULL DEFAULT 0 
+);
+CREATE TABLE ProjectType (
+    ProjectTypeId SERIAL PRIMARY KEY,
+    TypeName VARCHAR(255) NOT NULL,
+    StatusId INTEGER REFERENCES status(statusId),
+	IsActive BOOLEAN NOT NULL DEFAULT true,
+    IsDeleted BOOLEAN NOT NULL DEFAULT false,
+    CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    CreatedBy INT NOT NULL DEFAULT 0 ,
+    LastUpdateBy INT NOT NULL DEFAULT 0
+);
+CREATE TABLE SubPractise (
+    SubPractiseId SERIAL PRIMARY KEY,
+	PracticeId INTEGER REFERENCES Practice(PracticeId),
+    SubPractiseName VARCHAR(255) NOT NULL,
+    StatusId INTEGER REFERENCES status(statusId),
+	IsActive BOOLEAN NOT NULL DEFAULT true,
+    IsDeleted BOOLEAN NOT NULL DEFAULT false,
+    CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    CreatedBy INT NOT NULL DEFAULT 0 ,
+    LastUpdateBy INT NOT NULL DEFAULT 0
+);
+CREATE TABLE Practice (
+    PracticeId SERIAL PRIMARY KEY,
+    PracticeName VARCHAR(255) NOT NULL,
+    StatusId INTEGER REFERENCES status(statusId),
+	IsActive BOOLEAN NOT NULL DEFAULT true,
+    IsDeleted BOOLEAN NOT NULL DEFAULT false,
+    CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    CreatedBy INT NOT NULL DEFAULT 0 ,
+    LastUpdateBy INT NOT NULL DEFAULT 0
+);
+
+CREATE TABLE Project (
+    projectid SERIAL PRIMARY KEY,
+    projectname VARCHAR(255),
+    projectdescription TEXT,
+    customerid INTEGER REFERENCES customer(customerid),    
+    projectmodelid INTEGER REFERENCES projectmodel(projectmodelid),
+    projectheadid INTEGER ,
+    projecttypeid INTEGER REFERENCES projecttype(projecttypeid),
+    subpractiseid INTEGER REFERENCES subpractise(subpractiseid),    
+    StatusId INTEGER REFERENCES status(statusId),
+    IsActive BOOLEAN NOT NULL DEFAULT true,
+    IsDeleted BOOLEAN NOT NULL DEFAULT false,
+    CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    CreatedBy INT NOT NULL DEFAULT 0 ,
+    LastUpdateBy INT NOT NULL DEFAULT 0
+);
+
+
+
+
+
+CREATE TABLE Contract (
+    contractid SERIAL PRIMARY KEY,
+	contractno VARCHAR(255),
+	ponumber VARCHAR(255),
+    projectid INTEGER REFERENCES project(projectid),    
+    contractstartdate DATE,
+    contractenddate DATE,
+	Amount Decimal(19,4),
+	contactpersonname VARCHAR(255),
+    StatusId INTEGER REFERENCES status(statusId),
+    IsActive BOOLEAN NOT NULL DEFAULT true,
+    IsDeleted BOOLEAN NOT NULL DEFAULT false,
+    CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    CreatedBy INT NOT NULL DEFAULT 0 ,
+    LastUpdateBy INT NOT NULL DEFAULT 0
+);
+
+create table module
+(
+	ModuleId Serial,
+	ModuleName text,
+	Icon text,
+	IsActive bool,
+	IsDeleted bool,
+	CreatedDate timestamp,
+	LastUpdatedDate timestamp,
+	CreatedBy int,
+	LastUpdatedBy int
+)
+
+
+
+
+create table page
+(
+	PageId Serial,
+	PageName text,
+	Icon text,
+	ModuleId int,
+	ControllerName text,
+	ActionName text,
+	IsActive bool,
+	IsDeleted bool,
+	CreatedDate timestamp,
+	LastUpdatedDate timestamp,
+	CreatedBy int,
+	LastUpdatedBy int
+)
+
+create table rolepage
+(
+	RolePageId Serial,
+	RoleId int,
+	PageId text,
+	IsReadPermit bool,
+	IsWritePermit bool,
+	IsDeletePermit bool
+)
+
+create table employeerole
+(
+	EmployeeRoleId Serial,
+	RoleId int
+)
+CREATE TABLE pesalesquestionmaster
+(
+    QuestionId serial PRIMARY KEY,
+    Question text NOT NULL,
+    PracticeId int NOT NULL REFERENCES Practice(PracticeId),
+    RefrenceResponse text,  
+	StatusId INTEGER REFERENCES status(statusId),
+    IsActive BOOLEAN NOT NULL DEFAULT true,
+    IsDeleted BOOLEAN NOT NULL DEFAULT false,
+    CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    CreatedBy INT NOT NULL DEFAULT 0 ,
+    LastUpdateBy INT NOT NULL DEFAULT 0
+);
+CREATE TABLE contractpresalesresponse
+(
+    responseid serial primary key,
+    contractid integer not null references projectcontract(contractid),
+    questionid integer not null references pesalesquestionmaster(questionid),
+    clientresponse text ,
+	StatusId INTEGER REFERENCES status(statusId),
+    IsActive BOOLEAN NOT NULL DEFAULT true,
+    IsDeleted BOOLEAN NOT NULL DEFAULT false,
+    CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    CreatedBy INT NOT NULL DEFAULT 0 ,
+    LastUpdateBy INT NOT NULL DEFAULT 0   
+)
+
+	
+<<<<<<< .mine
+CREATE TABLE pesalesquestionmaster
+(
+    QuestionId serial PRIMARY KEY,
+    Question text NOT NULL,
+    PracticeId int NOT NULL REFERENCES Practice(PracticeId),
+    RefrenceResponse text,  
+	StatusId INTEGER REFERENCES status(statusId),
+    IsActive BOOLEAN NOT NULL DEFAULT true,
+    IsDeleted BOOLEAN NOT NULL DEFAULT false,
+    CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    CreatedBy INT NOT NULL DEFAULT 0 ,
+    LastUpdateBy INT NOT NULL DEFAULT 0
+);
+CREATE TABLE contractpresalesresponse
+(
+    responseid serial primary key,
+    contractid integer not null references projectcontract(contractid),
+    questionid integer not null references pesalesquestionmaster(questionid),
+    clientresponse text ,
+	StatusId INTEGER REFERENCES status(statusId),
+    IsActive BOOLEAN NOT NULL DEFAULT true,
+    IsDeleted BOOLEAN NOT NULL DEFAULT false,
+    CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    CreatedBy INT NOT NULL DEFAULT 0 ,
+    LastUpdateBy INT NOT NULL DEFAULT 0   
+)
+=======
+create table module
+(
+	ModuleId Serial,
+	ModuleName text,
+	Icon text,
+	IsActive bool,
+	IsDeleted bool,
+	CreatedDate timestamp,
+	LastUpdatedDate timestamp,
+	CreatedBy int,
+	LastUpdatedBy int
+)
+
+
+
+
+create table CategoryStatus(
+	
+	CategoryStatusId Serial primary Key ,
+	CategoryStatusName Text not NUll,
+	CategoryStatusDescription text,	
+	StatusId INTEGER REFERENCES status(statusId),
+    IsActive BOOLEAN NOT NULL DEFAULT true,
+    IsDeleted BOOLEAN NOT NULL DEFAULT false,
+    CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    CreatedBy INT NOT NULL DEFAULT 0 ,
+    LastUpdateBy INT NOT NULL DEFAULT 0
+)
+
+create table CategorySubStatus(
+	
+	CategorySubStatusId Serial primary Key ,
+	CategoryStatusId int references CategoryStatus(CategoryStatusId) not null ,
+	CategorySubStatusName Text not NUll,
+	CategorySubStatusDescription text,	
+	StatusId INTEGER REFERENCES status(statusId),
+    IsActive BOOLEAN NOT NULL DEFAULT true,
+    IsDeleted BOOLEAN NOT NULL DEFAULT false,
+    CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    CreatedBy INT NOT NULL DEFAULT 0 ,
+    LastUpdateBy INT NOT NULL DEFAULT 0
+)
+
+create table ProjectEmployeeAssigment(
+	ProjectEmployeeAssigmentId serial primary key,
+	Employeeid int not null references rmsemployee(employeeid),
+	ProjectId int not null references Project(ProjectId),
+	CategorySubStatusId int not null references CategorySubStatus(CategorySubStatusId),
+	StartDate TIMESTAMP,
+	EndDate TIMESTAMP,	
+	StatusId INTEGER REFERENCES status(statusId),
+    IsActive BOOLEAN NOT NULL DEFAULT true,
+    IsDeleted BOOLEAN NOT NULL DEFAULT false,
+    CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    CreatedBy INT NOT NULL DEFAULT 0 ,
+    LastUpdateBy INT NOT NULL DEFAULT 0	
+)
+
+
+
+
+create table employeeskill
+(
+employeeskillid serial primary key ,
+employeeid int not null references rmsemployee(employeeid),
+skillid int not null references skill(skillid),
+experinceinmonths decimal,
+certificationurl text,
+isprimary bool,
+managerrating decimal,
+selfreting decimal,
+StatusId INTEGER REFERENCES status(statusId),
+IsActive BOOLEAN NOT NULL DEFAULT true,
+IsDeleted BOOLEAN NOT NULL DEFAULT false,
+CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+CreatedBy INT NOT NULL DEFAULT 0 ,
+LastUpdateBy INT NOT NULL DEFAULT 0	
+)
+
+
+CREATE TABLE public.contractbillingProvesion (
+	contractbillingProvesionId serial primary key,
+	contractemployeeid int not null references contractemployee(contractemployeeid),
+	billingmonthyear text NULL,
+	costing numeric(10, 2) NULL,
+);
+
+
+CREATE TABLE probillapprlstage (
+    probillapprlstageid SERIAL PRIMARY KEY,
+    stagename VARCHAR(255) NOT NULL,
+    stageorder INT NOT null,
+	stageapproverid int not null references rmsemployee (employeeid)
+);
+
+
+CREATE TABLE IF NOT EXISTS probillapprl
+(
+    probillapprlid SERIAL PRIMARY KEY,
+    contractbillingprovesionid INT NOT NULL REFERENCES contractbillingprovesion(contractbillingprovesionid),
+    currentstageid INT NOT NULL REFERENCES probillapprlstage(probillapprlstageid),
+    statusid INT NOT NULL REFERENCES status(statusid)
+   
+);
+
+CREATE TABLE Probbillapprldetail (
+    billingapprovaldetailId SERIAL PRIMARY KEY,
+    probillapprlid INT NOT NULL REFERENCES probillapprl(probillapprlid),
+    statusid INT NOT NULL REFERENCES status(statusid),
+    IsActiontaken BOOLEAN, -- Employee ID who approved at this stage
+    ActionTakenon TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    remark TEXT 
+);
+
+alter table contractbillingProvesion 
+add column estimatedBillingDate timestamp
+
+alter table contractbilling  
+add column IsActive BOOLEAN NOT NULL DEFAULT true,
+add column    IsDeleted BOOLEAN NOT NULL DEFAULT false,
+ add column   CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+add column    LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+add column     CreatedBy INT NOT NULL DEFAULT 0 ,
+add column    LastUpdateBy INT NOT NULL DEFAULT 0 
+
+
+alter table contractbillingProvesion  
+add column IsActive BOOLEAN NOT NULL DEFAULT true,
+add column    IsDeleted BOOLEAN NOT NULL DEFAULT false,
+ add column   CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+add column    LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+add column     CreatedBy INT NOT NULL DEFAULT 0 ,
+add column    LastUpdateBy INT NOT NULL DEFAULT 0 
+
+
+alter table contractbillingProvesion 
+add column StatusId int references Status(StatusId)
+
+
+insert into probillapprlstage (stagename,stageorder,stageapproverid) values('FirstStage',1,7207);
+insert into probillapprlstage (stagename,stageorder,stageapproverid)
+               values('SecondStage',2,5419)
+
+alter table contractbillingprovesion add column isRevised  boolean 
+
+
+-- add new accountmanagerId in project table
+
+-- Trigger definition
+CREATE TRIGGER accManagerHistory_InsertUpdate_trigger
+AFTER INSERT OR UPDATE OF accountmanagerId ON public.project
+FOR EACH ROW
+EXECUTE FUNCTION accmanagerHistoryInsert();
+
+-- Function definition
+CREATE OR REPLACE FUNCTION public.accmanagerHistoryInsert()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $function$
+BEGIN
+    IF TG_OP = 'INSERT' OR (TG_OP = 'UPDATE' AND NEW.accountmanagerId IS DISTINCT FROM OLD.accountmanagerId) THEN
+        INSERT INTO acprojecthistory (projectid, acmanagerid)
+        VALUES (NEW.projectid, NEW.accountmanagerId);
+    END IF;
+    RETURN NEW;
+END;
+$function$;
+
+
+CREATE TABLE public.contractbillingprovisionhistory (
+	historyid serial primary key,
+	contractbillingprovesionid int  references contractbillingprovesion(contractbillingprovesionid),
+	probillapprlid int  references probillapprl(probillapprlid),
+	probillapprldetailId int  references probillapprldetail(probillapprldetailId),
+	revisionnumber int NOT NULL,
+	isrevised bool NULL,
+	remark text NULL,
+	isactive bool NOT NULL DEFAULT true,
+	isdeleted bool NOT NULL DEFAULT false,
+	createddate timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	lastupdatedate timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	createdby int4 NOT NULL DEFAULT 0,
+	lastupdateby int4 NOT NULL DEFAULT 0
+	
+);
+
+
+
+
+CREATE TABLE public.contractbillingprovesion (
+	contractbillingprovesionid serial PRIMARY key,
+	contractemployeeid int NOT NULL  references contractemployee(contractemployeeid),
+	billingmonthyear text,
+	costing numeric(10, 2) NULL,
+	"estimatedBillingDate" timestamp NULL,
+	isactive bool NOT NULL DEFAULT true,
+	isdeleted bool NOT NULL DEFAULT false,
+	createddate timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	lastupdatedate timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	createdby int NOT NULL DEFAULT 0,
+	lastupdateby int  NOT NULL DEFAULT 0,
+	isrevised bool NULL,
+	statusid int references status(statusid)	
+);
+CREATE TABLE public.probillapprl (
+	probillapprlid serial primary key,
+	contractbillingprovesionid int  references contractbillingprovesion(contractbillingprovesionid),
+	currentstageid int NOT NULL references probillapprlstage(probillapprlstageid) ,
+	statusid int4 NOT NULL references status(statusid)	
+);
+
+CREATE TABLE public.probillapprldetail (
+	probillapprldetailId serial primary key ,
+	probillapprlid int  references probillapprl(probillapprlid),
+	stageid int NOT NULL REFERENCES probillapprlstage(probillapprlstageid),
+	isactiontaken bool NULL,
+	actiontakenon timestamp NULL,
+	remark text NULL
+	
+);
+
+
+alter table contractbillingprovisionhistory  add approveraction text ;
+alter table contractbillingprovisionhistory  add statusid int references status(statusid);
+
+
+
+
+alter table contractbillingprovesion add column IsBilled bool 
+alter table contractbillingprovesion  add column RecievedBillingAmount numeric 
+
+
+
+
+
+
+
+
+=======
+create table page
+(
+	PageId Serial,
+	PageName text,
+	Icon text,
+	ModuleId int,
+	ControllerName text,
+	ActionName text,
+	IsActive bool,
+	IsDeleted bool,
+	CreatedDate timestamp,
+	LastUpdatedDate timestamp,
+	CreatedBy int,
+	LastUpdatedBy int
+)
+
+create table rolepage
+(
+	RolePageId Serial,
+	RoleId int,
+	PageId text,
+	IsReadPermit bool,
+	IsWritePermit bool,
+	IsDeletePermit bool
+)
+
+create table employeerole
+(
+	EmployeeRoleId Serial,
+	RoleId int
+)
+
+>>>>>>> .theirs
+	
+
+
+
+
+    Scaffold-DbContext “Host=kockpitpg.postgres.database.azure.com;Port=5432;Username=RMS;Password=kockpit`@#`$12346;Database=RMS-Dev” -StartupProject RMS.Data -Provider Npgsql.EntityFrameworkCore.PostgreSQL -OutputDir Models -NoOnConfiguring  -Force
+
+
+
+
+    select * from rmsemployee e
+inner join designation d on d.designationid = e.designationid 
+inner join department d2  on d2.departmentid =e.departmentid 
+inner join sbu s on s.sbuid =e.sbuid 
+inner join branch b on b.branchid =e.branchid 
+
+
+
+
+CREATE TABLE TimeSheetHeader (
+  timesheetid serial primary key,
+  monthyear text NOT NULL,
+  employeeid integer NOT NULL REFERENCES rmsemployee(employeeid),
+  isdrafted boolean NOT NULL DEFAULT false,
+  isactive boolean NOT NULL DEFAULT true,
+  isdeleted boolean NOT NULL DEFAULT false,
+  createddate timestamp without time zone NOT NULL DEFAULT now(),
+  lastupdatedate timestamp without time zone NOT NULL DEFAULT now(),
+  createdby integer NOT NULL DEFAULT 0,
+  lastupdateby integer NOT NULL DEFAULT 0 
+);
+CREATE TABLE TimesheetDetail (
+  timesheetdetailid serial primary key,
+  timesheetid integer NOT NULL REFERENCES TimeSheetHeader(timesheetid),
+  departmentid integer NOT NULL REFERENCES department(departmentid),
+  contractid int NOT NULL REFERENCES projectcontract(contractid),
+  activity text NOT NULL,
+  Dayhours numeric(3, 2),  
+  remarks text,
+  isdrafted boolean NOT NULL DEFAULT false,
+  isactive boolean NOT NULL DEFAULT true,
+  isdeleted boolean NOT NULL DEFAULT false,
+  createddate timestamp without time zone NOT NULL DEFAULT now(),
+  lastupdatedate timestamp without time zone NOT NULL DEFAULT now(),
+  createdby integer NOT NULL DEFAULT 0,
+  lastupdateby integer NOT NULL DEFAULT 0
+);
+
+
+
+
+
+ALTER TABLE public.contractbilling
+ADD COLUMN isbilled bool DEFAULT false,
+ADD COLUMN tobebilled bool DEFAULT false,
+add column estimatedbillingdate timestamp,
+add column documentUrl text;
+
+ALTER TABLE public.contractbillingprovesion 
+
+ADD COLUMN tobebilled bool DEFAULT false,
+
+add column documentUrl text;
+
+
+CREATE OR REPLACE FUNCTION BillingDropDown()
+RETURNS TABLE(texts TEXT, value TEXT)
+LANGUAGE plpgsql 
+AS $function$
+BEGIN
+    RETURN QUERY 
+    SELECT column_name::TEXT, column_default::TEXT 
+    FROM information_schema.columns 
+    WHERE table_name = 'contractbilling'   
+    AND column_name IN ('isbilled', 'istobebilled');
+END;
+$function$;
+
+
+
+
+getrptmonthforbilled_tobebilled_Actual()
+getrptmonthforbilled_tobebilled_Provision()
+
+
+
+Add new fields createdby and createddate and status=released in the status table but other in the contractemployee table.
+
+ALTER TABLE contractemployee add column createdby  integer default 0 not null
+ALTER TABLE contractemployee add column createddate  timestamp DEFAULT now() 
+
+select * from status
+insert into status (statusname,statuscode) values ('Released',12)
+
+
+
+
+
+create table EmployeeProjectHistory
+(
+HistoryId SERIAL  primary key ,
+contractemployeeId int references contractbilling (contractbillingid),
+categorystatusId int references categorystatus(categorystatusId),
+EffectiveStartDate timestamp,
+EffectiveEndDate timestamp,
+ActionTakenOn timestamp,
+ActionTakenBy int
+
+)
+
+
+ALTER TABLE contractemployee ALTER COLUMN lastupdatedby TYPE integer USING lastupdatedby::integer;
+
+
+
+-- DROP FUNCTION public.new_after_update_contractemployee();
+
+CREATE OR REPLACE FUNCTION public.new_after_update_contractemployee()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+    related_contractend_date TIMESTAMP;
+   related_contractstart_date timestamp;
+    new_effectiveenddate TIMESTAMP; 
+   new_effectivestartdate timestamp;
+    related_contractemployee_Id integer;
+    related_New_Id integer;
+    Related_Old_Id integer;
+   related_CreatedBy integer;
+   is_released BOOLEAN := FALSE;
+begin
+	
+      related_contractemployee_Id:=COALESCE(NEW.contractemployeeid, OLD.contractemployeeid);
+      related_New_Id:=NEW.categorysubstatusid;
+      Related_Old_Id:=OLD.categorysubstatusid;
+     related_CreatedBy:=COALESCE(NEW.createdby, OLD.createdby);
+  
+  
+    SELECT pc.contractenddate,pc.contractstartdate INTO related_contractend_date,related_contractstart_date
+    FROM contractemployee ce
+    JOIN projectcontract pc ON pc.contractid = ce.contractid
+    WHERE ce.contractemployeeid = related_contractemployee_Id
+    ORDER BY pc.contractenddate DESC
+    LIMIT 1;
+   
+    IF TG_OP = 'INSERT' then    
+    
+    SELECT pc.contractenddate INTO related_contractend_date
+    FROM contractemployee ce
+    JOIN projectcontract pc ON pc.contractid = ce.contractid
+    WHERE ce.contractemployeeid = NEW.contractemployeeid
+    ORDER BY pc.contractenddate DESC
+    LIMIT 1;
+        new_effectiveenddate := related_contractend_date;
+       new_effectivestartdate:=Now();
+  INSERT INTO employeeprojecthistory (contractemployeeid, categorysubstatusid, effectivestartdate, effectiveenddate, actiontakenon, actiontakenby)
+  VALUES (NEW.contractemployeeid, NEW.categorysubstatusid, new_effectivestartdate, new_effectiveenddate, NOW(),related_CreatedBy );
+          
+    END IF;
+        
+       
+     IF TG_OP = 'UPDATE' THEN
+        SELECT pc.contractenddate INTO related_contractend_date
+        FROM contractemployee ce
+        JOIN projectcontract pc ON pc.contractid = ce.contractid
+        WHERE ce.contractemployeeid = OLD.contractemployeeid
+        ORDER BY pc.contractenddate DESC
+        LIMIT 1;
+        SELECT (categorysubstatusname = 'Released') INTO is_released
+        FROM categorysubstatus
+        WHERE categorysubstatusid = NEW.categorysubstatusid;
+      RAISE NOTICE 'Value: %', is_released;
+     
+        IF is_released THEN
+            new_effectiveenddate := NOW();
+           new_effectivestartdate :=related_contractstart_date;
+        ELSE
+            new_effectiveenddate := related_contractend_date;
+           new_effectivestartdate :=related_contractstart_date;
+        END IF;
+       
+        INSERT INTO employeeprojecthistory (contractemployeeid, categorysubstatusid, effectivestartdate, effectiveenddate, actiontakenon, actiontakenby)
+        VALUES (OLD.contractemployeeid, NEW.categorysubstatusid, new_effectivestartdate, new_effectiveenddate, NOW(),related_CreatedBy );
+       
+       
+     END IF;      
+
+    
+         
+
+    RETURN NULL; 
+END;
+$function$
+;
+
+
+
+select * from categorysubstatus c 
+   select * from categorystatus c 
+   insert into categorystatus(categorystatusname) values('Released')
+   insert into categorysubstatus(categorystatusid,categorysubstatusname) values(8,'Released')
+
+
+   alter table contractbillingprovisionhistory  add column Oldcosting numeric
+
+
+   CREATE OR REPLACE FUNCTION generate_month_year_series(start_date TIMESTAMP, end_date TIMESTAMP)
+RETURNS TABLE(month_year TEXT) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT TO_CHAR(date_series, 'Mon-YY') AS month_year
+    FROM generate_series(
+             start_date,
+             end_date,
+             '1 month'::interval
+         ) AS date_series;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+//26/03/24
+
+
+alter table rmsemployee add column ade bool not null default false 
+
+//27-03-24
+alter table  timesheetdetail add column timesheetdate  timestamp not null 
+
+
+//29-03-24------------------------------------------------------
+CREATE TABLE contractbillingactualhistory (
+	historyid serial4 NOT NULL,
+	contractbillingid int4 references contractbilling(contractbillingid) ,	
+	revisionnumber int4 NOT NULL,	
+	remark text NULL,
+	isactive bool DEFAULT true NOT NULL,
+	isdeleted bool DEFAULT false NOT NULL,
+	createddate timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	lastupdatedate timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	createdby int4 references rmsemployee(employeeid) DEFAULT 0 NOT NULL,
+	lastupdateby int4 references rmsemployee(employeeid) DEFAULT 0 NOT NULL,
+	costing numeric NULL,
+	oldcosting numeric NULL,
+	estimatedbillingdate timestamp NULL,
+	approveraction text NULL,
+	statusid int4 null references status(statusId)
+);
+
+
+alter table contractbilling  add column isrevised bool default false 
+
+create trigger after_contractbilling_update_revision_trigger after
+update
+    on
+    public.contractbilling  for each row execute function sendingActualBillingForApproval();
+
+    ALTER TABLE contractbilling
+ADD COLUMN statusid INT REFERENCES status(statusid) DEFAULT 2;
+alter table contractbilling  add column remark text  
+alter table contractbilling add column lastupdatedby int references rmsemployee(employeeid)
+
+
+select statusid ,costing ,* from contractbilling where contractbillingid =17790;
+select statusid ,costing ,oldcosting ,approveraction ,revisionnumber ,* from contractbillingactualhistory;
+
+update contractbilling  set costing =10,isrevised=true,statusid=2 where contractbillingid =17790
+
+update contractbilling  set statusid =4,isrevised=true where contractbillingid =17790
+
+alter table contractbillingactualhistory add column lastupdatedby int references rmsemployee(employeeid)
+
+
+delete from contractbillingactualhistory
+
+
+
+CREATE TABLE public.timesheetdetail (
+	timesheetdetailid serial4  NOT null primary key ,
+	timesheetid int4 NOT null references timesheetheader(timesheetid),
+	departmentid int4 NOT null references department(departmentid),
+	contractid int4 NOT null references projectcontract(contractid),
+	activity text NOT NULL,
+	dayhours numeric(3, 2) NULL,
+	remarks text NULL,
+	isdrafted bool DEFAULT false NOT NULL,
+	isactive bool DEFAULT true NOT NULL,
+	isdeleted bool DEFAULT false NOT NULL,
+	createddate timestamp DEFAULT now() NOT NULL,
+	lastupdatedate timestamp DEFAULT now() NOT NULL,
+	createdby int4 DEFAULT 0 NOT NULL,
+	lastupdateby int4 DEFAULT 0 NOT NULL,
+	timesheetdate timestamp NOT NULL
+	
+);
+
+
+CREATE OR REPLACE FUNCTION public.after_contractbillingprovision_update_revision()
+
+
+////////02-04-2024
+
+alter table project add column BillingCycledate timestamp ;
+
+
+CREATE OR REPLACE FUNCTION public.getprovision_revision(month_year text, contract_id integer)
+
+temporary query 
+
+select statusid ,costing ,* from contractbilling where contractbillingid =17827; 
+select statusid,approveraction ,* from contractbillingactualhistory where contractbillingid =17827;
+
+
+
+update contractbilling set costing =300.0,
+statusid =2,estimatedbillingdate ='2024-04-02' ,
+isrevised =true where contractbillingid =17827;
+
+update contractbilling set statusid =5,remark='test',
+isbilled = FALSE, istobebilled = false,isrevised =true where contractbillingid =17827; 
+
+----UPDATE contractbilling
+ --SET statusid = NEW.statusid, isbilled = FALSE, istobebilled = false,is_trigger_invoked = TRUE
+   --WHERE contractbillingid = COALESCE(NEW.contractbillingid, OLD.contractbillingid);
+
+--delete from contractbillingactualhistory where contractbillingid =17827;
+--update contractbilling set statusid=2 where contractbillingid =17827; 
+
+
+--update contractbilling set isrevised =false 
+--update contractbilling set is_trigger_invoked=false where contractbillingid =17827; 
+
+
+--------------//--------------------// 09-04-2023//---------------------------------- 
+
+  alter table contractbillingprovesion add column isswaped boolean default false 
+alter table contractbillingprovesion add column isfromactual boolean default false 
+alter table contractbillingprovesion add column swapingdate timestamp 
+
+alter table contractbilling add column isswaped boolean default false 
+alter table contractbilling add column isfromprovision boolean default false 
+alter table contractbilling add column swapingdate timestamp 
+
+
+ alter table probillapprl add column IsActive BOOLEAN NOT NULL DEFAULT true;
+ alter table probillapprl add column    IsDeleted BOOLEAN NOT NULL DEFAULT false;
+  alter table probillapprl add column   CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp;
+  alter table probillapprl add column   LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp;
+  alter table probillapprl add column    CreatedBy INT NOT NULL DEFAULT 0 ;
+   alter table probillapprl add column  LastUpdateBy INT NOT NULL DEFAULT 0 ;
+
+
+   CREATE TABLE contractbillingprovesion_to_contractbilling_history (
+    id serial PRIMARY KEY,
+    contractbillingprovesionid int references contractbillingprovesion(contractbillingprovesionid),
+    contractbillingid int references contractbilling(contractbillingid),
+    contractemployeeid int references contractemployee(contractemployeeid),
+    billingmonthyear text,
+    provision_costing numeric,
+    actual_costing numeric,
+    provision_estimatedbillingdate timestamp,
+    actual_estimatedbillingdate timestamp,
+   IsActive BOOLEAN NOT NULL DEFAULT true,
+    IsDeleted BOOLEAN NOT NULL DEFAULT false,
+    CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+     CreatedBy INT NOT NULL DEFAULT 0 ,
+    LastUpdateBy INT NOT NULL DEFAULT 0
+);
+
+
+
+
+//15-04-2024
+
+
+alter table oaf add column Accountmanagerid int references rmsemployee(employeeid)
+
+
+--alter table costsheetdetail add column xvalue decimal 
+--alter table costsheetdetail add column PeriodDays decimal 
+--alter table costsheetdetail add column CustomerPrice decimal 
+--alter table costsheetdetail add column TotalCost decimal 
+--alter table costsheetdetail add column TotalPrice decimal
+
+
+alter table oaf add column advanceamount decimal 
+alter table oaf add column advancepercent decimal 
+
+
+create table MilestoneDetails
+(
+    id serial PRIMARY KEY,
+    oafid int not null references oaf(oafid),
+    milestoneDesc text not null,
+    percentage decimal ,
+    amount decimal,    
+    IsActive BOOLEAN NOT NULL DEFAULT true,
+    IsDeleted BOOLEAN NOT NULL DEFAULT false,
+    CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    CreatedBy INT NOT NULL DEFAULT 0 ,
+    LastUpdateBy INT NOT NULL DEFAULT 0
+
+)
+
+alter table milestonedetails  add column days int 
+
+
+//22-05-24------------------
+create table ContractEmployeeDeploymentDates
+(
+Id  serial primary key,
+contractemployeeId int not null references contractemployee(contractemployeeId),
+StartDate timestamp ,
+EndDate timestamp,
+IsActive BOOLEAN NOT NULL DEFAULT true,
+IsDeleted BOOLEAN NOT NULL DEFAULT false,
+CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+CreatedBy INT NOT NULL DEFAULT 0 ,
+LastUpdateBy INT NOT NULL DEFAULT 0
+)
+
+
+CREATE TABLE InitialSplitContractBilling (
+	contractbillingid serial4 NOT null primary key ,
+	contractemployeeid int4 null references contractemployee(contractemployeeid),
+	billingmonthyear text NULL,
+	costing numeric(10, 2) NULL,
+	isactive bool DEFAULT true NOT NULL,
+	isdeleted bool DEFAULT false NOT NULL,
+	createddate timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	createdby int4 DEFAULT 0 NOT NULL,
+	lastupdateby int4 DEFAULT 0 NOT null	
+);
+alter table contractemployee 
+add column costsheetdetailid int
+references costsheetdetail(costsheetdetailid)
+
+alter table contractemployee 
+add column empxvalue decimal
+
+alter table contractemployeedeploymentdates
+add column categorysubstatusid int references categorysubstatus(categorysubstatusid)
+
+
+
+08/05/2024  ---------------new modification queries as on 
+
+alter table oaf add column committed_client_billing_date int 
+
+CREATE OR REPLACE FUNCTION public.getresourcesinfoforhr()
+
+
+-------------------14-05-2024-------------------------------------------------------
+insert into role (rolename) values('Employee')
+CREATE OR REPLACE PROCEDURE updaterole()
+CREATE OR REPLACE FUNCTION public.get_employee_details(empid integer)
+CREATE OR REPLACE FUNCTION get_employee_details_By_ManagerId(headId text)
+
+
+//20-03-2024----------------------------------------------------------
+
+create table practicehead (
+practiceheadId serial not null primary key,
+practiceid int not null references practice(practiceid),
+employeeid int not null references rmsemployee(employeeid),
+IsActive BOOLEAN NOT NULL DEFAULT true,
+IsDeleted BOOLEAN NOT NULL DEFAULT false,
+CreatedDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+LastUpdateDate TIMESTAMP NOT NULL DEFAULT current_timestamp,
+CreatedBy INT NOT NULL DEFAULT 0 ,
+LastUpdateBy INT NOT NULL DEFAULT 0   
+)
+
+alter table probillapprlstage 
+add column practiceheadid int references practicehead(practiceheadid)
+insert into practicehead(practiceid,employeeid) values(5,5533);
+insert into practicehead(practiceid,employeeid) values(1,5533);
+insert into practicehead(practiceid,employeeid) values(2,7207);
+insert into practicehead(practiceid,employeeid) values(6,6642);
+insert into practicehead(practiceid,employeeid) values(3,6012);
+
+
+alter table probillapprlstage 
+alter column stageapproverid drop not null
+
+insert into probillapprlstage (stagename,stageorder ,practiceheadid)
+values('FirstStage',1,1);
+insert into probillapprlstage (stagename,stageorder,practiceheadid)
+values('FirstStage',1,2);
+insert into probillapprlstage (stagename,stageorder,practiceheadid)
+values('FirstStage',1,3);
+insert into probillapprlstage (stagename,stageorder,practiceheadid)
+values('FirstStage',1,4);
+insert into probillapprlstage (stagename,stageorder,practiceheadid)
+values('FirstStage',1,5);
+
+sendingactualbillingforapproval
+
+
+//06-06-2024
+alter table project add column committed_client_billing_date int
+
+//11-06-2024
+public.upsertemployees()
+
+//25-06-2024---------------------
+upsertemployees();
+ALTER TABLE rmsemployee
+ADD COLUMN resignationdate TEXT;
+//28-06-2024---------------------
+timesheet two new projects should be added POC, Pre-Sales,On-Bench
+
+
+//04/07-2024-------------------
+
+ALTER TABLE TimesheetDetail ALTER COLUMN contractid DROP NOT NULL;
+
+alter table TimesheetDetail add column benchstatus text;
+
+alter table projectcontract add column isforeclosure boolean default false;
+
+CREATE TABLE foreslosure_projectcontract_history (
+    historyid SERIAL PRIMARY KEY,
+    contractid INT NOT NULL references projectcontract(contractid),
+    oldcontractenddate TIMESTAMP NOT NULL,
+    newcontractenddate TIMESTAMP NOT NULL,
+    changedate TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    changedby INT NOT NULL      
+);\
+
+select * from projectcontract  order by contractid desc ;
+select * from foreslosure_projectcontract_history ; 
+
+--update projectcontract set contractenddate=now() ,isforeclosure=true,lastupdateby=8477 where contractid= 366
+
+
+CREATE OR REPLACE FUNCTION public.upsert_foreclosure_projectcontract_history()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+begin 
+    if OLD.contractenddate is distinct from NEW.contractenddate and OLD.isforeclosure is distinct from NEW.isforeclosure
+	 then  
+	 insert into foreslosure_projectcontract_history(contractid,oldcontractenddate,newcontractenddate,changedate,changedby)
+	 values (OLD.contractid,OLD.contractenddate,NEW.contractenddate,current_timestamp,NEW.lastupdateby);
+	 end if;
+	 return new ;
+end;
+$function$
+;
+	 
+	 
+create trigger update_projectcontract_for_foreslosure after
+update
+    of contractenddate,
+    isforeclosure on
+    public.projectcontract for each row execute function upsert_foreclosure_projectcontract_history();
+
+    public.deleting_foreclosure_contract_employees_billing
+
+
+
+    //18/07/2024----------------------
+    -- public.costsheetdetail_history definition
+
+
+CREATE TABLE public.costsheetdetail_history ;
+
+
+//29/07-2024
+alter table oaf add column isextended bool 
+CREATE TABLE public.oafhistory (
+
+12/08/2024
+CREATE TABLE  projection (
+
+CREATE TABLE projection_employee_deployement (
+
+
+//29-08-2024
+CREATE OR REPLACE VIEW public.aggregated_data_hr
+
+public.getresourcesinfoforhr_new()
+
+
+
+
+
+CREATE TABLE extendedcontracts (
+    extensionid SERIAL PRIMARY KEY,
+    extendedcontractid INTEGER NOT NULL,
+    oldcontractid INTEGER NOT NULL,
+    lastupdatedby VARCHAR(100),
+    createdby VARCHAR(100),
+    lastupdatedate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    createddate TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+ALTER TABLE extendedcontracts
+ADD CONSTRAINT fk_oldcontract
+FOREIGN KEY (oldcontractid)
+REFERENCES projectcontract(contractid);
+
+//18-09-2024
+
+
+CREATE TABLE CRM_deal_types (
+    id SERIAL PRIMARY KEY,
+    CRM_deal_typesId BIGINT UNIQUE,
+    name VARCHAR(255),
+    position INT
+);
+
+CREATE TABLE CRM_deal_reasons (
+    id SERIAL PRIMARY KEY,
+    CRM_deal_reasonsId BIGINT UNIQUE,
+    name VARCHAR(255),
+    position INT
+);
+
+CREATE TABLE CRM_users (
+    id SERIAL PRIMARY KEY,
+    CRM_usersId BIGINT UNIQUE,
+    display_name VARCHAR(255),
+    email VARCHAR(255),
+    is_active BOOLEAN,
+    work_number VARCHAR(255),
+    mobile_number VARCHAR(255)
+);
+
+CREATE TABLE CRM_lead_sources (
+    id SERIAL PRIMARY KEY,
+    CRM_lead_sourcesId BIGINT UNIQUE,
+    name VARCHAR(255),
+    position INT
+);
+
+CREATE TABLE CRM_territories (
+    id SERIAL PRIMARY KEY,
+    CRM_territoriesId BIGINT UNIQUE,  -- Fixed inconsistency in column name
+    name VARCHAR(255),
+    position INT
+);
+
+CREATE TABLE CRM_deal_stages (
+    id SERIAL PRIMARY KEY,
+    CRM_deal_stagesId BIGINT UNIQUE,
+    name VARCHAR(255),
+    position INT,
+    forecast_type VARCHAR(255),
+    updated_at BIGINT,
+    deal_pipeline_id BIGINT,
+    choice_type INT,
+    probability INT
+);
+
+CREATE TABLE CRM_sales_accounts (
+    id SERIAL PRIMARY KEY,
+    CRM_sales_accountsId BIGINT UNIQUE,
+    name VARCHAR(255),
+    avatar VARCHAR(255),
+    website VARCHAR(255),
+    open_deals_amount BIGINT,
+    open_deals_count INT,
+    won_deals_amount BIGINT,
+    won_deals_count INT,
+    last_contacted INT
+);
+
+CREATE TABLE CRM_deals (
+    id SERIAL PRIMARY KEY,
+    CRM_dealsId BIGINT UNIQUE,
+    name VARCHAR(255),
+    amount BIGINT,
+    base_currency_amount BIGINT,
+    expected_close BIGINT,
+    closed_date BIGINT,
+    stage_updated_time BIGINT,
+    cf_bu VARCHAR(255),
+    cf_sub_bu VARCHAR(255),
+    cf_followup_date BIGINT,
+    updated_at BIGINT,
+    created_at BIGINT,
+    CRM_deal_stagesId BIGINT,  -- Foreign key to deal stages
+    creater_id BIGINT,
+    updater_id BIGINT,
+    owner_id BIGINT,
+    CRM_lead_sourcesId BIGINT, -- Foreign key to lead sources
+    CRM_territoriesId BIGINT,  -- Fixed inconsistency in column name
+    currency_id BIGINT,
+    CRM_sales_accountsId BIGINT  -- Foreign key to sales accounts
+);
+
+CREATE TABLE IF NOT EXISTS public.projectionrequests
+(
+    projectionrequestid serial PRIMARY KEY,
+    projectionid integer NOT NULL REFERENCES public.projection(projectionid),
+    employeeid integer NOT NULL,
+    remarks text,
+    status varchar(50),
+    requestsentby integer NOT NULL,
+    requestsentto integer NOT NULL,
+    lastupdatedby integer,
+    lastupdatedate timestamp DEFAULT CURRENT_TIMESTAMP,
+    createddate timestamp DEFAULT CURRENT_TIMESTAMP
+);

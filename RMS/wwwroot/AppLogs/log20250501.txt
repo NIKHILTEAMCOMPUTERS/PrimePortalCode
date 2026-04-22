@@ -1,0 +1,19 @@
+2025-05-01 15:13:41.498 +05:30 [INF] User profile is available. Using 'C:\Users\17492\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-05-01 15:13:42.519 +05:30 [INF] Creating key {d8268b6f-19d6-4772-bf3a-66c843f78935} with creation date 2025-05-01 09:43:42Z, activation date 2025-05-01 09:43:42Z, and expiration date 2025-07-30 09:43:42Z.
+2025-05-01 15:13:42.697 +05:30 [INF] Writing data to file 'C:\Users\17492\AppData\Local\ASP.NET\DataProtection-Keys\key-d8268b6f-19d6-4772-bf3a-66c843f78935.xml'.
+2025-05-01 15:13:45.449 +05:30 [INF] Now listening on: https://localhost:7148
+2025-05-01 15:13:45.451 +05:30 [INF] Now listening on: http://localhost:5254
+2025-05-01 15:13:45.585 +05:30 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-01 15:13:45.589 +05:30 [INF] Hosting environment: Development
+2025-05-01 15:13:45.590 +05:30 [INF] Content root path: D:\PRIME (RESOURCE MANAGMENT PORTAL)\Prime API Project 0512\resource-portal\RMS\
+2025-05-01 15:13:46.260 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/swagger/index.html - -
+2025-05-01 15:13:46.677 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/swagger/index.html - - - 200 - text/html;charset=utf-8 421.7112ms
+2025-05-01 15:13:46.682 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/_vs/browserLink - -
+2025-05-01 15:13:46.682 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/_framework/aspnetcore-browser-refresh.js - -
+2025-05-01 15:13:46.703 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/_framework/aspnetcore-browser-refresh.js - - - 200 16491 application/javascript;+charset=utf-8 20.1985ms
+2025-05-01 15:13:46.767 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/_vs/browserLink - - - 200 - text/javascript;+charset=UTF-8 84.4723ms
+2025-05-01 15:13:46.842 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/swagger/v1/swagger.json - -
+2025-05-01 15:13:46.863 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/swagger/favicon-32x32.png - -
+2025-05-01 15:13:46.884 +05:30 [INF] Sending file. Request path: '/favicon-32x32.png'. Physical path: 'N/A'
+2025-05-01 15:13:46.887 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/swagger/favicon-32x32.png - - - 200 628 image/png 24.6583ms
+2025-05-01 15:13:47.098 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/swagger/v1/swagger.json - - - 200 - application/json;charset=utf-8 256.6853ms

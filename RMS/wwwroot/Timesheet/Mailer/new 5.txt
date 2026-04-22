@@ -1,0 +1,43 @@
+update employeerole set roleid = 2 where employeeid = 8480
+
+
+
+naved.shaikh@teamcomputers.com
+
+
+asian paints 290
+select * from rmsemployee where companyemail = 'naved.shaikh@teamcomputers.com'
+
+update employeerole set roleid = 3 where employeeid = 5834
+select * from projectcontract where contractid = 189
+
+
+select * from rmsemployee where companyemail = 'sumit.sinha@teamcomputers.com'
+
+
+
+deba sir all contracts skoda or asian paint chodke / amit sir ko dedo
+
+
+
+
+
+
+
+
+SELECT p.projectname,r.employeename as DAname,pc.* 
+FROM projectcontract pc
+inner join project p on p.projectid = pc.projectid
+inner join rmsemployee r on r.employeeid = pc.deliveryanchorid
+WHERE pc.contractenddate < CURRENT_DATE and pc.statusid != 6
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,23 @@
+SELECT
+    d.timesheetdate,
+    e.employeename,
+    e.userid,
+    h.monthyear,
+    c.contractno,
+    p.projectname,
+    d.activity,
+    ca.categoryofactivityname
+FROM public.timesheetdetail d
+INNER JOIN public.timesheetheader h
+    ON h.timesheetid = d.timesheetid
+INNER JOIN public.rmsemployee e
+    ON e.employeeid = h.employeeid
+LEFT JOIN public.projectcontract c
+    ON c.contractid = d.contractid
+LEFT JOIN public.project p
+    ON p.projectid = c.projectid
+LEFT JOIN public.categoryofactivity ca
+    ON ca.categoryofactivityid = d.categoryofactivityid
+WHERE d.isdeleted = false
+  AND h.isdeleted = false
+  AND p.customerid = 910;
