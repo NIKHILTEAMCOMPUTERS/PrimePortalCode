@@ -1,0 +1,643 @@
+2026-01-02 19:10:47.663 +05:30 [INF] User profile is available. Using 'C:\Users\17492\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-01-02 19:10:48.655 +05:30 [INF] Now listening on: https://localhost:7148
+2026-01-02 19:10:48.659 +05:30 [INF] Now listening on: http://localhost:5254
+2026-01-02 19:10:48.894 +05:30 [INF] Application started. Press Ctrl+C to shut down.
+2026-01-02 19:10:48.898 +05:30 [INF] Hosting environment: Development
+2026-01-02 19:10:48.910 +05:30 [INF] Content root path: D:\PRIME (RESOURCE MANAGMENT PORTAL)\Prime API Project 0512\resource-portal\RMS\
+2026-01-02 19:10:50.344 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/swagger/index.html - -
+2026-01-02 19:10:51.542 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/swagger/index.html - - - 200 - text/html;charset=utf-8 1207.8275ms
+2026-01-02 19:10:51.547 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/_vs/browserLink - -
+2026-01-02 19:10:51.547 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/_framework/aspnetcore-browser-refresh.js - -
+2026-01-02 19:10:51.584 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/_framework/aspnetcore-browser-refresh.js - - - 200 16491 application/javascript;+charset=utf-8 37.6063ms
+2026-01-02 19:10:51.697 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/_vs/browserLink - - - 200 - text/javascript;+charset=UTF-8 150.8397ms
+2026-01-02 19:10:51.747 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/swagger/v1/swagger.json - -
+2026-01-02 19:10:52.201 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/swagger/v1/swagger.json - - - 200 - application/json;charset=utf-8 454.0117ms
+2026-01-02 19:11:39.576 +05:30 [INF] Request starting HTTP/1.1 POST https://localhost:7148/api/UserAuth/ValidateUser application/json;+charset=utf-8 46
+2026-01-02 19:11:39.859 +05:30 [INF] Executing endpoint 'RMS.Controllers.Account.UserAuthController.ValidateUser (RMS)'
+2026-01-02 19:11:40.001 +05:30 [INF] Route matched with {action = "ValidateUser", controller = "UserAuth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] ValidateUser(RMS.Entity.Account.UserRequetDto) on controller RMS.Controllers.Account.UserAuthController (RMS).
+2026-01-02 19:11:53.619 +05:30 [INF] Executed DbCommand (280ms) [Parameters=[@__tmc_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT t.employeeid, t.ade, t.baseoffice, t.branchid, t.categorysubstatusid, t.companyemail, t.contactno, t.costcenter, t.createdby, t.createdon, t.dateofbirth, t.dateofjoining, t.departmentid, t.designationid, t.employeename, t.employeeregion, t.isactive, t.isdeleted, t.lastupdatedby, t.lastupdatedon, t.reportheadid, t.resignationdate, t.sbu, t.sbuid, t.statusid, t.subpracticeid, t.udf1, t.udf2, t.udf3, t.userid, t.workexedays, t.workexperience, t0.employeeroleid, t0.employeeid, t0.roleid, t0.roleid0, t0.createdby, t0.createddate, t0.isactive, t0.isadmin, t0.isdeleted, t0.isrowlevel, t0.lastupdateby, t0.lastupdatedate, t0.rolename
+FROM (
+    SELECT r.employeeid, r.ade, r.baseoffice, r.branchid, r.categorysubstatusid, r.companyemail, r.contactno, r.costcenter, r.createdby, r.createdon, r.dateofbirth, r.dateofjoining, r.departmentid, r.designationid, r.employeename, r.employeeregion, r.isactive, r.isdeleted, r.lastupdatedby, r.lastupdatedon, r.reportheadid, r.resignationdate, r.sbu, r.sbuid, r.statusid, r.subpracticeid, r.udf1, r.udf2, r.udf3, r.userid, r.workexedays, r.workexperience
+    FROM rmsemployee AS r
+    WHERE r.userid = @__tmc_0
+    LIMIT 1
+) AS t
+LEFT JOIN (
+    SELECT e.employeeroleid, e.employeeid, e.roleid, r0.roleid AS roleid0, r0.createdby, r0.createddate, r0.isactive, r0.isadmin, r0.isdeleted, r0.isrowlevel, r0.lastupdateby, r0.lastupdatedate, r0.rolename
+    FROM employeerole AS e
+    LEFT JOIN role AS r0 ON e.roleid = r0.roleid
+) AS t0 ON t.employeeid = t0.employeeid
+ORDER BY t.employeeid, t0.employeeroleid
+2026-01-02 19:11:55.082 +05:30 [INF] Executed DbCommand (84ms) [Parameters=[@p0='?', @p1='?', @p2='?', @p3='?', @p4='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO userloginlogs (browserclient, ipaddress, jwttoken, loginstatus, userid)
+VALUES (@p0, @p1, @p2, @p3, @p4)
+RETURNING userloginlogid, logindatetime;
+2026-01-02 19:11:55.343 +05:30 [INF] Executed DbCommand (45ms) [Parameters=[@__tmc_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM rmsemployee AS r
+    WHERE r.reportheadid = @__tmc_0)
+2026-01-02 19:11:55.408 +05:30 [INF] Executing OkObjectResult, writing value of type '<>f__AnonymousType2`11[[System.String, System.Private.CoreLib, Version=6.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=6.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=6.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=6.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=6.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=6.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=6.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=6.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=6.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Boolean, System.Private.CoreLib, Version=6.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=6.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-01-02 19:11:55.460 +05:30 [INF] Executed action RMS.Controllers.Account.UserAuthController.ValidateUser (RMS) in 15424.3849ms
+2026-01-02 19:11:55.475 +05:30 [INF] Executed endpoint 'RMS.Controllers.Account.UserAuthController.ValidateUser (RMS)'
+2026-01-02 19:11:55.548 +05:30 [INF] Request finished HTTP/1.1 POST https://localhost:7148/api/UserAuth/ValidateUser application/json;+charset=utf-8 46 - 200 - application/json;+charset=utf-8 15971.4839ms
+2026-01-02 19:11:56.012 +05:30 [INF] Request starting HTTP/1.1 GET https://localhost:7148/api/Authorize?empcode=17492 - -
+2026-01-02 19:11:56.289 +05:30 [INF] Executing endpoint 'RMS.Controllers.RBAC.AuthorizeController.Get (RMS)'
+2026-01-02 19:11:56.308 +05:30 [INF] Route matched with {action = "Get", controller = "Authorize"}. Executing controller action with signature System.Threading.Tasks.Task`1[RMS.Entity.DTO.AuthorizeDto] Get(System.String) on controller RMS.Controllers.RBAC.AuthorizeController (RMS).
+2026-01-02 19:11:56.705 +05:30 [INF] Executed DbCommand (48ms) [Parameters=[@__employeeCode_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT e.employeeroleid, e.employeeid, e.roleid, r.employeeid, r.ade, r.baseoffice, r.branchid, r.categorysubstatusid, r.companyemail, r.contactno, r.costcenter, r.createdby, r.createdon, r.dateofbirth, r.dateofjoining, r.departmentid, r.designationid, r.employeename, r.employeeregion, r.isactive, r.isdeleted, r.lastupdatedby, r.lastupdatedon, r.reportheadid, r.resignationdate, r.sbu, r.sbuid, r.statusid, r.subpracticeid, r.udf1, r.udf2, r.udf3, r.userid, r.workexedays, r.workexperience, r0.roleid, r0.createdby, r0.createddate, r0.isactive, r0.isadmin, r0.isdeleted, r0.isrowlevel, r0.lastupdateby, r0.lastupdatedate, r0.rolename, t.rolepageid, t.isbillingpermit, t.isdeletepermit, t.isreadpermit, t.iswritepermit, t.pageid, t.pagesequence, t.roleid, t.pageid0, t.actionname, t.controllername, t.createdby, t.createddate, t.icon, t.isactive, t.isdeleted, t.lastupdatedby, t.lastupdateddate, t.moduleid, t.pagename, t.moduleid0, t.createdby0, t.createddate0, t.icon0, t.isactive0, t.isdeleted0, t.lastupdatedby0, t.lastupdateddate0, t.modulename
+FROM employeerole AS e
+INNER JOIN rmsemployee AS r ON e.employeeid = r.employeeid
+LEFT JOIN role AS r0 ON e.roleid = r0.roleid
+LEFT JOIN (
+    SELECT r1.rolepageid, r1.isbillingpermit, r1.isdeletepermit, r1.isreadpermit, r1.iswritepermit, r1.pageid, r1.pagesequence, r1.roleid, p.pageid AS pageid0, p.actionname, p.controllername, p.createdby, p.createddate, p.icon, p.isactive, p.isdeleted, p.lastupdatedby, p.lastupdateddate, p.moduleid, p.pagename, m.moduleid AS moduleid0, m.createdby AS createdby0, m.createddate AS createddate0, m.icon AS icon0, m.isactive AS isactive0, m.isdeleted AS isdeleted0, m.lastupdatedby AS lastupdatedby0, m.lastupdateddate AS lastupdateddate0, m.modulename
+    FROM rolepage AS r1
+    LEFT JOIN page AS p ON r1.pageid = p.pageid
+    LEFT JOIN module AS m ON p.moduleid = m.moduleid
+) AS t ON r0.roleid = t.roleid
+WHERE r.userid = @__employeeCode_0
+ORDER BY e.employeeroleid, r.employeeid, r0.roleid, t.rolepageid, t.pageid0
+2026-01-02 19:11:57.653 +05:30 [INF] Executing ObjectResult, writing value of type 'RMS.Entity.DTO.AuthorizeDto'.
+2026-01-02 19:11:57.709 +05:30 [INF] Executed action RMS.Controllers.RBAC.AuthorizeController.Get (RMS) in 1389.1691ms
+2026-01-02 19:11:57.716 +05:30 [INF] Executed endpoint 'RMS.Controllers.RBAC.AuthorizeController.Get (RMS)'
+2026-01-02 19:11:57.724 +05:30 [INF] Request finished HTTP/1.1 GET https://localhost:7148/api/Authorize?empcode=17492 - - - 200 - application/json;+charset=utf-8 1711.9456ms
+2026-01-02 19:11:57.973 +05:30 [INF] Request starting HTTP/1.1 GET https://localhost:7148/api/Authorize?empcode=17492 - -
+2026-01-02 19:11:57.986 +05:30 [INF] Executing endpoint 'RMS.Controllers.RBAC.AuthorizeController.Get (RMS)'
+2026-01-02 19:11:57.993 +05:30 [INF] Route matched with {action = "Get", controller = "Authorize"}. Executing controller action with signature System.Threading.Tasks.Task`1[RMS.Entity.DTO.AuthorizeDto] Get(System.String) on controller RMS.Controllers.RBAC.AuthorizeController (RMS).
+2026-01-02 19:11:58.102 +05:30 [INF] Executed DbCommand (47ms) [Parameters=[@__employeeCode_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT e.employeeroleid, e.employeeid, e.roleid, r.employeeid, r.ade, r.baseoffice, r.branchid, r.categorysubstatusid, r.companyemail, r.contactno, r.costcenter, r.createdby, r.createdon, r.dateofbirth, r.dateofjoining, r.departmentid, r.designationid, r.employeename, r.employeeregion, r.isactive, r.isdeleted, r.lastupdatedby, r.lastupdatedon, r.reportheadid, r.resignationdate, r.sbu, r.sbuid, r.statusid, r.subpracticeid, r.udf1, r.udf2, r.udf3, r.userid, r.workexedays, r.workexperience, r0.roleid, r0.createdby, r0.createddate, r0.isactive, r0.isadmin, r0.isdeleted, r0.isrowlevel, r0.lastupdateby, r0.lastupdatedate, r0.rolename, t.rolepageid, t.isbillingpermit, t.isdeletepermit, t.isreadpermit, t.iswritepermit, t.pageid, t.pagesequence, t.roleid, t.pageid0, t.actionname, t.controllername, t.createdby, t.createddate, t.icon, t.isactive, t.isdeleted, t.lastupdatedby, t.lastupdateddate, t.moduleid, t.pagename, t.moduleid0, t.createdby0, t.createddate0, t.icon0, t.isactive0, t.isdeleted0, t.lastupdatedby0, t.lastupdateddate0, t.modulename
+FROM employeerole AS e
+INNER JOIN rmsemployee AS r ON e.employeeid = r.employeeid
+LEFT JOIN role AS r0 ON e.roleid = r0.roleid
+LEFT JOIN (
+    SELECT r1.rolepageid, r1.isbillingpermit, r1.isdeletepermit, r1.isreadpermit, r1.iswritepermit, r1.pageid, r1.pagesequence, r1.roleid, p.pageid AS pageid0, p.actionname, p.controllername, p.createdby, p.createddate, p.icon, p.isactive, p.isdeleted, p.lastupdatedby, p.lastupdateddate, p.moduleid, p.pagename, m.moduleid AS moduleid0, m.createdby AS createdby0, m.createddate AS createddate0, m.icon AS icon0, m.isactive AS isactive0, m.isdeleted AS isdeleted0, m.lastupdatedby AS lastupdatedby0, m.lastupdateddate AS lastupdateddate0, m.modulename
+    FROM rolepage AS r1
+    LEFT JOIN page AS p ON r1.pageid = p.pageid
+    LEFT JOIN module AS m ON p.moduleid = m.moduleid
+) AS t ON r0.roleid = t.roleid
+WHERE r.userid = @__employeeCode_0
+ORDER BY e.employeeroleid, r.employeeid, r0.roleid, t.rolepageid, t.pageid0
+2026-01-02 19:11:58.120 +05:30 [INF] Executing ObjectResult, writing value of type 'RMS.Entity.DTO.AuthorizeDto'.
+2026-01-02 19:11:58.127 +05:30 [INF] Executed action RMS.Controllers.RBAC.AuthorizeController.Get (RMS) in 123.0865ms
+2026-01-02 19:11:58.132 +05:30 [INF] Executed endpoint 'RMS.Controllers.RBAC.AuthorizeController.Get (RMS)'
+2026-01-02 19:11:58.136 +05:30 [INF] Request finished HTTP/1.1 GET https://localhost:7148/api/Authorize?empcode=17492 - - - 200 - application/json;+charset=utf-8 162.3102ms
+2026-01-02 19:11:58.230 +05:30 [INF] Request starting HTTP/1.1 GET https://localhost:7148/api/Authorize?empcode=17492 - -
+2026-01-02 19:11:58.235 +05:30 [INF] Executing endpoint 'RMS.Controllers.RBAC.AuthorizeController.Get (RMS)'
+2026-01-02 19:11:58.239 +05:30 [INF] Route matched with {action = "Get", controller = "Authorize"}. Executing controller action with signature System.Threading.Tasks.Task`1[RMS.Entity.DTO.AuthorizeDto] Get(System.String) on controller RMS.Controllers.RBAC.AuthorizeController (RMS).
+2026-01-02 19:11:58.297 +05:30 [INF] Executed DbCommand (47ms) [Parameters=[@__employeeCode_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT e.employeeroleid, e.employeeid, e.roleid, r.employeeid, r.ade, r.baseoffice, r.branchid, r.categorysubstatusid, r.companyemail, r.contactno, r.costcenter, r.createdby, r.createdon, r.dateofbirth, r.dateofjoining, r.departmentid, r.designationid, r.employeename, r.employeeregion, r.isactive, r.isdeleted, r.lastupdatedby, r.lastupdatedon, r.reportheadid, r.resignationdate, r.sbu, r.sbuid, r.statusid, r.subpracticeid, r.udf1, r.udf2, r.udf3, r.userid, r.workexedays, r.workexperience, r0.roleid, r0.createdby, r0.createddate, r0.isactive, r0.isadmin, r0.isdeleted, r0.isrowlevel, r0.lastupdateby, r0.lastupdatedate, r0.rolename, t.rolepageid, t.isbillingpermit, t.isdeletepermit, t.isreadpermit, t.iswritepermit, t.pageid, t.pagesequence, t.roleid, t.pageid0, t.actionname, t.controllername, t.createdby, t.createddate, t.icon, t.isactive, t.isdeleted, t.lastupdatedby, t.lastupdateddate, t.moduleid, t.pagename, t.moduleid0, t.createdby0, t.createddate0, t.icon0, t.isactive0, t.isdeleted0, t.lastupdatedby0, t.lastupdateddate0, t.modulename
+FROM employeerole AS e
+INNER JOIN rmsemployee AS r ON e.employeeid = r.employeeid
+LEFT JOIN role AS r0 ON e.roleid = r0.roleid
+LEFT JOIN (
+    SELECT r1.rolepageid, r1.isbillingpermit, r1.isdeletepermit, r1.isreadpermit, r1.iswritepermit, r1.pageid, r1.pagesequence, r1.roleid, p.pageid AS pageid0, p.actionname, p.controllername, p.createdby, p.createddate, p.icon, p.isactive, p.isdeleted, p.lastupdatedby, p.lastupdateddate, p.moduleid, p.pagename, m.moduleid AS moduleid0, m.createdby AS createdby0, m.createddate AS createddate0, m.icon AS icon0, m.isactive AS isactive0, m.isdeleted AS isdeleted0, m.lastupdatedby AS lastupdatedby0, m.lastupdateddate AS lastupdateddate0, m.modulename
+    FROM rolepage AS r1
+    LEFT JOIN page AS p ON r1.pageid = p.pageid
+    LEFT JOIN module AS m ON p.moduleid = m.moduleid
+) AS t ON r0.roleid = t.roleid
+WHERE r.userid = @__employeeCode_0
+ORDER BY e.employeeroleid, r.employeeid, r0.roleid, t.rolepageid, t.pageid0
+2026-01-02 19:11:58.317 +05:30 [INF] Executing ObjectResult, writing value of type 'RMS.Entity.DTO.AuthorizeDto'.
+2026-01-02 19:11:58.325 +05:30 [INF] Executed action RMS.Controllers.RBAC.AuthorizeController.Get (RMS) in 77.8196ms
+2026-01-02 19:11:58.333 +05:30 [INF] Executed endpoint 'RMS.Controllers.RBAC.AuthorizeController.Get (RMS)'
+2026-01-02 19:11:58.336 +05:30 [INF] Request finished HTTP/1.1 GET https://localhost:7148/api/Authorize?empcode=17492 - - - 200 - application/json;+charset=utf-8 106.3439ms
+2026-01-02 19:11:58.393 +05:30 [INF] Request starting HTTP/1.1 GET https://localhost:7148/api/Project - -
+2026-01-02 19:11:58.399 +05:30 [INF] Executing endpoint 'RMS.Controllers.Master.ProjectController.Get (RMS)'
+2026-01-02 19:11:58.418 +05:30 [INF] Route matched with {action = "Get", controller = "Project"}. Executing controller action with signature System.Threading.Tasks.Task`1[System.Collections.Generic.IEnumerable`1[RMS.Entity.DTO.ResponseForProjectsWithDetailsDto]] Get() on controller RMS.Controllers.Master.ProjectController (RMS).
+2026-01-02 19:11:58.696 +05:30 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2026-01-02 19:11:58.953 +05:30 [INF] Executed DbCommand (155ms) [Parameters=[@__TimesheeetProjectList_0='?' (DbType = Object)], CommandType='"Text"', CommandTimeout='30']
+SELECT p.projectid, p.accountmanagerid, p.billingcycledate, p.committed_client_billing_date, p.createdby, p.createddate, p.customerid, p.isactive, p.isdeleted, p.lastupdatedate, p.lastupdatedby, p.projectdescription, p.projectname, p.projectno, p.projecttypeid, p.statusid, p.subpracticeid, s.statusid, s.statuscode, s.statusdiscription, s.statusname, c.customerid, p0.projecttypeid, s0.subpracticeid, p1.practiceid, r.employeeid, t.contractid, t.amount, t.attachment, t.contactnumber, t.contactpersonname, t.contractenddate, t.contractno, t.contractstartdate, t.costsheetid, t.createdby, t.createddate, t.deliveryanchorid, t.invoiceperiod, t.isactive, t.isdeleted, t.isforeclosure, t.isprojectestimationdone, t.lastupdateby, t.lastupdatedate, t.oafid, t.ponumber, t.povalue, t.projectid, t.remarks, t.statusid, t.udf1, t.employeeid, t.ade, t.baseoffice, t.branchid, t.categorysubstatusid, t.companyemail, t.contactno, t.costcenter, t.createdby0, t.createdon, t.dateofbirth, t.dateofjoining, t.departmentid, t.designationid, t.employeename, t.employeeregion, t.isactive0, t.isdeleted0, t.lastupdatedby, t.lastupdatedon, t.reportheadid, t.resignationdate, t.sbu, t.sbuid, t.statusid0, t.subpracticeid, t.udf10, t.udf2, t.udf3, t.userid, t.workexedays, t.workexperience, c.address1, c.address2, c.amount, c.chainname, c.cityid, c.companyemail, c.companylogourl, c.companyname, c.contact, c.countryregioncode, c.createdby, c.createddate, c.currencyid, c.customercode, c.customertypeid, c.firstname, c.globaldimension10code, c.globaldimension11code, c.globaldimension12code, c.globaldimension13code, c.globaldimension14code, c.globaldimension9code, c.gstnumber, c.isactive, c.isdeleted, c.lastname, c.lastupdateby, c.lastupdatedate, c.oldcustomercode, c.pannumber, c.paymentmethodid, c.paymenttermid, c.phone1, c.phone2, c.statecode, c.zipcode, p0.createdby, p0.createddate, p0.isactive, p0.isdeleted, p0.lastupdateby, p0.lastupdatedate, p0.projecttypename, p0.statusid, s0.createdby, s0.createddate, s0.isactive, s0.isdeleted, s0.lastupdateby, s0.lastupdatedate, s0.practiceid, s0.statusid, s0.subpracticename, p1.code, p1.createdby, p1.createddate, p1.isactive, p1.isdeleted, p1.lastupdateby, p1.lastupdatedate, p1.practicename, p1.statusid, t0.projectemployeeassignmentid, t0.categorysubstatusid, t0.createdby, t0.createddate, t0.employeeid, t0.enddate, t0.isactive, t0.isdeleted, t0.lastupdateby, t0.lastupdatedate, t0.projectid, t0.startdate, t0.statusid, t0.employeeid0, t0.ade, t0.baseoffice, t0.branchid, t0.categorysubstatusid0, t0.companyemail, t0.contactno, t0.costcenter, t0.createdby0, t0.createdon, t0.dateofbirth, t0.dateofjoining, t0.departmentid, t0.designationid, t0.employeename, t0.employeeregion, t0.isactive0, t0.isdeleted0, t0.lastupdatedby, t0.lastupdatedon, t0.reportheadid, t0.resignationdate, t0.sbu, t0.sbuid, t0.statusid0, t0.subpracticeid, t0.udf1, t0.udf2, t0.udf3, t0.userid, t0.workexedays, t0.workexperience, r.ade, r.baseoffice, r.branchid, r.categorysubstatusid, r.companyemail, r.contactno, r.costcenter, r.createdby, r.createdon, r.dateofbirth, r.dateofjoining, r.departmentid, r.designationid, r.employeename, r.employeeregion, r.isactive, r.isdeleted, r.lastupdatedby, r.lastupdatedon, r.reportheadid, r.resignationdate, r.sbu, r.sbuid, r.statusid, r.subpracticeid, r.udf1, r.udf2, r.udf3, r.userid, r.workexedays, r.workexperience
+FROM project AS p
+LEFT JOIN status AS s ON p.statusid = s.statusid
+LEFT JOIN customer AS c ON p.customerid = c.customerid
+LEFT JOIN projecttype AS p0 ON p.projecttypeid = p0.projecttypeid
+LEFT JOIN subpractice AS s0 ON p.subpracticeid = s0.subpracticeid
+LEFT JOIN practice AS p1 ON s0.practiceid = p1.practiceid
+LEFT JOIN rmsemployee AS r ON p.accountmanagerid = r.employeeid
+LEFT JOIN (
+    SELECT p2.contractid, p2.amount, p2.attachment, p2.contactnumber, p2.contactpersonname, p2.contractenddate, p2.contractno, p2.contractstartdate, p2.costsheetid, p2.createdby, p2.createddate, p2.deliveryanchorid, p2.invoiceperiod, p2.isactive, p2.isdeleted, p2.isforeclosure, p2.isprojectestimationdone, p2.lastupdateby, p2.lastupdatedate, p2.oafid, p2.ponumber, p2.povalue, p2.projectid, p2.remarks, p2.statusid, p2.udf1, r0.employeeid, r0.ade, r0.baseoffice, r0.branchid, r0.categorysubstatusid, r0.companyemail, r0.contactno, r0.costcenter, r0.createdby AS createdby0, r0.createdon, r0.dateofbirth, r0.dateofjoining, r0.departmentid, r0.designationid, r0.employeename, r0.employeeregion, r0.isactive AS isactive0, r0.isdeleted AS isdeleted0, r0.lastupdatedby, r0.lastupdatedon, r0.reportheadid, r0.resignationdate, r0.sbu, r0.sbuid, r0.statusid AS statusid0, r0.subpracticeid, r0.udf1 AS udf10, r0.udf2, r0.udf3, r0.userid, r0.workexedays, r0.workexperience
+    FROM projectcontract AS p2
+    LEFT JOIN rmsemployee AS r0 ON p2.deliveryanchorid = r0.employeeid
+) AS t ON p.projectid = t.projectid
+LEFT JOIN (
+    SELECT p3.projectemployeeassignmentid, p3.categorysubstatusid, p3.createdby, p3.createddate, p3.employeeid, p3.enddate, p3.isactive, p3.isdeleted, p3.lastupdateby, p3.lastupdatedate, p3.projectid, p3.startdate, p3.statusid, r1.employeeid AS employeeid0, r1.ade, r1.baseoffice, r1.branchid, r1.categorysubstatusid AS categorysubstatusid0, r1.companyemail, r1.contactno, r1.costcenter, r1.createdby AS createdby0, r1.createdon, r1.dateofbirth, r1.dateofjoining, r1.departmentid, r1.designationid, r1.employeename, r1.employeeregion, r1.isactive AS isactive0, r1.isdeleted AS isdeleted0, r1.lastupdatedby, r1.lastupdatedon, r1.reportheadid, r1.resignationdate, r1.sbu, r1.sbuid, r1.statusid AS statusid0, r1.subpracticeid, r1.udf1, r1.udf2, r1.udf3, r1.userid, r1.workexedays, r1.workexperience
+    FROM projectemployeeassignment AS p3
+    INNER JOIN rmsemployee AS r1 ON p3.employeeid = r1.employeeid
+) AS t0 ON p.projectid = t0.projectid
+WHERE NOT (p.projectname = ANY (@__TimesheeetProjectList_0) AND (p.projectname = ANY (@__TimesheeetProjectList_0) IS NOT NULL)) AND ((p.projectname IS NOT NULL) OR (array_position(@__TimesheeetProjectList_0, NULL) IS NULL))
+ORDER BY p.projectid, s.statusid, c.customerid, p0.projecttypeid, s0.subpracticeid, p1.practiceid, r.employeeid, t.contractid, t.employeeid, t0.projectemployeeassignmentid
+2026-01-02 19:11:59.251 +05:30 [INF] Executing ObjectResult, writing value of type 'System.Collections.Generic.List`1[[RMS.Entity.DTO.ResponseForProjectsWithDetailsDto, RMS.Entity, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-01-02 19:11:59.630 +05:30 [INF] Executed action RMS.Controllers.Master.ProjectController.Get (RMS) in 1199.2502ms
+2026-01-02 19:11:59.634 +05:30 [INF] Executed endpoint 'RMS.Controllers.Master.ProjectController.Get (RMS)'
+2026-01-02 19:11:59.638 +05:30 [INF] Request finished HTTP/1.1 GET https://localhost:7148/api/Project - - - 200 - application/json;+charset=utf-8 1245.5826ms
+2026-01-02 19:11:59.748 +05:30 [INF] Request starting HTTP/1.1 GET https://localhost:7148/api/Employee/EmployeeDetailsView/ - -
+2026-01-02 19:11:59.756 +05:30 [INF] Executing endpoint 'RMS.Controllers.Master.EmployeeController.EmployeeDetailsView (RMS)'
+2026-01-02 19:11:59.772 +05:30 [INF] Route matched with {action = "EmployeeDetailsView", controller = "Employee"}. Executing controller action with signature System.Threading.Tasks.Task`1[System.Collections.Generic.IEnumerable`1[RMS.Data.Models.DataForEmployeeReport]] EmployeeDetailsView(System.Nullable`1[System.Int32]) on controller RMS.Controllers.Master.EmployeeController (RMS).
+2026-01-02 19:12:01.806 +05:30 [INF] Executed DbCommand (1,992ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT d.ade, d.billablenonbillable, d.billingmonthyear, d.categorysubstatusid, d.contractenddate, d.contractstartdate, d.contractstatusid, d.currentmonthbilling, d.customernames, d.da, d.dateofjoining, d.employeeid, d.exe, d.flag, d.function, d.practice, d.projectnames, d.projecttypes, d.region, d.reportinghead, d.resourcename, d.subpractice, d.tmc, d.userid, d.workexedays
+FROM data_for_employee_report AS d
+2026-01-02 19:12:13.588 +05:30 [INF] Executing ObjectResult, writing value of type 'System.Collections.Generic.List`1[[RMS.Data.Models.DataForEmployeeReport, RMS.Data, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-01-02 19:12:13.626 +05:30 [INF] Executed action RMS.Controllers.Master.EmployeeController.EmployeeDetailsView (RMS) in 13849.5468ms
+2026-01-02 19:12:13.636 +05:30 [INF] Executed endpoint 'RMS.Controllers.Master.EmployeeController.EmployeeDetailsView (RMS)'
+2026-01-02 19:12:13.643 +05:30 [INF] Request finished HTTP/1.1 GET https://localhost:7148/api/Employee/EmployeeDetailsView/ - - - 200 - application/json;+charset=utf-8 13895.6887ms
+2026-01-02 19:12:14.455 +05:30 [INF] Request starting HTTP/1.1 GET https://localhost:7148/api/Authorize?empcode=17492 - -
+2026-01-02 19:12:14.460 +05:30 [INF] Executing endpoint 'RMS.Controllers.RBAC.AuthorizeController.Get (RMS)'
+2026-01-02 19:12:14.465 +05:30 [INF] Route matched with {action = "Get", controller = "Authorize"}. Executing controller action with signature System.Threading.Tasks.Task`1[RMS.Entity.DTO.AuthorizeDto] Get(System.String) on controller RMS.Controllers.RBAC.AuthorizeController (RMS).
+2026-01-02 19:12:14.510 +05:30 [INF] Executed DbCommand (36ms) [Parameters=[@__employeeCode_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT e.employeeroleid, e.employeeid, e.roleid, r.employeeid, r.ade, r.baseoffice, r.branchid, r.categorysubstatusid, r.companyemail, r.contactno, r.costcenter, r.createdby, r.createdon, r.dateofbirth, r.dateofjoining, r.departmentid, r.designationid, r.employeename, r.employeeregion, r.isactive, r.isdeleted, r.lastupdatedby, r.lastupdatedon, r.reportheadid, r.resignationdate, r.sbu, r.sbuid, r.statusid, r.subpracticeid, r.udf1, r.udf2, r.udf3, r.userid, r.workexedays, r.workexperience, r0.roleid, r0.createdby, r0.createddate, r0.isactive, r0.isadmin, r0.isdeleted, r0.isrowlevel, r0.lastupdateby, r0.lastupdatedate, r0.rolename, t.rolepageid, t.isbillingpermit, t.isdeletepermit, t.isreadpermit, t.iswritepermit, t.pageid, t.pagesequence, t.roleid, t.pageid0, t.actionname, t.controllername, t.createdby, t.createddate, t.icon, t.isactive, t.isdeleted, t.lastupdatedby, t.lastupdateddate, t.moduleid, t.pagename, t.moduleid0, t.createdby0, t.createddate0, t.icon0, t.isactive0, t.isdeleted0, t.lastupdatedby0, t.lastupdateddate0, t.modulename
+FROM employeerole AS e
+INNER JOIN rmsemployee AS r ON e.employeeid = r.employeeid
+LEFT JOIN role AS r0 ON e.roleid = r0.roleid
+LEFT JOIN (
+    SELECT r1.rolepageid, r1.isbillingpermit, r1.isdeletepermit, r1.isreadpermit, r1.iswritepermit, r1.pageid, r1.pagesequence, r1.roleid, p.pageid AS pageid0, p.actionname, p.controllername, p.createdby, p.createddate, p.icon, p.isactive, p.isdeleted, p.lastupdatedby, p.lastupdateddate, p.moduleid, p.pagename, m.moduleid AS moduleid0, m.createdby AS createdby0, m.createddate AS createddate0, m.icon AS icon0, m.isactive AS isactive0, m.isdeleted AS isdeleted0, m.lastupdatedby AS lastupdatedby0, m.lastupdateddate AS lastupdateddate0, m.modulename
+    FROM rolepage AS r1
+    LEFT JOIN page AS p ON r1.pageid = p.pageid
+    LEFT JOIN module AS m ON p.moduleid = m.moduleid
+) AS t ON r0.roleid = t.roleid
+WHERE r.userid = @__employeeCode_0
+ORDER BY e.employeeroleid, r.employeeid, r0.roleid, t.rolepageid, t.pageid0
+2026-01-02 19:12:14.527 +05:30 [INF] Executing ObjectResult, writing value of type 'RMS.Entity.DTO.AuthorizeDto'.
+2026-01-02 19:12:14.536 +05:30 [INF] Executed action RMS.Controllers.RBAC.AuthorizeController.Get (RMS) in 64.0564ms
+2026-01-02 19:12:14.542 +05:30 [INF] Executed endpoint 'RMS.Controllers.RBAC.AuthorizeController.Get (RMS)'
+2026-01-02 19:12:14.548 +05:30 [INF] Request finished HTTP/1.1 GET https://localhost:7148/api/Authorize?empcode=17492 - - - 200 - application/json;+charset=utf-8 92.1810ms
+2026-01-02 19:12:14.583 +05:30 [INF] Request starting HTTP/1.1 GET https://localhost:7148/api/Authorize?empcode=17492 - -
+2026-01-02 19:12:14.588 +05:30 [INF] Executing endpoint 'RMS.Controllers.RBAC.AuthorizeController.Get (RMS)'
+2026-01-02 19:12:14.594 +05:30 [INF] Route matched with {action = "Get", controller = "Authorize"}. Executing controller action with signature System.Threading.Tasks.Task`1[RMS.Entity.DTO.AuthorizeDto] Get(System.String) on controller RMS.Controllers.RBAC.AuthorizeController (RMS).
+2026-01-02 19:12:14.641 +05:30 [INF] Executed DbCommand (39ms) [Parameters=[@__employeeCode_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT e.employeeroleid, e.employeeid, e.roleid, r.employeeid, r.ade, r.baseoffice, r.branchid, r.categorysubstatusid, r.companyemail, r.contactno, r.costcenter, r.createdby, r.createdon, r.dateofbirth, r.dateofjoining, r.departmentid, r.designationid, r.employeename, r.employeeregion, r.isactive, r.isdeleted, r.lastupdatedby, r.lastupdatedon, r.reportheadid, r.resignationdate, r.sbu, r.sbuid, r.statusid, r.subpracticeid, r.udf1, r.udf2, r.udf3, r.userid, r.workexedays, r.workexperience, r0.roleid, r0.createdby, r0.createddate, r0.isactive, r0.isadmin, r0.isdeleted, r0.isrowlevel, r0.lastupdateby, r0.lastupdatedate, r0.rolename, t.rolepageid, t.isbillingpermit, t.isdeletepermit, t.isreadpermit, t.iswritepermit, t.pageid, t.pagesequence, t.roleid, t.pageid0, t.actionname, t.controllername, t.createdby, t.createddate, t.icon, t.isactive, t.isdeleted, t.lastupdatedby, t.lastupdateddate, t.moduleid, t.pagename, t.moduleid0, t.createdby0, t.createddate0, t.icon0, t.isactive0, t.isdeleted0, t.lastupdatedby0, t.lastupdateddate0, t.modulename
+FROM employeerole AS e
+INNER JOIN rmsemployee AS r ON e.employeeid = r.employeeid
+LEFT JOIN role AS r0 ON e.roleid = r0.roleid
+LEFT JOIN (
+    SELECT r1.rolepageid, r1.isbillingpermit, r1.isdeletepermit, r1.isreadpermit, r1.iswritepermit, r1.pageid, r1.pagesequence, r1.roleid, p.pageid AS pageid0, p.actionname, p.controllername, p.createdby, p.createddate, p.icon, p.isactive, p.isdeleted, p.lastupdatedby, p.lastupdateddate, p.moduleid, p.pagename, m.moduleid AS moduleid0, m.createdby AS createdby0, m.createddate AS createddate0, m.icon AS icon0, m.isactive AS isactive0, m.isdeleted AS isdeleted0, m.lastupdatedby AS lastupdatedby0, m.lastupdateddate AS lastupdateddate0, m.modulename
+    FROM rolepage AS r1
+    LEFT JOIN page AS p ON r1.pageid = p.pageid
+    LEFT JOIN module AS m ON p.moduleid = m.moduleid
+) AS t ON r0.roleid = t.roleid
+WHERE r.userid = @__employeeCode_0
+ORDER BY e.employeeroleid, r.employeeid, r0.roleid, t.rolepageid, t.pageid0
+2026-01-02 19:12:14.661 +05:30 [INF] Executing ObjectResult, writing value of type 'RMS.Entity.DTO.AuthorizeDto'.
+2026-01-02 19:12:14.667 +05:30 [INF] Executed action RMS.Controllers.RBAC.AuthorizeController.Get (RMS) in 66.8298ms
+2026-01-02 19:12:14.673 +05:30 [INF] Executed endpoint 'RMS.Controllers.RBAC.AuthorizeController.Get (RMS)'
+2026-01-02 19:12:14.679 +05:30 [INF] Request finished HTTP/1.1 GET https://localhost:7148/api/Authorize?empcode=17492 - - - 200 - application/json;+charset=utf-8 95.7904ms
+2026-01-02 19:12:14.831 +05:30 [INF] Request starting HTTP/1.1 GET https://localhost:7148/api/Authorize?empcode=17492 - -
+2026-01-02 19:12:14.836 +05:30 [INF] Executing endpoint 'RMS.Controllers.RBAC.AuthorizeController.Get (RMS)'
+2026-01-02 19:12:14.841 +05:30 [INF] Route matched with {action = "Get", controller = "Authorize"}. Executing controller action with signature System.Threading.Tasks.Task`1[RMS.Entity.DTO.AuthorizeDto] Get(System.String) on controller RMS.Controllers.RBAC.AuthorizeController (RMS).
+2026-01-02 19:12:14.889 +05:30 [INF] Executed DbCommand (40ms) [Parameters=[@__employeeCode_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT e.employeeroleid, e.employeeid, e.roleid, r.employeeid, r.ade, r.baseoffice, r.branchid, r.categorysubstatusid, r.companyemail, r.contactno, r.costcenter, r.createdby, r.createdon, r.dateofbirth, r.dateofjoining, r.departmentid, r.designationid, r.employeename, r.employeeregion, r.isactive, r.isdeleted, r.lastupdatedby, r.lastupdatedon, r.reportheadid, r.resignationdate, r.sbu, r.sbuid, r.statusid, r.subpracticeid, r.udf1, r.udf2, r.udf3, r.userid, r.workexedays, r.workexperience, r0.roleid, r0.createdby, r0.createddate, r0.isactive, r0.isadmin, r0.isdeleted, r0.isrowlevel, r0.lastupdateby, r0.lastupdatedate, r0.rolename, t.rolepageid, t.isbillingpermit, t.isdeletepermit, t.isreadpermit, t.iswritepermit, t.pageid, t.pagesequence, t.roleid, t.pageid0, t.actionname, t.controllername, t.createdby, t.createddate, t.icon, t.isactive, t.isdeleted, t.lastupdatedby, t.lastupdateddate, t.moduleid, t.pagename, t.moduleid0, t.createdby0, t.createddate0, t.icon0, t.isactive0, t.isdeleted0, t.lastupdatedby0, t.lastupdateddate0, t.modulename
+FROM employeerole AS e
+INNER JOIN rmsemployee AS r ON e.employeeid = r.employeeid
+LEFT JOIN role AS r0 ON e.roleid = r0.roleid
+LEFT JOIN (
+    SELECT r1.rolepageid, r1.isbillingpermit, r1.isdeletepermit, r1.isreadpermit, r1.iswritepermit, r1.pageid, r1.pagesequence, r1.roleid, p.pageid AS pageid0, p.actionname, p.controllername, p.createdby, p.createddate, p.icon, p.isactive, p.isdeleted, p.lastupdatedby, p.lastupdateddate, p.moduleid, p.pagename, m.moduleid AS moduleid0, m.createdby AS createdby0, m.createddate AS createddate0, m.icon AS icon0, m.isactive AS isactive0, m.isdeleted AS isdeleted0, m.lastupdatedby AS lastupdatedby0, m.lastupdateddate AS lastupdateddate0, m.modulename
+    FROM rolepage AS r1
+    LEFT JOIN page AS p ON r1.pageid = p.pageid
+    LEFT JOIN module AS m ON p.moduleid = m.moduleid
+) AS t ON r0.roleid = t.roleid
+WHERE r.userid = @__employeeCode_0
+ORDER BY e.employeeroleid, r.employeeid, r0.roleid, t.rolepageid, t.pageid0
+2026-01-02 19:12:14.900 +05:30 [INF] Executing ObjectResult, writing value of type 'RMS.Entity.DTO.AuthorizeDto'.
+2026-01-02 19:12:14.907 +05:30 [INF] Executed action RMS.Controllers.RBAC.AuthorizeController.Get (RMS) in 59.5615ms
+2026-01-02 19:12:14.915 +05:30 [INF] Executed endpoint 'RMS.Controllers.RBAC.AuthorizeController.Get (RMS)'
+2026-01-02 19:12:14.921 +05:30 [INF] Request finished HTTP/1.1 GET https://localhost:7148/api/Authorize?empcode=17492 - - - 200 - application/json;+charset=utf-8 90.2148ms
+2026-01-02 19:12:14.976 +05:30 [INF] Request starting HTTP/1.1 GET https://localhost:7148/api/Project - -
+2026-01-02 19:12:14.979 +05:30 [INF] Executing endpoint 'RMS.Controllers.Master.ProjectController.Get (RMS)'
+2026-01-02 19:12:14.982 +05:30 [INF] Route matched with {action = "Get", controller = "Project"}. Executing controller action with signature System.Threading.Tasks.Task`1[System.Collections.Generic.IEnumerable`1[RMS.Entity.DTO.ResponseForProjectsWithDetailsDto]] Get() on controller RMS.Controllers.Master.ProjectController (RMS).
+2026-01-02 19:12:15.051 +05:30 [INF] Executed DbCommand (62ms) [Parameters=[@__TimesheeetProjectList_0='?' (DbType = Object)], CommandType='"Text"', CommandTimeout='30']
+SELECT p.projectid, p.accountmanagerid, p.billingcycledate, p.committed_client_billing_date, p.createdby, p.createddate, p.customerid, p.isactive, p.isdeleted, p.lastupdatedate, p.lastupdatedby, p.projectdescription, p.projectname, p.projectno, p.projecttypeid, p.statusid, p.subpracticeid, s.statusid, s.statuscode, s.statusdiscription, s.statusname, c.customerid, p0.projecttypeid, s0.subpracticeid, p1.practiceid, r.employeeid, t.contractid, t.amount, t.attachment, t.contactnumber, t.contactpersonname, t.contractenddate, t.contractno, t.contractstartdate, t.costsheetid, t.createdby, t.createddate, t.deliveryanchorid, t.invoiceperiod, t.isactive, t.isdeleted, t.isforeclosure, t.isprojectestimationdone, t.lastupdateby, t.lastupdatedate, t.oafid, t.ponumber, t.povalue, t.projectid, t.remarks, t.statusid, t.udf1, t.employeeid, t.ade, t.baseoffice, t.branchid, t.categorysubstatusid, t.companyemail, t.contactno, t.costcenter, t.createdby0, t.createdon, t.dateofbirth, t.dateofjoining, t.departmentid, t.designationid, t.employeename, t.employeeregion, t.isactive0, t.isdeleted0, t.lastupdatedby, t.lastupdatedon, t.reportheadid, t.resignationdate, t.sbu, t.sbuid, t.statusid0, t.subpracticeid, t.udf10, t.udf2, t.udf3, t.userid, t.workexedays, t.workexperience, c.address1, c.address2, c.amount, c.chainname, c.cityid, c.companyemail, c.companylogourl, c.companyname, c.contact, c.countryregioncode, c.createdby, c.createddate, c.currencyid, c.customercode, c.customertypeid, c.firstname, c.globaldimension10code, c.globaldimension11code, c.globaldimension12code, c.globaldimension13code, c.globaldimension14code, c.globaldimension9code, c.gstnumber, c.isactive, c.isdeleted, c.lastname, c.lastupdateby, c.lastupdatedate, c.oldcustomercode, c.pannumber, c.paymentmethodid, c.paymenttermid, c.phone1, c.phone2, c.statecode, c.zipcode, p0.createdby, p0.createddate, p0.isactive, p0.isdeleted, p0.lastupdateby, p0.lastupdatedate, p0.projecttypename, p0.statusid, s0.createdby, s0.createddate, s0.isactive, s0.isdeleted, s0.lastupdateby, s0.lastupdatedate, s0.practiceid, s0.statusid, s0.subpracticename, p1.code, p1.createdby, p1.createddate, p1.isactive, p1.isdeleted, p1.lastupdateby, p1.lastupdatedate, p1.practicename, p1.statusid, t0.projectemployeeassignmentid, t0.categorysubstatusid, t0.createdby, t0.createddate, t0.employeeid, t0.enddate, t0.isactive, t0.isdeleted, t0.lastupdateby, t0.lastupdatedate, t0.projectid, t0.startdate, t0.statusid, t0.employeeid0, t0.ade, t0.baseoffice, t0.branchid, t0.categorysubstatusid0, t0.companyemail, t0.contactno, t0.costcenter, t0.createdby0, t0.createdon, t0.dateofbirth, t0.dateofjoining, t0.departmentid, t0.designationid, t0.employeename, t0.employeeregion, t0.isactive0, t0.isdeleted0, t0.lastupdatedby, t0.lastupdatedon, t0.reportheadid, t0.resignationdate, t0.sbu, t0.sbuid, t0.statusid0, t0.subpracticeid, t0.udf1, t0.udf2, t0.udf3, t0.userid, t0.workexedays, t0.workexperience, r.ade, r.baseoffice, r.branchid, r.categorysubstatusid, r.companyemail, r.contactno, r.costcenter, r.createdby, r.createdon, r.dateofbirth, r.dateofjoining, r.departmentid, r.designationid, r.employeename, r.employeeregion, r.isactive, r.isdeleted, r.lastupdatedby, r.lastupdatedon, r.reportheadid, r.resignationdate, r.sbu, r.sbuid, r.statusid, r.subpracticeid, r.udf1, r.udf2, r.udf3, r.userid, r.workexedays, r.workexperience
+FROM project AS p
+LEFT JOIN status AS s ON p.statusid = s.statusid
+LEFT JOIN customer AS c ON p.customerid = c.customerid
+LEFT JOIN projecttype AS p0 ON p.projecttypeid = p0.projecttypeid
+LEFT JOIN subpractice AS s0 ON p.subpracticeid = s0.subpracticeid
+LEFT JOIN practice AS p1 ON s0.practiceid = p1.practiceid
+LEFT JOIN rmsemployee AS r ON p.accountmanagerid = r.employeeid
+LEFT JOIN (
+    SELECT p2.contractid, p2.amount, p2.attachment, p2.contactnumber, p2.contactpersonname, p2.contractenddate, p2.contractno, p2.contractstartdate, p2.costsheetid, p2.createdby, p2.createddate, p2.deliveryanchorid, p2.invoiceperiod, p2.isactive, p2.isdeleted, p2.isforeclosure, p2.isprojectestimationdone, p2.lastupdateby, p2.lastupdatedate, p2.oafid, p2.ponumber, p2.povalue, p2.projectid, p2.remarks, p2.statusid, p2.udf1, r0.employeeid, r0.ade, r0.baseoffice, r0.branchid, r0.categorysubstatusid, r0.companyemail, r0.contactno, r0.costcenter, r0.createdby AS createdby0, r0.createdon, r0.dateofbirth, r0.dateofjoining, r0.departmentid, r0.designationid, r0.employeename, r0.employeeregion, r0.isactive AS isactive0, r0.isdeleted AS isdeleted0, r0.lastupdatedby, r0.lastupdatedon, r0.reportheadid, r0.resignationdate, r0.sbu, r0.sbuid, r0.statusid AS statusid0, r0.subpracticeid, r0.udf1 AS udf10, r0.udf2, r0.udf3, r0.userid, r0.workexedays, r0.workexperience
+    FROM projectcontract AS p2
+    LEFT JOIN rmsemployee AS r0 ON p2.deliveryanchorid = r0.employeeid
+) AS t ON p.projectid = t.projectid
+LEFT JOIN (
+    SELECT p3.projectemployeeassignmentid, p3.categorysubstatusid, p3.createdby, p3.createddate, p3.employeeid, p3.enddate, p3.isactive, p3.isdeleted, p3.lastupdateby, p3.lastupdatedate, p3.projectid, p3.startdate, p3.statusid, r1.employeeid AS employeeid0, r1.ade, r1.baseoffice, r1.branchid, r1.categorysubstatusid AS categorysubstatusid0, r1.companyemail, r1.contactno, r1.costcenter, r1.createdby AS createdby0, r1.createdon, r1.dateofbirth, r1.dateofjoining, r1.departmentid, r1.designationid, r1.employeename, r1.employeeregion, r1.isactive AS isactive0, r1.isdeleted AS isdeleted0, r1.lastupdatedby, r1.lastupdatedon, r1.reportheadid, r1.resignationdate, r1.sbu, r1.sbuid, r1.statusid AS statusid0, r1.subpracticeid, r1.udf1, r1.udf2, r1.udf3, r1.userid, r1.workexedays, r1.workexperience
+    FROM projectemployeeassignment AS p3
+    INNER JOIN rmsemployee AS r1 ON p3.employeeid = r1.employeeid
+) AS t0 ON p.projectid = t0.projectid
+WHERE NOT (p.projectname = ANY (@__TimesheeetProjectList_0) AND (p.projectname = ANY (@__TimesheeetProjectList_0) IS NOT NULL)) AND ((p.projectname IS NOT NULL) OR (array_position(@__TimesheeetProjectList_0, NULL) IS NULL))
+ORDER BY p.projectid, s.statusid, c.customerid, p0.projecttypeid, s0.subpracticeid, p1.practiceid, r.employeeid, t.contractid, t.employeeid, t0.projectemployeeassignmentid
+2026-01-02 19:12:15.120 +05:30 [INF] Executing ObjectResult, writing value of type 'System.Collections.Generic.List`1[[RMS.Entity.DTO.ResponseForProjectsWithDetailsDto, RMS.Entity, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-01-02 19:12:15.132 +05:30 [INF] Executed action RMS.Controllers.Master.ProjectController.Get (RMS) in 144.943ms
+2026-01-02 19:12:15.139 +05:30 [INF] Executed endpoint 'RMS.Controllers.Master.ProjectController.Get (RMS)'
+2026-01-02 19:12:15.143 +05:30 [INF] Request finished HTTP/1.1 GET https://localhost:7148/api/Project - - - 200 - application/json;+charset=utf-8 166.6669ms
+2026-01-02 19:12:16.895 +05:30 [INF] Request starting HTTP/1.1 GET https://localhost:7148/api/Authorize?empcode=17492 - -
+2026-01-02 19:12:16.899 +05:30 [INF] Executing endpoint 'RMS.Controllers.RBAC.AuthorizeController.Get (RMS)'
+2026-01-02 19:12:16.903 +05:30 [INF] Route matched with {action = "Get", controller = "Authorize"}. Executing controller action with signature System.Threading.Tasks.Task`1[RMS.Entity.DTO.AuthorizeDto] Get(System.String) on controller RMS.Controllers.RBAC.AuthorizeController (RMS).
+2026-01-02 19:12:16.954 +05:30 [INF] Executed DbCommand (44ms) [Parameters=[@__employeeCode_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT e.employeeroleid, e.employeeid, e.roleid, r.employeeid, r.ade, r.baseoffice, r.branchid, r.categorysubstatusid, r.companyemail, r.contactno, r.costcenter, r.createdby, r.createdon, r.dateofbirth, r.dateofjoining, r.departmentid, r.designationid, r.employeename, r.employeeregion, r.isactive, r.isdeleted, r.lastupdatedby, r.lastupdatedon, r.reportheadid, r.resignationdate, r.sbu, r.sbuid, r.statusid, r.subpracticeid, r.udf1, r.udf2, r.udf3, r.userid, r.workexedays, r.workexperience, r0.roleid, r0.createdby, r0.createddate, r0.isactive, r0.isadmin, r0.isdeleted, r0.isrowlevel, r0.lastupdateby, r0.lastupdatedate, r0.rolename, t.rolepageid, t.isbillingpermit, t.isdeletepermit, t.isreadpermit, t.iswritepermit, t.pageid, t.pagesequence, t.roleid, t.pageid0, t.actionname, t.controllername, t.createdby, t.createddate, t.icon, t.isactive, t.isdeleted, t.lastupdatedby, t.lastupdateddate, t.moduleid, t.pagename, t.moduleid0, t.createdby0, t.createddate0, t.icon0, t.isactive0, t.isdeleted0, t.lastupdatedby0, t.lastupdateddate0, t.modulename
+FROM employeerole AS e
+INNER JOIN rmsemployee AS r ON e.employeeid = r.employeeid
+LEFT JOIN role AS r0 ON e.roleid = r0.roleid
+LEFT JOIN (
+    SELECT r1.rolepageid, r1.isbillingpermit, r1.isdeletepermit, r1.isreadpermit, r1.iswritepermit, r1.pageid, r1.pagesequence, r1.roleid, p.pageid AS pageid0, p.actionname, p.controllername, p.createdby, p.createddate, p.icon, p.isactive, p.isdeleted, p.lastupdatedby, p.lastupdateddate, p.moduleid, p.pagename, m.moduleid AS moduleid0, m.createdby AS createdby0, m.createddate AS createddate0, m.icon AS icon0, m.isactive AS isactive0, m.isdeleted AS isdeleted0, m.lastupdatedby AS lastupdatedby0, m.lastupdateddate AS lastupdateddate0, m.modulename
+    FROM rolepage AS r1
+    LEFT JOIN page AS p ON r1.pageid = p.pageid
+    LEFT JOIN module AS m ON p.moduleid = m.moduleid
+) AS t ON r0.roleid = t.roleid
+WHERE r.userid = @__employeeCode_0
+ORDER BY e.employeeroleid, r.employeeid, r0.roleid, t.rolepageid, t.pageid0
+2026-01-02 19:12:16.962 +05:30 [INF] Executing ObjectResult, writing value of type 'RMS.Entity.DTO.AuthorizeDto'.
+2026-01-02 19:12:16.965 +05:30 [INF] Executed action RMS.Controllers.RBAC.AuthorizeController.Get (RMS) in 57.1903ms
+2026-01-02 19:12:16.967 +05:30 [INF] Executed endpoint 'RMS.Controllers.RBAC.AuthorizeController.Get (RMS)'
+2026-01-02 19:12:16.970 +05:30 [INF] Request finished HTTP/1.1 GET https://localhost:7148/api/Authorize?empcode=17492 - - - 200 - application/json;+charset=utf-8 75.3552ms
+2026-01-02 19:12:17.028 +05:30 [INF] Request starting HTTP/1.1 GET https://localhost:7148/api/Timesheet/GetHeaderItems - -
+2026-01-02 19:12:17.032 +05:30 [INF] Executing endpoint 'RMS.Controllers.Timesheet.TimesheetController.GetHeaderItemAsync (RMS)'
+2026-01-02 19:12:17.041 +05:30 [INF] Route matched with {action = "GetHeaderItem", controller = "Timesheet"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetHeaderItemAsync() on controller RMS.Controllers.Timesheet.TimesheetController (RMS).
+2026-01-02 19:12:17.112 +05:30 [INF] Executed DbCommand (39ms) [Parameters=[@__8__locals1_userdetails_TmcId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT r.employeeid, r.ade, r.baseoffice, r.branchid, r.categorysubstatusid, r.companyemail, r.contactno, r.costcenter, r.createdby, r.createdon, r.dateofbirth, r.dateofjoining, r.departmentid, r.designationid, r.employeename, r.employeeregion, r.isactive, r.isdeleted, r.lastupdatedby, r.lastupdatedon, r.reportheadid, r.resignationdate, r.sbu, r.sbuid, r.statusid, r.subpracticeid, r.udf1, r.udf2, r.udf3, r.userid, r.workexedays, r.workexperience
+FROM rmsemployee AS r
+WHERE r.userid = @__8__locals1_userdetails_TmcId_0
+LIMIT 1
+2026-01-02 19:12:17.206 +05:30 [INF] Executed DbCommand (61ms) [Parameters=[@__employee_Employeeid_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT t.timesheetid, t.createdby, t.createddate, t.employeeid, t.isactive, t.isdeleted, t.lastupdateby, t.lastupdatedate, t.monthyear, t0.timesheetdetailid, t0.activity, t0.benchstatus, t0.categoryofactivityid, t0.contractid, t0.createdby, t0.createddate, t0.dayhours, t0.departmentid, t0.isactive, t0.isdeleted, t0.isdrafted, t0.lastupdateby, t0.lastupdatedate, t0.remarks, t0.timesheetdate, t0.timesheetid
+FROM timesheetheader AS t
+LEFT JOIN timesheetdetail AS t0 ON t.timesheetid = t0.timesheetid
+WHERE t.employeeid = @__employee_Employeeid_0
+ORDER BY t.timesheetid
+2026-01-02 19:12:17.707 +05:30 [INF] Executed DbCommand (72ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT count(*)::int
+FROM (
+    SELECT t0."Key"
+    FROM (
+        SELECT date_trunc('day', t.timesheetdate) AS "Key"
+        FROM timesheetdetail AS t
+        WHERE t.timesheetid IN (173, 419, 737, 989, 1244, 1715, 1787, 1959, 2409, 2671, 2888, 3091, 3345, 3408, 3603) AND (t.isdeleted <> TRUE OR (t.isdeleted IS NULL))
+    ) AS t0
+    GROUP BY t0."Key"
+) AS t1
+2026-01-02 19:12:17.848 +05:30 [INF] Executed DbCommand (73ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT t0."Year", t0."Month", count(DISTINCT date_trunc('day', t0.timesheetdate))::int AS "EntryCount"
+FROM (
+    SELECT t.timesheetdate, date_part('year', t.timesheetdate)::int AS "Year", date_part('month', t.timesheetdate)::int AS "Month"
+    FROM timesheetdetail AS t
+    WHERE t.timesheetid IN (173, 419, 737, 989, 1244, 1715, 1787, 1959, 2409, 2671, 2888, 3091, 3345, 3408, 3603) AND (t.isdeleted <> TRUE OR (t.isdeleted IS NULL))
+) AS t0
+GROUP BY t0."Year", t0."Month"
+2026-01-02 19:12:17.958 +05:30 [INF] Executed DbCommand (73ms) [Parameters=[@__employee_Employeeid_0='?' (DbType = Int32), @__currentYear_1='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT count(*)::int
+FROM timesheetdetail AS t
+WHERE t.categoryofactivityid = 19 AND (t.isdeleted <> TRUE OR (t.isdeleted IS NULL)) AND EXISTS (
+    SELECT 1
+    FROM timesheetheader AS t0
+    WHERE t0.timesheetid = t.timesheetid AND t0.employeeid = @__employee_Employeeid_0 AND EXISTS (
+        SELECT 1
+        FROM timesheetdetail AS t1
+        WHERE t0.timesheetid = t1.timesheetid AND date_part('year', t1.timesheetdate)::int = @__currentYear_1))
+2026-01-02 19:12:17.974 +05:30 [INF] Executing OkObjectResult, writing value of type 'RMS.Entity.DTO.GenericResponse`1[[System.Collections.Generic.List`1[[RMS.Data.Models.Timesheetheader, RMS.Data, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=6.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-01-02 19:12:18.086 +05:30 [INF] Executed action RMS.Controllers.Timesheet.TimesheetController.GetHeaderItemAsync (RMS) in 1040.1511ms
+2026-01-02 19:12:18.091 +05:30 [INF] Executed endpoint 'RMS.Controllers.Timesheet.TimesheetController.GetHeaderItemAsync (RMS)'
+2026-01-02 19:12:18.095 +05:30 [INF] Request finished HTTP/1.1 GET https://localhost:7148/api/Timesheet/GetHeaderItems - - - 200 - application/json;+charset=utf-8 1066.6861ms
+2026-01-02 19:13:25.795 +05:30 [INF] User profile is available. Using 'C:\Users\17492\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-01-02 19:13:26.702 +05:30 [INF] Now listening on: https://localhost:7148
+2026-01-02 19:13:26.706 +05:30 [INF] Now listening on: http://localhost:5254
+2026-01-02 19:13:26.939 +05:30 [INF] Application started. Press Ctrl+C to shut down.
+2026-01-02 19:13:26.942 +05:30 [INF] Hosting environment: Development
+2026-01-02 19:13:26.944 +05:30 [INF] Content root path: D:\PRIME (RESOURCE MANAGMENT PORTAL)\Prime API Project 0512\resource-portal\RMS\
+2026-01-02 19:13:27.875 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/swagger/index.html - -
+2026-01-02 19:13:29.035 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/swagger/index.html - - - 200 - text/html;charset=utf-8 1172.2438ms
+2026-01-02 19:13:29.110 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/_vs/browserLink - -
+2026-01-02 19:13:29.110 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/_framework/aspnetcore-browser-refresh.js - -
+2026-01-02 19:13:29.145 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/_framework/aspnetcore-browser-refresh.js - - - 200 16491 application/javascript;+charset=utf-8 34.6838ms
+2026-01-02 19:13:29.342 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/_vs/browserLink - - - 200 - text/javascript;+charset=UTF-8 232.4345ms
+2026-01-02 19:13:29.383 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/swagger/v1/swagger.json - -
+2026-01-02 19:13:29.927 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/swagger/v1/swagger.json - - - 200 - application/json;charset=utf-8 544.2125ms
+2026-01-02 19:13:34.054 +05:30 [INF] Request starting HTTP/1.1 GET https://localhost:7148/api/Timesheet/GetHeaderItems - -
+2026-01-02 19:13:35.129 +05:30 [INF] Executing endpoint 'RMS.Controllers.Timesheet.TimesheetController.GetHeaderItemAsync (RMS)'
+2026-01-02 19:13:35.220 +05:30 [INF] Route matched with {action = "GetHeaderItem", controller = "Timesheet"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetHeaderItemAsync() on controller RMS.Controllers.Timesheet.TimesheetController (RMS).
+2026-01-02 19:13:44.714 +05:30 [INF] Executed DbCommand (258ms) [Parameters=[@__8__locals1_userdetails_TmcId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT r.employeeid, r.ade, r.baseoffice, r.branchid, r.categorysubstatusid, r.companyemail, r.contactno, r.costcenter, r.createdby, r.createdon, r.dateofbirth, r.dateofjoining, r.departmentid, r.designationid, r.employeename, r.employeeregion, r.isactive, r.isdeleted, r.lastupdatedby, r.lastupdatedon, r.reportheadid, r.resignationdate, r.sbu, r.sbuid, r.statusid, r.subpracticeid, r.udf1, r.udf2, r.udf3, r.userid, r.workexedays, r.workexperience
+FROM rmsemployee AS r
+WHERE r.userid = @__8__locals1_userdetails_TmcId_0
+LIMIT 1
+2026-01-02 19:13:46.002 +05:30 [INF] Executed DbCommand (100ms) [Parameters=[@__employee_Employeeid_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT t.timesheetid, t.createdby, t.createddate, t.employeeid, t.isactive, t.isdeleted, t.lastupdateby, t.lastupdatedate, t.monthyear, t0.timesheetdetailid, t0.activity, t0.benchstatus, t0.categoryofactivityid, t0.contractid, t0.createdby, t0.createddate, t0.dayhours, t0.departmentid, t0.isactive, t0.isdeleted, t0.isdrafted, t0.lastupdateby, t0.lastupdatedate, t0.remarks, t0.timesheetdate, t0.timesheetid
+FROM timesheetheader AS t
+LEFT JOIN timesheetdetail AS t0 ON t.timesheetid = t0.timesheetid
+WHERE t.employeeid = @__employee_Employeeid_0
+ORDER BY t.timesheetid
+2026-01-02 19:13:46.898 +05:30 [INF] Executed DbCommand (85ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT count(*)::int
+FROM (
+    SELECT t0."Key"
+    FROM (
+        SELECT date_trunc('day', t.timesheetdate) AS "Key"
+        FROM timesheetdetail AS t
+        WHERE t.timesheetid IN (173, 419, 737, 989, 1244, 1715, 1787, 1959, 2409, 2671, 2888, 3091, 3345, 3408, 3603) AND (t.isdeleted <> TRUE OR (t.isdeleted IS NULL))
+    ) AS t0
+    GROUP BY t0."Key"
+) AS t1
+2026-01-02 19:13:47.268 +05:30 [INF] Executed DbCommand (88ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT t0."Year", t0."Month", count(DISTINCT date_trunc('day', t0.timesheetdate))::int AS "EntryCount"
+FROM (
+    SELECT t.timesheetdate, date_part('year', t.timesheetdate)::int AS "Year", date_part('month', t.timesheetdate)::int AS "Month"
+    FROM timesheetdetail AS t
+    WHERE t.timesheetid IN (173, 419, 737, 989, 1244, 1715, 1787, 1959, 2409, 2671, 2888, 3091, 3345, 3408, 3603) AND (t.isdeleted <> TRUE OR (t.isdeleted IS NULL))
+) AS t0
+GROUP BY t0."Year", t0."Month"
+2026-01-02 19:13:47.589 +05:30 [INF] Executed DbCommand (120ms) [Parameters=[@__employee_Employeeid_0='?' (DbType = Int32), @__currentYear_1='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT count(*)::int
+FROM timesheetdetail AS t
+WHERE t.categoryofactivityid = 19 AND (t.isdeleted <> TRUE OR (t.isdeleted IS NULL)) AND EXISTS (
+    SELECT 1
+    FROM timesheetheader AS t0
+    WHERE t0.timesheetid = t.timesheetid AND t0.employeeid = @__employee_Employeeid_0 AND EXISTS (
+        SELECT 1
+        FROM timesheetdetail AS t1
+        WHERE t0.timesheetid = t1.timesheetid AND date_part('year', t1.timesheetdate)::int = @__currentYear_1))
+2026-01-02 19:13:47.813 +05:30 [INF] Executing OkObjectResult, writing value of type 'RMS.Entity.DTO.GenericResponse`1[[System.Collections.Generic.List`1[[RMS.Data.Models.Timesheetheader, RMS.Data, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=6.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-01-02 19:13:48.989 +05:30 [INF] Executed action RMS.Controllers.Timesheet.TimesheetController.GetHeaderItemAsync (RMS) in 13717.5465ms
+2026-01-02 19:13:49.169 +05:30 [INF] Executed endpoint 'RMS.Controllers.Timesheet.TimesheetController.GetHeaderItemAsync (RMS)'
+2026-01-02 19:13:49.357 +05:30 [INF] Request finished HTTP/1.1 GET https://localhost:7148/api/Timesheet/GetHeaderItems - - - 0 - application/json;+charset=utf-8 15303.1904ms
+2026-01-02 19:14:05.660 +05:30 [INF] Request starting HTTP/1.1 POST https://localhost:7148/api/UserAuth/ValidateUser application/json;+charset=utf-8 46
+2026-01-02 19:14:05.678 +05:30 [INF] Executing endpoint 'RMS.Controllers.Account.UserAuthController.ValidateUser (RMS)'
+2026-01-02 19:14:05.723 +05:30 [INF] Route matched with {action = "ValidateUser", controller = "UserAuth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] ValidateUser(RMS.Entity.Account.UserRequetDto) on controller RMS.Controllers.Account.UserAuthController (RMS).
+2026-01-02 19:14:07.363 +05:30 [INF] Executed DbCommand (130ms) [Parameters=[@__tmc_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT t.employeeid, t.ade, t.baseoffice, t.branchid, t.categorysubstatusid, t.companyemail, t.contactno, t.costcenter, t.createdby, t.createdon, t.dateofbirth, t.dateofjoining, t.departmentid, t.designationid, t.employeename, t.employeeregion, t.isactive, t.isdeleted, t.lastupdatedby, t.lastupdatedon, t.reportheadid, t.resignationdate, t.sbu, t.sbuid, t.statusid, t.subpracticeid, t.udf1, t.udf2, t.udf3, t.userid, t.workexedays, t.workexperience, t0.employeeroleid, t0.employeeid, t0.roleid, t0.roleid0, t0.createdby, t0.createddate, t0.isactive, t0.isadmin, t0.isdeleted, t0.isrowlevel, t0.lastupdateby, t0.lastupdatedate, t0.rolename
+FROM (
+    SELECT r.employeeid, r.ade, r.baseoffice, r.branchid, r.categorysubstatusid, r.companyemail, r.contactno, r.costcenter, r.createdby, r.createdon, r.dateofbirth, r.dateofjoining, r.departmentid, r.designationid, r.employeename, r.employeeregion, r.isactive, r.isdeleted, r.lastupdatedby, r.lastupdatedon, r.reportheadid, r.resignationdate, r.sbu, r.sbuid, r.statusid, r.subpracticeid, r.udf1, r.udf2, r.udf3, r.userid, r.workexedays, r.workexperience
+    FROM rmsemployee AS r
+    WHERE r.userid = @__tmc_0
+    LIMIT 1
+) AS t
+LEFT JOIN (
+    SELECT e.employeeroleid, e.employeeid, e.roleid, r0.roleid AS roleid0, r0.createdby, r0.createddate, r0.isactive, r0.isadmin, r0.isdeleted, r0.isrowlevel, r0.lastupdateby, r0.lastupdatedate, r0.rolename
+    FROM employeerole AS e
+    LEFT JOIN role AS r0 ON e.roleid = r0.roleid
+) AS t0 ON t.employeeid = t0.employeeid
+ORDER BY t.employeeid, t0.employeeroleid
+2026-01-02 19:14:08.025 +05:30 [INF] Executed DbCommand (126ms) [Parameters=[@p0='?', @p1='?', @p2='?', @p3='?', @p4='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO userloginlogs (browserclient, ipaddress, jwttoken, loginstatus, userid)
+VALUES (@p0, @p1, @p2, @p3, @p4)
+RETURNING userloginlogid, logindatetime;
+2026-01-02 19:14:08.282 +05:30 [INF] Executed DbCommand (85ms) [Parameters=[@__tmc_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM rmsemployee AS r
+    WHERE r.reportheadid = @__tmc_0)
+2026-01-02 19:14:08.306 +05:30 [INF] Executing OkObjectResult, writing value of type '<>f__AnonymousType2`11[[System.String, System.Private.CoreLib, Version=6.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=6.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=6.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=6.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=6.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=6.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=6.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=6.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=6.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Boolean, System.Private.CoreLib, Version=6.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=6.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-01-02 19:14:08.327 +05:30 [INF] Executed action RMS.Controllers.Account.UserAuthController.ValidateUser (RMS) in 2594.7841ms
+2026-01-02 19:14:08.340 +05:30 [INF] Executed endpoint 'RMS.Controllers.Account.UserAuthController.ValidateUser (RMS)'
+2026-01-02 19:14:08.349 +05:30 [INF] Request finished HTTP/1.1 POST https://localhost:7148/api/UserAuth/ValidateUser application/json;+charset=utf-8 46 - 200 - application/json;+charset=utf-8 2689.0442ms
+2026-01-02 19:14:08.787 +05:30 [INF] Request starting HTTP/1.1 GET https://localhost:7148/api/Authorize?empcode=17492 - -
+2026-01-02 19:14:08.813 +05:30 [INF] Executing endpoint 'RMS.Controllers.RBAC.AuthorizeController.Get (RMS)'
+2026-01-02 19:14:08.833 +05:30 [INF] Route matched with {action = "Get", controller = "Authorize"}. Executing controller action with signature System.Threading.Tasks.Task`1[RMS.Entity.DTO.AuthorizeDto] Get(System.String) on controller RMS.Controllers.RBAC.AuthorizeController (RMS).
+2026-01-02 19:14:09.128 +05:30 [INF] Executed DbCommand (70ms) [Parameters=[@__employeeCode_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT e.employeeroleid, e.employeeid, e.roleid, r.employeeid, r.ade, r.baseoffice, r.branchid, r.categorysubstatusid, r.companyemail, r.contactno, r.costcenter, r.createdby, r.createdon, r.dateofbirth, r.dateofjoining, r.departmentid, r.designationid, r.employeename, r.employeeregion, r.isactive, r.isdeleted, r.lastupdatedby, r.lastupdatedon, r.reportheadid, r.resignationdate, r.sbu, r.sbuid, r.statusid, r.subpracticeid, r.udf1, r.udf2, r.udf3, r.userid, r.workexedays, r.workexperience, r0.roleid, r0.createdby, r0.createddate, r0.isactive, r0.isadmin, r0.isdeleted, r0.isrowlevel, r0.lastupdateby, r0.lastupdatedate, r0.rolename, t.rolepageid, t.isbillingpermit, t.isdeletepermit, t.isreadpermit, t.iswritepermit, t.pageid, t.pagesequence, t.roleid, t.pageid0, t.actionname, t.controllername, t.createdby, t.createddate, t.icon, t.isactive, t.isdeleted, t.lastupdatedby, t.lastupdateddate, t.moduleid, t.pagename, t.moduleid0, t.createdby0, t.createddate0, t.icon0, t.isactive0, t.isdeleted0, t.lastupdatedby0, t.lastupdateddate0, t.modulename
+FROM employeerole AS e
+INNER JOIN rmsemployee AS r ON e.employeeid = r.employeeid
+LEFT JOIN role AS r0 ON e.roleid = r0.roleid
+LEFT JOIN (
+    SELECT r1.rolepageid, r1.isbillingpermit, r1.isdeletepermit, r1.isreadpermit, r1.iswritepermit, r1.pageid, r1.pagesequence, r1.roleid, p.pageid AS pageid0, p.actionname, p.controllername, p.createdby, p.createddate, p.icon, p.isactive, p.isdeleted, p.lastupdatedby, p.lastupdateddate, p.moduleid, p.pagename, m.moduleid AS moduleid0, m.createdby AS createdby0, m.createddate AS createddate0, m.icon AS icon0, m.isactive AS isactive0, m.isdeleted AS isdeleted0, m.lastupdatedby AS lastupdatedby0, m.lastupdateddate AS lastupdateddate0, m.modulename
+    FROM rolepage AS r1
+    LEFT JOIN page AS p ON r1.pageid = p.pageid
+    LEFT JOIN module AS m ON p.moduleid = m.moduleid
+) AS t ON r0.roleid = t.roleid
+WHERE r.userid = @__employeeCode_0
+ORDER BY e.employeeroleid, r.employeeid, r0.roleid, t.rolepageid, t.pageid0
+2026-01-02 19:14:09.501 +05:30 [INF] Executing ObjectResult, writing value of type 'RMS.Entity.DTO.AuthorizeDto'.
+2026-01-02 19:14:09.529 +05:30 [INF] Executed action RMS.Controllers.RBAC.AuthorizeController.Get (RMS) in 683.2727ms
+2026-01-02 19:14:09.538 +05:30 [INF] Executed endpoint 'RMS.Controllers.RBAC.AuthorizeController.Get (RMS)'
+2026-01-02 19:14:09.546 +05:30 [INF] Request finished HTTP/1.1 GET https://localhost:7148/api/Authorize?empcode=17492 - - - 200 - application/json;+charset=utf-8 759.1120ms
+2026-01-02 19:14:09.786 +05:30 [INF] Request starting HTTP/1.1 GET https://localhost:7148/api/Authorize?empcode=17492 - -
+2026-01-02 19:14:09.793 +05:30 [INF] Executing endpoint 'RMS.Controllers.RBAC.AuthorizeController.Get (RMS)'
+2026-01-02 19:14:09.799 +05:30 [INF] Route matched with {action = "Get", controller = "Authorize"}. Executing controller action with signature System.Threading.Tasks.Task`1[RMS.Entity.DTO.AuthorizeDto] Get(System.String) on controller RMS.Controllers.RBAC.AuthorizeController (RMS).
+2026-01-02 19:14:09.871 +05:30 [INF] Executed DbCommand (55ms) [Parameters=[@__employeeCode_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT e.employeeroleid, e.employeeid, e.roleid, r.employeeid, r.ade, r.baseoffice, r.branchid, r.categorysubstatusid, r.companyemail, r.contactno, r.costcenter, r.createdby, r.createdon, r.dateofbirth, r.dateofjoining, r.departmentid, r.designationid, r.employeename, r.employeeregion, r.isactive, r.isdeleted, r.lastupdatedby, r.lastupdatedon, r.reportheadid, r.resignationdate, r.sbu, r.sbuid, r.statusid, r.subpracticeid, r.udf1, r.udf2, r.udf3, r.userid, r.workexedays, r.workexperience, r0.roleid, r0.createdby, r0.createddate, r0.isactive, r0.isadmin, r0.isdeleted, r0.isrowlevel, r0.lastupdateby, r0.lastupdatedate, r0.rolename, t.rolepageid, t.isbillingpermit, t.isdeletepermit, t.isreadpermit, t.iswritepermit, t.pageid, t.pagesequence, t.roleid, t.pageid0, t.actionname, t.controllername, t.createdby, t.createddate, t.icon, t.isactive, t.isdeleted, t.lastupdatedby, t.lastupdateddate, t.moduleid, t.pagename, t.moduleid0, t.createdby0, t.createddate0, t.icon0, t.isactive0, t.isdeleted0, t.lastupdatedby0, t.lastupdateddate0, t.modulename
+FROM employeerole AS e
+INNER JOIN rmsemployee AS r ON e.employeeid = r.employeeid
+LEFT JOIN role AS r0 ON e.roleid = r0.roleid
+LEFT JOIN (
+    SELECT r1.rolepageid, r1.isbillingpermit, r1.isdeletepermit, r1.isreadpermit, r1.iswritepermit, r1.pageid, r1.pagesequence, r1.roleid, p.pageid AS pageid0, p.actionname, p.controllername, p.createdby, p.createddate, p.icon, p.isactive, p.isdeleted, p.lastupdatedby, p.lastupdateddate, p.moduleid, p.pagename, m.moduleid AS moduleid0, m.createdby AS createdby0, m.createddate AS createddate0, m.icon AS icon0, m.isactive AS isactive0, m.isdeleted AS isdeleted0, m.lastupdatedby AS lastupdatedby0, m.lastupdateddate AS lastupdateddate0, m.modulename
+    FROM rolepage AS r1
+    LEFT JOIN page AS p ON r1.pageid = p.pageid
+    LEFT JOIN module AS m ON p.moduleid = m.moduleid
+) AS t ON r0.roleid = t.roleid
+WHERE r.userid = @__employeeCode_0
+ORDER BY e.employeeroleid, r.employeeid, r0.roleid, t.rolepageid, t.pageid0
+2026-01-02 19:14:09.893 +05:30 [INF] Executing ObjectResult, writing value of type 'RMS.Entity.DTO.AuthorizeDto'.
+2026-01-02 19:14:09.899 +05:30 [INF] Executed action RMS.Controllers.RBAC.AuthorizeController.Get (RMS) in 92.8273ms
+2026-01-02 19:14:09.905 +05:30 [INF] Executed endpoint 'RMS.Controllers.RBAC.AuthorizeController.Get (RMS)'
+2026-01-02 19:14:09.910 +05:30 [INF] Request finished HTTP/1.1 GET https://localhost:7148/api/Authorize?empcode=17492 - - - 200 - application/json;+charset=utf-8 123.8207ms
+2026-01-02 19:14:09.989 +05:30 [INF] Request starting HTTP/1.1 GET https://localhost:7148/api/Authorize?empcode=17492 - -
+2026-01-02 19:14:09.994 +05:30 [INF] Executing endpoint 'RMS.Controllers.RBAC.AuthorizeController.Get (RMS)'
+2026-01-02 19:14:09.999 +05:30 [INF] Route matched with {action = "Get", controller = "Authorize"}. Executing controller action with signature System.Threading.Tasks.Task`1[RMS.Entity.DTO.AuthorizeDto] Get(System.String) on controller RMS.Controllers.RBAC.AuthorizeController (RMS).
+2026-01-02 19:14:10.072 +05:30 [INF] Executed DbCommand (58ms) [Parameters=[@__employeeCode_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT e.employeeroleid, e.employeeid, e.roleid, r.employeeid, r.ade, r.baseoffice, r.branchid, r.categorysubstatusid, r.companyemail, r.contactno, r.costcenter, r.createdby, r.createdon, r.dateofbirth, r.dateofjoining, r.departmentid, r.designationid, r.employeename, r.employeeregion, r.isactive, r.isdeleted, r.lastupdatedby, r.lastupdatedon, r.reportheadid, r.resignationdate, r.sbu, r.sbuid, r.statusid, r.subpracticeid, r.udf1, r.udf2, r.udf3, r.userid, r.workexedays, r.workexperience, r0.roleid, r0.createdby, r0.createddate, r0.isactive, r0.isadmin, r0.isdeleted, r0.isrowlevel, r0.lastupdateby, r0.lastupdatedate, r0.rolename, t.rolepageid, t.isbillingpermit, t.isdeletepermit, t.isreadpermit, t.iswritepermit, t.pageid, t.pagesequence, t.roleid, t.pageid0, t.actionname, t.controllername, t.createdby, t.createddate, t.icon, t.isactive, t.isdeleted, t.lastupdatedby, t.lastupdateddate, t.moduleid, t.pagename, t.moduleid0, t.createdby0, t.createddate0, t.icon0, t.isactive0, t.isdeleted0, t.lastupdatedby0, t.lastupdateddate0, t.modulename
+FROM employeerole AS e
+INNER JOIN rmsemployee AS r ON e.employeeid = r.employeeid
+LEFT JOIN role AS r0 ON e.roleid = r0.roleid
+LEFT JOIN (
+    SELECT r1.rolepageid, r1.isbillingpermit, r1.isdeletepermit, r1.isreadpermit, r1.iswritepermit, r1.pageid, r1.pagesequence, r1.roleid, p.pageid AS pageid0, p.actionname, p.controllername, p.createdby, p.createddate, p.icon, p.isactive, p.isdeleted, p.lastupdatedby, p.lastupdateddate, p.moduleid, p.pagename, m.moduleid AS moduleid0, m.createdby AS createdby0, m.createddate AS createddate0, m.icon AS icon0, m.isactive AS isactive0, m.isdeleted AS isdeleted0, m.lastupdatedby AS lastupdatedby0, m.lastupdateddate AS lastupdateddate0, m.modulename
+    FROM rolepage AS r1
+    LEFT JOIN page AS p ON r1.pageid = p.pageid
+    LEFT JOIN module AS m ON p.moduleid = m.moduleid
+) AS t ON r0.roleid = t.roleid
+WHERE r.userid = @__employeeCode_0
+ORDER BY e.employeeroleid, r.employeeid, r0.roleid, t.rolepageid, t.pageid0
+2026-01-02 19:14:10.082 +05:30 [INF] Executing ObjectResult, writing value of type 'RMS.Entity.DTO.AuthorizeDto'.
+2026-01-02 19:14:10.087 +05:30 [INF] Executed action RMS.Controllers.RBAC.AuthorizeController.Get (RMS) in 76.1705ms
+2026-01-02 19:14:10.092 +05:30 [INF] Executed endpoint 'RMS.Controllers.RBAC.AuthorizeController.Get (RMS)'
+2026-01-02 19:14:10.096 +05:30 [INF] Request finished HTTP/1.1 GET https://localhost:7148/api/Authorize?empcode=17492 - - - 200 - application/json;+charset=utf-8 107.2323ms
+2026-01-02 19:14:10.142 +05:30 [INF] Request starting HTTP/1.1 GET https://localhost:7148/api/Project - -
+2026-01-02 19:14:10.146 +05:30 [INF] Executing endpoint 'RMS.Controllers.Master.ProjectController.Get (RMS)'
+2026-01-02 19:14:10.161 +05:30 [INF] Route matched with {action = "Get", controller = "Project"}. Executing controller action with signature System.Threading.Tasks.Task`1[System.Collections.Generic.IEnumerable`1[RMS.Entity.DTO.ResponseForProjectsWithDetailsDto]] Get() on controller RMS.Controllers.Master.ProjectController (RMS).
+2026-01-02 19:14:10.433 +05:30 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2026-01-02 19:14:10.596 +05:30 [INF] Executed DbCommand (101ms) [Parameters=[@__TimesheeetProjectList_0='?' (DbType = Object)], CommandType='"Text"', CommandTimeout='30']
+SELECT p.projectid, p.accountmanagerid, p.billingcycledate, p.committed_client_billing_date, p.createdby, p.createddate, p.customerid, p.isactive, p.isdeleted, p.lastupdatedate, p.lastupdatedby, p.projectdescription, p.projectname, p.projectno, p.projecttypeid, p.statusid, p.subpracticeid, s.statusid, s.statuscode, s.statusdiscription, s.statusname, c.customerid, p0.projecttypeid, s0.subpracticeid, p1.practiceid, r.employeeid, t.contractid, t.amount, t.attachment, t.contactnumber, t.contactpersonname, t.contractenddate, t.contractno, t.contractstartdate, t.costsheetid, t.createdby, t.createddate, t.deliveryanchorid, t.invoiceperiod, t.isactive, t.isdeleted, t.isforeclosure, t.isprojectestimationdone, t.lastupdateby, t.lastupdatedate, t.oafid, t.ponumber, t.povalue, t.projectid, t.remarks, t.statusid, t.udf1, t.employeeid, t.ade, t.baseoffice, t.branchid, t.categorysubstatusid, t.companyemail, t.contactno, t.costcenter, t.createdby0, t.createdon, t.dateofbirth, t.dateofjoining, t.departmentid, t.designationid, t.employeename, t.employeeregion, t.isactive0, t.isdeleted0, t.lastupdatedby, t.lastupdatedon, t.reportheadid, t.resignationdate, t.sbu, t.sbuid, t.statusid0, t.subpracticeid, t.udf10, t.udf2, t.udf3, t.userid, t.workexedays, t.workexperience, c.address1, c.address2, c.amount, c.chainname, c.cityid, c.companyemail, c.companylogourl, c.companyname, c.contact, c.countryregioncode, c.createdby, c.createddate, c.currencyid, c.customercode, c.customertypeid, c.firstname, c.globaldimension10code, c.globaldimension11code, c.globaldimension12code, c.globaldimension13code, c.globaldimension14code, c.globaldimension9code, c.gstnumber, c.isactive, c.isdeleted, c.lastname, c.lastupdateby, c.lastupdatedate, c.oldcustomercode, c.pannumber, c.paymentmethodid, c.paymenttermid, c.phone1, c.phone2, c.statecode, c.zipcode, p0.createdby, p0.createddate, p0.isactive, p0.isdeleted, p0.lastupdateby, p0.lastupdatedate, p0.projecttypename, p0.statusid, s0.createdby, s0.createddate, s0.isactive, s0.isdeleted, s0.lastupdateby, s0.lastupdatedate, s0.practiceid, s0.statusid, s0.subpracticename, p1.code, p1.createdby, p1.createddate, p1.isactive, p1.isdeleted, p1.lastupdateby, p1.lastupdatedate, p1.practicename, p1.statusid, t0.projectemployeeassignmentid, t0.categorysubstatusid, t0.createdby, t0.createddate, t0.employeeid, t0.enddate, t0.isactive, t0.isdeleted, t0.lastupdateby, t0.lastupdatedate, t0.projectid, t0.startdate, t0.statusid, t0.employeeid0, t0.ade, t0.baseoffice, t0.branchid, t0.categorysubstatusid0, t0.companyemail, t0.contactno, t0.costcenter, t0.createdby0, t0.createdon, t0.dateofbirth, t0.dateofjoining, t0.departmentid, t0.designationid, t0.employeename, t0.employeeregion, t0.isactive0, t0.isdeleted0, t0.lastupdatedby, t0.lastupdatedon, t0.reportheadid, t0.resignationdate, t0.sbu, t0.sbuid, t0.statusid0, t0.subpracticeid, t0.udf1, t0.udf2, t0.udf3, t0.userid, t0.workexedays, t0.workexperience, r.ade, r.baseoffice, r.branchid, r.categorysubstatusid, r.companyemail, r.contactno, r.costcenter, r.createdby, r.createdon, r.dateofbirth, r.dateofjoining, r.departmentid, r.designationid, r.employeename, r.employeeregion, r.isactive, r.isdeleted, r.lastupdatedby, r.lastupdatedon, r.reportheadid, r.resignationdate, r.sbu, r.sbuid, r.statusid, r.subpracticeid, r.udf1, r.udf2, r.udf3, r.userid, r.workexedays, r.workexperience
+FROM project AS p
+LEFT JOIN status AS s ON p.statusid = s.statusid
+LEFT JOIN customer AS c ON p.customerid = c.customerid
+LEFT JOIN projecttype AS p0 ON p.projecttypeid = p0.projecttypeid
+LEFT JOIN subpractice AS s0 ON p.subpracticeid = s0.subpracticeid
+LEFT JOIN practice AS p1 ON s0.practiceid = p1.practiceid
+LEFT JOIN rmsemployee AS r ON p.accountmanagerid = r.employeeid
+LEFT JOIN (
+    SELECT p2.contractid, p2.amount, p2.attachment, p2.contactnumber, p2.contactpersonname, p2.contractenddate, p2.contractno, p2.contractstartdate, p2.costsheetid, p2.createdby, p2.createddate, p2.deliveryanchorid, p2.invoiceperiod, p2.isactive, p2.isdeleted, p2.isforeclosure, p2.isprojectestimationdone, p2.lastupdateby, p2.lastupdatedate, p2.oafid, p2.ponumber, p2.povalue, p2.projectid, p2.remarks, p2.statusid, p2.udf1, r0.employeeid, r0.ade, r0.baseoffice, r0.branchid, r0.categorysubstatusid, r0.companyemail, r0.contactno, r0.costcenter, r0.createdby AS createdby0, r0.createdon, r0.dateofbirth, r0.dateofjoining, r0.departmentid, r0.designationid, r0.employeename, r0.employeeregion, r0.isactive AS isactive0, r0.isdeleted AS isdeleted0, r0.lastupdatedby, r0.lastupdatedon, r0.reportheadid, r0.resignationdate, r0.sbu, r0.sbuid, r0.statusid AS statusid0, r0.subpracticeid, r0.udf1 AS udf10, r0.udf2, r0.udf3, r0.userid, r0.workexedays, r0.workexperience
+    FROM projectcontract AS p2
+    LEFT JOIN rmsemployee AS r0 ON p2.deliveryanchorid = r0.employeeid
+) AS t ON p.projectid = t.projectid
+LEFT JOIN (
+    SELECT p3.projectemployeeassignmentid, p3.categorysubstatusid, p3.createdby, p3.createddate, p3.employeeid, p3.enddate, p3.isactive, p3.isdeleted, p3.lastupdateby, p3.lastupdatedate, p3.projectid, p3.startdate, p3.statusid, r1.employeeid AS employeeid0, r1.ade, r1.baseoffice, r1.branchid, r1.categorysubstatusid AS categorysubstatusid0, r1.companyemail, r1.contactno, r1.costcenter, r1.createdby AS createdby0, r1.createdon, r1.dateofbirth, r1.dateofjoining, r1.departmentid, r1.designationid, r1.employeename, r1.employeeregion, r1.isactive AS isactive0, r1.isdeleted AS isdeleted0, r1.lastupdatedby, r1.lastupdatedon, r1.reportheadid, r1.resignationdate, r1.sbu, r1.sbuid, r1.statusid AS statusid0, r1.subpracticeid, r1.udf1, r1.udf2, r1.udf3, r1.userid, r1.workexedays, r1.workexperience
+    FROM projectemployeeassignment AS p3
+    INNER JOIN rmsemployee AS r1 ON p3.employeeid = r1.employeeid
+) AS t0 ON p.projectid = t0.projectid
+WHERE NOT (p.projectname = ANY (@__TimesheeetProjectList_0) AND (p.projectname = ANY (@__TimesheeetProjectList_0) IS NOT NULL)) AND ((p.projectname IS NOT NULL) OR (array_position(@__TimesheeetProjectList_0, NULL) IS NULL))
+ORDER BY p.projectid, s.statusid, c.customerid, p0.projecttypeid, s0.subpracticeid, p1.practiceid, r.employeeid, t.contractid, t.employeeid, t0.projectemployeeassignmentid
+2026-01-02 19:14:10.844 +05:30 [INF] Executing ObjectResult, writing value of type 'System.Collections.Generic.List`1[[RMS.Entity.DTO.ResponseForProjectsWithDetailsDto, RMS.Entity, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-01-02 19:14:10.905 +05:30 [INF] Executed action RMS.Controllers.Master.ProjectController.Get (RMS) in 732.5527ms
+2026-01-02 19:14:10.913 +05:30 [INF] Executed endpoint 'RMS.Controllers.Master.ProjectController.Get (RMS)'
+2026-01-02 19:14:10.920 +05:30 [INF] Request finished HTTP/1.1 GET https://localhost:7148/api/Project - - - 200 - application/json;+charset=utf-8 778.4475ms
+2026-01-02 19:14:11.043 +05:30 [INF] Request starting HTTP/1.1 GET https://localhost:7148/api/Employee/EmployeeDetailsView/ - -
+2026-01-02 19:14:11.050 +05:30 [INF] Executing endpoint 'RMS.Controllers.Master.EmployeeController.EmployeeDetailsView (RMS)'
+2026-01-02 19:14:11.066 +05:30 [INF] Route matched with {action = "EmployeeDetailsView", controller = "Employee"}. Executing controller action with signature System.Threading.Tasks.Task`1[System.Collections.Generic.IEnumerable`1[RMS.Data.Models.DataForEmployeeReport]] EmployeeDetailsView(System.Nullable`1[System.Int32]) on controller RMS.Controllers.Master.EmployeeController (RMS).
+2026-01-02 19:14:13.235 +05:30 [INF] Executed DbCommand (2,116ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT d.ade, d.billablenonbillable, d.billingmonthyear, d.categorysubstatusid, d.contractenddate, d.contractstartdate, d.contractstatusid, d.currentmonthbilling, d.customernames, d.da, d.dateofjoining, d.employeeid, d.exe, d.flag, d.function, d.practice, d.projectnames, d.projecttypes, d.region, d.reportinghead, d.resourcename, d.subpractice, d.tmc, d.userid, d.workexedays
+FROM data_for_employee_report AS d
+2026-01-02 19:14:24.904 +05:30 [INF] Executing ObjectResult, writing value of type 'System.Collections.Generic.List`1[[RMS.Data.Models.DataForEmployeeReport, RMS.Data, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-01-02 19:14:24.927 +05:30 [INF] Executed action RMS.Controllers.Master.EmployeeController.EmployeeDetailsView (RMS) in 13849.0977ms
+2026-01-02 19:14:24.940 +05:30 [INF] Executed endpoint 'RMS.Controllers.Master.EmployeeController.EmployeeDetailsView (RMS)'
+2026-01-02 19:14:24.946 +05:30 [INF] Request finished HTTP/1.1 GET https://localhost:7148/api/Employee/EmployeeDetailsView/ - - - 200 - application/json;+charset=utf-8 13902.1924ms
+2026-01-02 19:14:25.693 +05:30 [INF] Request starting HTTP/1.1 GET https://localhost:7148/api/Authorize?empcode=17492 - -
+2026-01-02 19:14:25.699 +05:30 [INF] Executing endpoint 'RMS.Controllers.RBAC.AuthorizeController.Get (RMS)'
+2026-01-02 19:14:25.706 +05:30 [INF] Route matched with {action = "Get", controller = "Authorize"}. Executing controller action with signature System.Threading.Tasks.Task`1[RMS.Entity.DTO.AuthorizeDto] Get(System.String) on controller RMS.Controllers.RBAC.AuthorizeController (RMS).
+2026-01-02 19:14:25.773 +05:30 [INF] Executed DbCommand (52ms) [Parameters=[@__employeeCode_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT e.employeeroleid, e.employeeid, e.roleid, r.employeeid, r.ade, r.baseoffice, r.branchid, r.categorysubstatusid, r.companyemail, r.contactno, r.costcenter, r.createdby, r.createdon, r.dateofbirth, r.dateofjoining, r.departmentid, r.designationid, r.employeename, r.employeeregion, r.isactive, r.isdeleted, r.lastupdatedby, r.lastupdatedon, r.reportheadid, r.resignationdate, r.sbu, r.sbuid, r.statusid, r.subpracticeid, r.udf1, r.udf2, r.udf3, r.userid, r.workexedays, r.workexperience, r0.roleid, r0.createdby, r0.createddate, r0.isactive, r0.isadmin, r0.isdeleted, r0.isrowlevel, r0.lastupdateby, r0.lastupdatedate, r0.rolename, t.rolepageid, t.isbillingpermit, t.isdeletepermit, t.isreadpermit, t.iswritepermit, t.pageid, t.pagesequence, t.roleid, t.pageid0, t.actionname, t.controllername, t.createdby, t.createddate, t.icon, t.isactive, t.isdeleted, t.lastupdatedby, t.lastupdateddate, t.moduleid, t.pagename, t.moduleid0, t.createdby0, t.createddate0, t.icon0, t.isactive0, t.isdeleted0, t.lastupdatedby0, t.lastupdateddate0, t.modulename
+FROM employeerole AS e
+INNER JOIN rmsemployee AS r ON e.employeeid = r.employeeid
+LEFT JOIN role AS r0 ON e.roleid = r0.roleid
+LEFT JOIN (
+    SELECT r1.rolepageid, r1.isbillingpermit, r1.isdeletepermit, r1.isreadpermit, r1.iswritepermit, r1.pageid, r1.pagesequence, r1.roleid, p.pageid AS pageid0, p.actionname, p.controllername, p.createdby, p.createddate, p.icon, p.isactive, p.isdeleted, p.lastupdatedby, p.lastupdateddate, p.moduleid, p.pagename, m.moduleid AS moduleid0, m.createdby AS createdby0, m.createddate AS createddate0, m.icon AS icon0, m.isactive AS isactive0, m.isdeleted AS isdeleted0, m.lastupdatedby AS lastupdatedby0, m.lastupdateddate AS lastupdateddate0, m.modulename
+    FROM rolepage AS r1
+    LEFT JOIN page AS p ON r1.pageid = p.pageid
+    LEFT JOIN module AS m ON p.moduleid = m.moduleid
+) AS t ON r0.roleid = t.roleid
+WHERE r.userid = @__employeeCode_0
+ORDER BY e.employeeroleid, r.employeeid, r0.roleid, t.rolepageid, t.pageid0
+2026-01-02 19:14:25.784 +05:30 [INF] Executing ObjectResult, writing value of type 'RMS.Entity.DTO.AuthorizeDto'.
+2026-01-02 19:14:25.787 +05:30 [INF] Executed action RMS.Controllers.RBAC.AuthorizeController.Get (RMS) in 72.8403ms
+2026-01-02 19:14:25.792 +05:30 [INF] Executed endpoint 'RMS.Controllers.RBAC.AuthorizeController.Get (RMS)'
+2026-01-02 19:14:25.794 +05:30 [INF] Request finished HTTP/1.1 GET https://localhost:7148/api/Authorize?empcode=17492 - - - 200 - application/json;+charset=utf-8 100.9048ms
+2026-01-02 19:14:25.828 +05:30 [INF] Request starting HTTP/1.1 GET https://localhost:7148/api/Authorize?empcode=17492 - -
+2026-01-02 19:14:25.831 +05:30 [INF] Executing endpoint 'RMS.Controllers.RBAC.AuthorizeController.Get (RMS)'
+2026-01-02 19:14:25.836 +05:30 [INF] Route matched with {action = "Get", controller = "Authorize"}. Executing controller action with signature System.Threading.Tasks.Task`1[RMS.Entity.DTO.AuthorizeDto] Get(System.String) on controller RMS.Controllers.RBAC.AuthorizeController (RMS).
+2026-01-02 19:14:25.893 +05:30 [INF] Executed DbCommand (51ms) [Parameters=[@__employeeCode_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT e.employeeroleid, e.employeeid, e.roleid, r.employeeid, r.ade, r.baseoffice, r.branchid, r.categorysubstatusid, r.companyemail, r.contactno, r.costcenter, r.createdby, r.createdon, r.dateofbirth, r.dateofjoining, r.departmentid, r.designationid, r.employeename, r.employeeregion, r.isactive, r.isdeleted, r.lastupdatedby, r.lastupdatedon, r.reportheadid, r.resignationdate, r.sbu, r.sbuid, r.statusid, r.subpracticeid, r.udf1, r.udf2, r.udf3, r.userid, r.workexedays, r.workexperience, r0.roleid, r0.createdby, r0.createddate, r0.isactive, r0.isadmin, r0.isdeleted, r0.isrowlevel, r0.lastupdateby, r0.lastupdatedate, r0.rolename, t.rolepageid, t.isbillingpermit, t.isdeletepermit, t.isreadpermit, t.iswritepermit, t.pageid, t.pagesequence, t.roleid, t.pageid0, t.actionname, t.controllername, t.createdby, t.createddate, t.icon, t.isactive, t.isdeleted, t.lastupdatedby, t.lastupdateddate, t.moduleid, t.pagename, t.moduleid0, t.createdby0, t.createddate0, t.icon0, t.isactive0, t.isdeleted0, t.lastupdatedby0, t.lastupdateddate0, t.modulename
+FROM employeerole AS e
+INNER JOIN rmsemployee AS r ON e.employeeid = r.employeeid
+LEFT JOIN role AS r0 ON e.roleid = r0.roleid
+LEFT JOIN (
+    SELECT r1.rolepageid, r1.isbillingpermit, r1.isdeletepermit, r1.isreadpermit, r1.iswritepermit, r1.pageid, r1.pagesequence, r1.roleid, p.pageid AS pageid0, p.actionname, p.controllername, p.createdby, p.createddate, p.icon, p.isactive, p.isdeleted, p.lastupdatedby, p.lastupdateddate, p.moduleid, p.pagename, m.moduleid AS moduleid0, m.createdby AS createdby0, m.createddate AS createddate0, m.icon AS icon0, m.isactive AS isactive0, m.isdeleted AS isdeleted0, m.lastupdatedby AS lastupdatedby0, m.lastupdateddate AS lastupdateddate0, m.modulename
+    FROM rolepage AS r1
+    LEFT JOIN page AS p ON r1.pageid = p.pageid
+    LEFT JOIN module AS m ON p.moduleid = m.moduleid
+) AS t ON r0.roleid = t.roleid
+WHERE r.userid = @__employeeCode_0
+ORDER BY e.employeeroleid, r.employeeid, r0.roleid, t.rolepageid, t.pageid0
+2026-01-02 19:14:25.903 +05:30 [INF] Executing ObjectResult, writing value of type 'RMS.Entity.DTO.AuthorizeDto'.
+2026-01-02 19:14:25.909 +05:30 [INF] Executed action RMS.Controllers.RBAC.AuthorizeController.Get (RMS) in 69.3066ms
+2026-01-02 19:14:25.919 +05:30 [INF] Executed endpoint 'RMS.Controllers.RBAC.AuthorizeController.Get (RMS)'
+2026-01-02 19:14:25.926 +05:30 [INF] Request finished HTTP/1.1 GET https://localhost:7148/api/Authorize?empcode=17492 - - - 200 - application/json;+charset=utf-8 98.4064ms
+2026-01-02 19:14:26.081 +05:30 [INF] Request starting HTTP/1.1 GET https://localhost:7148/api/Authorize?empcode=17492 - -
+2026-01-02 19:14:26.087 +05:30 [INF] Executing endpoint 'RMS.Controllers.RBAC.AuthorizeController.Get (RMS)'
+2026-01-02 19:14:26.090 +05:30 [INF] Route matched with {action = "Get", controller = "Authorize"}. Executing controller action with signature System.Threading.Tasks.Task`1[RMS.Entity.DTO.AuthorizeDto] Get(System.String) on controller RMS.Controllers.RBAC.AuthorizeController (RMS).
+2026-01-02 19:14:26.148 +05:30 [INF] Executed DbCommand (51ms) [Parameters=[@__employeeCode_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT e.employeeroleid, e.employeeid, e.roleid, r.employeeid, r.ade, r.baseoffice, r.branchid, r.categorysubstatusid, r.companyemail, r.contactno, r.costcenter, r.createdby, r.createdon, r.dateofbirth, r.dateofjoining, r.departmentid, r.designationid, r.employeename, r.employeeregion, r.isactive, r.isdeleted, r.lastupdatedby, r.lastupdatedon, r.reportheadid, r.resignationdate, r.sbu, r.sbuid, r.statusid, r.subpracticeid, r.udf1, r.udf2, r.udf3, r.userid, r.workexedays, r.workexperience, r0.roleid, r0.createdby, r0.createddate, r0.isactive, r0.isadmin, r0.isdeleted, r0.isrowlevel, r0.lastupdateby, r0.lastupdatedate, r0.rolename, t.rolepageid, t.isbillingpermit, t.isdeletepermit, t.isreadpermit, t.iswritepermit, t.pageid, t.pagesequence, t.roleid, t.pageid0, t.actionname, t.controllername, t.createdby, t.createddate, t.icon, t.isactive, t.isdeleted, t.lastupdatedby, t.lastupdateddate, t.moduleid, t.pagename, t.moduleid0, t.createdby0, t.createddate0, t.icon0, t.isactive0, t.isdeleted0, t.lastupdatedby0, t.lastupdateddate0, t.modulename
+FROM employeerole AS e
+INNER JOIN rmsemployee AS r ON e.employeeid = r.employeeid
+LEFT JOIN role AS r0 ON e.roleid = r0.roleid
+LEFT JOIN (
+    SELECT r1.rolepageid, r1.isbillingpermit, r1.isdeletepermit, r1.isreadpermit, r1.iswritepermit, r1.pageid, r1.pagesequence, r1.roleid, p.pageid AS pageid0, p.actionname, p.controllername, p.createdby, p.createddate, p.icon, p.isactive, p.isdeleted, p.lastupdatedby, p.lastupdateddate, p.moduleid, p.pagename, m.moduleid AS moduleid0, m.createdby AS createdby0, m.createddate AS createddate0, m.icon AS icon0, m.isactive AS isactive0, m.isdeleted AS isdeleted0, m.lastupdatedby AS lastupdatedby0, m.lastupdateddate AS lastupdateddate0, m.modulename
+    FROM rolepage AS r1
+    LEFT JOIN page AS p ON r1.pageid = p.pageid
+    LEFT JOIN module AS m ON p.moduleid = m.moduleid
+) AS t ON r0.roleid = t.roleid
+WHERE r.userid = @__employeeCode_0
+ORDER BY e.employeeroleid, r.employeeid, r0.roleid, t.rolepageid, t.pageid0
+2026-01-02 19:14:26.159 +05:30 [INF] Executing ObjectResult, writing value of type 'RMS.Entity.DTO.AuthorizeDto'.
+2026-01-02 19:14:26.162 +05:30 [INF] Executed action RMS.Controllers.RBAC.AuthorizeController.Get (RMS) in 66.8036ms
+2026-01-02 19:14:26.165 +05:30 [INF] Executed endpoint 'RMS.Controllers.RBAC.AuthorizeController.Get (RMS)'
+2026-01-02 19:14:26.167 +05:30 [INF] Request finished HTTP/1.1 GET https://localhost:7148/api/Authorize?empcode=17492 - - - 200 - application/json;+charset=utf-8 85.6596ms
+2026-01-02 19:14:26.192 +05:30 [INF] Request starting HTTP/1.1 GET https://localhost:7148/api/Project - -
+2026-01-02 19:14:26.196 +05:30 [INF] Executing endpoint 'RMS.Controllers.Master.ProjectController.Get (RMS)'
+2026-01-02 19:14:26.199 +05:30 [INF] Route matched with {action = "Get", controller = "Project"}. Executing controller action with signature System.Threading.Tasks.Task`1[System.Collections.Generic.IEnumerable`1[RMS.Entity.DTO.ResponseForProjectsWithDetailsDto]] Get() on controller RMS.Controllers.Master.ProjectController (RMS).
+2026-01-02 19:14:26.277 +05:30 [INF] Executed DbCommand (73ms) [Parameters=[@__TimesheeetProjectList_0='?' (DbType = Object)], CommandType='"Text"', CommandTimeout='30']
+SELECT p.projectid, p.accountmanagerid, p.billingcycledate, p.committed_client_billing_date, p.createdby, p.createddate, p.customerid, p.isactive, p.isdeleted, p.lastupdatedate, p.lastupdatedby, p.projectdescription, p.projectname, p.projectno, p.projecttypeid, p.statusid, p.subpracticeid, s.statusid, s.statuscode, s.statusdiscription, s.statusname, c.customerid, p0.projecttypeid, s0.subpracticeid, p1.practiceid, r.employeeid, t.contractid, t.amount, t.attachment, t.contactnumber, t.contactpersonname, t.contractenddate, t.contractno, t.contractstartdate, t.costsheetid, t.createdby, t.createddate, t.deliveryanchorid, t.invoiceperiod, t.isactive, t.isdeleted, t.isforeclosure, t.isprojectestimationdone, t.lastupdateby, t.lastupdatedate, t.oafid, t.ponumber, t.povalue, t.projectid, t.remarks, t.statusid, t.udf1, t.employeeid, t.ade, t.baseoffice, t.branchid, t.categorysubstatusid, t.companyemail, t.contactno, t.costcenter, t.createdby0, t.createdon, t.dateofbirth, t.dateofjoining, t.departmentid, t.designationid, t.employeename, t.employeeregion, t.isactive0, t.isdeleted0, t.lastupdatedby, t.lastupdatedon, t.reportheadid, t.resignationdate, t.sbu, t.sbuid, t.statusid0, t.subpracticeid, t.udf10, t.udf2, t.udf3, t.userid, t.workexedays, t.workexperience, c.address1, c.address2, c.amount, c.chainname, c.cityid, c.companyemail, c.companylogourl, c.companyname, c.contact, c.countryregioncode, c.createdby, c.createddate, c.currencyid, c.customercode, c.customertypeid, c.firstname, c.globaldimension10code, c.globaldimension11code, c.globaldimension12code, c.globaldimension13code, c.globaldimension14code, c.globaldimension9code, c.gstnumber, c.isactive, c.isdeleted, c.lastname, c.lastupdateby, c.lastupdatedate, c.oldcustomercode, c.pannumber, c.paymentmethodid, c.paymenttermid, c.phone1, c.phone2, c.statecode, c.zipcode, p0.createdby, p0.createddate, p0.isactive, p0.isdeleted, p0.lastupdateby, p0.lastupdatedate, p0.projecttypename, p0.statusid, s0.createdby, s0.createddate, s0.isactive, s0.isdeleted, s0.lastupdateby, s0.lastupdatedate, s0.practiceid, s0.statusid, s0.subpracticename, p1.code, p1.createdby, p1.createddate, p1.isactive, p1.isdeleted, p1.lastupdateby, p1.lastupdatedate, p1.practicename, p1.statusid, t0.projectemployeeassignmentid, t0.categorysubstatusid, t0.createdby, t0.createddate, t0.employeeid, t0.enddate, t0.isactive, t0.isdeleted, t0.lastupdateby, t0.lastupdatedate, t0.projectid, t0.startdate, t0.statusid, t0.employeeid0, t0.ade, t0.baseoffice, t0.branchid, t0.categorysubstatusid0, t0.companyemail, t0.contactno, t0.costcenter, t0.createdby0, t0.createdon, t0.dateofbirth, t0.dateofjoining, t0.departmentid, t0.designationid, t0.employeename, t0.employeeregion, t0.isactive0, t0.isdeleted0, t0.lastupdatedby, t0.lastupdatedon, t0.reportheadid, t0.resignationdate, t0.sbu, t0.sbuid, t0.statusid0, t0.subpracticeid, t0.udf1, t0.udf2, t0.udf3, t0.userid, t0.workexedays, t0.workexperience, r.ade, r.baseoffice, r.branchid, r.categorysubstatusid, r.companyemail, r.contactno, r.costcenter, r.createdby, r.createdon, r.dateofbirth, r.dateofjoining, r.departmentid, r.designationid, r.employeename, r.employeeregion, r.isactive, r.isdeleted, r.lastupdatedby, r.lastupdatedon, r.reportheadid, r.resignationdate, r.sbu, r.sbuid, r.statusid, r.subpracticeid, r.udf1, r.udf2, r.udf3, r.userid, r.workexedays, r.workexperience
+FROM project AS p
+LEFT JOIN status AS s ON p.statusid = s.statusid
+LEFT JOIN customer AS c ON p.customerid = c.customerid
+LEFT JOIN projecttype AS p0 ON p.projecttypeid = p0.projecttypeid
+LEFT JOIN subpractice AS s0 ON p.subpracticeid = s0.subpracticeid
+LEFT JOIN practice AS p1 ON s0.practiceid = p1.practiceid
+LEFT JOIN rmsemployee AS r ON p.accountmanagerid = r.employeeid
+LEFT JOIN (
+    SELECT p2.contractid, p2.amount, p2.attachment, p2.contactnumber, p2.contactpersonname, p2.contractenddate, p2.contractno, p2.contractstartdate, p2.costsheetid, p2.createdby, p2.createddate, p2.deliveryanchorid, p2.invoiceperiod, p2.isactive, p2.isdeleted, p2.isforeclosure, p2.isprojectestimationdone, p2.lastupdateby, p2.lastupdatedate, p2.oafid, p2.ponumber, p2.povalue, p2.projectid, p2.remarks, p2.statusid, p2.udf1, r0.employeeid, r0.ade, r0.baseoffice, r0.branchid, r0.categorysubstatusid, r0.companyemail, r0.contactno, r0.costcenter, r0.createdby AS createdby0, r0.createdon, r0.dateofbirth, r0.dateofjoining, r0.departmentid, r0.designationid, r0.employeename, r0.employeeregion, r0.isactive AS isactive0, r0.isdeleted AS isdeleted0, r0.lastupdatedby, r0.lastupdatedon, r0.reportheadid, r0.resignationdate, r0.sbu, r0.sbuid, r0.statusid AS statusid0, r0.subpracticeid, r0.udf1 AS udf10, r0.udf2, r0.udf3, r0.userid, r0.workexedays, r0.workexperience
+    FROM projectcontract AS p2
+    LEFT JOIN rmsemployee AS r0 ON p2.deliveryanchorid = r0.employeeid
+) AS t ON p.projectid = t.projectid
+LEFT JOIN (
+    SELECT p3.projectemployeeassignmentid, p3.categorysubstatusid, p3.createdby, p3.createddate, p3.employeeid, p3.enddate, p3.isactive, p3.isdeleted, p3.lastupdateby, p3.lastupdatedate, p3.projectid, p3.startdate, p3.statusid, r1.employeeid AS employeeid0, r1.ade, r1.baseoffice, r1.branchid, r1.categorysubstatusid AS categorysubstatusid0, r1.companyemail, r1.contactno, r1.costcenter, r1.createdby AS createdby0, r1.createdon, r1.dateofbirth, r1.dateofjoining, r1.departmentid, r1.designationid, r1.employeename, r1.employeeregion, r1.isactive AS isactive0, r1.isdeleted AS isdeleted0, r1.lastupdatedby, r1.lastupdatedon, r1.reportheadid, r1.resignationdate, r1.sbu, r1.sbuid, r1.statusid AS statusid0, r1.subpracticeid, r1.udf1, r1.udf2, r1.udf3, r1.userid, r1.workexedays, r1.workexperience
+    FROM projectemployeeassignment AS p3
+    INNER JOIN rmsemployee AS r1 ON p3.employeeid = r1.employeeid
+) AS t0 ON p.projectid = t0.projectid
+WHERE NOT (p.projectname = ANY (@__TimesheeetProjectList_0) AND (p.projectname = ANY (@__TimesheeetProjectList_0) IS NOT NULL)) AND ((p.projectname IS NOT NULL) OR (array_position(@__TimesheeetProjectList_0, NULL) IS NULL))
+ORDER BY p.projectid, s.statusid, c.customerid, p0.projecttypeid, s0.subpracticeid, p1.practiceid, r.employeeid, t.contractid, t.employeeid, t0.projectemployeeassignmentid
+2026-01-02 19:14:26.345 +05:30 [INF] Executing ObjectResult, writing value of type 'System.Collections.Generic.List`1[[RMS.Entity.DTO.ResponseForProjectsWithDetailsDto, RMS.Entity, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-01-02 19:14:26.375 +05:30 [INF] Executed action RMS.Controllers.Master.ProjectController.Get (RMS) in 172.5241ms
+2026-01-02 19:14:26.383 +05:30 [INF] Executed endpoint 'RMS.Controllers.Master.ProjectController.Get (RMS)'
+2026-01-02 19:14:26.389 +05:30 [INF] Request finished HTTP/1.1 GET https://localhost:7148/api/Project - - - 200 - application/json;+charset=utf-8 196.3894ms
+2026-01-02 19:14:28.172 +05:30 [INF] Request starting HTTP/1.1 GET https://localhost:7148/api/Authorize?empcode=17492 - -
+2026-01-02 19:14:28.179 +05:30 [INF] Executing endpoint 'RMS.Controllers.RBAC.AuthorizeController.Get (RMS)'
+2026-01-02 19:14:28.186 +05:30 [INF] Route matched with {action = "Get", controller = "Authorize"}. Executing controller action with signature System.Threading.Tasks.Task`1[RMS.Entity.DTO.AuthorizeDto] Get(System.String) on controller RMS.Controllers.RBAC.AuthorizeController (RMS).
+2026-01-02 19:14:28.248 +05:30 [INF] Executed DbCommand (50ms) [Parameters=[@__employeeCode_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT e.employeeroleid, e.employeeid, e.roleid, r.employeeid, r.ade, r.baseoffice, r.branchid, r.categorysubstatusid, r.companyemail, r.contactno, r.costcenter, r.createdby, r.createdon, r.dateofbirth, r.dateofjoining, r.departmentid, r.designationid, r.employeename, r.employeeregion, r.isactive, r.isdeleted, r.lastupdatedby, r.lastupdatedon, r.reportheadid, r.resignationdate, r.sbu, r.sbuid, r.statusid, r.subpracticeid, r.udf1, r.udf2, r.udf3, r.userid, r.workexedays, r.workexperience, r0.roleid, r0.createdby, r0.createddate, r0.isactive, r0.isadmin, r0.isdeleted, r0.isrowlevel, r0.lastupdateby, r0.lastupdatedate, r0.rolename, t.rolepageid, t.isbillingpermit, t.isdeletepermit, t.isreadpermit, t.iswritepermit, t.pageid, t.pagesequence, t.roleid, t.pageid0, t.actionname, t.controllername, t.createdby, t.createddate, t.icon, t.isactive, t.isdeleted, t.lastupdatedby, t.lastupdateddate, t.moduleid, t.pagename, t.moduleid0, t.createdby0, t.createddate0, t.icon0, t.isactive0, t.isdeleted0, t.lastupdatedby0, t.lastupdateddate0, t.modulename
+FROM employeerole AS e
+INNER JOIN rmsemployee AS r ON e.employeeid = r.employeeid
+LEFT JOIN role AS r0 ON e.roleid = r0.roleid
+LEFT JOIN (
+    SELECT r1.rolepageid, r1.isbillingpermit, r1.isdeletepermit, r1.isreadpermit, r1.iswritepermit, r1.pageid, r1.pagesequence, r1.roleid, p.pageid AS pageid0, p.actionname, p.controllername, p.createdby, p.createddate, p.icon, p.isactive, p.isdeleted, p.lastupdatedby, p.lastupdateddate, p.moduleid, p.pagename, m.moduleid AS moduleid0, m.createdby AS createdby0, m.createddate AS createddate0, m.icon AS icon0, m.isactive AS isactive0, m.isdeleted AS isdeleted0, m.lastupdatedby AS lastupdatedby0, m.lastupdateddate AS lastupdateddate0, m.modulename
+    FROM rolepage AS r1
+    LEFT JOIN page AS p ON r1.pageid = p.pageid
+    LEFT JOIN module AS m ON p.moduleid = m.moduleid
+) AS t ON r0.roleid = t.roleid
+WHERE r.userid = @__employeeCode_0
+ORDER BY e.employeeroleid, r.employeeid, r0.roleid, t.rolepageid, t.pageid0
+2026-01-02 19:14:28.261 +05:30 [INF] Executing ObjectResult, writing value of type 'RMS.Entity.DTO.AuthorizeDto'.
+2026-01-02 19:14:28.265 +05:30 [INF] Executed action RMS.Controllers.RBAC.AuthorizeController.Get (RMS) in 68.8654ms
+2026-01-02 19:14:28.270 +05:30 [INF] Executed endpoint 'RMS.Controllers.RBAC.AuthorizeController.Get (RMS)'
+2026-01-02 19:14:28.275 +05:30 [INF] Request finished HTTP/1.1 GET https://localhost:7148/api/Authorize?empcode=17492 - - - 200 - application/json;+charset=utf-8 102.8547ms
+2026-01-02 19:14:28.358 +05:30 [INF] Request starting HTTP/1.1 GET https://localhost:7148/api/Timesheet/GetHeaderItems - -
+2026-01-02 19:14:28.371 +05:30 [INF] Executing endpoint 'RMS.Controllers.Timesheet.TimesheetController.GetHeaderItemAsync (RMS)'
+2026-01-02 19:14:28.378 +05:30 [INF] Route matched with {action = "GetHeaderItem", controller = "Timesheet"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetHeaderItemAsync() on controller RMS.Controllers.Timesheet.TimesheetController (RMS).
+2026-01-02 19:14:28.437 +05:30 [INF] Executed DbCommand (48ms) [Parameters=[@__8__locals1_userdetails_TmcId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT r.employeeid, r.ade, r.baseoffice, r.branchid, r.categorysubstatusid, r.companyemail, r.contactno, r.costcenter, r.createdby, r.createdon, r.dateofbirth, r.dateofjoining, r.departmentid, r.designationid, r.employeename, r.employeeregion, r.isactive, r.isdeleted, r.lastupdatedby, r.lastupdatedon, r.reportheadid, r.resignationdate, r.sbu, r.sbuid, r.statusid, r.subpracticeid, r.udf1, r.udf2, r.udf3, r.userid, r.workexedays, r.workexperience
+FROM rmsemployee AS r
+WHERE r.userid = @__8__locals1_userdetails_TmcId_0
+LIMIT 1
+2026-01-02 19:14:28.514 +05:30 [INF] Executed DbCommand (70ms) [Parameters=[@__employee_Employeeid_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT t.timesheetid, t.createdby, t.createddate, t.employeeid, t.isactive, t.isdeleted, t.lastupdateby, t.lastupdatedate, t.monthyear, t0.timesheetdetailid, t0.activity, t0.benchstatus, t0.categoryofactivityid, t0.contractid, t0.createdby, t0.createddate, t0.dayhours, t0.departmentid, t0.isactive, t0.isdeleted, t0.isdrafted, t0.lastupdateby, t0.lastupdatedate, t0.remarks, t0.timesheetdate, t0.timesheetid
+FROM timesheetheader AS t
+LEFT JOIN timesheetdetail AS t0 ON t.timesheetid = t0.timesheetid
+WHERE t.employeeid = @__employee_Employeeid_0
+ORDER BY t.timesheetid
+2026-01-02 19:14:28.677 +05:30 [INF] Executed DbCommand (89ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT count(*)::int
+FROM (
+    SELECT t0."Key"
+    FROM (
+        SELECT date_trunc('day', t.timesheetdate) AS "Key"
+        FROM timesheetdetail AS t
+        WHERE t.timesheetid IN (173, 419, 737, 989, 1244, 1715, 1787, 1959, 2409, 2671, 2888, 3091, 3345, 3408, 3603) AND (t.isdeleted <> TRUE OR (t.isdeleted IS NULL))
+    ) AS t0
+    GROUP BY t0."Key"
+) AS t1
+2026-01-02 19:14:28.777 +05:30 [INF] Executed DbCommand (84ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT t0."Year", t0."Month", count(DISTINCT date_trunc('day', t0.timesheetdate))::int AS "EntryCount"
+FROM (
+    SELECT t.timesheetdate, date_part('year', t.timesheetdate)::int AS "Year", date_part('month', t.timesheetdate)::int AS "Month"
+    FROM timesheetdetail AS t
+    WHERE t.timesheetid IN (173, 419, 737, 989, 1244, 1715, 1787, 1959, 2409, 2671, 2888, 3091, 3345, 3408, 3603) AND (t.isdeleted <> TRUE OR (t.isdeleted IS NULL))
+) AS t0
+GROUP BY t0."Year", t0."Month"
+2026-01-02 19:14:28.876 +05:30 [INF] Executed DbCommand (81ms) [Parameters=[@__employee_Employeeid_0='?' (DbType = Int32), @__currentYear_1='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT count(*)::int
+FROM timesheetdetail AS t
+WHERE t.categoryofactivityid = 19 AND (t.isdeleted <> TRUE OR (t.isdeleted IS NULL)) AND EXISTS (
+    SELECT 1
+    FROM timesheetheader AS t0
+    WHERE t0.timesheetid = t.timesheetid AND t0.employeeid = @__employee_Employeeid_0 AND EXISTS (
+        SELECT 1
+        FROM timesheetdetail AS t1
+        WHERE t0.timesheetid = t1.timesheetid AND date_part('year', t1.timesheetdate)::int = @__currentYear_1))
+2026-01-02 19:14:28.889 +05:30 [INF] Executing OkObjectResult, writing value of type 'RMS.Entity.DTO.GenericResponse`1[[System.Collections.Generic.List`1[[RMS.Data.Models.Timesheetheader, RMS.Data, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=6.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-01-02 19:14:29.009 +05:30 [INF] Executed action RMS.Controllers.Timesheet.TimesheetController.GetHeaderItemAsync (RMS) in 620.7493ms
+2026-01-02 19:14:29.018 +05:30 [INF] Executed endpoint 'RMS.Controllers.Timesheet.TimesheetController.GetHeaderItemAsync (RMS)'
+2026-01-02 19:14:29.024 +05:30 [INF] Request finished HTTP/1.1 GET https://localhost:7148/api/Timesheet/GetHeaderItems - - - 200 - application/json;+charset=utf-8 665.9090ms

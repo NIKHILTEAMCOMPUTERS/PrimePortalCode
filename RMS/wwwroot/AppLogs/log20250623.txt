@@ -1,0 +1,132 @@
+2025-06-23 11:59:18.798 +05:30 [INF] User profile is available. Using 'C:\Users\17492\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-06-23 11:59:19.767 +05:30 [INF] Now listening on: https://localhost:7148
+2025-06-23 11:59:19.769 +05:30 [INF] Now listening on: http://localhost:5254
+2025-06-23 11:59:20.125 +05:30 [INF] Application started. Press Ctrl+C to shut down.
+2025-06-23 11:59:20.210 +05:30 [INF] Hosting environment: Development
+2025-06-23 11:59:20.240 +05:30 [INF] Content root path: D:\PRIME (RESOURCE MANAGMENT PORTAL)\Prime API Project 0512\resource-portal\RMS\
+2025-06-23 11:59:24.234 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/swagger - -
+2025-06-23 11:59:24.724 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/swagger - - - 301 0 - 495.5238ms
+2025-06-23 11:59:24.729 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/swagger/index.html - -
+2025-06-23 11:59:24.873 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/swagger/index.html - - - 200 - text/html;charset=utf-8 143.4668ms
+2025-06-23 11:59:24.892 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/swagger/swagger-ui.css - -
+2025-06-23 11:59:24.892 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/swagger/swagger-ui-bundle.js - -
+2025-06-23 11:59:24.893 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/_framework/aspnetcore-browser-refresh.js - -
+2025-06-23 11:59:24.892 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/swagger/swagger-ui-standalone-preset.js - -
+2025-06-23 11:59:24.893 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/_vs/browserLink - -
+2025-06-23 11:59:24.908 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/_framework/aspnetcore-browser-refresh.js - - - 200 16491 application/javascript;+charset=utf-8 15.3885ms
+2025-06-23 11:59:25.059 +05:30 [INF] Sending file. Request path: '/swagger-ui.css'. Physical path: 'N/A'
+2025-06-23 11:59:25.099 +05:30 [INF] Sending file. Request path: '/swagger-ui-standalone-preset.js'. Physical path: 'N/A'
+2025-06-23 11:59:25.100 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/swagger/swagger-ui.css - - - 200 143632 text/css 208.2955ms
+2025-06-23 11:59:25.128 +05:30 [INF] Sending file. Request path: '/swagger-ui-bundle.js'. Physical path: 'N/A'
+2025-06-23 11:59:25.128 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/swagger/swagger-ui-standalone-preset.js - - - 200 337162 application/javascript 236.0348ms
+2025-06-23 11:59:25.137 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/swagger/swagger-ui-bundle.js - - - 200 1092889 application/javascript 245.0492ms
+2025-06-23 11:59:25.214 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/_vs/browserLink - - - 200 - text/javascript;+charset=UTF-8 320.4139ms
+2025-06-23 11:59:25.345 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/swagger/v1/swagger.json - -
+2025-06-23 11:59:25.384 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/swagger/favicon-32x32.png - -
+2025-06-23 11:59:25.388 +05:30 [INF] Sending file. Request path: '/favicon-32x32.png'. Physical path: 'N/A'
+2025-06-23 11:59:25.392 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/swagger/favicon-32x32.png - - - 200 628 image/png 8.5455ms
+2025-06-23 11:59:25.554 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/swagger/v1/swagger.json - - - 200 - application/json;charset=utf-8 208.6084ms
+2025-06-23 11:59:41.822 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/api/Debug/triggerEmployeeUpdate - -
+2025-06-23 11:59:42.100 +05:30 [INF] Executing endpoint 'RMS.Controllers.DebugController.TriggerEmployeeUpdate (RMS)'
+2025-06-23 11:59:42.179 +05:30 [INF] Route matched with {action = "TriggerEmployeeUpdate", controller = "Debug"}. Executing controller action with signature Microsoft.AspNetCore.Mvc.IActionResult TriggerEmployeeUpdate() on controller RMS.Controllers.DebugController (RMS).
+2025-06-23 11:59:43.063 +05:30 [INF] Executing OkObjectResult, writing value of type 'System.String'.
+2025-06-23 11:59:43.080 +05:30 [INF] Executed action RMS.Controllers.DebugController.TriggerEmployeeUpdate (RMS) in 876.7427ms
+2025-06-23 11:59:43.094 +05:30 [INF] Executed endpoint 'RMS.Controllers.DebugController.TriggerEmployeeUpdate (RMS)'
+2025-06-23 11:59:43.097 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/api/Debug/triggerEmployeeUpdate - - - 200 - text/plain;+charset=utf-8 1275.9396ms
+2025-06-23 11:59:51.235 +05:30 [INF] --------------------------------------23-Jun-25 6:29:51 AM--------------------------------------------------
+2025-06-23 11:59:51.239 +05:30 [INF] --------------------------------------23-Jun-25 6:29:51 AM--------------------------------------------------
+2025-06-23 11:59:51.243 +05:30 [INF] UpsertEmployeesBulkData started at "2025-06-23T06:29:51.2242007Z"
+2025-06-23 11:59:52.785 +05:30 [INF] Serialized 4011 employees to JSON.
+2025-06-23 11:59:52.792 +05:30 [INF] Calling stored procedure 'upsertemployees' with 4011 employees.
+2025-06-23 11:59:56.178 +05:30 [INF] Executed DbCommand (3,269ms) [Parameters=[data='?' (DbType = Object)], CommandType='"Text"', CommandTimeout='30']
+CALL upsertemployees(@data)
+2025-06-23 11:59:56.216 +05:30 [INF] Stored procedure 'upsertemployees' completed with result -1
+2025-06-23 11:59:56.221 +05:30 [INF] Calling stored procedure 'updaterole'...
+2025-06-23 11:59:56.299 +05:30 [INF] Executed DbCommand (70ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CALL updaterole()
+2025-06-23 11:59:56.308 +05:30 [INF] Stored procedure 'updaterole' completed with result -1
+2025-06-23 11:59:56.313 +05:30 [INF] Calling stored procedure 'deleting_resigned_employees_billing'...
+2025-06-23 11:59:56.385 +05:30 [INF] Executed DbCommand (67ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CALL deleting_resigned_employees_billing()
+2025-06-23 11:59:56.395 +05:30 [INF] Stored procedure 'deleting_resigned_employees_billing' completed with result -1
+2025-06-23 11:59:56.538 +05:30 [INF] UpsertEmployeesBulkData executed successfully in 5314 ms
+2025-06-23 11:59:56.545 +05:30 [INF] --------------------------------------23-Jun-25 6:29:51 AM--------------------------------------------------
+2025-06-23 11:59:56.549 +05:30 [INF] --------------------------------------23-Jun-25 6:29:51 AM--------------------------------------------------
+2025-06-23 12:01:14.781 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/api/Debug/triggerEmployeeUpdate - -
+2025-06-23 12:01:14.803 +05:30 [INF] Executing endpoint 'RMS.Controllers.DebugController.TriggerEmployeeUpdate (RMS)'
+2025-06-23 12:01:14.809 +05:30 [INF] Route matched with {action = "TriggerEmployeeUpdate", controller = "Debug"}. Executing controller action with signature Microsoft.AspNetCore.Mvc.IActionResult TriggerEmployeeUpdate() on controller RMS.Controllers.DebugController (RMS).
+2025-06-23 12:01:14.822 +05:30 [INF] Executing OkObjectResult, writing value of type 'System.String'.
+2025-06-23 12:01:14.826 +05:30 [INF] Executed action RMS.Controllers.DebugController.TriggerEmployeeUpdate (RMS) in 11.2885ms
+2025-06-23 12:01:14.832 +05:30 [INF] Executed endpoint 'RMS.Controllers.DebugController.TriggerEmployeeUpdate (RMS)'
+2025-06-23 12:01:14.835 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/api/Debug/triggerEmployeeUpdate - - - 200 - text/plain;+charset=utf-8 53.3388ms
+2025-06-23 12:01:16.595 +05:30 [INF] --------------------------------------23-Jun-25 6:31:16 AM--------------------------------------------------
+2025-06-23 12:01:16.600 +05:30 [INF] --------------------------------------23-Jun-25 6:31:16 AM--------------------------------------------------
+2025-06-23 12:01:16.603 +05:30 [INF] UpsertEmployeesBulkData started at "2025-06-23T06:31:16.5953386Z"
+2025-06-23 12:01:16.631 +05:30 [INF] Serialized 4011 employees to JSON.
+2025-06-23 12:01:16.635 +05:30 [INF] Calling stored procedure 'upsertemployees' with 4011 employees.
+2025-06-23 12:01:19.508 +05:30 [INF] Executed DbCommand (2,869ms) [Parameters=[data='?' (DbType = Object)], CommandType='"Text"', CommandTimeout='30']
+CALL upsertemployees(@data)
+2025-06-23 12:01:19.518 +05:30 [INF] Stored procedure 'upsertemployees' completed with result -1
+2025-06-23 12:01:19.523 +05:30 [INF] Calling stored procedure 'updaterole'...
+2025-06-23 12:01:19.596 +05:30 [INF] Executed DbCommand (68ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CALL updaterole()
+2025-06-23 12:01:19.607 +05:30 [INF] Stored procedure 'updaterole' completed with result -1
+2025-06-23 12:01:19.613 +05:30 [INF] Calling stored procedure 'deleting_resigned_employees_billing'...
+2025-06-23 12:01:19.687 +05:30 [INF] Executed DbCommand (71ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CALL deleting_resigned_employees_billing()
+2025-06-23 12:01:19.697 +05:30 [INF] Stored procedure 'deleting_resigned_employees_billing' completed with result -1
+2025-06-23 12:01:19.767 +05:30 [INF] UpsertEmployeesBulkData executed successfully in 3171 ms
+2025-06-23 12:01:19.770 +05:30 [INF] --------------------------------------23-Jun-25 6:31:16 AM--------------------------------------------------
+2025-06-23 12:01:19.772 +05:30 [INF] --------------------------------------23-Jun-25 6:31:16 AM--------------------------------------------------
+2025-06-23 12:01:42.891 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/api/Debug/triggerEmployeeUpdate - -
+2025-06-23 12:01:42.920 +05:30 [INF] Executing endpoint 'RMS.Controllers.DebugController.TriggerEmployeeUpdate (RMS)'
+2025-06-23 12:01:42.933 +05:30 [INF] Route matched with {action = "TriggerEmployeeUpdate", controller = "Debug"}. Executing controller action with signature Microsoft.AspNetCore.Mvc.IActionResult TriggerEmployeeUpdate() on controller RMS.Controllers.DebugController (RMS).
+2025-06-23 12:01:42.959 +05:30 [INF] Executing OkObjectResult, writing value of type 'System.String'.
+2025-06-23 12:01:42.969 +05:30 [INF] Executed action RMS.Controllers.DebugController.TriggerEmployeeUpdate (RMS) in 22.0883ms
+2025-06-23 12:01:42.977 +05:30 [INF] Executed endpoint 'RMS.Controllers.DebugController.TriggerEmployeeUpdate (RMS)'
+2025-06-23 12:01:42.983 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/api/Debug/triggerEmployeeUpdate - - - 200 - text/plain;+charset=utf-8 92.5181ms
+2025-06-23 12:01:44.350 +05:30 [INF] --------------------------------------23-Jun-25 6:31:44 AM--------------------------------------------------
+2025-06-23 12:01:44.351 +05:30 [INF] --------------------------------------23-Jun-25 6:31:44 AM--------------------------------------------------
+2025-06-23 12:01:44.352 +05:30 [INF] UpsertEmployeesBulkData started at "2025-06-23T06:31:44.3508928Z"
+2025-06-23 12:01:44.394 +05:30 [INF] Serialized 4011 employees to JSON.
+2025-06-23 12:01:44.397 +05:30 [INF] Calling stored procedure 'upsertemployees' with 4011 employees.
+2025-06-23 12:01:48.338 +05:30 [INF] Executed DbCommand (3,939ms) [Parameters=[data='?' (DbType = Object)], CommandType='"Text"', CommandTimeout='30']
+CALL upsertemployees(@data)
+2025-06-23 12:01:48.344 +05:30 [INF] Stored procedure 'upsertemployees' completed with result -1
+2025-06-23 12:01:48.345 +05:30 [INF] Calling stored procedure 'updaterole'...
+2025-06-23 12:01:48.429 +05:30 [INF] Executed DbCommand (84ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CALL updaterole()
+2025-06-23 12:01:48.437 +05:30 [INF] Stored procedure 'updaterole' completed with result -1
+2025-06-23 12:01:48.441 +05:30 [INF] Calling stored procedure 'deleting_resigned_employees_billing'...
+2025-06-23 12:01:48.519 +05:30 [INF] Executed DbCommand (75ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CALL deleting_resigned_employees_billing()
+2025-06-23 12:01:48.521 +05:30 [INF] Stored procedure 'deleting_resigned_employees_billing' completed with result -1
+2025-06-23 12:01:48.591 +05:30 [INF] UpsertEmployeesBulkData executed successfully in 4240 ms
+2025-06-23 12:01:48.595 +05:30 [INF] --------------------------------------23-Jun-25 6:31:44 AM--------------------------------------------------
+2025-06-23 12:01:48.598 +05:30 [INF] --------------------------------------23-Jun-25 6:31:44 AM--------------------------------------------------
+2025-06-23 12:03:09.497 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7148/api/Debug/triggerEmployeeUpdate - -
+2025-06-23 12:03:09.501 +05:30 [INF] Executing endpoint 'RMS.Controllers.DebugController.TriggerEmployeeUpdate (RMS)'
+2025-06-23 12:03:09.505 +05:30 [INF] Route matched with {action = "TriggerEmployeeUpdate", controller = "Debug"}. Executing controller action with signature Microsoft.AspNetCore.Mvc.IActionResult TriggerEmployeeUpdate() on controller RMS.Controllers.DebugController (RMS).
+2025-06-23 12:03:09.515 +05:30 [INF] Executing OkObjectResult, writing value of type 'System.String'.
+2025-06-23 12:03:09.520 +05:30 [INF] Executed action RMS.Controllers.DebugController.TriggerEmployeeUpdate (RMS) in 8.3682ms
+2025-06-23 12:03:09.523 +05:30 [INF] Executed endpoint 'RMS.Controllers.DebugController.TriggerEmployeeUpdate (RMS)'
+2025-06-23 12:03:09.527 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7148/api/Debug/triggerEmployeeUpdate - - - 200 - text/plain;+charset=utf-8 30.0709ms
+2025-06-23 12:03:11.051 +05:30 [INF] --------------------------------------23-Jun-25 6:33:11 AM--------------------------------------------------
+2025-06-23 12:03:11.054 +05:30 [INF] --------------------------------------23-Jun-25 6:33:11 AM--------------------------------------------------
+2025-06-23 12:03:11.056 +05:30 [INF] UpsertEmployeesBulkData started at "2025-06-23T06:33:11.0509456Z"
+2025-06-23 12:03:11.092 +05:30 [INF] Serialized 4011 employees to JSON.
+2025-06-23 12:03:11.096 +05:30 [INF] Calling stored procedure 'upsertemployees' with 4011 employees.
+2025-06-23 12:03:13.846 +05:30 [INF] Executed DbCommand (2,748ms) [Parameters=[data='?' (DbType = Object)], CommandType='"Text"', CommandTimeout='30']
+CALL upsertemployees(@data)
+2025-06-23 12:03:13.852 +05:30 [INF] Stored procedure 'upsertemployees' completed with result -1
+2025-06-23 12:03:13.857 +05:30 [INF] Calling stored procedure 'updaterole'...
+2025-06-23 12:03:13.959 +05:30 [INF] Executed DbCommand (97ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CALL updaterole()
+2025-06-23 12:03:13.964 +05:30 [INF] Stored procedure 'updaterole' completed with result -1
+2025-06-23 12:03:13.966 +05:30 [INF] Calling stored procedure 'deleting_resigned_employees_billing'...
+2025-06-23 12:03:14.058 +05:30 [INF] Executed DbCommand (91ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CALL deleting_resigned_employees_billing()
+2025-06-23 12:03:14.069 +05:30 [INF] Stored procedure 'deleting_resigned_employees_billing' completed with result -1
+2025-06-23 12:03:14.152 +05:30 [INF] UpsertEmployeesBulkData executed successfully in 3101 ms
+2025-06-23 12:03:14.156 +05:30 [INF] --------------------------------------23-Jun-25 6:33:11 AM--------------------------------------------------
+2025-06-23 12:03:14.162 +05:30 [INF] --------------------------------------23-Jun-25 6:33:11 AM--------------------------------------------------
