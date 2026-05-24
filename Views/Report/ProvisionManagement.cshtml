@@ -1,0 +1,827 @@
+@model IEnumerable<RMS.Client.Models.Master.ProvisionManagementItem>
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "Provision Management";
+    var writePermission = ViewBag.WritePermission as bool? ?? false;
+}
+
+@section PageStyles {
+<style>
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: .2rem .65rem;
+        border-radius: 9999px;
+        font-size: .75rem;
+        font-weight: 600;
+        letter-spacing: .02em;
+    }
+    .status-active        { background:#dcfce7; color:#166534; }
+    .status-carriedforward{ background:#fef9c3; color:#713f12; }
+    .status-reversed      { background:#fee2e2; color:#991b1b; }
+    .status-settled       { background:#dbeafe; color:#1e3a8a; }
+
+    .cf-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.6rem;
+        height: 1.6rem;
+        border-radius: 50%;
+        font-size: .7rem;
+        font-weight: 700;
+    }
+    .cf-0 { background:#f3f4f6; color:#6b7280; }
+    .cf-1 { background:#fef9c3; color:#92400e; }
+    .cf-2 { background:#fed7aa; color:#9a3412; }
+    .cf-3 { background:#fee2e2; color:#991b1b; }
+
+    .action-btn {
+        padding: .25rem .6rem;
+        border-radius: .375rem;
+        font-size: .75rem;
+        font-weight: 500;
+        cursor: pointer;
+        border: 1px solid transparent;
+        transition: opacity .15s;
+    }
+    .btn-cf      { border-color:#f59e0b; color:#f59e0b; }
+    .btn-cf:hover{ background:#fef3c7; }
+    .btn-rev     { border-color:#ef4444; color:#ef4444; }
+    .btn-rev:hover{ background:#fee2e2; }
+    .btn-hist    { border-color:#6366f1; color:#6366f1; }
+    .btn-hist:hover{ background:#eef2ff; }
+    .btn-edit    { border-color:#0ea5e9; color:#0ea5e9; }
+    .btn-edit:hover{ background:#e0f2fe; }
+
+    dialog.provision-modal {
+        max-width: 28rem;
+        width: calc(100% - 2rem);
+        border-radius: .75rem;
+        padding: 1.5rem;
+        border: none;
+        box-shadow: 0 20px 60px rgba(0,0,0,.2);
+    }
+    dialog.provision-modal::backdrop {
+        background: rgba(0,0,0,0.45);
+    }
+    dialog.provision-modal-lg {
+        max-width: 36rem;
+        width: calc(100% - 2rem);
+        max-height: 80vh;
+        border-radius: .75rem;
+        padding: 1.5rem;
+        border: none;
+        box-shadow: 0 20px 60px rgba(0,0,0,.2);
+        display: flex;
+        flex-direction: column;
+    }
+    dialog.provision-modal-lg::backdrop {
+        background: rgba(0,0,0,0.45);
+    }
+    .timeline-item { position:relative; padding-left:2rem; padding-bottom:1.25rem; }
+    .timeline-item::before {
+        content:''; position:absolute; left:.45rem; top:.35rem;
+        bottom:-1rem; width:2px; background:#e5e7eb;
+    }
+    .timeline-item:last-child::before { display:none; }
+    .timeline-dot {
+        position:absolute; left:0; top:.3rem;
+        width:.9rem; height:.9rem; border-radius:50%;
+        border:2px solid #fff; box-shadow:0 0 0 2px currentColor;
+    }
+
+    /* Frozen ACTIONS column */
+    #provisionTable thead th.col-actions {
+        position: sticky; right: 0; z-index: 3;
+        background: #f9fafb;
+        box-shadow: -2px 0 5px rgba(0,0,0,.07);
+    }
+    #provisionTable tbody td.col-actions {
+        position: sticky; right: 0; z-index: 1;
+        background: white;
+        box-shadow: -2px 0 5px rgba(0,0,0,.07);
+    }
+    #provisionTable tbody tr:hover td.col-actions { background: #f9fafb; }
+</style>
+}
+
+<div class="px-6 py-5">
+    <!-- Header -->
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+        <div>
+            <h1 class="text-xl font-semibold text-gray-800">Provision Management</h1>
+            <p class="text-sm text-gray-500 mt-0.5">Track, carry forward, and reverse monthly provisions</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <label class="text-sm font-medium text-gray-600">Month</label>
+            <input type="month" id="monthPicker" value="@ViewBag.SelectedMonth"
+                   class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400" />
+            <button onclick="changeMonth()" class="bg-emerald-500 hover:bg-emerald-600 text-white text-sm px-4 py-1.5 rounded-lg transition">
+                Load
+            </button>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    @{
+        var total = Model.Count();
+        var active = Model.Count(x => x.ProvisionStatus == "Active");
+        var carried = Model.Count(x => x.ProvisionStatus == "CarriedForward");
+        var reversed = Model.Count(x => x.ProvisionStatus == "Reversed");
+        var activeSummary = Model.Where(x => x.ProvisionStatus == "Active" || x.ProvisionStatus == "Settled");
+        var totalProvision = activeSummary.Sum(x => x.ProvisionAmount);
+        var totalPaid = Model.Where(x => x.ProvisionStatus != "CarriedForward").Sum(x => x.PaidAmount);
+        var totalRemaining = activeSummary.Sum(x => x.RemainingAmount);
+    }
+    <div class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-3 mb-5">
+        <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+            <p class="text-xs text-gray-500 mb-1">Total Provisions</p>
+            <p class="text-2xl font-bold text-gray-800">@total</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-4 border border-green-100">
+            <p class="text-xs text-gray-500 mb-1">Active</p>
+            <p class="text-2xl font-bold text-green-600">@active</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-4 border border-yellow-100">
+            <p class="text-xs text-gray-500 mb-1">Date Changed</p>
+            <p class="text-2xl font-bold text-yellow-600">@carried</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-4 border border-red-100">
+            <p class="text-xs text-gray-500 mb-1">Reversed</p>
+            <p class="text-2xl font-bold text-red-600">@reversed</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-4 border border-blue-100 col-span-2 md:col-span-2">
+            <p class="text-xs text-gray-500 mb-1">Provision / Billed / Remaining <span style="font-size:.65rem;color:#9ca3af;">(Provision+Rem: Active · Billed: all)</span></p>
+            <p class="text-sm font-bold text-gray-800">
+                ₹@totalProvision.ToString("N0") /
+                <span class="text-green-600">₹@totalPaid.ToString("N0")</span> /
+                <span class="text-red-600">₹@totalRemaining.ToString("N0")</span>
+            </p>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-4 border-b border-gray-100 flex flex-wrap justify-between items-center gap-3">
+            <span class="text-sm font-medium text-gray-700">Provision List</span>
+            <div class="flex items-center gap-2">
+                <label style="font-size:.75rem;color:#6b7280;font-weight:500;">Filter by Status</label>
+                <select id="statusFilter" onchange="filterByStatus(this.value)"
+                        style="font-size:.75rem;border:1px solid #d1d5db;border-radius:.5rem;padding:4px 28px 4px 10px;color:#374151;background:white;cursor:pointer;appearance:auto;">
+                    <option value="">All Status</option>
+                    <option value="Active">Active</option>
+                    <option value="Date Changed">Date Changed</option>
+                    <option value="Reversed">Reversed</option>
+                    <option value="Settled">Settled</option>
+                </select>
+                <button onclick="exportTable()" class="text-xs bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-3 py-1 rounded-lg transition">
+                    Export Excel
+                </button>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table id="provisionTable" class="w-full text-sm">
+                <thead class="bg-gray-50 text-gray-600 uppercase text-xs">
+                    <tr>
+                        <th class="px-3 py-3 text-left">Resource</th>
+                        <th class="px-3 py-3 text-left">Account Mgr</th>
+                        <th class="px-3 py-3 text-left">Customer</th>
+                        <th class="px-3 py-3 text-left">Project</th>
+                        <th class="px-3 py-3 text-left">Type</th>
+                        <th class="px-3 py-3 text-left">DA</th>
+                        <th class="px-3 py-3 text-left">Month</th>
+                        <th class="px-3 py-3 text-left">Invoice Period</th>
+                        <th class="px-3 py-3 text-left">Contract Term</th>
+                        <th class="px-3 py-3 text-right">Topline Amt</th>
+                        <th class="px-3 py-3 text-left">Products</th>
+                        <th class="px-3 py-3 text-left">Practice</th>
+                        <th class="px-3 py-3 text-left">PO's</th>
+                        <th class="px-3 py-3 text-left">Project No.</th>
+                        <th class="px-3 py-3 text-left">Contract No.</th>
+                        <th class="px-3 py-3 text-left">Closer Date</th>
+                        <th class="px-3 py-3 text-right">Provision Amt</th>
+                        <th class="px-3 py-3 text-right">Billed Amt</th>
+                        <th class="px-3 py-3 text-right">Remaining</th>
+                        <th class="px-3 py-3 text-center">CD Count</th>
+                        <th class="px-3 py-3 text-center">Fwd To</th>
+                        <th class="px-3 py-3 text-center">Status</th>
+                        <th class="px-3 py-3 text-center col-actions">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        string statusClass = item.ProvisionStatus switch
+                        {
+                            "Active" => "status-active",
+                            "CarriedForward" => "status-carriedforward",
+                            "Reversed" => "status-reversed",
+                            "Settled" => "status-settled",
+                            _ => "status-active"
+                        };
+                        string cfClass = item.CarryForwardCount switch
+                        {
+                            0 => "cf-0",
+                            1 => "cf-1",
+                            2 => "cf-2",
+                            _ => "cf-3"
+                        };
+                        string statusLabel = item.ProvisionStatus == "CarriedForward" ? "Date Changed" : item.ProvisionStatus;
+                        // For CarriedForward: only allow Pay/Nullify if the money stayed in the same month
+                        bool cfSameMonth = item.ProvisionStatus != "CarriedForward"
+                            || string.IsNullOrEmpty(item.CarriedForwardToMonth)
+                            || item.CarriedForwardToMonth == item.BillingMonthYear;
+                        bool canPay = item.RemainingAmount > 0
+                            && (item.ProvisionStatus == "Active" || (item.ProvisionStatus == "CarriedForward" && cfSameMonth));
+
+                        <tr class="border-t border-gray-100 hover:bg-gray-50 transition">
+                            <td class="px-3 py-2.5">
+                                <div class="font-medium text-gray-800">@item.ResourceName</div>
+                                <div class="text-xs text-gray-400">@item.TmcId</div>
+                            </td>
+                            <td class="px-3 py-2.5 text-gray-600 max-w-[120px] truncate" title="@item.AccountManager">@(item.AccountManager ?? "—")</td>
+                            <td class="px-3 py-2.5 text-gray-600 max-w-[140px] truncate" title="@item.CustomerName">@item.CustomerName</td>
+                            <td class="px-3 py-2.5 text-gray-600 max-w-[140px] truncate" title="@item.ProjectName">@item.ProjectName</td>
+                            <td class="px-3 py-2.5 text-gray-500 whitespace-nowrap text-xs">@(item.ProjectType ?? "—")</td>
+                            <td class="px-3 py-2.5 text-gray-600 max-w-[110px] truncate" title="@item.DeliveryAnchor">@(item.DeliveryAnchor ?? "—")</td>
+                            <td class="px-3 py-2.5 text-gray-600 whitespace-nowrap">@item.BillingMonthYear</td>
+                            <td class="px-3 py-2.5 text-gray-500 whitespace-nowrap text-xs">@(item.InvoicePeriod ?? "—")</td>
+                            <td class="px-3 py-2.5 text-gray-500 whitespace-nowrap text-xs">
+                                @if (item.ContractStartDate.HasValue || item.ContractEndDate.HasValue)
+                                {
+                                    @((item.ContractStartDate?.ToString("dd/MM/yy") ?? "?") + " – " + (item.ContractEndDate?.ToString("dd/MM/yy") ?? "?"))
+                                }
+                                else { <text>—</text> }
+                            </td>
+                            <td class="px-3 py-2.5 text-right font-medium text-gray-700 whitespace-nowrap">
+                                @(item.ToplineBillingAmt.HasValue ? "₹" + item.ToplineBillingAmt.Value.ToString("N0") : "—")
+                            </td>
+                            <td class="px-3 py-2.5 text-gray-500 text-xs max-w-[110px] truncate" title="@item.Products">@(item.Products ?? "—")</td>
+                            <td class="px-3 py-2.5 text-gray-500 text-xs max-w-[110px] truncate" title="@item.Practice">@(item.Practice ?? "—")</td>
+                            <td class="px-3 py-2.5 text-gray-500 text-xs whitespace-nowrap">@(item.PoNumber ?? "—")</td>
+                            <td class="px-3 py-2.5 text-gray-500 text-xs whitespace-nowrap">@(item.ProjectNo ?? "—")</td>
+                            <td class="px-3 py-2.5 text-gray-500 text-xs whitespace-nowrap">@(item.ContractNo ?? "—")</td>
+                            <td class="px-3 py-2.5 text-gray-500 text-xs whitespace-nowrap">
+                                @(item.EstimatedBillingDate.HasValue ? item.EstimatedBillingDate.Value.ToString("dd/MM/yy") : "—")
+                            </td>
+                            <td class="px-3 py-2.5 text-right font-medium text-gray-800">₹@item.ProvisionAmount.ToString("N0")</td>
+                            <td class="px-3 py-2.5 text-right text-green-600 font-medium">₹@item.PaidAmount.ToString("N0")</td>
+                            <td class="px-3 py-2.5 text-right font-medium @(item.RemainingAmount > 0 ? "text-red-600" : "text-gray-400")">
+                                ₹@item.RemainingAmount.ToString("N0")
+                            </td>
+                            <td class="px-3 py-2.5 text-center">
+                                <span class="cf-badge @cfClass" title="Closer date changed @item.CarryForwardCount time(s)">
+                                    @item.CarryForwardCount
+                                </span>
+                            </td>
+                            <td class="px-3 py-2.5 text-center whitespace-nowrap">
+                                @if (item.ProvisionStatus == "CarriedForward" && !string.IsNullOrEmpty(item.CarriedForwardToMonth))
+                                {
+                                    var cfTargetDate = DateTime.ParseExact(item.CarriedForwardToMonth, "MMM-yy", CultureInfo.InvariantCulture);
+                                    var cfDateLabel = item.CarriedForwardToDate.HasValue ? item.CarriedForwardToDate.Value.ToString("dd/MM/yy") : null;
+                                    <a href="?date=@cfTargetDate.ToString("yyyy-MM-dd")"
+                                       title="Remaining forwarded to @item.CarriedForwardToMonth@(cfDateLabel != null ? " (due " + cfDateLabel + ")" : "") — click to view"
+                                       style="display:inline-flex;align-items:center;gap:3px;font-size:.7rem;font-weight:700;color:#92400e;background:#fef3c7;border:1px solid #fcd34d;padding:2px 8px;border-radius:99px;text-decoration:none;">
+                                        <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                                        @item.CarriedForwardToMonth
+                                        @if (cfDateLabel != null)
+                                        {
+                                            <span style="font-weight:400;font-size:.65rem;color:#b45309;">· @cfDateLabel</span>
+                                        }
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span style="color:#d1d5db;">—</span>
+                                }
+                            </td>
+                            <td class="px-3 py-2.5 text-center">
+                                <span class="status-badge @statusClass">@statusLabel</span>
+                            </td>
+                            <td class="px-3 py-2.5 col-actions">
+                                <div class="flex items-center justify-center gap-1 flex-nowrap">
+                                    @if (canPay)
+                                    {
+                                        <button onclick="openPayModal(@item.ProvisionId, '@item.ResourceName', '@item.BillingMonthYear', @item.ProvisionAmount.ToString(System.Globalization.CultureInfo.InvariantCulture), @item.PaidAmount.ToString(System.Globalization.CultureInfo.InvariantCulture), @item.CarryForwardCount, '@item.ProvisionStatus', @item.IsTerminalTarget.ToString().ToLower())"
+                                                title="Record billing"
+                                                style="display:inline-flex;align-items:center;gap:3px;padding:5px 9px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid #10b981;color:#065f46;background:#ecfdf5;">
+                                            Billed
+                                        </button>
+                                    }
+                                    @if (item.HasHistory)
+                                    {
+                                        <button onclick="openHistory(@item.ProvisionId, '@item.ResourceName')"
+                                                title="View provision audit history"
+                                                style="display:inline-flex;align-items:center;gap:3px;padding:5px 9px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid #818cf8;color:#4338ca;background:#f5f3ff;">
+                                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                            History
+                                        </button>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="10" class="px-3 py-10 text-center text-gray-400">No provisions found for the selected month.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal (same pattern as #loader: style=display:none + fixed h-screen w-screen left-0 top-0) -->
+<div id="editModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.45);align-items:center;justify-content:center;padding:1rem;"
+     onclick="if(event.target===this)closeEditModal()">
+    <div style="background:white;border-radius:.75rem;box-shadow:0 20px 60px rgba(0,0,0,.2);width:100%;max-width:28rem;max-height:90vh;overflow-y:auto;padding:1.5rem;"
+         onclick="event.stopPropagation()">
+        <h2 style="font-size:1rem;font-weight:700;color:#111827;margin:0 0 .25rem;">Edit Provision</h2>
+        <p style="font-size:.8rem;color:#6b7280;margin:0 0 1rem;" id="editSubtitle"></p>
+        <label style="display:block;font-size:.8rem;font-weight:600;color:#374151;margin-bottom:.25rem;">Estimated Billing Date</label>
+        <input type="date" id="editBillingDate" style="width:100%;border:1px solid #d1d5db;border-radius:.5rem;padding:.5rem .75rem;font-size:.875rem;margin-bottom:1rem;box-sizing:border-box;" />
+        <label style="display:block;font-size:.8rem;font-weight:600;color:#374151;margin-bottom:.25rem;">Remark <span style="color:#9ca3af;font-weight:400;">(optional)</span></label>
+        <textarea id="editRemark" rows="2" placeholder="Reason for change..." style="width:100%;border:1px solid #d1d5db;border-radius:.5rem;padding:.5rem .75rem;font-size:.875rem;resize:none;box-sizing:border-box;"></textarea>
+        <div style="display:flex;justify-content:flex-end;gap:.5rem;margin-top:1rem;">
+            <button type="button" onclick="closeEditModal()" style="padding:.5rem 1rem;font-size:.8rem;border:1px solid #d1d5db;border-radius:.5rem;color:#6b7280;background:white;cursor:pointer;">Cancel</button>
+            <button type="button" onclick="submitEdit()" style="padding:.5rem 1rem;font-size:.8rem;border-radius:.5rem;font-weight:600;color:white;background:#0ea5e9;border:none;cursor:pointer;">Save Changes</button>
+        </div>
+    </div>
+</div>
+
+
+<!-- Pay / Update Paid Amount Modal -->
+<div id="payModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.45);align-items:center;justify-content:center;padding:1rem;"
+     onclick="if(event.target===this)closePayModal()">
+    <div style="background:white;border-radius:.75rem;box-shadow:0 20px 60px rgba(0,0,0,.2);width:100%;max-width:30rem;max-height:92vh;overflow-y:auto;padding:1.5rem;"
+         onclick="event.stopPropagation()">
+        <div style="display:flex;align-items:flex-start;gap:.75rem;margin-bottom:.75rem;">
+            <div>
+                <h2 style="font-size:1rem;font-weight:700;color:#111827;margin:0 0 .1rem;">Record Billing</h2>
+                <p style="font-size:.8rem;color:#6b7280;margin:0;" id="paySubtitle"></p>
+            </div>
+        </div>
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:.5rem;padding:.6rem .85rem;margin-bottom:.85rem;font-size:.8rem;color:#166534;">
+            Provision: <strong id="payProvisionAmt"></strong> &nbsp;|&nbsp; Already Billed: <strong id="payCurrentPaid"></strong> &nbsp;|&nbsp; Remaining: <strong id="payCurrentRemaining"></strong>
+        </div>
+        <label style="display:block;font-size:.8rem;font-weight:600;color:#374151;margin-bottom:.25rem;">
+            Billed Amount (₹) <span style="color:#ef4444;">*</span>
+            <span style="font-size:.7rem;color:#9ca3af;font-weight:400;">— amount billed in this transaction</span>
+        </label>
+        <input type="number" id="payAmount" min="0" step="1" placeholder="Enter amount billed now..."
+               oninput="updatePayRemainingSection()"
+               style="width:100%;border:1px solid #d1d5db;border-radius:.5rem;padding:.5rem .75rem;font-size:.875rem;margin-bottom:.75rem;box-sizing:border-box;" />
+        <label style="display:block;font-size:.8rem;font-weight:600;color:#374151;margin-bottom:.25rem;">
+            Remark <span style="font-size:.75rem;color:#9ca3af;font-weight:400;">(optional)</span>
+        </label>
+        <textarea id="payRemark" rows="2" placeholder="Add a note..." style="width:100%;border:1px solid #d1d5db;border-radius:.5rem;padding:.5rem .75rem;font-size:.875rem;resize:none;box-sizing:border-box;"></textarea>
+
+        <!-- Remaining action panel — shown dynamically when paid < provision -->
+        <div id="payRemainingSection" style="display:none;margin-top:.9rem;border-top:1px solid #e5e7eb;padding-top:.85rem;">
+            <div style="font-size:.8rem;font-weight:600;color:#374151;margin-bottom:.5rem;">
+                What to do with remaining <span id="payRemainingAmt" style="color:#ef4444;font-weight:700;"></span>?
+            </div>
+            <div style="display:flex;flex-direction:column;gap:.4rem;">
+                <label id="payActionKeepActiveLabel" style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:#374151;cursor:pointer;padding:.3rem .4rem;border-radius:.375rem;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background=''">
+                    <input type="radio" name="payAction" value="none" checked onchange="onPayActionChange()" style="cursor:pointer;" />
+                    <span>Keep Active <span style="color:#9ca3af;font-size:.7rem;">(provision stays open)</span></span>
+                </label>
+                <label id="payActionCfLabel" style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:#374151;cursor:pointer;padding:.3rem .4rem;border-radius:.375rem;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background=''">
+                    <input type="radio" name="payAction" value="carryforward" onchange="onPayActionChange()" style="cursor:pointer;" />
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    <span>Change Closer Date... <span style="color:#9ca3af;font-size:.7rem;">(can change @(3) times max)</span></span>
+                </label>
+                <label style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:#374151;cursor:pointer;padding:.3rem .4rem;border-radius:.375rem;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background=''">
+                    <input type="radio" name="payAction" value="nullify" onchange="onPayActionChange()" style="cursor:pointer;" />
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                    <span>Reverse Remaining <span style="color:#9ca3af;font-size:.7rem;">(write it off)</span></span>
+                </label>
+            </div>
+            <!-- Carry Forward date picker -->
+            <div id="payCfDateSection" style="display:none;margin-top:.6rem;padding:.6rem .75rem;background:#fffbeb;border:1px solid #fcd34d;border-radius:.5rem;">
+                <label style="display:block;font-size:.75rem;font-weight:600;color:#92400e;margin-bottom:.25rem;">
+                    New Closer Date <span style="color:#ef4444;">*</span>
+                    <span style="font-weight:400;font-size:.68rem;color:#b45309;">— same month keeps provision here · different month moves it there</span>
+                </label>
+                <input type="date" id="payCfDate"
+                       style="width:100%;border:1px solid #fcd34d;border-radius:.375rem;padding:.45rem .75rem;font-size:.875rem;box-sizing:border-box;background:white;" />
+            </div>
+            <!-- Nullify warning -->
+            <div id="payNullifyWarn" style="display:none;margin-top:.6rem;background:#fef2f2;border:1px solid #fca5a5;border-radius:.5rem;padding:.5rem .75rem;font-size:.75rem;color:#991b1b;">
+                <strong>Note:</strong> The remaining amount will be written off after recording this payment.
+            </div>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;gap:.5rem;margin-top:1rem;">
+            <button type="button" onclick="closePayModal()" style="padding:.5rem 1rem;font-size:.8rem;border:1px solid #d1d5db;border-radius:.5rem;color:#6b7280;background:white;cursor:pointer;">Cancel</button>
+            <button type="button" onclick="submitPay()" style="padding:.5rem 1rem;font-size:.8rem;border-radius:.5rem;font-weight:600;color:white;background:#10b981;border:none;cursor:pointer;">Record Billing</button>
+        </div>
+    </div>
+</div>
+
+<!-- History Modal (flex centering — same pattern as #loader overlay) -->
+<div id="historyModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.45);align-items:center;justify-content:center;padding:1rem;"
+     onclick="if(event.target===this)closeHistory()">
+    <div style="background:white;border-radius:.875rem;box-shadow:0 25px 60px rgba(0,0,0,.25);width:100%;max-width:40rem;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;"
+         onclick="event.stopPropagation()">
+        <!-- Header -->
+        <div style="padding:1rem 1.25rem;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:#f9fafb;">
+            <div style="display:flex;align-items:center;gap:.625rem;">
+                <div style="background:#eef2ff;border-radius:50%;padding:7px;display:flex;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4338ca" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+                <div>
+                    <h2 style="font-size:.95rem;font-weight:700;color:#111827;margin:0;">Provision History</h2>
+                    <p style="font-size:.75rem;color:#6b7280;margin:0;" id="histSubtitle"></p>
+                </div>
+            </div>
+            <button onclick="closeHistory()" style="background:none;border:none;cursor:pointer;font-size:1.4rem;color:#9ca3af;line-height:1;padding:2px 6px;border-radius:4px;" title="Close">&times;</button>
+        </div>
+        <!-- Timeline body -->
+        <div id="historyContent" style="overflow-y:auto;flex:1;padding:1.25rem 1.25rem 1rem;">
+            <div style="text-align:center;padding:2.5rem 0;color:#9ca3af;font-size:.875rem;">Loading…</div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    // Portal: move modals to body so fixed positioning works
+    document.addEventListener('DOMContentLoaded', function () {
+        ['editModal','payModal','historyModal'].forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) document.body.appendChild(el);
+        });
+    });
+
+    let activeEditProvisionId = null;
+    let activePayProvisionId = null;
+    let activePayProvisionAmt = 0;
+    let activePayCurrentPaid = 0;
+    let activePayBillingMonth = null;
+    let activePayCfCount = 0;
+    let activePayStatus = null;
+    let activePayIsTerminalTarget = false;
+
+    // Month picker  (val is "yyyy-MM", append -01 so DateTime.Parse works in controller)
+    function changeMonth() {
+        const val = document.getElementById('monthPicker').value;
+        if (!val) return;
+        window.location.href = `?date=${encodeURIComponent(val + '-01')}`;
+    }
+    document.getElementById('monthPicker').addEventListener('keydown', e => { if (e.key === 'Enter') changeMonth(); });
+
+    // DataTable init
+    $(document).ready(function () {
+        if ($.fn.DataTable && $('#provisionTable tbody tr').length > 1) {
+            $('#provisionTable').DataTable({
+                pageLength: 25,
+                order: [[21, 'asc']],
+                columnDefs: [{ orderable: false, targets: 22 }],
+                scrollX: true
+            });
+        }
+    });
+
+    // Status filter
+    function filterByStatus(val) {
+        if ($.fn.DataTable) {
+            $('#provisionTable').DataTable().column(21).search(val ? '^' + val.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') + '$' : '', true, false).draw();
+        } else {
+            // Fallback: show/hide rows directly
+            const rows = document.querySelectorAll('#provisionTable tbody tr');
+            rows.forEach(tr => {
+                const cell = tr.cells[8];
+                tr.style.display = (!val || (cell && cell.textContent.trim() === val)) ? '' : 'none';
+            });
+        }
+    }
+
+    // Export
+    function exportTable() {
+        if ($.fn.DataTable) {
+            const dt = $('#provisionTable').DataTable();
+            dt.button('.buttons-excel')?.trigger();
+        } else {
+            alert('Export not available.');
+        }
+    }
+
+    // Edit
+    function openEditModal(id, name, month, currentDate) {
+        activeEditProvisionId = id;
+        document.getElementById('editSubtitle').textContent = `${name} – ${month}`;
+        document.getElementById('editBillingDate').value = currentDate || '';
+        document.getElementById('editRemark').value = '';
+        document.getElementById('editModal').style.display = 'flex';
+    }
+    function closeEditModal() {
+        document.getElementById('editModal').style.display = 'none';
+        activeEditProvisionId = null;
+    }
+    async function submitEdit() {
+        if (!activeEditProvisionId) return;
+        const dateVal = document.getElementById('editBillingDate').value;
+        const remark = document.getElementById('editRemark').value.trim();
+        showLoader();
+        try {
+            const res = await fetch('@Url.Action("UpdateBillingDate", "ProvisionManagement")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    provisionId: activeEditProvisionId,
+                    estimatedBillingDate: dateVal ? dateVal : null,
+                    remark
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                closeEditModal();
+                toastr.success(data.message || 'Provision updated successfully.');
+                setTimeout(() => location.reload(), 1200);
+            } else {
+                toastr.error(data.message || 'Update failed.');
+            }
+        } catch (e) {
+            toastr.error('An error occurred. Please try again.');
+        } finally {
+            hideLoader();
+        }
+    }
+
+    // Helper: "May-26" → first of next month as "yyyy-MM-dd"
+    function billingMonthToNextInputDate(monthYear) {
+        const monthMap = { Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11 };
+        const parts = (monthYear || '').split('-');
+        if (parts.length === 2 && monthMap[parts[0]] !== undefined) {
+            const d = new Date(2000 + parseInt(parts[1], 10), monthMap[parts[0]], 1);
+            d.setMonth(d.getMonth() + 1);
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-01`;
+        }
+        const now = new Date();
+        now.setMonth(now.getMonth() + 1);
+        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+    }
+
+    // Helper: "May-26" → Date object for the 1st of that month
+    function billingMonthToFirstOfMonth(monthYear) {
+        const monthMap = { Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11 };
+        const parts = (monthYear || '').split('-');
+        if (parts.length === 2 && monthMap[parts[0]] !== undefined)
+            return new Date(2000 + parseInt(parts[1], 10), monthMap[parts[0]], 1);
+        return new Date();
+    }
+
+    // Update Paid Amount
+    function openPayModal(id, name, month, provisionAmt, currentPaid, cfCount, status, isTerminalTarget) {
+        activePayProvisionId = id;
+        activePayProvisionAmt = provisionAmt;
+        activePayBillingMonth = month;
+        activePayCfCount = cfCount || 0;
+        activePayStatus = status || 'Active';
+        activePayIsTerminalTarget = isTerminalTarget === true || isTerminalTarget === 'true';
+        document.getElementById('paySubtitle').textContent = `${name} – ${month}`;
+        activePayCurrentPaid = Number(currentPaid) || 0;
+        document.getElementById('payProvisionAmt').textContent = `₹${Number(provisionAmt).toLocaleString('en-IN')}`;
+        document.getElementById('payCurrentPaid').textContent = `₹${Number(currentPaid).toLocaleString('en-IN')}`;
+        document.getElementById('payCurrentRemaining').textContent = `₹${(Number(provisionAmt) - Number(currentPaid)).toLocaleString('en-IN')}`;
+        document.getElementById('payAmount').value = '';
+        document.getElementById('payRemark').value = '';
+        // Reset remaining action
+        document.querySelectorAll('input[name="payAction"]').forEach(r => { r.checked = r.value === 'none'; });
+        onPayActionChange();
+        updatePayRemainingSection();
+        document.getElementById('payModal').style.display = 'flex';
+    }
+    function closePayModal() {
+        document.getElementById('payModal').style.display = 'none';
+        activePayProvisionId = null;
+        activePayProvisionAmt = 0;
+        activePayCurrentPaid = 0;
+        activePayBillingMonth = null;
+        activePayCfCount = 0;
+        activePayStatus = null;
+        activePayIsTerminalTarget = false;
+    }
+    function updatePayRemainingSection() {
+        const paidRaw = document.getElementById('payAmount').value.trim();
+        const paid = parseFloat(paidRaw);
+        const section = document.getElementById('payRemainingSection');
+        const cfLabel = document.getElementById('payActionCfLabel');
+        const currentRemaining = activePayProvisionAmt - activePayCurrentPaid;
+        const isPartial = !isNaN(paid) && paid > 0 && paid < currentRemaining && paidRaw !== '';
+        if (isPartial) {
+            const rem = currentRemaining - paid;
+            document.getElementById('payRemainingAmt').textContent = `₹${rem.toLocaleString('en-IN')}`;
+            section.style.display = 'block';
+            // Hide CF option when max limit reached OR terminal carry-forward target
+            const hideCf = activePayCfCount >= 3 || activePayIsTerminalTarget;
+            cfLabel.style.display = hideCf ? 'none' : 'flex';
+            // Keep Active is always available; only Change Closer Date is blocked for terminal targets
+            document.getElementById('payActionKeepActiveLabel').style.display = 'flex';
+            // If CF was selected but is now hidden, reset to "none"
+            if (hideCf) {
+                const cfRadio = document.querySelector('input[name="payAction"][value="carryforward"]');
+                if (cfRadio && cfRadio.checked) {
+                    document.querySelector('input[name="payAction"][value="none"]').checked = true;
+                    onPayActionChange();
+                }
+            }
+            // Pre-set CF date min to tomorrow
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const minDate = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth()+1).padStart(2,'0')}-${String(tomorrow.getDate()).padStart(2,'0')}`;
+            const cfDateEl = document.getElementById('payCfDate');
+            cfDateEl.min = minDate;
+            if (!cfDateEl.value || cfDateEl.value < minDate) cfDateEl.value = minDate;
+        } else {
+            section.style.display = 'none';
+        }
+    }
+    function onPayActionChange() {
+        const val = document.querySelector('input[name="payAction"]:checked')?.value || 'none';
+        document.getElementById('payCfDateSection').style.display = val === 'carryforward' ? 'block' : 'none';
+        document.getElementById('payNullifyWarn').style.display = val === 'nullify' ? 'block' : 'none';
+    }
+    async function submitPay() {
+        if (!activePayProvisionId) return;
+        const paidAmtRaw = document.getElementById('payAmount').value.trim();
+        if (paidAmtRaw === '') { toastr.warning('Please enter the payment amount.'); return; }
+        const paidAmt = parseFloat(paidAmtRaw);
+        if (isNaN(paidAmt) || paidAmt <= 0) { toastr.warning('Payment amount must be greater than zero.'); return; }
+        const currentRemaining = activePayProvisionAmt - activePayCurrentPaid;
+        if (paidAmt > currentRemaining) {
+            toastr.warning(`Payment (₹${paidAmt.toLocaleString('en-IN')}) exceeds remaining balance (₹${currentRemaining.toLocaleString('en-IN')}).`);
+            return;
+        }
+        const remark = document.getElementById('payRemark').value.trim();
+        const remaining = currentRemaining - paidAmt;
+
+        let remainingAction = 'none';
+        let carryForwardDate = null;
+
+        if (remaining > 0) {
+            remainingAction = document.querySelector('input[name="payAction"]:checked')?.value || 'none';
+            if (remainingAction === 'carryforward') {
+                carryForwardDate = document.getElementById('payCfDate').value;
+                if (!carryForwardDate) { toastr.warning('Please select a carry forward date.'); return; }
+            }
+        }
+
+        showLoader();
+        try {
+            const res = await fetch('@Url.Action("UpdatePaidAmount", "ProvisionManagement")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ provisionId: activePayProvisionId, paidAmount: paidAmt, remark, remainingAction, carryForwardDate })
+            });
+            const data = await res.json();
+            if (data.success) {
+                closePayModal();
+                toastr.success(data.message || 'Payment recorded successfully.');
+                setTimeout(() => location.reload(), 1200);
+            } else {
+                toastr.error(data.message || 'Payment update failed.');
+            }
+        } catch (e) {
+            toastr.error('An error occurred. Please try again.');
+        } finally {
+            hideLoader();
+        }
+    }
+
+    // History
+    async function openHistory(id, name) {
+        document.getElementById('histSubtitle').textContent = `Provision #${id} – ${name}`;
+        document.getElementById('historyContent').innerHTML = '<div style="text-align:center;padding:2.5rem 0;color:#9ca3af;font-size:.875rem;">Loading…</div>';
+        document.getElementById('historyModal').style.display = 'flex';
+
+        try {
+            const res = await fetch(`@Url.Action("GetHistory", "ProvisionManagement")?provisionId=${id}`);
+            const data = await res.json();
+            if (data.success && data.data && data.data.length > 0) {
+                document.getElementById('historyContent').innerHTML = renderHistory(data.data);
+            } else if (data.success && (!data.data || data.data.length === 0)) {
+                document.getElementById('historyContent').innerHTML = '<div style="text-align:center;padding:2.5rem 0;color:#9ca3af;font-size:.875rem;">No history available for this provision.</div>';
+            } else {
+                document.getElementById('historyContent').innerHTML = '<div style="text-align:center;padding:2.5rem 0;color:#ef4444;font-size:.875rem;">Failed to load history.</div>';
+            }
+        } catch (e) {
+            document.getElementById('historyContent').innerHTML = '<div style="text-align:center;padding:2.5rem 0;color:#ef4444;font-size:.875rem;">Error loading history.</div>';
+        }
+    }
+    function closeHistory() { document.getElementById('historyModal').style.display = 'none'; }
+
+    function renderHistory(items) {
+        const meta = {
+            'CREATED':                { color:'#10b981', bg:'#f0fdf4', label:'Created' },
+            'PAID':                   { color:'#3b82f6', bg:'#eff6ff', label:'Billed' },
+            'CARRIED_FORWARD':        { color:'#f59e0b', bg:'#fffbeb', label:'Closer Date Changed' },
+            'CARRY_FORWARD_RECEIVED': { color:'#a855f7', bg:'#faf5ff', label:'Received via Date Change' },
+            'REVERSED':               { color:'#ef4444', bg:'#fef2f2', label:'Reversed' },
+            'AUTO_REVERSED':          { color:'#dc2626', bg:'#fef2f2', label:'Auto-Reversed' },
+            'UPDATED':                { color:'#0ea5e9', bg:'#f0f9ff', label:'Updated' }
+        };
+
+        return items.map((h, idx) => {
+            const m = meta[h.actionType] || { color:'#6b7280', bg:'#f9fafb', label: h.actionType };
+            const dt = new Date(h.createdDate);
+            const dateStr = dt.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+            const timeStr = dt.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+            const isLast = idx === items.length - 1;
+
+            // Extract target/source month for carry-forward entries
+            let cfMonthBadge = '';
+            let nv = null, ov = null;
+            try {
+                if (h.newValues) nv = JSON.parse(h.newValues);
+                if (h.oldValues) ov = JSON.parse(h.oldValues);
+            } catch(_) {}
+
+            if (h.actionType === 'CARRIED_FORWARD' && nv && nv.TargetMonth) {
+                const dateHint = nv.TargetDate ? `<span style="font-weight:400;opacity:.8;font-size:.62rem;"> · ${nv.TargetDate}</span>` : '';
+                cfMonthBadge = `<span style="display:inline-flex;align-items:center;gap:4px;font-size:.68rem;font-weight:700;color:#92400e;background:#fef3c7;border:1px solid #fcd34d;padding:2px 8px;border-radius:99px;margin-left:4px;">
+                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    ${nv.TargetMonth}${dateHint}
+                </span>`;
+            } else if (h.actionType === 'CARRY_FORWARD_RECEIVED' && nv && nv.MonthYear) {
+                cfMonthBadge = `<span style="display:inline-flex;align-items:center;gap:4px;font-size:.68rem;font-weight:700;color:#6b21a8;background:#faf5ff;border:1px solid #d8b4fe;padding:2px 8px;border-radius:99px;margin-left:4px;">
+                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                    ${nv.MonthYear}
+                </span>`;
+            } else if (h.actionType === 'CREATED' && nv && nv.MonthYear) {
+                cfMonthBadge = `<span style="display:inline-flex;align-items:center;gap:3px;font-size:.68rem;font-weight:700;color:#065f46;background:#ecfdf5;border:1px solid #6ee7b7;padding:2px 8px;border-radius:99px;margin-left:4px;">
+                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    ${nv.MonthYear}
+                </span>`;
+            }
+
+            // Attachment link for carry-forward entries
+            let attachmentHtml = '';
+            if (nv && nv.AttachmentPath) {
+                const fname = nv.AttachmentPath.split('/').pop();
+                attachmentHtml = `<a href="${nv.AttachmentPath}" target="_blank" download style="display:inline-flex;align-items:center;gap:4px;font-size:.7rem;font-weight:600;color:#0ea5e9;background:#f0f9ff;border:1px solid #bae6fd;padding:3px 9px;border-radius:99px;margin-top:6px;text-decoration:none;">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    ${fname}
+                </a>`;
+            }
+
+            let changeHtml = '';
+            if (ov || nv) {
+                // For carry-forward, hide TargetMonth/MonthYear/AttachmentPath from AFTER card (shown separately)
+                const nvDisplay = nv ? Object.fromEntries(Object.entries(nv).filter(([k]) => k !== 'TargetMonth' && k !== 'TargetDate' && k !== 'MonthYear' && k !== 'AttachmentPath')) : null;
+                const hasOv = ov && Object.keys(ov).length > 0;
+                const hasNv = nvDisplay && Object.keys(nvDisplay).length > 0;
+                if (hasOv || hasNv) {
+                    changeHtml = `<div style="display:flex;gap:6px;margin-top:7px;flex-wrap:wrap;">`;
+                    if (hasOv) changeHtml += `<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:6px;padding:5px 8px;font-size:11px;color:#991b1b;flex:1;min-width:130px;"><div style="font-weight:700;margin-bottom:3px;font-size:10px;text-transform:uppercase;letter-spacing:.04em;">Before</div>${formatSnapRows(ov)}</div>`;
+                    if (hasNv) changeHtml += `<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:5px 8px;font-size:11px;color:#166534;flex:1;min-width:130px;"><div style="font-weight:700;margin-bottom:3px;font-size:10px;text-transform:uppercase;letter-spacing:.04em;">After</div>${formatSnapRows(nvDisplay)}</div>`;
+                    changeHtml += `</div>`;
+                }
+            }
+
+            return `
+<div style="position:relative;padding-left:1.75rem;padding-bottom:${isLast?'0':'1.5rem'};">
+  ${!isLast ? `<div style="position:absolute;left:.4rem;top:1.1rem;bottom:0;width:2px;background:#e5e7eb;"></div>` : ''}
+  <div style="position:absolute;left:0;top:.25rem;width:.85rem;height:.85rem;border-radius:50%;background:${m.color};border:2px solid white;box-shadow:0 0 0 2px ${m.color}33;"></div>
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+    <div style="display:flex;align-items:center;flex-wrap:wrap;gap:2px;">
+      <span style="display:inline-block;font-size:.7rem;font-weight:700;color:${m.color};background:${m.bg};border:1px solid ${m.color}44;padding:2px 8px;border-radius:99px;letter-spacing:.02em;">${m.label}</span>
+      ${cfMonthBadge}
+    </div>
+    <span style="font-size:.68rem;color:#9ca3af;white-space:nowrap;padding-top:2px;">${dateStr} · ${timeStr}</span>
+  </div>
+  <p style="font-size:.72rem;color:#6b7280;margin:.3rem 0 0;">
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:middle;margin-right:2px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <strong style="color:#374151;">${h.actionBy || 'System'}</strong>
+  </p>
+  ${h.remark ? `<p style="font-size:.72rem;color:#4b5563;margin:.3rem 0 0;font-style:italic;padding-left:.5rem;border-left:2px solid ${m.color}66;">"${h.remark}"</p>` : ''}
+  ${changeHtml}
+  ${attachmentHtml}
+</div>`;
+        }).join('');
+    }
+
+    function formatSnapRows(obj) {
+        const labels = {
+            Status:'Status', Amount:'Amount', PaidAmount:'Billed', PaymentAmount:'This Billing',
+            TotalPaid:'Total Billed', RemainingAmount:'Remaining',
+            CarryForwardCount:'CD Count', EstimatedBillingDate:'Closer Date',
+            MonthYear:'Month', TargetMonth:'To Month', TargetDate:'New Closer Date', Costing:'Amount'
+        };
+        const amtKeys = new Set(['Amount','PaidAmount','PaymentAmount','TotalPaid','RemainingAmount','Costing']);
+        return Object.entries(obj).map(([k, v]) => {
+            const lbl = labels[k] || k;
+            const val = amtKeys.has(k) ? `₹${Number(v).toLocaleString('en-IN')}` : v;
+            return `<div style="display:flex;justify-content:space-between;gap:4px;"><span style="opacity:.75;">${lbl}</span><strong>${val}</strong></div>`;
+        }).join('');
+    }
+
+    function showLoader() { document.getElementById('loader')?.style && (document.getElementById('loader').style.display = 'flex'); }
+    function hideLoader() { document.getElementById('loader')?.style && (document.getElementById('loader').style.display = 'none'); }
+</script>
+}

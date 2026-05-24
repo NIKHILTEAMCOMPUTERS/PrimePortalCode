@@ -1,0 +1,277 @@
+@model IEnumerable<RMS.Client.Models.Master.ProvisionManagementItem>
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "Provision Financial Report";
+    var monthYear = ViewBag.MonthYear as string ?? "";
+}
+
+@section PageStyles {
+<style>
+    .status-badge { display:inline-flex;align-items:center;padding:.15rem .55rem;border-radius:9999px;font-size:.7rem;font-weight:600; }
+    .status-active        { background:#dcfce7;color:#166534; }
+    .status-carriedforward{ background:#fef9c3;color:#713f12; }
+    .status-reversed      { background:#fee2e2;color:#991b1b; }
+    .status-settled       { background:#dbeafe;color:#1e3a8a; }
+    .cf-badge { display:inline-flex;align-items:center;justify-content:center;width:1.5rem;height:1.5rem;border-radius:50%;font-size:.68rem;font-weight:700; }
+    .cf-0{background:#f3f4f6;color:#6b7280;} .cf-1{background:#fef9c3;color:#92400e;} .cf-2{background:#fed7aa;color:#9a3412;} .cf-3{background:#fee2e2;color:#991b1b;}
+</style>
+}
+
+<div class="px-6 py-5">
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+        <div>
+            <h1 class="text-xl font-semibold text-gray-800">Provision Financial Report</h1>
+            <p class="text-sm text-gray-500 mt-0.5">Month-wise provision data with financial summary</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <label class="text-sm font-medium text-gray-600">Month</label>
+            <input type="month" id="monthPicker" value="@ViewBag.SelectedMonth"
+                   class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400" />
+            <button onclick="changeMonth()" class="bg-emerald-500 hover:bg-emerald-600 text-white text-sm px-4 py-1.5 rounded-lg transition">Load</button>
+        </div>
+    </div>
+
+    @{
+        var activeSummary = Model.Where(x => x.ProvisionStatus == "Active" || x.ProvisionStatus == "Settled");
+        var totalProvision = activeSummary.Sum(x => x.ProvisionAmount);
+        var totalPaid = Model.Where(x => x.ProvisionStatus != "CarriedForward").Sum(x => x.PaidAmount);
+        var totalRemaining = activeSummary.Sum(x => x.RemainingAmount);
+        var active = Model.Count(x => x.ProvisionStatus == "Active");
+        var carried = Model.Count(x => x.ProvisionStatus == "CarriedForward");
+        var reversed = Model.Count(x => x.ProvisionStatus == "Reversed");
+        var settled = Model.Count(x => x.ProvisionStatus == "Settled");
+    }
+    <div class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-3 mb-5">
+        <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+            <p class="text-xs text-gray-500 mb-1">Total</p>
+            <p class="text-2xl font-bold text-gray-800">@Model.Count()</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-4 border border-green-100">
+            <p class="text-xs text-gray-500 mb-1">Active</p>
+            <p class="text-2xl font-bold text-green-600">@active</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-4 border border-yellow-100">
+            <p class="text-xs text-gray-500 mb-1">Carried Fwd</p>
+            <p class="text-2xl font-bold text-yellow-600">@carried</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-4 border border-red-100">
+            <p class="text-xs text-gray-500 mb-1">Reversed</p>
+            <p class="text-2xl font-bold text-red-600">@reversed</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-4 border border-blue-100">
+            <p class="text-xs text-gray-500 mb-1">Settled</p>
+            <p class="text-2xl font-bold text-blue-600">@settled</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+            <p class="text-xs text-gray-500 mb-1">Total Provision</p>
+            <p class="text-sm font-bold text-gray-800">₹@totalProvision.ToString("N0")</p>
+            <p class="text-xs text-green-600 font-medium">Paid: ₹@totalPaid.ToString("N0")</p>
+            <p class="text-xs text-red-600 font-medium">Rem: ₹@totalRemaining.ToString("N0")</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-4 border-b border-gray-100 flex flex-wrap justify-between items-center gap-3">
+            <span class="text-sm font-medium text-gray-700">Provision List — @monthYear</span>
+            <button onclick="exportProvisionReport()" class="text-xs bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-3 py-1 rounded-lg transition">Export Excel</button>
+        </div>
+        <div class="overflow-x-auto">
+            <table id="provReportTable" class="w-full text-sm">
+                <thead class="bg-gray-50 text-gray-600 uppercase text-xs">
+                    <tr>
+                        <th class="px-3 py-3 text-left">Resource</th>
+                        <th class="px-3 py-3 text-left">Acct Mgr</th>
+                        <th class="px-3 py-3 text-left">Customer</th>
+                        <th class="px-3 py-3 text-left">Project</th>
+                        <th class="px-3 py-3 text-left">Type</th>
+                        <th class="px-3 py-3 text-left">DA</th>
+                        <th class="px-3 py-3 text-left">Month</th>
+                        <th class="px-3 py-3 text-left">Est. Billing</th>
+                        <th class="px-3 py-3 text-right">Topline</th>
+                        <th class="px-3 py-3 text-right">Provision</th>
+                        <th class="px-3 py-3 text-right">Paid</th>
+                        <th class="px-3 py-3 text-right">Remaining</th>
+                        <th class="px-3 py-3 text-center">CF</th>
+                        <th class="px-3 py-3 text-center">Status</th>
+                        <th class="px-3 py-3 text-center">History</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        string sc = item.ProvisionStatus switch {
+                            "Active" => "status-active", "CarriedForward" => "status-carriedforward",
+                            "Reversed" => "status-reversed", "Settled" => "status-settled", _ => "status-active"
+                        };
+                        string cfClass = item.CarryForwardCount switch { 0 => "cf-0", 1 => "cf-1", 2 => "cf-2", _ => "cf-3" };
+                        string sl = item.ProvisionStatus == "CarriedForward" ? "Carried Fwd" : item.ProvisionStatus;
+                        <tr class="border-t border-gray-100 hover:bg-gray-50 transition">
+                            <td class="px-3 py-2.5">
+                                <div class="font-medium text-gray-800">@item.ResourceName</div>
+                                <div class="text-xs text-gray-400">@item.TmcId</div>
+                            </td>
+                            <td class="px-3 py-2.5 text-gray-600 text-xs max-w-[110px] truncate" title="@item.AccountManager">@(item.AccountManager ?? "—")</td>
+                            <td class="px-3 py-2.5 text-gray-600 text-xs max-w-[130px] truncate" title="@item.CustomerName">@item.CustomerName</td>
+                            <td class="px-3 py-2.5 text-gray-600 text-xs max-w-[130px] truncate" title="@item.ProjectName">@item.ProjectName</td>
+                            <td class="px-3 py-2.5 text-gray-500 text-xs whitespace-nowrap">@(item.ProjectType ?? "—")</td>
+                            <td class="px-3 py-2.5 text-gray-600 text-xs max-w-[100px] truncate" title="@item.DeliveryAnchor">@(item.DeliveryAnchor ?? "—")</td>
+                            <td class="px-3 py-2.5 text-gray-600 text-xs whitespace-nowrap">@item.BillingMonthYear</td>
+                            <td class="px-3 py-2.5 text-gray-500 text-xs whitespace-nowrap">
+                                @(item.EstimatedBillingDate.HasValue ? item.EstimatedBillingDate.Value.ToString("dd/MM/yy") : "—")
+                            </td>
+                            <td class="px-3 py-2.5 text-right text-xs text-gray-700 whitespace-nowrap">
+                                @(item.ToplineBillingAmt.HasValue ? "₹" + item.ToplineBillingAmt.Value.ToString("N0") : "—")
+                            </td>
+                            <td class="px-3 py-2.5 text-right font-semibold text-gray-800 whitespace-nowrap">₹@item.ProvisionAmount.ToString("N0")</td>
+                            <td class="px-3 py-2.5 text-right text-green-600 font-medium whitespace-nowrap">₹@item.PaidAmount.ToString("N0")</td>
+                            <td class="px-3 py-2.5 text-right font-medium whitespace-nowrap @(item.RemainingAmount > 0 ? "text-red-600" : "text-gray-400")">
+                                ₹@item.RemainingAmount.ToString("N0")
+                            </td>
+                            <td class="px-3 py-2.5 text-center">
+                                <span class="cf-badge @cfClass">@item.CarryForwardCount</span>
+                            </td>
+                            <td class="px-3 py-2.5 text-center">
+                                <span class="status-badge @sc">@sl</span>
+                            </td>
+                            <td class="px-3 py-2.5 text-center">
+                                <button onclick="openHistory(@item.ProvisionId, '@item.ResourceName')"
+                                        style="display:inline-flex;align-items:center;gap:3px;padding:4px 8px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid #818cf8;color:#4338ca;background:#f5f3ff;">
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                    History
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr><td colspan="15" class="px-3 py-10 text-center text-gray-400">No provisions found for the selected month.</td></tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr class="bg-gray-50 font-semibold text-gray-700 border-t-2 border-gray-200">
+                        <td class="px-3 py-2.5 text-xs" colspan="9">Totals (Provision: Active+Settled · Paid: all)</td>
+                        <td class="px-3 py-2.5 text-right text-xs whitespace-nowrap">₹@totalProvision.ToString("N0")</td>
+                        <td class="px-3 py-2.5 text-right text-xs text-green-600 whitespace-nowrap">₹@totalPaid.ToString("N0")</td>
+                        <td class="px-3 py-2.5 text-right text-xs text-red-600 whitespace-nowrap">₹@totalRemaining.ToString("N0")</td>
+                        <td colspan="3"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- History Modal -->
+<div id="historyModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.45);align-items:center;justify-content:center;padding:1rem;"
+     onclick="if(event.target===this)closeHistory()">
+    <div style="background:white;border-radius:.875rem;box-shadow:0 25px 60px rgba(0,0,0,.25);width:100%;max-width:40rem;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;"
+         onclick="event.stopPropagation()">
+        <div style="padding:1rem 1.25rem;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:#f9fafb;">
+            <div style="display:flex;align-items:center;gap:.625rem;">
+                <div style="background:#eef2ff;border-radius:50%;padding:7px;display:flex;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4338ca" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+                <div>
+                    <h2 style="font-size:.95rem;font-weight:700;color:#111827;margin:0;">Provision History</h2>
+                    <p style="font-size:.75rem;color:#6b7280;margin:0;" id="histSubtitle"></p>
+                </div>
+            </div>
+            <button onclick="closeHistory()" style="background:none;border:none;cursor:pointer;font-size:1.4rem;color:#9ca3af;line-height:1;padding:2px 6px;border-radius:4px;">&times;</button>
+        </div>
+        <div id="historyContent" style="overflow-y:auto;flex:1;padding:1.25rem 1.25rem 1rem;">
+            <div style="text-align:center;padding:2.5rem 0;color:#9ca3af;font-size:.875rem;">Loading…</div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var el = document.getElementById('historyModal');
+        if (el) document.body.appendChild(el);
+
+        if ($.fn.DataTable && $('#provReportTable tbody tr').length > 1) {
+            $('#provReportTable').DataTable({ pageLength: 25, scrollX: true, columnDefs: [{ orderable: false, targets: 14 }] });
+        }
+    });
+
+    function changeMonth() {
+        const val = document.getElementById('monthPicker').value;
+        if (!val) return;
+        window.location.href = `?date=${encodeURIComponent(val + '-01')}`;
+    }
+    document.getElementById('monthPicker').addEventListener('keydown', e => { if (e.key === 'Enter') changeMonth(); });
+
+    function exportProvisionReport() {
+        if ($.fn.DataTable) { $('#provReportTable').DataTable().button('.buttons-excel')?.trigger(); }
+    }
+
+    async function openHistory(id, name) {
+        document.getElementById('histSubtitle').textContent = `Provision #${id} – ${name}`;
+        document.getElementById('historyContent').innerHTML = '<div style="text-align:center;padding:2.5rem 0;color:#9ca3af;font-size:.875rem;">Loading…</div>';
+        document.getElementById('historyModal').style.display = 'flex';
+        try {
+            const res = await fetch(`@Url.Action("GetHistory", "ProvisionManagement")?provisionId=${id}`);
+            const data = await res.json();
+            if (data.success && data.data && data.data.length > 0) {
+                document.getElementById('historyContent').innerHTML = renderHistory(data.data);
+            } else if (data.success) {
+                document.getElementById('historyContent').innerHTML = '<div style="text-align:center;padding:2.5rem 0;color:#9ca3af;font-size:.875rem;">No history available.</div>';
+            } else {
+                document.getElementById('historyContent').innerHTML = '<div style="text-align:center;padding:2.5rem 0;color:#ef4444;font-size:.875rem;">Failed to load history.</div>';
+            }
+        } catch (e) {
+            document.getElementById('historyContent').innerHTML = '<div style="text-align:center;padding:2.5rem 0;color:#ef4444;font-size:.875rem;">Error loading history.</div>';
+        }
+    }
+    function closeHistory() { document.getElementById('historyModal').style.display = 'none'; }
+
+    function renderHistory(items) {
+        const meta = {
+            'CREATED':{ color:'#10b981',bg:'#f0fdf4',label:'Created' },
+            'PAID':{ color:'#3b82f6',bg:'#eff6ff',label:'Payment Updated' },
+            'CARRIED_FORWARD':{ color:'#f59e0b',bg:'#fffbeb',label:'Carried Forward' },
+            'CARRY_FORWARD_RECEIVED':{ color:'#a855f7',bg:'#faf5ff',label:'CF Received' },
+            'REVERSED':{ color:'#ef4444',bg:'#fef2f2',label:'Nullified' },
+            'AUTO_REVERSED':{ color:'#dc2626',bg:'#fef2f2',label:'Auto-Nullified' },
+            'UPDATED':{ color:'#0ea5e9',bg:'#f0f9ff',label:'Updated' }
+        };
+        return items.map((h, idx) => {
+            const m = meta[h.actionType] || { color:'#6b7280',bg:'#f9fafb',label:h.actionType };
+            const dt = new Date(h.createdDate);
+            const dateStr = dt.toLocaleDateString('en-IN',{ day:'2-digit',month:'short',year:'numeric' });
+            const timeStr = dt.toLocaleTimeString('en-IN',{ hour:'2-digit',minute:'2-digit' });
+            const isLast = idx === items.length - 1;
+            let nv = null, ov = null;
+            try { if (h.newValues) nv = JSON.parse(h.newValues); if (h.oldValues) ov = JSON.parse(h.oldValues); } catch(_) {}
+            let badge = '';
+            if (h.actionType === 'CARRIED_FORWARD' && nv?.TargetMonth) badge = `<span style="font-size:.68rem;font-weight:700;color:#92400e;background:#fef3c7;border:1px solid #fcd34d;padding:2px 8px;border-radius:99px;margin-left:4px;">${nv.TargetMonth}</span>`;
+            else if (h.actionType === 'CARRY_FORWARD_RECEIVED' && nv?.MonthYear) badge = `<span style="font-size:.68rem;font-weight:700;color:#6b21a8;background:#faf5ff;border:1px solid #d8b4fe;padding:2px 8px;border-radius:99px;margin-left:4px;">${nv.MonthYear}</span>`;
+            else if (h.actionType === 'CREATED' && nv?.MonthYear) badge = `<span style="font-size:.68rem;font-weight:700;color:#065f46;background:#ecfdf5;border:1px solid #6ee7b7;padding:2px 8px;border-radius:99px;margin-left:4px;">${nv.MonthYear}</span>`;
+            let attachHtml = '';
+            if (nv?.AttachmentPath) { const fn = nv.AttachmentPath.split('/').pop(); attachHtml = `<a href="${nv.AttachmentPath}" target="_blank" download style="display:inline-flex;align-items:center;gap:4px;font-size:.7rem;font-weight:600;color:#0ea5e9;background:#f0f9ff;border:1px solid #bae6fd;padding:3px 9px;border-radius:99px;margin-top:6px;text-decoration:none;">⬇ ${fn}</a>`; }
+            const nvDisplay = nv ? Object.fromEntries(Object.entries(nv).filter(([k]) => !['TargetMonth','MonthYear','AttachmentPath'].includes(k))) : null;
+            const hasOv = ov && Object.keys(ov).length > 0; const hasNv = nvDisplay && Object.keys(nvDisplay).length > 0;
+            let changeHtml = '';
+            if (hasOv || hasNv) {
+                changeHtml = `<div style="display:flex;gap:6px;margin-top:7px;flex-wrap:wrap;">`;
+                if (hasOv) changeHtml += `<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:6px;padding:5px 8px;font-size:11px;color:#991b1b;flex:1;min-width:130px;"><div style="font-weight:700;margin-bottom:3px;font-size:10px;text-transform:uppercase;">Before</div>${Object.entries(ov).map(([k,v])=>`<div style="display:flex;justify-content:space-between;gap:4px;"><span style="opacity:.75;">${k}</span><strong>${v}</strong></div>`).join('')}</div>`;
+                if (hasNv) changeHtml += `<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:5px 8px;font-size:11px;color:#166534;flex:1;min-width:130px;"><div style="font-weight:700;margin-bottom:3px;font-size:10px;text-transform:uppercase;">After</div>${Object.entries(nvDisplay).map(([k,v])=>`<div style="display:flex;justify-content:space-between;gap:4px;"><span style="opacity:.75;">${k}</span><strong>${v}</strong></div>`).join('')}</div>`;
+                changeHtml += `</div>`;
+            }
+            return `<div style="position:relative;padding-left:1.75rem;padding-bottom:${isLast?'0':'1.5rem'};">
+  ${!isLast ? `<div style="position:absolute;left:.4rem;top:1.1rem;bottom:0;width:2px;background:#e5e7eb;"></div>` : ''}
+  <div style="position:absolute;left:0;top:.25rem;width:.85rem;height:.85rem;border-radius:50%;background:${m.color};border:2px solid white;box-shadow:0 0 0 2px ${m.color}33;"></div>
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+    <div><span style="font-size:.7rem;font-weight:700;color:${m.color};background:${m.bg};border:1px solid ${m.color}44;padding:2px 8px;border-radius:99px;">${m.label}</span>${badge}</div>
+    <span style="font-size:.68rem;color:#9ca3af;white-space:nowrap;">${dateStr} · ${timeStr}</span>
+  </div>
+  <p style="font-size:.72rem;color:#6b7280;margin:.3rem 0 0;"><strong style="color:#374151;">${h.actionBy || 'System'}</strong></p>
+  ${h.remark ? `<p style="font-size:.72rem;color:#4b5563;margin:.3rem 0 0;font-style:italic;padding-left:.5rem;border-left:2px solid ${m.color}66;">"${h.remark}"</p>` : ''}
+  ${changeHtml}${attachHtml}
+</div>`;
+        }).join('');
+    }
+</script>
+}

@@ -39,7 +39,6 @@ namespace RMS.Client.Models.Master
         public string? Status { get; set; }
         public int? Statusid { get; set; }
         public bool isrevised { get; set; }
-
     }
 
     public class ViewModalReport
