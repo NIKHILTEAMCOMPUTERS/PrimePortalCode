@@ -216,7 +216,7 @@ namespace RMS.Service.Repositories.Master
             }
         }
 
-        public async Task<List<rptContractBillingProvisionDto>> GetReportByMonthYearProcedureProvision(string monthyear, int? DeliveryAnchorId )
+        public async Task<List<rptContractBillingProvisionDto>> GetReportByMonthYearProcedureProvision(string monthyear, int? DeliveryAnchorId)
         {
             try
             {
@@ -232,9 +232,6 @@ namespace RMS.Service.Repositories.Master
             catch (Exception ex)
             {
                 throw;
-
-
-
             }
         }
         public async Task<List<rptContractBillingActualMapperDto>> GetReportByMonthYearProcedureActualBilling(string monthyear, int? DeliveryAnchorId)

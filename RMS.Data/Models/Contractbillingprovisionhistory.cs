@@ -41,6 +41,12 @@ public partial class Contractbillingprovisionhistory
 
     public decimal? Oldcosting { get; set; }
 
+    // Provision Management columns
+    public string? ActionType { get; set; }
+    public string? ActionBy { get; set; }
+    public string? OldValues { get; set; }
+    public string? NewValues { get; set; }
+
     public virtual Contractbillingprovesion? Contractbillingprovesion { get; set; }
 
     public virtual Probillapprl? Probillapprl { get; set; }

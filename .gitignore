@@ -427,3 +427,10 @@ FodyWeavers.xsd
 /RMS/wwwroot/AppLogs/log20240906.txt
 /RMS/wwwroot/AppLogs/log20240909.txt
 /RMS/wwwroot/AppLogs/log20240911.txt
+
+# Runtime logs and temp files
+RMS/wwwroot/AppLogs/
+RMS/wwwroot/temp/
+
+# Claude AI workspace
+.claude/

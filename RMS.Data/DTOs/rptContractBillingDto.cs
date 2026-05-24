@@ -62,7 +62,6 @@ namespace RMS.Data.DTOs
         public decimal? recievedbillingamount { get; set; }
         public bool? isbilled { get; set; }
         public DateTime? estimatedbillingdate { get; set; }
-
     }
     public class rptContractBillingActualDto
     {

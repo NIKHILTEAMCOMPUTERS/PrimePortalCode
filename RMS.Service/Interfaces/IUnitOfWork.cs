@@ -1,6 +1,7 @@
 ﻿using RMS.Service.Interfaces.Master;
 using RMS.Service.Interfaces.RBAC;
 using RMS.Service.Interfaces.Timesheets;
+using RMS.Service.Interfaces.Transection;
 
 namespace RMS.Service.Interfaces
 {
@@ -38,8 +39,9 @@ namespace RMS.Service.Interfaces
         ITimesheetRepository TimesheetRepository { get; }
        
         IAccountManagerRepository AccountManagerRepository { get; } 
-       IReportRepository ReportRepository { get; }  
-        IProjectionRepository ProjectionRepository { get; } 
+       IReportRepository ReportRepository { get; }
+        IProjectionRepository ProjectionRepository { get; }
+        IProvisionManagementRepository ProvisionManagementRepository { get; }
        
       
         Task<bool> Complete();

@@ -1119,6 +1119,9 @@ public partial class RmsDevContext : DbContext
             entity.Property(e => e.Swapingdate)
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("swapingdate");
+            entity.Property(e => e.CarryForwardCount).HasColumnName("carryforwardcount").HasDefaultValue(0);
+            entity.Property(e => e.CarryForwardFromId).HasColumnName("carryforwardfromid");
+            entity.Property(e => e.ProvisionStatus).HasColumnName("provisionstatus").HasDefaultValue("Active");
 
             entity.HasOne(d => d.Contractemployee).WithMany(p => p.Contractbillingprovesions)
                 .HasForeignKey(d => d.Contractemployeeid)
@@ -1213,6 +1216,10 @@ public partial class RmsDevContext : DbContext
             entity.Property(e => e.Remark).HasColumnName("remark");
             entity.Property(e => e.Revisionnumber).HasColumnName("revisionnumber");
             entity.Property(e => e.Statusid).HasColumnName("statusid");
+            entity.Property(e => e.ActionType).HasColumnName("actiontype");
+            entity.Property(e => e.ActionBy).HasColumnName("actionby");
+            entity.Property(e => e.OldValues).HasColumnName("oldvalues");
+            entity.Property(e => e.NewValues).HasColumnName("newvalues");
 
             entity.HasOne(d => d.Contractbillingprovesion).WithMany(p => p.Contractbillingprovisionhistories)
                 .HasForeignKey(d => d.Contractbillingprovesionid)

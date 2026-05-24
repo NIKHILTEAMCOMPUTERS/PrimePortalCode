@@ -45,6 +45,11 @@ public partial class Contractbillingprovesion
 
     public DateTime? Swapingdate { get; set; }
 
+    // Provision Management columns
+    public int CarryForwardCount { get; set; }
+    public int? CarryForwardFromId { get; set; }
+    public string ProvisionStatus { get; set; } = "Active";
+
     public virtual ICollection<ContractbillingprovesionToContractbillingHistory> ContractbillingprovesionToContractbillingHistories { get; set; } = new List<ContractbillingprovesionToContractbillingHistory>();
 
     public virtual ICollection<Contractbillingprovisionhistory> Contractbillingprovisionhistories { get; set; } = new List<Contractbillingprovisionhistory>();

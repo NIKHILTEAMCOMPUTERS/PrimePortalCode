@@ -12,6 +12,8 @@ using RMS.Service.Interfaces.Timesheets;
 using RMS.Service.Repositories.Master;
 using RMS.Service.Repositories.RBAC;
 using RMS.Service.Repositories.Timesheets;
+using RMS.Service.Repositories.Transection;
+using RMS.Service.Interfaces.Transection;
 
 namespace RMS.Service
 {
@@ -72,7 +74,8 @@ namespace RMS.Service
         public ITimesheetRepository TimesheetRepository => new TimesheetRepository(_context, _config, _env);
         public IAccountManagerRepository AccountManagerRepository => new AccountManagerRepository(_context); 
         public IReportRepository ReportRepository => new ReportRepository(_context, _env, _httpContextAccessor);
-        public IProjectionRepository ProjectionRepository=>new ProjectionRepository(_context,_env);   
+        public IProjectionRepository ProjectionRepository=>new ProjectionRepository(_context,_env);
+        public IProvisionManagementRepository ProvisionManagementRepository => new ProvisionManagementRepository(_context, _env, _httpContextAccessor);
        
 
     
