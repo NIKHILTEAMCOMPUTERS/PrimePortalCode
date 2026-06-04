@@ -162,6 +162,32 @@
         </div>
     </div>
 
+    <!-- Update Document No Panel -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-4">
+        <div class="flex flex-wrap items-end gap-3">
+            <div>
+                <label style="font-size:.7rem;font-weight:600;color:#6b7280;display:block;margin-bottom:3px;">MONTH / YEAR</label>
+                <input type="month" id="docNoMonth" value="@ViewBag.SelectedMonth"
+                       style="font-size:.8rem;border:1px solid #d1d5db;border-radius:.5rem;padding:5px 10px;color:#374151;" />
+            </div>
+            <div>
+                <label style="font-size:.7rem;font-weight:600;color:#6b7280;display:block;margin-bottom:3px;">PO NUMBER</label>
+                <input type="text" id="docNoPo" placeholder="e.g. YL8/450061201"
+                       style="font-size:.8rem;border:1px solid #d1d5db;border-radius:.5rem;padding:5px 10px;color:#374151;width:200px;" />
+            </div>
+            <div>
+                <label style="font-size:.7rem;font-weight:600;color:#6b7280;display:block;margin-bottom:3px;">DOCUMENT NO</label>
+                <input type="text" id="docNoValue" placeholder="e.g. INV-2026-0012"
+                       style="font-size:.8rem;border:1px solid #d1d5db;border-radius:.5rem;padding:5px 10px;color:#374151;width:180px;" />
+            </div>
+            <button onclick="submitDocumentNo()"
+                    style="padding:6px 16px;border-radius:.5rem;font-size:.8rem;font-weight:600;cursor:pointer;border:1px solid #6366f1;color:#4338ca;background:#f5f3ff;">
+                Update
+            </button>
+            <span id="docNoStatus" style="font-size:.75rem;display:none;"></span>
+        </div>
+    </div>
+
     <!-- Table -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="p-4 border-b border-gray-100 flex flex-wrap justify-between items-center gap-3">
@@ -200,6 +226,7 @@
                         <th class="px-3 py-3 text-left">PO's</th>
                         <th class="px-3 py-3 text-left">Project No.</th>
                         <th class="px-3 py-3 text-left">Contract No.</th>
+                        <th class="px-3 py-3 text-left">Doc No.</th>
                         <th class="px-3 py-3 text-left">Closer Date</th>
                         <th class="px-3 py-3 text-right">Provision Amt</th>
                         <th class="px-3 py-3 text-right">Billed Amt</th>
@@ -263,6 +290,16 @@
                             <td class="px-3 py-2.5 text-gray-500 text-xs whitespace-nowrap">@(item.PoNumber ?? "—")</td>
                             <td class="px-3 py-2.5 text-gray-500 text-xs whitespace-nowrap">@(item.ProjectNo ?? "—")</td>
                             <td class="px-3 py-2.5 text-gray-500 text-xs whitespace-nowrap">@(item.ContractNo ?? "—")</td>
+                            <td class="px-3 py-2.5 text-xs whitespace-nowrap" title="@item.DocumentNo">
+                                @if (!string.IsNullOrEmpty(item.DocumentNo))
+                                {
+                                    <span style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;padding:2px 7px;border-radius:99px;font-size:.7rem;font-weight:600;">@item.DocumentNo</span>
+                                }
+                                else
+                                {
+                                    <span style="color:#d1d5db;">—</span>
+                                }
+                            </td>
                             <td class="px-3 py-2.5 text-gray-500 text-xs whitespace-nowrap">
                                 @(item.EstimatedBillingDate.HasValue ? item.EstimatedBillingDate.Value.ToString("dd/MM/yy") : "—")
                             </td>
@@ -490,7 +527,7 @@
     // Status filter
     function filterByStatus(val) {
         if ($.fn.DataTable) {
-            $('#provisionTable').DataTable().column(21).search(val ? '^' + val.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') + '$' : '', true, false).draw();
+            $('#provisionTable').DataTable().column(22).search(val ? '^' + val.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') + '$' : '', true, false).draw();
         } else {
             // Fallback: show/hide rows directly
             const rows = document.querySelectorAll('#provisionTable tbody tr');
@@ -508,6 +545,50 @@
             dt.button('.buttons-excel')?.trigger();
         } else {
             alert('Export not available.');
+        }
+    }
+
+    // Update Document No
+    async function submitDocumentNo() {
+        const monthInput = document.getElementById('docNoMonth').value;   // yyyy-MM
+        const po = document.getElementById('docNoPo').value.trim();
+        const docNo = document.getElementById('docNoValue').value.trim();
+        const statusEl = document.getElementById('docNoStatus');
+
+        if (!monthInput || !po) {
+            statusEl.textContent = 'Month/Year and PO Number are required.';
+            statusEl.style.color = '#dc2626';
+            statusEl.style.display = 'inline';
+            return;
+        }
+
+        // Convert yyyy-MM → MMM-yy (e.g. "2026-06" → "Jun-26")
+        const [yr, mo] = monthInput.split('-');
+        const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        const monthYear = `${monthNames[parseInt(mo,10)-1]}-${yr.slice(2)}`;
+
+        statusEl.textContent = 'Updating…';
+        statusEl.style.color = '#6b7280';
+        statusEl.style.display = 'inline';
+
+        try {
+            const resp = await fetch('@Url.Action("UpdateDocumentNo","ProvisionManagement")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || '' },
+                body: JSON.stringify({ monthYear, poNumber: po, documentNo: docNo || null })
+            });
+            const json = await resp.json();
+            if (json.success) {
+                statusEl.textContent = '✓ ' + json.message;
+                statusEl.style.color = '#16a34a';
+                setTimeout(() => location.reload(), 1200);
+            } else {
+                statusEl.textContent = '✗ ' + json.message;
+                statusEl.style.color = '#dc2626';
+            }
+        } catch {
+            statusEl.textContent = 'Network error.';
+            statusEl.style.color = '#dc2626';
         }
     }
 

@@ -35,6 +35,7 @@ namespace RMS.Client.Models.Master
         public DateTime? CarriedForwardToDate { get; set; }
         public bool HasHistory { get; set; }
         public bool IsTerminalTarget { get; set; }
+        public string? DocumentNo { get; set; }
     }
 
     public class ProvisionHistoryItem
@@ -71,5 +72,12 @@ namespace RMS.Client.Models.Master
         public string? Remark { get; set; }
         public string? RemainingAction { get; set; }   // "none" | "carryforward" | "nullify"
         public string? CarryForwardDate { get; set; }  // yyyy-MM-dd, used when RemainingAction == "carryforward"
+    }
+
+    public class UpdateDocumentNoRequest
+    {
+        public string MonthYear { get; set; }
+        public string PoNumber { get; set; }
+        public string? DocumentNo { get; set; }
     }
 }

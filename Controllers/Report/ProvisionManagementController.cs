@@ -182,6 +182,23 @@ namespace RMS.Client.Controllers.Reporting
         }
 
         [HttpPost]
+        public async Task<IActionResult> UpdateDocumentNo([FromBody] UpdateDocumentNoRequest request)
+        {
+            if (!WritePermission)
+                return Json(new { success = false, message = "You do not have permission to update document numbers." });
+
+            if (request == null || string.IsNullOrWhiteSpace(request.MonthYear) || string.IsNullOrWhiteSpace(request.PoNumber))
+                return Json(new { success = false, message = "Month/Year and PO Number are required." });
+
+            string url = $"{_configuration["ServiceUrl"].Trim()}/api/ProvisionManagement/update-document-no";
+            _apiManager = new ApiManager(url, Session.Token);
+            var (code, content) = await _apiManager.PostJson(JsonConvert.SerializeObject(request));
+
+            var response = ParseResponse(code, content);
+            return Json(response);
+        }
+
+        [HttpPost]
         public async Task<IActionResult> Reverse([FromBody] ProvisionActionRequest request)
         {
             if (!WritePermission)
