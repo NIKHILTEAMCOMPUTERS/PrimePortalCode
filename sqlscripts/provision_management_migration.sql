@@ -14,7 +14,7 @@ BEGIN;
 
 -- ---------------------------------------------------------------------------
 -- 1. TABLE: contractbillingprovesion
---    New columns: carryforwardcount, carryforwardfromid, provisionstatus
+--    New columns: carryforwardcount, carryforwardfromid, provisionstatus, documentno
 -- ---------------------------------------------------------------------------
 
 ALTER TABLE contractbillingprovesion
