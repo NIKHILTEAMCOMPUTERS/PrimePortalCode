@@ -36,6 +36,7 @@ namespace RMS.Entity.DTO
         public bool HasHistory { get; set; }
         // True when this provision is the target of a 3rd carry-forward (source CD Count = 3)
         public bool IsTerminalTarget { get; set; }
+        public string? DocumentNo { get; set; }
     }
 
     public class ProvisionActionDto
@@ -77,5 +78,12 @@ namespace RMS.Entity.DTO
         public string? Remark { get; set; }
         public string? RemainingAction { get; set; }   // "none" | "carryforward" | "nullify"
         public string? CarryForwardDate { get; set; }  // yyyy-MM-dd, used when RemainingAction == "carryforward"
+    }
+
+    public class UpdateDocumentNoDto
+    {
+        public string MonthYear { get; set; }    // e.g. "Jun-26"
+        public string PoNumber { get; set; }     // e.g. "YL8/450061201"
+        public string? DocumentNo { get; set; }  // document / invoice reference number
     }
 }

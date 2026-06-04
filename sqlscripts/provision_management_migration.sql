@@ -20,7 +20,8 @@ BEGIN;
 ALTER TABLE contractbillingprovesion
     ADD COLUMN IF NOT EXISTS carryforwardcount  INTEGER      NOT NULL DEFAULT 0,
     ADD COLUMN IF NOT EXISTS carryforwardfromid INTEGER      NULL,
-    ADD COLUMN IF NOT EXISTS provisionstatus    VARCHAR(50)  NOT NULL DEFAULT 'Active';
+    ADD COLUMN IF NOT EXISTS provisionstatus    VARCHAR(50)  NOT NULL DEFAULT 'Active',
+    ADD COLUMN IF NOT EXISTS documentno        VARCHAR(100) NULL;
 
 -- Backfill: any row that got NULL because it was inserted before the DEFAULT
 -- was applied (edge-case guard; normally DEFAULT handles existing rows).

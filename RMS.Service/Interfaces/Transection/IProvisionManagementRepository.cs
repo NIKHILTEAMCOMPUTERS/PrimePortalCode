@@ -12,5 +12,6 @@ namespace RMS.Service.Interfaces.Transection
         Task<Response> UpdatePaidAmount(UpdatePaidAmountDto dto, JwtLoginDetailDto loginDetails);
         // Returns list of auto-reversed provisions so the caller can send email notifications
         Task<List<ProvisionManagementListDto>> ProcessMonthlyCarryForward();
+        Task<Response> UpdateDocumentNo(UpdateDocumentNoDto dto, JwtLoginDetailDto loginDetails);
     }
 }

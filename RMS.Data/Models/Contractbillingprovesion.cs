@@ -49,6 +49,7 @@ public partial class Contractbillingprovesion
     public int CarryForwardCount { get; set; }
     public int? CarryForwardFromId { get; set; }
     public string ProvisionStatus { get; set; } = "Active";
+    public string? DocumentNo { get; set; }
 
     public virtual ICollection<ContractbillingprovesionToContractbillingHistory> ContractbillingprovesionToContractbillingHistories { get; set; } = new List<ContractbillingprovesionToContractbillingHistory>();
 

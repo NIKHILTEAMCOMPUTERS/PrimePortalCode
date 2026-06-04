@@ -90,7 +90,8 @@ namespace RMS.Service.Repositories.Transection
                                 _context.Contractbillingprovesions
                                     .Any(s => s.Contractbillingprovesionid == p.CarryForwardFromId
                                            && s.CarryForwardCount >= 3
-                                           && !s.Isdeleted)
+                                           && !s.Isdeleted),
+                            DocumentNo = p.DocumentNo
                         };
 
             return await query.AsNoTracking().ToListAsync();
@@ -607,6 +608,44 @@ namespace RMS.Service.Repositories.Transection
             }
 
             return autoReversed;
+        }
+
+        public async Task<Response> UpdateDocumentNo(UpdateDocumentNoDto dto, JwtLoginDetailDto loginDetails)
+        {
+            if (string.IsNullOrWhiteSpace(dto.MonthYear) || string.IsNullOrWhiteSpace(dto.PoNumber))
+                return Fail(400, "Month/Year and PO Number are required.");
+
+            var provisions = await (from p in _context.Contractbillingprovesions
+                                    join ce in _context.Contractemployees on p.Contractemployeeid equals ce.Contractemployeeid
+                                    join c in _context.Projectcontracts on ce.Contractid equals c.Contractid
+                                    where !p.Isdeleted
+                                       && p.Billingmonthyear == dto.MonthYear
+                                       && c.Ponumber == dto.PoNumber
+                                    select p).ToListAsync();
+
+            if (!provisions.Any())
+                return Fail(404, $"No provisions found for {dto.MonthYear} with PO '{dto.PoNumber}'.");
+
+            var employeeId = await GetEmployeeIdAsync(loginDetails.TmcId);
+            foreach (var p in provisions)
+            {
+                var snap = Snapshot(p);
+                p.DocumentNo = dto.DocumentNo;
+                p.Lastupdateby = employeeId;
+                p.Lastupdatedate = DateTime.Now;
+                _context.Contractbillingprovesions.Update(p);
+                AddHistory(p.Contractbillingprovesionid, "DOCUMENT_NO_UPDATED",
+                    loginDetails.Name ?? loginDetails.TmcId,
+                    $"Document No set to '{dto.DocumentNo}'.",
+                    snap, new { DocumentNo = dto.DocumentNo }, employeeId);
+            }
+
+            await _context.SaveChangesAsync();
+            return new Response
+            {
+                responseCode = 200,
+                responseMessage = $"Document No updated for {provisions.Count} provision(s)."
+            };
         }
 
         // -------------------------------------------------------

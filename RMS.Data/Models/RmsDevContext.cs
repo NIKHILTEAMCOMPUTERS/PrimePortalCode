@@ -1122,6 +1122,7 @@ public partial class RmsDevContext : DbContext
             entity.Property(e => e.CarryForwardCount).HasColumnName("carryforwardcount").HasDefaultValue(0);
             entity.Property(e => e.CarryForwardFromId).HasColumnName("carryforwardfromid");
             entity.Property(e => e.ProvisionStatus).HasColumnName("provisionstatus").HasDefaultValue("Active");
+            entity.Property(e => e.DocumentNo).HasColumnName("documentno").HasMaxLength(100);
 
             entity.HasOne(d => d.Contractemployee).WithMany(p => p.Contractbillingprovesions)
                 .HasForeignKey(d => d.Contractemployeeid)

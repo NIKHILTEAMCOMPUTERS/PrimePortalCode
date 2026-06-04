@@ -98,6 +98,20 @@ namespace RMS.Controllers.Transection
             return Ok(result);
         }
 
+        [HttpPost("update-document-no"), Authorize]
+        public async Task<IActionResult> UpdateDocumentNo([FromBody] UpdateDocumentNoDto dto)
+        {
+            if (dto == null || string.IsNullOrWhiteSpace(dto.MonthYear) || string.IsNullOrWhiteSpace(dto.PoNumber))
+                return BadRequest("Invalid request.");
+
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            if (identity == null) return BadRequest("Authentication Fails");
+
+            var loginDetails = AuthenticUserDetails.GetCurrentUserDetails(identity);
+            var result = await _uow.ProvisionManagementRepository.UpdateDocumentNo(dto, loginDetails);
+            return Ok(result);
+        }
+
         // Manual trigger for testing (admin only)
         [HttpPost("trigger-monthly-job"), Authorize]
         public async Task<IActionResult> TriggerMonthlyJob()
