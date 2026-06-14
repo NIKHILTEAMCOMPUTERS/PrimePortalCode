@@ -1,0 +1,493 @@
+@model IEnumerable<RMS.Client.Models.Master.TeamPendingProvisionItem>
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "Team Pending Provision";
+    var writePermission = ViewBag.WritePermission as bool? ?? false;
+    var items = Model?.ToList() ?? new List<RMS.Client.Models.Master.TeamPendingProvisionItem>();
+
+    var total        = items.Count;
+    var totalAmt     = items.Sum(x => x.ProvisionAmount);
+    var totalBilled  = items.Sum(x => x.BilledAmount);
+    var totalRemain  = items.Sum(x => x.RemainingAmount);
+    var oldMonths    = items.Count(x => x.DaysPending > 30);
+    var partial      = items.Count(x => x.BilledAmount > 0 && x.BilledAmount < x.ProvisionAmount);
+}
+
+@section PageStyles {
+<style>
+    .ts-badge {
+        display: inline-flex; align-items: center;
+        padding: .18rem .55rem; border-radius: 9999px;
+        font-size: .7rem; font-weight: 600; letter-spacing: .02em;
+    }
+    .ts-pending  { background:#fef9c3; color:#854d0e; }
+    .ts-partial  { background:#dbeafe; color:#1e40af; }
+    .ts-settled  { background:#dcfce7; color:#166534; }
+    .ts-old      { background:#fee2e2; color:#991b1b; }
+
+    #teamProvTable { width: 100%; }
+    #teamProvTable thead th { white-space: nowrap; }
+    #teamProvTable thead th.col-actions {
+        position: sticky; right: 0; z-index: 2;
+        background: #f9fafb; box-shadow: -2px 0 4px rgba(0,0,0,.06);
+    }
+    #teamProvTable tbody td.col-actions {
+        position: sticky; right: 0;
+        background: #fff; box-shadow: -2px 0 4px rgba(0,0,0,.06);
+    }
+    #teamProvTable tbody tr:hover td.col-actions { background: #f9fafb; }
+
+    .modal-overlay {
+        display: none; position: fixed; inset: 0; z-index: 50;
+        background: rgba(0,0,0,.45); align-items: center; justify-content: center;
+    }
+    .modal-box {
+        background: #fff; border-radius: 1rem; padding: 1.5rem;
+        width: 100%; max-width: 440px; box-shadow: 0 20px 60px rgba(0,0,0,.2);
+    }
+    .modal-title { font-size: 1rem; font-weight: 700; color: #1f2937; margin-bottom: .25rem; }
+    .modal-subtitle { font-size: .78rem; color: #6b7280; margin-bottom: 1rem; }
+    .form-label { font-size: .72rem; font-weight: 600; color: #374151; display: block; margin-bottom: 3px; }
+    .form-input {
+        width: 100%; border: 1px solid #d1d5db; border-radius: .5rem;
+        padding: 6px 10px; font-size: .82rem; color: #111827;
+        box-sizing: border-box; margin-bottom: .75rem;
+    }
+    .form-input:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,.1); }
+    .btn-primary {
+        padding: 7px 20px; border-radius: .5rem; font-size: .82rem; font-weight: 600;
+        cursor: pointer; border: none; background: #4f46e5; color: #fff;
+    }
+    .btn-primary:hover { background: #4338ca; }
+    .btn-cancel {
+        padding: 7px 16px; border-radius: .5rem; font-size: .82rem; font-weight: 600;
+        cursor: pointer; border: 1px solid #d1d5db; background: #fff; color: #374151;
+    }
+
+    /* History timeline */
+    .hist-item { display: flex; gap: .75rem; padding: .6rem 0; border-bottom: 1px solid #f3f4f6; }
+    .hist-dot { width: 8px; height: 8px; border-radius: 50%; background: #6366f1; flex-shrink: 0; margin-top: 5px; }
+    .hist-label { font-size: .65rem; font-weight: 700; color: #fff; padding: 1px 7px; border-radius: 99px; }
+</style>
+}
+
+<div class="p-4 xl:p-6 flex flex-col gap-4">
+
+    <!-- Header -->
+    <div>
+        <h1 class="text-xl font-bold text-gray-800">Team Pending Provision Management</h1>
+        <p class="text-xs text-gray-500 mt-1">All pending provisions across all months — replacing manual Excel tracking</p>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+        <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+            <p class="text-xs text-gray-500 mb-1">Total Provisions</p>
+            <p class="text-2xl font-bold text-gray-800">@total</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-4 border border-red-100">
+            <p class="text-xs text-gray-500 mb-1">Old (&gt;30 days)</p>
+            <p class="text-2xl font-bold text-red-600">@oldMonths</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-4 border border-blue-100">
+            <p class="text-xs text-gray-500 mb-1">Partial Billed</p>
+            <p class="text-2xl font-bold text-blue-600">@partial</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100 col-span-1">
+            <p class="text-xs text-gray-500 mb-1">Provision Total</p>
+            <p class="text-sm font-bold text-gray-800">₹@totalAmt.ToString("N0")</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-4 border border-green-100 col-span-1">
+            <p class="text-xs text-gray-500 mb-1">Billed Total</p>
+            <p class="text-sm font-bold text-green-600">₹@totalBilled.ToString("N0")</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-4 border border-red-100 col-span-1">
+            <p class="text-xs text-gray-500 mb-1">Remaining Total</p>
+            <p class="text-sm font-bold text-red-600">₹@totalRemain.ToString("N0")</p>
+        </div>
+    </div>
+
+    <!-- Update Document No Panel -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+        <p class="text-xs font-semibold text-gray-500 mb-3 uppercase tracking-wide">Update Document No by PO</p>
+        <div class="flex flex-wrap items-end gap-3">
+            <div>
+                <label class="form-label" style="margin-bottom:3px;">MONTH / YEAR</label>
+                <input type="month" id="docNoMonth" style="font-size:.8rem;border:1px solid #d1d5db;border-radius:.5rem;padding:5px 10px;color:#374151;" />
+            </div>
+            <div>
+                <label class="form-label" style="margin-bottom:3px;">PO NUMBER</label>
+                <input type="text" id="docNoPo" placeholder="e.g. YL8/450061201"
+                       style="font-size:.8rem;border:1px solid #d1d5db;border-radius:.5rem;padding:5px 10px;width:200px;" />
+            </div>
+            <div>
+                <label class="form-label" style="margin-bottom:3px;">DOCUMENT NO</label>
+                <input type="text" id="docNoValue" placeholder="e.g. RECU2526K-15712"
+                       style="font-size:.8rem;border:1px solid #d1d5db;border-radius:.5rem;padding:5px 10px;width:180px;" />
+            </div>
+            <button onclick="submitDocumentNo()" class="btn-primary" style="background:#6366f1;">Update</button>
+            <span id="docNoStatus" style="font-size:.75rem;display:none;"></span>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-4 border-b border-gray-100 flex flex-wrap justify-between items-center gap-3">
+            <span class="text-sm font-medium text-gray-700">Pending Provision List</span>
+            <div class="flex items-center gap-2">
+                <label style="font-size:.75rem;color:#6b7280;font-weight:500;">Filter by Status</label>
+                <select id="statusFilter" onchange="filterByStatus(this.value)"
+                        style="font-size:.75rem;border:1px solid #d1d5db;border-radius:.5rem;padding:4px 28px 4px 10px;color:#374151;background:white;cursor:pointer;appearance:auto;">
+                    <option value="">All</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Partial">Partial</option>
+                    <option value="Settled">Settled</option>
+                </select>
+                <label style="font-size:.75rem;color:#6b7280;font-weight:500;">Age</label>
+                <select id="ageFilter" onchange="filterByAge(this.value)"
+                        style="font-size:.75rem;border:1px solid #d1d5db;border-radius:.5rem;padding:4px 28px 4px 10px;color:#374151;background:white;cursor:pointer;appearance:auto;">
+                    <option value="">All</option>
+                    <option value="old">Old (&gt;30 days)</option>
+                    <option value="current">Current (≤30 days)</option>
+                </select>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table id="teamProvTable" class="w-full text-sm">
+                <thead class="bg-gray-50 text-gray-600 uppercase text-xs">
+                    <tr>
+                        <th class="px-3 py-3 text-left">Resource</th>
+                        <th class="px-3 py-3 text-left">Customer</th>
+                        <th class="px-3 py-3 text-left">Account Mgr</th>
+                        <th class="px-3 py-3 text-left">DA</th>
+                        <th class="px-3 py-3 text-left">Practice</th>
+                        <th class="px-3 py-3 text-left">Type</th>
+                        <th class="px-3 py-3 text-left">PO Number</th>
+                        <th class="px-3 py-3 text-left">Contract No</th>
+                        <th class="px-3 py-3 text-left">Month</th>
+                        <th class="px-3 py-3 text-center">Days</th>
+                        <th class="px-3 py-3 text-right">Provision</th>
+                        <th class="px-3 py-3 text-right">Billed</th>
+                        <th class="px-3 py-3 text-right">Remaining</th>
+                        <th class="px-3 py-3 text-left">Closer Date</th>
+                        <th class="px-3 py-3 text-left">Doc No</th>
+                        <th class="px-3 py-3 text-center">Status</th>
+                        <th class="px-3 py-3 text-center col-actions">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in items)
+                    {
+                        string statusClass = item.TeamStatus == "Settled" ? "ts-settled" :
+                                             item.TeamStatus == "Partial"  ? "ts-partial"  : "ts-pending";
+                        string rowOld = item.DaysPending > 30 ? "style='background:#fff9f9;'" : "";
+
+                        <tr class="border-t border-gray-100 hover:bg-gray-50 transition" @Html.Raw(rowOld)>
+                            <td class="px-3 py-2.5">
+                                <div class="font-medium text-gray-800">@item.ResourceName</div>
+                                <div class="text-xs text-gray-400">@item.TmcId</div>
+                            </td>
+                            <td class="px-3 py-2.5 text-gray-600 max-w-[130px] truncate text-xs" title="@item.CustomerName">@item.CustomerName</td>
+                            <td class="px-3 py-2.5 text-gray-500 text-xs max-w-[100px] truncate" title="@item.AccountManager">@(item.AccountManager ?? "—")</td>
+                            <td class="px-3 py-2.5 text-gray-500 text-xs max-w-[100px] truncate" title="@item.DeliveryAnchor">@(item.DeliveryAnchor ?? "—")</td>
+                            <td class="px-3 py-2.5 text-gray-500 text-xs max-w-[90px] truncate" title="@item.Practice">@(item.Practice ?? "—")</td>
+                            <td class="px-3 py-2.5 text-gray-500 text-xs whitespace-nowrap">@(item.ProjectType ?? "—")</td>
+                            <td class="px-3 py-2.5 text-gray-500 text-xs whitespace-nowrap">@(item.PoNumber ?? "—")</td>
+                            <td class="px-3 py-2.5 text-gray-500 text-xs whitespace-nowrap">@(item.ContractNo ?? "—")</td>
+                            <td class="px-3 py-2.5 text-gray-600 whitespace-nowrap text-xs font-medium">@item.BillingMonthYear</td>
+                            <td class="px-3 py-2.5 text-center">
+                                <span class="ts-badge @(item.DaysPending > 30 ? "ts-old" : "ts-pending")" style="font-size:.65rem;">
+                                    @item.DaysPending
+                                </span>
+                            </td>
+                            <td class="px-3 py-2.5 text-right font-medium text-gray-800 whitespace-nowrap">₹@item.ProvisionAmount.ToString("N0")</td>
+                            <td class="px-3 py-2.5 text-right font-medium text-green-600 whitespace-nowrap">₹@item.BilledAmount.ToString("N0")</td>
+                            <td class="px-3 py-2.5 text-right font-medium whitespace-nowrap @(item.RemainingAmount > 0 ? "text-red-600" : "text-gray-400")">
+                                ₹@item.RemainingAmount.ToString("N0")
+                            </td>
+                            <td class="px-3 py-2.5 text-xs whitespace-nowrap">
+                                @if (item.CloserDate.HasValue)
+                                {
+                                    <span style="color:#92400e;font-weight:600;">@item.CloserDate.Value.ToString("dd/MM/yy")</span>
+                                }
+                                else { <span style="color:#d1d5db;">—</span> }
+                            </td>
+                            <td class="px-3 py-2.5 text-xs whitespace-nowrap">
+                                @if (!string.IsNullOrEmpty(item.DocumentNo))
+                                {
+                                    <span style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;padding:2px 7px;border-radius:99px;font-size:.68rem;font-weight:600;">@item.DocumentNo</span>
+                                }
+                                else { <span style="color:#d1d5db;">—</span> }
+                            </td>
+                            <td class="px-3 py-2.5 text-center">
+                                <span class="ts-badge @statusClass">@item.TeamStatus</span>
+                            </td>
+                            <td class="px-3 py-2.5 col-actions">
+                                <div class="flex items-center justify-center gap-1 flex-nowrap">
+                                    @if (writePermission && item.TeamStatus != "Settled")
+                                    {
+                                        <button onclick="openCloserDateModal(@item.ProvisionId, '@item.ResourceName', '@item.BillingMonthYear', '@(item.CloserDate.HasValue ? item.CloserDate.Value.ToString("yyyy-MM-dd") : "")')"
+                                                title="Change Closer Date"
+                                                style="display:inline-flex;align-items:center;gap:3px;padding:5px 9px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid #f59e0b;color:#92400e;background:#fef3c7;">
+                                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                                            Date
+                                        </button>
+                                        <button onclick="openBilledModal(@item.ProvisionId, '@item.ResourceName', '@item.BillingMonthYear', @item.ProvisionAmount.ToString(System.Globalization.CultureInfo.InvariantCulture), @item.BilledAmount.ToString(System.Globalization.CultureInfo.InvariantCulture))"
+                                                title="Record Billed Amount"
+                                                style="display:inline-flex;align-items:center;gap:3px;padding:5px 9px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid #10b981;color:#065f46;background:#ecfdf5;">
+                                            Billed
+                                        </button>
+                                    }
+                                    @if (item.HasHistory)
+                                    {
+                                        <button onclick="openHistory(@item.ProvisionId, '@item.ResourceName')"
+                                                title="View history"
+                                                style="display:inline-flex;align-items:center;gap:3px;padding:5px 9px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid #818cf8;color:#4338ca;background:#f5f3ff;">
+                                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                            History
+                                        </button>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Change Closer Date Modal -->
+<div id="closerDateModal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-title">Change Closer Date</div>
+        <div id="closerDateSubtitle" class="modal-subtitle"></div>
+        <label class="form-label">New Closer Date *</label>
+        <input type="date" id="closerDateInput" class="form-input" />
+        <label class="form-label">Remark (optional)</label>
+        <textarea id="closerDateRemark" class="form-input" rows="2" placeholder="Reason for change…" style="resize:none;"></textarea>
+        <div class="flex justify-end gap-2 mt-2">
+            <button class="btn-cancel" onclick="closeCloserDateModal()">Cancel</button>
+            <button class="btn-primary" onclick="submitCloserDate()">Save</button>
+        </div>
+    </div>
+</div>
+
+<!-- Record Billed Modal -->
+<div id="billedModal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-title">Record Billed Amount</div>
+        <div id="billedSubtitle" class="modal-subtitle"></div>
+        <div id="billedInfo" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:.5rem;padding:.6rem .8rem;font-size:.78rem;color:#166534;margin-bottom:.8rem;"></div>
+        <label class="form-label">Amount Billed (₹) *</label>
+        <input type="number" id="billedAmount" class="form-input" min="1" placeholder="Enter amount billed in this transaction" />
+        <label class="form-label">Remark (optional)</label>
+        <textarea id="billedRemark" class="form-input" rows="2" placeholder="Add a note…" style="resize:none;"></textarea>
+        <div class="flex justify-end gap-2 mt-2">
+            <button class="btn-cancel" onclick="closeBilledModal()">Cancel</button>
+            <button class="btn-primary" onclick="submitBilled()" style="background:#10b981;">Record Billing</button>
+        </div>
+    </div>
+</div>
+
+<!-- History Modal -->
+<div id="historyModal" class="modal-overlay">
+    <div class="modal-box" style="max-width:520px;max-height:80vh;display:flex;flex-direction:column;">
+        <div class="modal-title">Action History</div>
+        <div id="historySubtitle" class="modal-subtitle"></div>
+        <div id="historyBody" style="flex:1;overflow-y:auto;"></div>
+        <div class="flex justify-end mt-3">
+            <button class="btn-cancel" onclick="closeHistory()">Close</button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    // ── DataTable ────────────────────────────────────────────────────────────
+    let dt;
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof $.fn.DataTable !== 'undefined') {
+            dt = $('#teamProvTable').DataTable({
+                scrollX: true, pageLength: 25,
+                columnDefs: [{ orderable: false, targets: 16 }]
+            });
+        }
+        ['closerDateModal','billedModal','historyModal'].forEach(id => {
+            document.getElementById(id).addEventListener('click', function(e) {
+                if (e.target === this) this.style.display = 'none';
+            });
+        });
+    });
+
+    function filterByStatus(val) {
+        if (dt) dt.column(15).search(val ? '^' + val.replace(/[-\/\\^$*+?.()|[\]{}]/g,'\\$&') + '$' : '', true, false).draw();
+    }
+
+    function filterByAge(val) {
+        if (!dt) return;
+        $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(f => f._ageFilter !== true);
+        if (val) {
+            const fn = function(settings, data) {
+                const days = parseInt(data[9]) || 0;
+                return val === 'old' ? days > 30 : days <= 30;
+            };
+            fn._ageFilter = true;
+            $.fn.dataTable.ext.search.push(fn);
+        }
+        dt.draw();
+    }
+
+    // ── Update Document No ───────────────────────────────────────────────────
+    async function submitDocumentNo() {
+        const monthInput = document.getElementById('docNoMonth').value;
+        const po         = document.getElementById('docNoPo').value.trim();
+        const docNo      = document.getElementById('docNoValue').value.trim();
+        const statusEl   = document.getElementById('docNoStatus');
+
+        if (!monthInput || !po) {
+            showDocStatus('Month/Year and PO Number are required.', '#dc2626'); return;
+        }
+        const [yr, mo] = monthInput.split('-');
+        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        const monthYear = `${months[parseInt(mo,10)-1]}-${yr.slice(2)}`;
+
+        showDocStatus('Updating…', '#6b7280');
+        try {
+            const resp = await fetch('@Url.Action("UpdateDocumentNo","TeamPendingProvision")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ monthYear, poNumber: po, documentNo: docNo || null })
+            });
+            const json = await resp.json();
+            if (json.success) {
+                showDocStatus('✓ ' + json.message, '#16a34a');
+                setTimeout(() => location.reload(), 1200);
+            } else {
+                showDocStatus('✗ ' + json.message, '#dc2626');
+            }
+        } catch { showDocStatus('Network error.', '#dc2626'); }
+    }
+    function showDocStatus(msg, color) {
+        const el = document.getElementById('docNoStatus');
+        el.textContent = msg; el.style.color = color; el.style.display = 'inline';
+    }
+
+    // ── Closer Date Modal ────────────────────────────────────────────────────
+    let activeCloserProvisionId = null;
+    function openCloserDateModal(id, name, month, currentDate) {
+        activeCloserProvisionId = id;
+        document.getElementById('closerDateSubtitle').textContent = `${name} – ${month}`;
+        document.getElementById('closerDateInput').value = currentDate || '';
+        document.getElementById('closerDateRemark').value = '';
+        document.getElementById('closerDateModal').style.display = 'flex';
+    }
+    function closeCloserDateModal() {
+        document.getElementById('closerDateModal').style.display = 'none';
+        activeCloserProvisionId = null;
+    }
+    async function submitCloserDate() {
+        if (!activeCloserProvisionId) return;
+        const dateVal  = document.getElementById('closerDateInput').value;
+        const remark   = document.getElementById('closerDateRemark').value.trim();
+        if (!dateVal) { alert('Please select a closer date.'); return; }
+
+        try {
+            const resp = await fetch('@Url.Action("UpdateCloserDate","TeamPendingProvision")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ provisionId: activeCloserProvisionId, closerDate: dateVal, remark: remark || null })
+            });
+            const json = await resp.json();
+            if (json.success) { closeCloserDateModal(); location.reload(); }
+            else alert(json.message);
+        } catch { alert('Network error.'); }
+    }
+
+    // ── Billed Modal ─────────────────────────────────────────────────────────
+    let activeBilledProvisionId = null, activeBilledProvAmt = 0, activeBilledCurrentTotal = 0;
+    function openBilledModal(id, name, month, provAmt, billedSoFar) {
+        activeBilledProvisionId = id;
+        activeBilledProvAmt = provAmt;
+        activeBilledCurrentTotal = billedSoFar;
+        document.getElementById('billedSubtitle').textContent = `${name} – ${month}`;
+        document.getElementById('billedInfo').textContent =
+            `Provision: ₹${provAmt.toLocaleString('en-IN')}  |  Already Billed: ₹${billedSoFar.toLocaleString('en-IN')}  |  Remaining: ₹${(provAmt - billedSoFar).toLocaleString('en-IN')}`;
+        document.getElementById('billedAmount').value = '';
+        document.getElementById('billedRemark').value = '';
+        document.getElementById('billedModal').style.display = 'flex';
+    }
+    function closeBilledModal() {
+        document.getElementById('billedModal').style.display = 'none';
+        activeBilledProvisionId = null;
+    }
+    async function submitBilled() {
+        if (!activeBilledProvisionId) return;
+        const amt    = parseFloat(document.getElementById('billedAmount').value);
+        const remark = document.getElementById('billedRemark').value.trim();
+        if (!amt || amt <= 0) { alert('Enter a valid amount.'); return; }
+        if (amt > (activeBilledProvAmt - activeBilledCurrentTotal)) {
+            alert(`Amount exceeds remaining balance (₹${(activeBilledProvAmt - activeBilledCurrentTotal).toLocaleString('en-IN')}).`);
+            return;
+        }
+        try {
+            const resp = await fetch('@Url.Action("RecordBilled","TeamPendingProvision")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ provisionId: activeBilledProvisionId, billedAmount: amt, remark: remark || null })
+            });
+            const json = await resp.json();
+            if (json.success) { closeBilledModal(); location.reload(); }
+            else alert(json.message);
+        } catch { alert('Network error.'); }
+    }
+
+    // ── History Modal ─────────────────────────────────────────────────────────
+    const historyLabels = {
+        'CLOSER_DATE_CHANGED': { label: 'Closer Date Changed', color: '#f59e0b' },
+        'DOCUMENT_NO_UPDATED': { label: 'Document No Updated', color: '#6366f1' },
+        'BILLED':              { label: 'Billed',               color: '#10b981' }
+    };
+    async function openHistory(provisionId, name) {
+        document.getElementById('historySubtitle').textContent = name;
+        document.getElementById('historyBody').innerHTML = '<p style="color:#9ca3af;font-size:.8rem;">Loading…</p>';
+        document.getElementById('historyModal').style.display = 'flex';
+
+        try {
+            const resp = await fetch(`@Url.Action("GetHistory","TeamPendingProvision")?provisionId=${provisionId}`);
+            const json = await resp.json();
+            if (!json.success || !json.data?.length) {
+                document.getElementById('historyBody').innerHTML = '<p style="color:#9ca3af;font-size:.8rem;">No history found.</p>';
+                return;
+            }
+            document.getElementById('historyBody').innerHTML = json.data.map(h => {
+                const meta = historyLabels[h.actionType] || { label: h.actionType, color: '#6b7280' };
+                let detail = '';
+                if (h.newValues) {
+                    try {
+                        const nv = JSON.parse(h.newValues);
+                        detail = Object.entries(nv).map(([k,v]) => `<span style="color:#374151;font-weight:600;">${k}:</span> ${v ?? '—'}`).join(' &nbsp;·&nbsp; ');
+                    } catch {}
+                }
+                return `<div class="hist-item">
+                    <div class="hist-dot" style="background:${meta.color}"></div>
+                    <div style="flex:1;">
+                        <div style="display:flex;align-items:center;gap:.4rem;margin-bottom:2px;">
+                            <span class="hist-label" style="background:${meta.color}">${meta.label}</span>
+                            <span style="font-size:.65rem;color:#9ca3af;">${h.createdDate}</span>
+                        </div>
+                        <div style="font-size:.72rem;color:#6b7280;">${detail}</div>
+                        ${h.actionBy ? `<div style="font-size:.65rem;color:#9ca3af;margin-top:2px;">By ${h.actionBy}${h.remark ? ' · ' + h.remark : ''}</div>` : ''}
+                    </div>
+                </div>`;
+            }).join('');
+        } catch {
+            document.getElementById('historyBody').innerHTML = '<p style="color:#ef4444;font-size:.8rem;">Failed to load history.</p>';
+        }
+    }
+    function closeHistory() {
+        document.getElementById('historyModal').style.display = 'none';
+    }
+</script>
+}
