@@ -51,6 +51,9 @@ public partial class RmsDevContext : DbContext
 
     public virtual DbSet<ContractbillingprovesionToContractbillingHistory> ContractbillingprovesionToContractbillingHistories { get; set; }
 
+    public virtual DbSet<TeamProvisionTracking> TeamProvisionTrackings { get; set; }
+    public virtual DbSet<TeamProvisionHistory> TeamProvisionHistories { get; set; }
+
     public virtual DbSet<Contractbillingprovisionhistory> Contractbillingprovisionhistories { get; set; }
 
     public virtual DbSet<Contractemployee> Contractemployees { get; set; }
@@ -4319,6 +4322,46 @@ public partial class RmsDevContext : DbContext
             entity.HasOne(d => d.Paymentterm).WithMany(p => p.Vendors)
                 .HasForeignKey(d => d.Paymenttermid)
                 .HasConstraintName("vendor_paymenttermid_fkey");
+        });
+
+        modelBuilder.Entity<TeamProvisionTracking>(entity =>
+        {
+            entity.ToTable("team_provision_tracking");
+            entity.HasKey(e => e.Id).HasName("team_provision_tracking_pkey");
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.ProvisionId).HasColumnName("provision_id");
+            entity.Property(e => e.CloserDate).HasColumnName("closer_date").HasColumnType("timestamp without time zone");
+            entity.Property(e => e.DocumentNo).HasColumnName("document_no").HasMaxLength(100);
+            entity.Property(e => e.BilledAmount).HasColumnName("billed_amount").HasDefaultValue(0m);
+            entity.Property(e => e.Remark).HasColumnName("remark");
+            entity.Property(e => e.IsDeleted).HasColumnName("is_deleted").HasDefaultValue(false);
+            entity.Property(e => e.CreatedBy).HasColumnName("created_by").HasDefaultValue(0);
+            entity.Property(e => e.CreatedDate).HasColumnName("created_date").HasColumnType("timestamp without time zone").HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.LastUpdatedBy).HasColumnName("last_updated_by").HasDefaultValue(0);
+            entity.Property(e => e.LastUpdatedDate).HasColumnName("last_updated_date").HasColumnType("timestamp without time zone").HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.HasOne(d => d.Provision).WithMany()
+                .HasForeignKey(d => d.ProvisionId)
+                .HasConstraintName("team_provision_tracking_provision_id_fkey");
+        });
+
+        modelBuilder.Entity<TeamProvisionHistory>(entity =>
+        {
+            entity.ToTable("team_provision_history");
+            entity.HasKey(e => e.Id).HasName("team_provision_history_pkey");
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.TeamTrackingId).HasColumnName("team_tracking_id");
+            entity.Property(e => e.ProvisionId).HasColumnName("provision_id");
+            entity.Property(e => e.ActionType).HasColumnName("action_type").HasMaxLength(50);
+            entity.Property(e => e.ActionBy).HasColumnName("action_by").HasMaxLength(200);
+            entity.Property(e => e.OldValues).HasColumnName("old_values");
+            entity.Property(e => e.NewValues).HasColumnName("new_values");
+            entity.Property(e => e.Remark).HasColumnName("remark");
+            entity.Property(e => e.IsDeleted).HasColumnName("is_deleted").HasDefaultValue(false);
+            entity.Property(e => e.CreatedBy).HasColumnName("created_by").HasDefaultValue(0);
+            entity.Property(e => e.CreatedDate).HasColumnName("created_date").HasColumnType("timestamp without time zone").HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.HasOne(d => d.TeamTracking).WithMany(p => p.Histories)
+                .HasForeignKey(d => d.TeamTrackingId)
+                .HasConstraintName("team_provision_history_team_tracking_id_fkey");
         });
 
         OnModelCreatingPartial(modelBuilder);

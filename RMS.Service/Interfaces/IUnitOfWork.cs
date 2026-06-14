@@ -42,8 +42,8 @@ namespace RMS.Service.Interfaces
        IReportRepository ReportRepository { get; }
         IProjectionRepository ProjectionRepository { get; }
         IProvisionManagementRepository ProvisionManagementRepository { get; }
-       
-      
+        ITeamPendingProvisionRepository TeamPendingProvisionRepository { get; }
+
         Task<bool> Complete();
         bool HasChanges();
     }

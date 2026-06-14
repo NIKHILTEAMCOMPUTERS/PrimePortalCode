@@ -76,6 +76,7 @@ namespace RMS.Service
         public IReportRepository ReportRepository => new ReportRepository(_context, _env, _httpContextAccessor);
         public IProjectionRepository ProjectionRepository=>new ProjectionRepository(_context,_env);
         public IProvisionManagementRepository ProvisionManagementRepository => new ProvisionManagementRepository(_context, _env, _httpContextAccessor);
+        public ITeamPendingProvisionRepository TeamPendingProvisionRepository => new TeamPendingProvisionRepository(_context);
        
 
     

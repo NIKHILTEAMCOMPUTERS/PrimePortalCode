@@ -77,6 +77,83 @@ WHERE  pageid = 30
   AND  (icon IS NULL OR icon = '');
 
 -- ---------------------------------------------------------------------------
+-- 5. TABLE: team_provision_tracking  (NEW – Team Pending Provision feature)
+--    Side-car table linked to contractbillingprovesion; created on first action
+--    for a provision (GetOrCreateTracking pattern).
+-- ---------------------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS team_provision_tracking (
+    id                SERIAL       PRIMARY KEY,
+    provision_id      INTEGER      NOT NULL,
+    closer_date       TIMESTAMP    NULL,
+    document_no       VARCHAR(100) NULL,
+    billed_amount     NUMERIC(18,2) NOT NULL DEFAULT 0,
+    remark            TEXT         NULL,
+    is_deleted        BOOLEAN      NOT NULL DEFAULT FALSE,
+    created_by        INTEGER      NOT NULL DEFAULT 0,
+    created_date      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_updated_by   INTEGER      NOT NULL DEFAULT 0,
+    last_updated_date TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT team_provision_tracking_provision_id_fkey
+        FOREIGN KEY (provision_id)
+        REFERENCES contractbillingprovesion (contractbillingprovesionid)
+        ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_tpt_provision_id
+    ON team_provision_tracking (provision_id);
+
+-- ---------------------------------------------------------------------------
+-- 6. TABLE: team_provision_history  (NEW – Team Pending Provision feature)
+--    Audit trail for every action performed via the Team Pending Provision page.
+-- ---------------------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS team_provision_history (
+    id               SERIAL       PRIMARY KEY,
+    team_tracking_id INTEGER      NULL,
+    provision_id     INTEGER      NOT NULL,
+    action_type      VARCHAR(50)  NOT NULL,
+    action_by        VARCHAR(200) NOT NULL,
+    old_values       TEXT         NULL,
+    new_values       TEXT         NULL,
+    remark           TEXT         NULL,
+    is_deleted       BOOLEAN      NOT NULL DEFAULT FALSE,
+    created_by       INTEGER      NOT NULL DEFAULT 0,
+    created_date     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT team_provision_history_team_tracking_id_fkey
+        FOREIGN KEY (team_tracking_id)
+        REFERENCES team_provision_tracking (id)
+        ON DELETE SET NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_tph_provision_id
+    ON team_provision_history (provision_id);
+
+CREATE INDEX IF NOT EXISTS idx_tph_team_tracking_id
+    ON team_provision_history (team_tracking_id);
+
+-- ---------------------------------------------------------------------------
+-- 7. PAGE REGISTRATION  (Team Pending Provision menu item)
+--    Insert only if a row with the same controller+action does not yet exist.
+-- ---------------------------------------------------------------------------
+
+INSERT INTO page (pagename, icon, moduleid, controllername, actionname, isactive, isdefault)
+SELECT 'Team Pending Provision',
+       '/assets/images/traffic_icon-2.svg',
+       3,
+       'TeamPendingProvision',
+       'Index',
+       TRUE,
+       FALSE
+WHERE NOT EXISTS (
+    SELECT 1 FROM page
+    WHERE controllername = 'TeamPendingProvision'
+      AND actionname     = 'Index'
+);
+
+-- ---------------------------------------------------------------------------
 -- Done
 -- ---------------------------------------------------------------------------
 
