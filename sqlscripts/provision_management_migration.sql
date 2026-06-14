@@ -139,14 +139,13 @@ CREATE INDEX IF NOT EXISTS idx_tph_team_tracking_id
 --    Insert only if a row with the same controller+action does not yet exist.
 -- ---------------------------------------------------------------------------
 
-INSERT INTO page (pagename, icon, moduleid, controllername, actionname, isactive, isdefault)
+INSERT INTO page (pagename, icon, moduleid, controllername, actionname, isactive)
 SELECT 'Team Pending Provision',
        '/assets/images/traffic_icon-2.svg',
        3,
        'TeamPendingProvision',
        'Index',
-       TRUE,
-       FALSE
+       TRUE
 WHERE NOT EXISTS (
     SELECT 1 FROM page
     WHERE controllername = 'TeamPendingProvision'
